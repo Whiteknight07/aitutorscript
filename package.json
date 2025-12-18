@@ -4,16 +4,15 @@
   "description": "",
   "main": "dist/cli.js",
   "scripts": {
-    "harness": "pnpm -s build && node dist/cli.js",
-    "smoke": "pnpm -s build && node dist/cli.js --smoke",
+    "harness": "bun run src/cli.ts",
+    "smoke": "bun run src/cli.ts --smoke",
     "build": "tsc -p tsconfig.json",
-    "start": "node dist/cli.js",
+    "start": "bun run src/cli.ts",
     "test": "echo \"No tests configured\" && exit 0"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.6.1",
   "bin": {
     "aitutor-harness": "dist/cli.js"
   },
