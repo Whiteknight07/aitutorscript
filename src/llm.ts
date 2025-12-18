@@ -1,14 +1,28 @@
 import { generateObject, generateText } from 'ai';
+import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import { ZodTypeAny } from 'zod';
 import type { TimedCallRecord } from './types';
 import { hrNowMs, nowIso } from './util';
 
-async function resolveModelForSdk(modelId: string): Promise<any> {
-  if (process.env.AI_GATEWAY_API_KEY) return modelId;
+// Create OpenRouter provider instance
+const openrouter = process.env.OPENROUTER_API_KEY
+  ? createOpenRouter({ apiKey: process.env.OPENROUTER_API_KEY })
+  : null;
 
+async function resolveModelForSdk(modelId: string): Promise<any> {
+  // Primary: Use OpenRouter if API key is available
+  if (openrouter) {
+    return openrouter.chat(modelId);
+  }
+
+  // Fallback: Try provider-specific SDKs
   const [provider, ...rest] = modelId.split('/');
   const name = rest.join('/');
-  if (!provider || !name) return modelId;
+  if (!provider || !name) {
+    throw new Error(
+      `OPENROUTER_API_KEY is not set and model "${modelId}" has no recognized provider prefix.`
+    );
+  }
 
   if (provider === 'openai') {
     try {
@@ -17,7 +31,7 @@ async function resolveModelForSdk(modelId: string): Promise<any> {
       return mod.openai(name);
     } catch {
       throw new Error(
-        `AI_GATEWAY_API_KEY is not set and @ai-sdk/openai is not installed, so model "${modelId}" cannot be used.`
+        `OPENROUTER_API_KEY is not set and @ai-sdk/openai is not installed, so model "${modelId}" cannot be used.`
       );
     }
   }
@@ -29,12 +43,14 @@ async function resolveModelForSdk(modelId: string): Promise<any> {
       return mod.google(name);
     } catch {
       throw new Error(
-        `AI_GATEWAY_API_KEY is not set and @ai-sdk/google is not installed, so model "${modelId}" cannot be used.`
+        `OPENROUTER_API_KEY is not set and @ai-sdk/google is not installed, so model "${modelId}" cannot be used.`
       );
     }
   }
 
-  return modelId;
+  throw new Error(
+    `OPENROUTER_API_KEY is not set and provider "${provider}" is not supported for model "${modelId}".`
+  );
 }
 
 export async function timedGenerateText({
