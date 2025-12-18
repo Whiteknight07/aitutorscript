@@ -1,0 +1,33 @@
+{
+  "runId": "run_2025-12-18T02-07-50-447Z",
+  "createdAtIso": "2025-12-18T02:07:50.447Z",
+  "args": {
+    "perDifficulty": 1,
+    "difficulties": [
+      1
+    ],
+    "turns": 2,
+    "maxIters": 5,
+    "outDir": "results",
+    "pairings": [
+      "gemini-gemini"
+    ],
+    "conditions": [
+      "single"
+    ],
+    "questionModel": "google/gemini-3-flash",
+    "studentModel": "google/gemini-3-flash",
+    "judgeModel": "openai/gpt-5",
+    "enableJudge": true,
+    "smoke": true
+  },
+  "envSummary": {
+    "present": {
+      "AI_GATEWAY_API_KEY": true,
+      "OPENAI_API_KEY": false,
+      "GOOGLE_GENERATIVE_AI_API_KEY": false,
+      "NODE_ENV": false
+    },
+    "hasDotEnvFile": true
+  }
+}

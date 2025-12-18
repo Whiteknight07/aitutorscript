@@ -1,0 +1,48 @@
+{
+  "runId": "run_2025-12-18T03-51-24-084Z",
+  "createdAtIso": "2025-12-18T03:51:24.084Z",
+  "args": {
+    "perDifficulty": 3,
+    "difficulties": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "turns": 6,
+    "maxIters": 5,
+    "maxRuns": null,
+    "easyQuestions": 5,
+    "mediumQuestions": 5,
+    "hardQuestions": 5,
+    "earlyStop": true,
+    "outDir": "results",
+    "pairings": [
+      "gpt5-gpt5",
+      "gemini-gemini",
+      "gpt5-gemini",
+      "gemini-gpt5"
+    ],
+    "conditions": [
+      "single",
+      "dual-no-loop",
+      "dual-loop"
+    ],
+    "questionModel": "google/gemini-3-flash",
+    "studentModel": "google/gemini-3-flash",
+    "judgeModel": "google/gemini-2.0-flash",
+    "enableJudge": true,
+    "smoke": false,
+    "verbose": false
+  },
+  "envSummary": {
+    "present": {
+      "AI_GATEWAY_API_KEY": true,
+      "OPENAI_API_KEY": false,
+      "GOOGLE_GENERATIVE_AI_API_KEY": false,
+      "NODE_ENV": false
+    },
+    "hasDotEnvFile": true
+  }
+}

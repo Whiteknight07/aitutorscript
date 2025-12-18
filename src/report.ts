@@ -1,0 +1,966 @@
+import type { RunRecord } from './types';
+
+export type ReportInput = {
+  runId: string;
+  createdAtIso: string;
+  args: unknown;
+  questions: unknown;
+  summary: unknown;
+  records: RunRecord[];
+  status: {
+    state: 'running' | 'complete' | 'failed';
+    plannedRuns: number;
+    completedRuns: number;
+    lastUpdatedAtIso: string;
+    current?: {
+      index: number;
+      questionId: string;
+      difficulty: number;
+      pairingId: string;
+      condition: string;
+    } | null;
+    error?: {
+      message: string;
+      stack?: string;
+    } | null;
+  };
+};
+
+function safeJsonForInlineScript(data: unknown): string {
+  // Prevent `</script>` injection and keep the report self-contained.
+  return JSON.stringify(data).replace(/</g, '\\u003c');
+}
+
+export function renderReportHtml(input: ReportInput): string {
+  const payload = {
+    meta: {
+      runId: input.runId,
+      createdAtIso: input.createdAtIso,
+    },
+    args: input.args,
+    questions: input.questions,
+    summary: input.summary,
+    records: input.records,
+  };
+
+  return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Experiment Report</title>
+    <style>
+      :root{
+        --bg:#0b1020;
+        --panel:#0f1733;
+        --panel2:#0c132b;
+        --border:rgba(255,255,255,.10);
+        --text:rgba(255,255,255,.92);
+        --muted:rgba(255,255,255,.70);
+        --muted2:rgba(255,255,255,.55);
+        --shadow: 0 18px 55px rgba(0,0,0,.45);
+        --shadow2: 0 10px 30px rgba(0,0,0,.35);
+        --radius:16px;
+        --radius2:12px;
+        --good:#2ee59d;
+        --bad:#ff4d6d;
+        --warn:#ffcc00;
+        --accent:#7c5cff;
+        --accent2:#3ee6ff;
+        --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      }
+
+      html,body{height:100%;}
+      body{
+        margin:0;
+        font-family: var(--sans);
+        color: var(--text);
+        background:
+          radial-gradient(1100px 800px at 15% 10%, rgba(124,92,255,.22), transparent 60%),
+          radial-gradient(900px 600px at 75% 20%, rgba(62,230,255,.16), transparent 58%),
+          radial-gradient(1200px 900px at 55% 95%, rgba(46,229,157,.10), transparent 60%),
+          var(--bg);
+      }
+
+      a{color:inherit;}
+      .wrap{max-width:1280px;margin:0 auto;padding:28px 18px 60px;}
+      .top{
+        display:flex; align-items:flex-start; justify-content:space-between; gap:18px;
+        margin-bottom:18px;
+      }
+      .title{
+        display:flex; flex-direction:column; gap:6px;
+      }
+      h1{
+        margin:0;
+        font-size:28px;
+        letter-spacing:-.02em;
+      }
+      .sub{
+        font-size:13px;
+        color: var(--muted);
+        font-family: var(--mono);
+      }
+      .banner{
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow2);
+        padding: 12px 14px;
+        margin: 14px 0 16px;
+        background: rgba(255,255,255,.03);
+      }
+      .banner.running{
+        background: linear-gradient(135deg, rgba(62,230,255,.14), rgba(124,92,255,.12));
+        border-color: rgba(62,230,255,.28);
+      }
+      .banner.complete{
+        background: linear-gradient(135deg, rgba(46,229,157,.14), rgba(62,230,255,.06));
+        border-color: rgba(46,229,157,.28);
+      }
+      .banner.failed{
+        background: linear-gradient(135deg, rgba(255,77,109,.18), rgba(124,92,255,.06));
+        border-color: rgba(255,77,109,.35);
+      }
+      .bannerTitle{ font-weight: 900; letter-spacing:-.01em; }
+      .bannerSub{ margin-top: 6px; color: var(--muted); font-family: var(--mono); font-size: 12px; line-height: 1.45; }
+
+      .grid{
+        display:grid;
+        grid-template-columns: 330px 1fr;
+        gap:14px;
+        align-items:start;
+      }
+
+      .card{
+        background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow2);
+        overflow:hidden;
+      }
+      .card .hd{
+        padding:14px 14px 10px;
+        border-bottom: 1px solid var(--border);
+        background: rgba(255,255,255,.03);
+      }
+      .card .bd{padding:14px;}
+
+      .pill{
+        display:inline-flex; align-items:center; gap:6px;
+        font-family: var(--mono);
+        font-size:12px;
+        color: var(--muted);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 6px 10px;
+        background: rgba(0,0,0,.12);
+      }
+      .pill strong{color: var(--text); font-weight:700;}
+      .row{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+
+      .btn{
+        appearance:none; border:1px solid var(--border);
+        background: rgba(255,255,255,.04);
+        color: var(--text);
+        padding: 8px 10px;
+        border-radius: 10px;
+        font-size: 13px;
+        cursor:pointer;
+        transition: transform .08s ease, background .2s ease, border-color .2s ease;
+      }
+      .btn:hover{ background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.16); }
+      .btn:active{ transform: translateY(1px); }
+      .btn.primary{
+        background: linear-gradient(135deg, rgba(124,92,255,.35), rgba(62,230,255,.20));
+        border-color: rgba(124,92,255,.55);
+      }
+
+      .input{
+        width:100%;
+        box-sizing:border-box;
+        border: 1px solid var(--border);
+        background: rgba(0,0,0,.14);
+        color: var(--text);
+        border-radius: 12px;
+        padding: 10px 12px;
+        font-size: 13px;
+        outline:none;
+      }
+      .input:focus{ border-color: rgba(124,92,255,.6); box-shadow: 0 0 0 4px rgba(124,92,255,.16); }
+
+      .qList{display:flex; flex-direction:column; gap:10px;}
+      .qItem{
+        padding: 10px 10px;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        background: rgba(0,0,0,.10);
+        cursor:pointer;
+        transition: border-color .2s ease, transform .08s ease, background .2s ease;
+      }
+      .qItem:hover{ border-color: rgba(255,255,255,.18); background: rgba(255,255,255,.035); }
+      .qItem:active{ transform: translateY(1px); }
+      .qItem.active{
+        border-color: rgba(124,92,255,.65);
+        background: linear-gradient(180deg, rgba(124,92,255,.16), rgba(0,0,0,.10));
+      }
+      .qTop{display:flex; justify-content:space-between; gap:10px; align-items:center;}
+      .qId{font-family: var(--mono); font-size: 12px; color: var(--muted);}
+      .qMeta{display:flex; gap:8px; align-items:center;}
+      .tag{
+        font-size: 11px;
+        font-family: var(--mono);
+        color: rgba(255,255,255,.78);
+        padding: 4px 8px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(255,255,255,.03);
+      }
+      .qStmt{margin-top:8px;color: var(--muted); font-size: 13px; line-height: 1.35; max-height: 3.9em; overflow:hidden;}
+
+      .sectionTitle{
+        font-size: 13px;
+        letter-spacing: .03em;
+        text-transform: uppercase;
+        color: var(--muted2);
+        font-weight: 700;
+        margin: 0 0 10px 0;
+      }
+
+      .problem{
+        white-space: pre-wrap;
+        line-height: 1.45;
+        color: rgba(255,255,255,.88);
+        font-size: 14px;
+      }
+      .muted{color: var(--muted); font-size: 13px; line-height: 1.45;}
+      .mono{font-family: var(--mono);}
+
+      .matrix{
+        display:grid;
+        gap:12px;
+      }
+
+      .matrixHeader{
+        display:grid;
+        grid-template-columns: 190px repeat(var(--cols), minmax(260px, 1fr));
+        gap:12px;
+        align-items:stretch;
+      }
+      .matrixRow{
+        display:grid;
+        grid-template-columns: 190px repeat(var(--cols), minmax(260px, 1fr));
+        gap:12px;
+        align-items:stretch;
+      }
+
+      .corner, .colHead, .rowHead{
+        border: 1px solid var(--border);
+        border-radius: var(--radius2);
+        background: rgba(0,0,0,.10);
+        padding: 10px 10px;
+      }
+      .corner{color: var(--muted); font-family: var(--mono); font-size: 12px;}
+      .colHead{
+        display:flex; flex-direction:column; gap:6px;
+      }
+      .colHead .h{font-weight:800; letter-spacing:-.01em;}
+      .colHead .s{font-family: var(--mono); color: var(--muted); font-size: 12px;}
+      .rowHead{
+        font-weight:800;
+        letter-spacing:-.01em;
+        display:flex; flex-direction:column; gap:6px;
+      }
+      .rowHead .s{font-family: var(--mono); color: var(--muted); font-size: 12px; font-weight:600;}
+
+      .cell{
+        border: 1px solid var(--border);
+        border-radius: var(--radius2);
+        background: rgba(0,0,0,.10);
+        padding: 10px 10px;
+        box-shadow: 0 10px 26px rgba(0,0,0,.25);
+      }
+      .cell.missing{ opacity: .45; }
+      .kpis{display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:10px;}
+
+      .badge{
+        display:inline-flex; align-items:center; gap:8px;
+        font-family: var(--mono);
+        font-size: 12px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(255,255,255,.03);
+      }
+      .dot{width:9px;height:9px;border-radius:99px;background: var(--muted2);}
+      .ok .dot{ background: var(--good); }
+      .bad .dot{ background: var(--bad); }
+      .warn .dot{ background: var(--warn); }
+
+      details{
+        border-top: 1px solid var(--border);
+        padding-top: 10px;
+        margin-top: 10px;
+      }
+      details > summary{
+        list-style:none;
+        cursor:pointer;
+        display:flex; align-items:center; justify-content:space-between;
+        gap:12px;
+        font-weight:700;
+        color: rgba(255,255,255,.86);
+      }
+      details > summary::-webkit-details-marker{display:none;}
+      .chev{
+        width: 10px; height: 10px;
+        border-right: 2px solid rgba(255,255,255,.6);
+        border-bottom: 2px solid rgba(255,255,255,.6);
+        transform: rotate(-45deg);
+        transition: transform .16s ease;
+        flex: 0 0 auto;
+      }
+      details[open] .chev{ transform: rotate(45deg); }
+
+      .transcript{display:flex; flex-direction:column; gap:10px; margin-top: 10px;}
+      .msg{
+        display:flex; gap:10px; align-items:flex-start;
+      }
+      .avatar{
+        width:26px; height:26px; border-radius:10px;
+        display:flex; align-items:center; justify-content:center;
+        font-family: var(--mono);
+        font-size: 12px;
+        border: 1px solid var(--border);
+        background: rgba(255,255,255,.04);
+        color: rgba(255,255,255,.85);
+        flex:0 0 auto;
+      }
+      .bubble{
+        padding: 10px 12px;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        background: rgba(255,255,255,.03);
+        line-height: 1.45;
+        font-size: 13px;
+        white-space: pre-wrap;
+        flex: 1 1 auto;
+      }
+      .msg.student .bubble{ background: rgba(62,230,255,.07); border-color: rgba(62,230,255,.22); }
+      .msg.tutor .bubble{ background: rgba(124,92,255,.08); border-color: rgba(124,92,255,.25); }
+
+      .split{
+        display:grid;
+        grid-template-columns: 1fr 1fr;
+        gap:10px;
+      }
+      .mini{
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: rgba(0,0,0,.10);
+        padding: 10px;
+      }
+      .mini .k{color: var(--muted2); font-family: var(--mono); font-size: 12px;}
+      .mini .v{margin-top:4px; font-size: 13px; color: rgba(255,255,255,.88);}
+      .mini pre{
+        margin: 8px 0 0;
+        padding: 10px;
+        border-radius: 12px;
+        background: rgba(0,0,0,.18);
+        border: 1px solid var(--border);
+        overflow:auto;
+        color: rgba(255,255,255,.86);
+        font-size: 12px;
+        line-height: 1.35;
+      }
+
+      .callout{
+        margin-top: 10px;
+        padding: 10px 12px;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        background: rgba(0,0,0,.12);
+      }
+      .callout.bad{ border-color: rgba(255,77,109,.30); background: rgba(255,77,109,.08); }
+      .callout.warn{ border-color: rgba(255,204,0,.28); background: rgba(255,204,0,.08); }
+      .callout .t{ font-weight: 900; letter-spacing:-.01em; }
+      .callout .b{ margin-top: 6px; color: var(--muted); font-size: 13px; line-height: 1.45; white-space: pre-wrap; }
+
+      .callBars{display:flex; flex-direction:column; gap:8px; margin-top: 10px;}
+      .barRow{display:grid; grid-template-columns: 1fr 90px; gap:10px; align-items:center;}
+      .bar{
+        height: 10px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.08);
+        border: 1px solid var(--border);
+        overflow:hidden;
+      }
+      .bar > span{
+        display:block;
+        height:100%;
+        width: var(--w);
+        background: linear-gradient(90deg, rgba(124,92,255,.75), rgba(62,230,255,.70));
+      }
+      .barLabel{
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--muted);
+        text-align:right;
+      }
+
+      .footer{
+        margin-top: 18px;
+        color: var(--muted2);
+        font-family: var(--mono);
+        font-size: 12px;
+        text-align:center;
+      }
+
+      @media (max-width: 980px){
+        .grid{ grid-template-columns: 1fr; }
+        .matrixHeader, .matrixRow{ grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="top">
+        <div class="title">
+          <h1>Experiment Report</h1>
+          <div class="sub" id="meta"></div>
+        </div>
+        <div class="row">
+          <button class="btn primary" id="copyLink">Copy shareable state</button>
+          <button class="btn" id="toggleAllHidden">Toggle hidden traces</button>
+        </div>
+      </div>
+
+      <div id="banner" class="banner" style="display:none;"></div>
+
+      <div class="grid">
+        <div class="card">
+          <div class="hd">
+            <div class="row" style="justify-content:space-between;">
+              <div class="pill"><strong>Questions</strong><span id="qCount"></span></div>
+              <div class="pill"><strong>Runs</strong><span id="rCount"></span></div>
+            </div>
+          </div>
+          <div class="bd">
+            <input class="input" id="qSearch" placeholder="Search questions by id/topic/text…" />
+            <div style="height:10px"></div>
+            <div class="qList" id="qList"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="hd">
+            <div class="row" style="justify-content:space-between;align-items:flex-start;">
+              <div>
+                <div class="sectionTitle">Selected Question</div>
+                <div class="row" id="qPills"></div>
+              </div>
+              <div class="row">
+                <button class="btn" id="prevQ">Prev</button>
+                <button class="btn" id="nextQ">Next</button>
+              </div>
+            </div>
+          </div>
+          <div class="bd">
+            <div class="problem" id="qStatement"></div>
+            <div style="height:14px"></div>
+            <div class="muted" id="qRef"></div>
+            <div style="height:18px"></div>
+
+            <div class="card" style="background: rgba(0,0,0,.08); box-shadow:none;">
+              <div class="hd">
+                <div class="row" style="justify-content:space-between;align-items:center;">
+                  <div class="sectionTitle" style="margin:0;">Side-by-side Comparisons</div>
+                  <div class="pill"><strong>View</strong><span class="mono">pairing × condition</span></div>
+                </div>
+              </div>
+              <div class="bd">
+                <div id="matrix"></div>
+              </div>
+            </div>
+
+            <div style="height:14px"></div>
+            <details class="card" style="background: rgba(0,0,0,.08); box-shadow:none;">
+              <summary class="hd">
+                <span>Summary metrics (from summary.json)</span>
+                <span class="chev"></span>
+              </summary>
+              <div class="bd">
+                <div id="summaryTable"></div>
+              </div>
+            </details>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">Self-contained report. Data embedded in this HTML.</div>
+    </div>
+
+    <script>
+      window.__HARNESS_DATA__ = ${safeJsonForInlineScript(payload)};
+    </script>
+    <script>
+      (function(){
+        const data = window.__HARNESS_DATA__;
+        const el = (id) => document.getElementById(id);
+        const metaEl = el('meta');
+        const bannerEl = el('banner');
+        const qCountEl = el('qCount');
+        const rCountEl = el('rCount');
+        const qSearchEl = el('qSearch');
+        const qListEl = el('qList');
+        const qPillsEl = el('qPills');
+        const qStatementEl = el('qStatement');
+        const qRefEl = el('qRef');
+        const matrixEl = el('matrix');
+        const summaryTableEl = el('summaryTable');
+
+        const copyLinkBtn = el('copyLink');
+        const toggleAllHiddenBtn = el('toggleAllHidden');
+        const prevBtn = el('prevQ');
+        const nextBtn = el('nextQ');
+
+        const records = Array.isArray(data.records) ? data.records : [];
+        const questions = Array.isArray(data.questions) ? data.questions : [];
+
+        const byQuestionId = new Map();
+        for (const r of records){
+          const qid = r.question?.id || 'unknown';
+          if (!byQuestionId.has(qid)) byQuestionId.set(qid, []);
+          byQuestionId.get(qid).push(r);
+        }
+
+        const questionList = questions.length ? questions : Array.from(byQuestionId.keys()).map((id) => ({ id }));
+        const questionIds = questionList.map((q) => q.id);
+
+        const allPairings = Array.from(new Set(records.map(r => r.pairingId))).sort();
+        const allConditions = Array.from(new Set(records.map(r => r.condition))).sort((a,b) => {
+          const o = { 'single': 0, 'dual-loop': 1 };
+          return (o[a] ?? 99) - (o[b] ?? 99);
+        });
+
+        metaEl.textContent = String(data.meta?.runId || '') + '  ·  ' + String(data.meta?.createdAtIso || '');
+        qCountEl.textContent = ' ' + questionIds.length;
+        rCountEl.textContent = ' ' + records.length;
+
+        let selectedIndex = 0;
+        let showHiddenGlobal = false;
+
+        function renderBanner(){
+          const st = data.status || {};
+          const state = st.state || 'running';
+          const planned = st.plannedRuns ?? 0;
+          const completed = st.completedRuns ?? 0;
+          const last = st.lastUpdatedAtIso || '';
+          const current = st.current || null;
+          const error = st.error || null;
+
+          const title =
+            state === 'complete'
+              ? 'Complete'
+              : state === 'failed'
+                ? 'Failed'
+                : 'In progress';
+
+          const parts = [];
+          parts.push(\`runs: \${completed}/\${planned}\`);
+          if (last) parts.push(\`updated: \${last}\`);
+          if (current && state !== 'complete') {
+            parts.push(\`at: [\${current.index}] q=\${current.questionId} diff=\${current.difficulty} pairing=\${current.pairingId} cond=\${current.condition}\`);
+          }
+
+          let extra = '';
+          if (state === 'failed' && error && error.message) {
+            extra = \`<div style="height:10px"></div><div class="mini"><div class="k">error</div><pre>\${String(error.message).replace(/</g,'&lt;')}\${error.stack ? '\\n\\n' + String(error.stack).replace(/</g,'&lt;') : ''}</pre></div>\`;
+          }
+
+          bannerEl.className = 'banner ' + state;
+          bannerEl.style.display = 'block';
+          bannerEl.innerHTML = \`
+            <div class="bannerTitle">\${title}</div>
+            <div class="bannerSub">\${parts.map(p => '<div>' + p.replace(/</g,'&lt;') + '</div>').join('')}</div>
+            \${extra}
+          \`;
+        }
+
+        function clampIndex(i){
+          if (i < 0) return 0;
+          if (i >= questionIds.length) return questionIds.length - 1;
+          return i;
+        }
+
+        function short(s, n){
+          if (!s) return '';
+          const t = String(s).replace(/\\s+/g,' ').trim();
+          return t.length <= n ? t : t.slice(0,n-1) + '…';
+        }
+
+        function badge(label, state){
+          const cls = state === 'ok' ? 'badge ok' : state === 'bad' ? 'badge bad' : 'badge warn';
+          return \`<span class="\${cls}"><span class="dot"></span>\${label}</span>\`;
+        }
+
+        function renderQuestionList(filterText){
+          const f = (filterText || '').toLowerCase().trim();
+          qListEl.innerHTML = '';
+          questionList.forEach((q, idx) => {
+            const stmt = q.problemStatement || '';
+            const topic = q.topicTag || '';
+            const ok = !f || String(q.id).toLowerCase().includes(f) || String(topic).toLowerCase().includes(f) || String(stmt).toLowerCase().includes(f);
+            if (!ok) return;
+            const active = idx === selectedIndex ? 'qItem active' : 'qItem';
+            const difficulty = q.difficulty != null ? String(q.difficulty) : '';
+            const item = document.createElement('div');
+            item.className = active;
+            item.innerHTML = \`
+              <div class="qTop">
+                <div class="qId">\${q.id}</div>
+                <div class="qMeta">
+                  \${difficulty ? \`<span class="tag">diff \${difficulty}</span>\` : ''}
+                  \${topic ? \`<span class="tag">\${topic}</span>\` : ''}
+                </div>
+              </div>
+              <div class="qStmt">\${short(stmt, 120)}</div>
+            \`;
+            item.addEventListener('click', () => { selectedIndex = idx; renderAll(); });
+            qListEl.appendChild(item);
+          });
+        }
+
+        function renderSelectedQuestion(){
+          const q = questionList[selectedIndex] || {};
+          qPillsEl.innerHTML = '';
+          const pills = [];
+          pills.push(\`<span class="pill"><strong>id</strong> <span class="mono">\${q.id || ''}</span></span>\`);
+          if (q.difficulty != null) pills.push(\`<span class="pill"><strong>difficulty</strong> <span class="mono">\${q.difficulty}</span></span>\`);
+          if (q.topicTag) pills.push(\`<span class="pill"><strong>topic</strong> <span class="mono">\${q.topicTag}</span></span>\`);
+          qPillsEl.innerHTML = pills.join('');
+
+          qStatementEl.textContent = q.problemStatement || '(no statement found)';
+          qRefEl.innerHTML = q.referenceAnswerDescription
+            ? \`<span class="mono" style="color:rgba(255,255,255,.70)">Reference outline:</span> \${q.referenceAnswerDescription}\`
+            : '';
+        }
+
+        function modelLabelForPairing(pairingId){
+          // Pretty labels for the two known providers in this harness
+          if (pairingId === 'gpt5-gpt5') return 'openai/gpt-5.1 → openai/gpt-5.1';
+          if (pairingId === 'gemini-gemini') return 'google/gemini-3-flash → google/gemini-3-flash';
+          if (pairingId === 'gpt5-gemini') return 'openai/gpt-5.1 → google/gemini-3-flash';
+          if (pairingId === 'gemini-gpt5') return 'google/gemini-3-flash → openai/gpt-5.1';
+          return pairingId;
+        }
+
+        function renderMatrix(){
+          const qid = questionList[selectedIndex]?.id;
+          const rows = allConditions;
+          const cols = allPairings;
+          matrixEl.innerHTML = '';
+
+          const container = document.createElement('div');
+          container.className = 'matrix';
+          container.style.setProperty('--cols', String(cols.length));
+
+          // Header row
+          const header = document.createElement('div');
+          header.className = 'matrixHeader';
+          header.innerHTML = \`
+            <div class="corner">condition ↓ / pairing →</div>
+            \${cols.map(p => \`
+              <div class="colHead">
+                <div class="h">\${p}</div>
+                <div class="s">\${modelLabelForPairing(p)}</div>
+              </div>
+            \`).join('')}
+          \`;
+          container.appendChild(header);
+
+          for (const condition of rows){
+            const row = document.createElement('div');
+            row.className = 'matrixRow';
+            row.appendChild(Object.assign(document.createElement('div'), {
+              className: 'rowHead',
+              innerHTML: \`<div>\${condition}</div><div class="s">\${condition === 'single' ? 'no supervisor' : 'iterative revision'}</div>\`
+            }));
+
+            for (const pairingId of cols){
+              const rec = (byQuestionId.get(qid) || []).find(r => r.pairingId === pairingId && r.condition === condition);
+              const cell = document.createElement('div');
+              cell.className = rec ? 'cell' : 'cell missing';
+
+              if (!rec){
+                cell.innerHTML = \`<div class="muted">No run for this cell.</div>\`;
+                row.appendChild(cell);
+                continue;
+              }
+
+              const judge = rec.judge;
+              const leak = judge ? judge.leakage : null;
+              const compliant = judge ? judge.compliance : null;
+              const ped = judge ? judge.pedagogyHelpfulness : null;
+              const got = judge ? judge.studentGotWhatTheyWanted : null;
+
+              const leakBadge = leak == null ? badge('leak: n/a', 'warn') : leak ? badge('leak: yes', 'bad') : badge('leak: no', 'ok');
+              const compBadge = compliant == null ? badge('compliance: n/a', 'warn') : compliant ? badge('compliance: yes', 'ok') : badge('compliance: no', 'bad');
+              const gotBadge = got == null ? badge('attacker: n/a', 'warn') : got ? badge('attacker: succeeded', 'warn') : badge('attacker: failed', 'ok');
+              const pedBadge = ped == null ? badge('pedagogy: n/a', 'warn') : badge('pedagogy: ' + ped + '/5', ped >= 4 ? 'ok' : ped >= 3 ? 'warn' : 'bad');
+
+              const transcript = Array.isArray(rec.transcriptVisible) ? rec.transcriptVisible : [];
+              const studentTurns = rec.hiddenTrace?.studentTurns || [];
+              const calls = Array.isArray(rec.calls) ? rec.calls : [];
+              const maxDur = Math.max(1, ...calls.map(c => c.durationMs || 0));
+              const turnsCompleted = rec.turnsCompleted ?? null;
+              const turnsRequested = rec.turnsRequested ?? null;
+              const endedEarly = typeof turnsCompleted === 'number' && typeof turnsRequested === 'number' && turnsCompleted < turnsRequested;
+              const lastTurnJudge = (rec.hiddenTrace?.turnJudgments && rec.hiddenTrace.turnJudgments.length)
+                ? rec.hiddenTrace.turnJudgments[rec.hiddenTrace.turnJudgments.length - 1].judge
+                : null;
+              const earlyReason = lastTurnJudge && lastTurnJudge.shouldTerminate ? lastTurnJudge.terminationReason : null;
+
+              const transcriptHtml = transcript.map(m => {
+                const role = m.role === 'student' ? 'student' : 'tutor';
+                const av = role === 'student' ? 'S' : 'T';
+                return \`
+                  <div class="msg \${role}">
+                    <div class="avatar">\${av}</div>
+                    <div class="bubble">\${(m.content || '').replace(/</g,'&lt;')}</div>
+                  </div>
+                \`;
+              }).join('');
+
+              const barsHtml = calls.map(c => {
+                const w = Math.round(((c.durationMs || 0) / maxDur) * 100);
+                const label = (c.name || '').replace(/</g,'&lt;');
+                return \`
+                  <div class="barRow">
+                    <div>
+                      <div class="mono" style="color:rgba(255,255,255,.78);font-size:12px;margin-bottom:6px;">\${label}</div>
+                      <div class="bar" style="--w:\${w}%"><span></span></div>
+                    </div>
+                    <div class="barLabel">\${Math.round(c.durationMs || 0)}ms</div>
+                  </div>
+                \`;
+              }).join('');
+
+              const hiddenJson = {
+                studentTurns,
+                turnJudgments: rec.hiddenTrace?.turnJudgments || [],
+                tutorDrafts: rec.hiddenTrace?.tutorDrafts || [],
+                supervisorVerdicts: rec.hiddenTrace?.supervisorVerdicts || [],
+              };
+
+              const judgeNotes = judge && judge.notes ? String(judge.notes) : '';
+              const turnJudgeNotes = lastTurnJudge && lastTurnJudge.notes ? String(lastTurnJudge.notes) : '';
+              const calloutType = leak ? 'bad' : (got || endedEarly) ? 'warn' : (compliant === false) ? 'warn' : null;
+              const calloutTitle =
+                leak ? 'Leakage detected' :
+                got ? 'Attacker goal succeeded' :
+                (endedEarly && earlyReason) ? ('Early stop: ' + earlyReason) :
+                (compliant === false) ? 'Compliance failure' :
+                '';
+              const calloutBody =
+                (lastTurnJudge && lastTurnJudge.shouldTerminate)
+                  ? (turnJudgeNotes || judgeNotes || '(no judge notes)')
+                  : (judgeNotes || '(no judge notes)');
+
+              cell.innerHTML = \`
+                <div class="kpis">
+                  \${leakBadge}
+                  \${compBadge}
+                  \${pedBadge}
+                  \${gotBadge}
+                  \${(turnsCompleted != null && turnsRequested != null)
+                    ? \`<span class="badge \${endedEarly ? 'warn' : ''}"><span class="dot" style="background:\${endedEarly ? 'var(--warn)' : 'var(--accent)'}"></span>turns: \${turnsCompleted}/\${turnsRequested}\${endedEarly && earlyReason ? ' (' + earlyReason + ')' : ''}</span>\`
+                    : ''}
+                  <span class="badge"><span class="dot" style="background:var(--accent2)"></span>latency: \${Math.round(rec.totalLatencyMs || 0)}ms</span>
+                </div>
+
+                \${calloutType ? \`<div class="callout \${calloutType}"><div class="t">\${calloutTitle}</div><div class="b">\${calloutBody.replace(/</g,'&lt;')}</div></div>\` : ''}
+
+                <details>
+                  <summary><span>Transcript</span><span class="chev"></span></summary>
+                  <div class="transcript">\${transcriptHtml || '<div class="muted">(empty)</div>'}</div>
+                </details>
+
+                <details>
+                  <summary><span>Judge</span><span class="chev"></span></summary>
+                  <div class="split" style="margin-top:10px;">
+                    <div class="mini">
+                      <div class="k">Scores</div>
+                      <div class="v mono">\${judge ? 'present' : 'none'}</div>
+                      \${judge ? \`<pre>\${JSON.stringify({
+                        leakage: judge.leakage,
+                        compliance: judge.compliance,
+                        pedagogyHelpfulness: judge.pedagogyHelpfulness,
+                        studentGotWhatTheyWanted: judge.studentGotWhatTheyWanted
+                      }, null, 2).replace(/</g,'&lt;')}</pre>\` : ''}
+                    </div>
+                    <div class="mini">
+                      <div class="k">Notes</div>
+                      <div class="v">\${judgeNotes ? judgeNotes.replace(/</g,'&lt;') : '<span class="muted">(none)</span>'}</div>
+                    </div>
+                  </div>
+                  \${lastTurnJudge ? \`<div style="height:10px"></div>
+                    <div class="mini">
+                      <div class="k">Turn judge (last)</div>
+                      <div class="v mono">turn=\${endedEarly ? turnsCompleted : (rec.hiddenTrace?.turnJudgments?.length ? rec.hiddenTrace.turnJudgments[rec.hiddenTrace.turnJudgments.length - 1].turnIndex : 'n/a')}</div>
+                      <pre>\${JSON.stringify(lastTurnJudge, null, 2).replace(/</g,'&lt;')}</pre>
+                    </div>\` : ''}
+                </details>
+
+                <details>
+                  <summary><span>Timings</span><span class="chev"></span></summary>
+                  <div class="callBars">\${barsHtml || '<div class="muted">(no calls logged)</div>'}</div>
+                </details>
+
+                <details class="hiddenTrace" \${showHiddenGlobal ? 'open' : ''} style="display:\${showHiddenGlobal ? 'block' : 'none'}">
+                  <summary><span>Hidden trace (drafts / verdicts)</span><span class="chev"></span></summary>
+                  <div class="split" style="margin-top:10px;">
+                    <div class="mini">
+                      <div class="k">Judge</div>
+                      <div class="v mono">\${judge ? 'present' : 'none'}</div>
+                      \${judge ? \`<pre>\${JSON.stringify(judge, null, 2).replace(/</g,'&lt;')}</pre>\` : ''}
+                    </div>
+                    <div class="mini">
+                      <div class="k">Hidden JSON</div>
+                      <div class="v mono">studentTurns + drafts + verdicts</div>
+                      <pre>\${JSON.stringify(hiddenJson, null, 2).replace(/</g,'&lt;')}</pre>
+                    </div>
+                  </div>
+                </details>
+              \`;
+
+              row.appendChild(cell);
+            }
+
+            container.appendChild(row);
+          }
+
+          matrixEl.appendChild(container);
+        }
+
+        function renderSummaryTable(){
+          const breakdown = data.summary?.breakdown || {};
+          const pairings = Object.keys(breakdown).sort();
+
+          let html = '';
+          for (const pairingId of pairings){
+            const byCond = breakdown[pairingId] || {};
+            const conds = Object.keys(byCond).sort((a,b) => {
+              const o = { 'single': 0, 'dual-loop': 1 };
+              return (o[a] ?? 99) - (o[b] ?? 99);
+            });
+            html += \`<div class="card" style="background: rgba(0,0,0,.10); box-shadow:none; margin-bottom:12px;">
+              <div class="hd"><div class="row"><span class="pill"><strong>pairing</strong> <span class="mono">\${pairingId}</span></span><span class="pill"><strong>models</strong> <span class="mono">\${modelLabelForPairing(pairingId)}</span></span></div></div>
+              <div class="bd">\`;
+
+            for (const cond of conds){
+              const byDiff = byCond[cond] || {};
+              const diffs = Object.keys(byDiff).map(Number).sort((a,b)=>a-b);
+              html += \`<div class="mini" style="margin-bottom:10px;">
+                <div class="row" style="justify-content:space-between;align-items:center;">
+                  <div class="mono" style="font-weight:800;">\${cond}</div>
+                  <div class="mono" style="color:rgba(255,255,255,.65);font-size:12px;">by difficulty</div>
+                </div>
+                <div style="height:8px"></div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">\${diffs.map(d => {
+                  const m = byDiff[String(d)] || byDiff[d] || {};
+                  const leak = m.leakRate;
+                  const comp = m.complianceRate;
+                  const lat = m.avgLatencyMs;
+                  const ped = m.avgPedagogyHelpfulness;
+                  const attacker = m.studentGoalSuccessRate;
+                  return \`
+                    <div class="mini" style="min-width:220px;">
+                      <div class="k">difficulty</div>
+                      <div class="v mono">\${d}</div>
+                      <div style="height:8px"></div>
+                      <div class="row">
+                        \${leak == null ? badge('leak: n/a','warn') : leak > 0 ? badge('leak: ' + Math.round(leak*100) + '%','bad') : badge('leak: 0%','ok')}
+                        \${comp == null ? badge('comp: n/a','warn') : badge('comp: ' + Math.round(comp*100) + '%', comp >= 0.9 ? 'ok' : comp >= 0.6 ? 'warn' : 'bad')}
+                      </div>
+                      <div style="height:8px"></div>
+                      <div class="k">avg latency</div>
+                      <div class="v mono">\${lat == null ? 'n/a' : Math.round(lat) + 'ms'}</div>
+                      <div style="height:8px"></div>
+                      <div class="k">avg pedagogy</div>
+                      <div class="v mono">\${ped == null ? 'n/a' : ped.toFixed(2) + '/5'}</div>
+                      <div style="height:8px"></div>
+                      <div class="k">attacker success</div>
+                      <div class="v mono">\${attacker == null ? 'n/a' : Math.round(attacker*100) + '%'}</div>
+                    </div>
+                  \`;
+                }).join('')}</div>
+              </div>\`;
+            }
+            html += \`</div></div>\`;
+          }
+          summaryTableEl.innerHTML = html || '<div class="muted">(no summary found)</div>';
+        }
+
+        function renderAll(){
+          selectedIndex = clampIndex(selectedIndex);
+          renderBanner();
+          renderQuestionList(qSearchEl.value);
+          renderSelectedQuestion();
+          renderMatrix();
+          renderSummaryTable();
+          updateUrlState();
+        }
+
+        function updateUrlState(){
+          const qid = questionIds[selectedIndex] || '';
+          const state = { qid, showHiddenGlobal };
+          const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(state))));
+          history.replaceState(null, '', '#state=' + encoded);
+        }
+
+        function applyUrlState(){
+          const h = location.hash || '';
+          const m = h.match(/#state=([^&]+)/);
+          if (!m) return;
+          try{
+            const state = JSON.parse(decodeURIComponent(escape(atob(m[1]))));
+            const qid = state.qid;
+            const idx = questionIds.indexOf(qid);
+            if (idx >= 0) selectedIndex = idx;
+            showHiddenGlobal = !!state.showHiddenGlobal;
+          }catch{}
+        }
+
+        qSearchEl.addEventListener('input', () => renderQuestionList(qSearchEl.value));
+        prevBtn.addEventListener('click', () => { selectedIndex = clampIndex(selectedIndex - 1); renderAll(); });
+        nextBtn.addEventListener('click', () => { selectedIndex = clampIndex(selectedIndex + 1); renderAll(); });
+
+        toggleAllHiddenBtn.addEventListener('click', () => {
+          showHiddenGlobal = !showHiddenGlobal;
+          // show/hide all hidden trace blocks
+          document.querySelectorAll('.hiddenTrace').forEach((d) => {
+            d.style.display = showHiddenGlobal ? 'block' : 'none';
+            if (showHiddenGlobal) d.setAttribute('open','');
+            else d.removeAttribute('open');
+          });
+          updateUrlState();
+        });
+
+        copyLinkBtn.addEventListener('click', async () => {
+          try{
+            await navigator.clipboard.writeText(location.href);
+            copyLinkBtn.textContent = 'Copied';
+            setTimeout(() => copyLinkBtn.textContent = 'Copy shareable state', 900);
+          }catch{
+            copyLinkBtn.textContent = 'Copy failed';
+            setTimeout(() => copyLinkBtn.textContent = 'Copy shareable state', 900);
+          }
+        });
+
+        applyUrlState();
+        renderAll();
+      })();
+    </script>
+  </body>
+</html>`;
+}

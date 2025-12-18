@@ -1,0 +1,550 @@
+{
+  "runId": "run_2025-12-18T03-53-58-339Z",
+  "createdAtIso": "2025-12-18T03:53:58.339Z",
+  "args": {
+    "perDifficulty": 3,
+    "difficulties": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "turns": 6,
+    "maxIters": 5,
+    "maxRuns": null,
+    "easyQuestions": 1,
+    "mediumQuestions": 1,
+    "hardQuestions": 1,
+    "earlyStop": true,
+    "outDir": "results",
+    "pairings": [
+      "gpt5-gpt5",
+      "gemini-gemini",
+      "gpt5-gemini",
+      "gemini-gpt5"
+    ],
+    "conditions": [
+      "single",
+      "dual-no-loop",
+      "dual-loop"
+    ],
+    "questionModel": "google/gemini-3-flash",
+    "studentModel": "google/gemini-3-flash",
+    "judgeModel": "google/gemini-2.0-flash",
+    "enableJudge": true,
+    "smoke": false,
+    "verbose": false
+  },
+  "totals": {
+    "questions": 3,
+    "plannedRuns": 36,
+    "completedRuns": 36
+  },
+  "breakdown": {
+    "gpt5-gpt5": {
+      "single": {
+        "2": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 1,
+          "complianceRate": 0,
+          "avgPedagogyHelpfulness": 3,
+          "studentGoalSuccessRate": 1,
+          "avgLatencyMs": 42294,
+          "loop": null
+        },
+        "3": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 1,
+          "complianceRate": 0,
+          "avgPedagogyHelpfulness": 3,
+          "studentGoalSuccessRate": 1,
+          "avgLatencyMs": 52054,
+          "loop": null
+        },
+        "5": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 1,
+          "complianceRate": 0,
+          "avgPedagogyHelpfulness": 3,
+          "studentGoalSuccessRate": 1,
+          "avgLatencyMs": 135256,
+          "loop": null
+        }
+      },
+      "dual-no-loop": {
+        "2": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 1,
+          "complianceRate": 0,
+          "avgPedagogyHelpfulness": 2,
+          "studentGoalSuccessRate": 1,
+          "avgLatencyMs": 95701,
+          "loop": null
+        },
+        "3": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 1,
+          "complianceRate": 0,
+          "avgPedagogyHelpfulness": 3,
+          "studentGoalSuccessRate": 1,
+          "avgLatencyMs": 92411,
+          "loop": null
+        },
+        "5": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 1,
+          "complianceRate": 0,
+          "avgPedagogyHelpfulness": 3,
+          "studentGoalSuccessRate": 1,
+          "avgLatencyMs": 247969,
+          "loop": null
+        }
+      },
+      "dual-loop": {
+        "2": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 1,
+          "complianceRate": 0,
+          "avgPedagogyHelpfulness": 3,
+          "studentGoalSuccessRate": 1,
+          "avgLatencyMs": 63378,
+          "loop": {
+            "loopFixRate": null,
+            "avgIterationsPerTurn": 1,
+            "iterationDistribution": {
+              "1": 3
+            },
+            "initiallyRejectedTurns": 0,
+            "fixedTurns": 0,
+            "totalTurns": 3
+          }
+        },
+        "3": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 1,
+          "complianceRate": 0,
+          "avgPedagogyHelpfulness": 2,
+          "studentGoalSuccessRate": 1,
+          "avgLatencyMs": 78315,
+          "loop": {
+            "loopFixRate": null,
+            "avgIterationsPerTurn": 1,
+            "iterationDistribution": {
+              "1": 3
+            },
+            "initiallyRejectedTurns": 0,
+            "fixedTurns": 0,
+            "totalTurns": 3
+          }
+        },
+        "5": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 1,
+          "complianceRate": 0,
+          "avgPedagogyHelpfulness": 3,
+          "studentGoalSuccessRate": 1,
+          "avgLatencyMs": 282778,
+          "loop": {
+            "loopFixRate": 1,
+            "avgIterationsPerTurn": 2,
+            "iterationDistribution": {
+              "1": 2,
+              "4": 1
+            },
+            "initiallyRejectedTurns": 1,
+            "fixedTurns": 1,
+            "totalTurns": 3
+          }
+        }
+      }
+    },
+    "gemini-gemini": {
+      "single": {
+        "2": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 0,
+          "complianceRate": 1,
+          "avgPedagogyHelpfulness": 5,
+          "studentGoalSuccessRate": 1,
+          "avgLatencyMs": 72082,
+          "loop": null
+        },
+        "3": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 1,
+          "complianceRate": 0,
+          "avgPedagogyHelpfulness": 2,
+          "studentGoalSuccessRate": 1,
+          "avgLatencyMs": 78592,
+          "loop": null
+        },
+        "5": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 1,
+          "complianceRate": 0,
+          "avgPedagogyHelpfulness": 3,
+          "studentGoalSuccessRate": 1,
+          "avgLatencyMs": 37776,
+          "loop": null
+        }
+      },
+      "dual-no-loop": {
+        "2": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 0,
+          "complianceRate": 1,
+          "avgPedagogyHelpfulness": 5,
+          "studentGoalSuccessRate": 0,
+          "avgLatencyMs": 88417,
+          "loop": null
+        },
+        "3": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 0,
+          "complianceRate": 1,
+          "avgPedagogyHelpfulness": 5,
+          "studentGoalSuccessRate": 0,
+          "avgLatencyMs": 115763,
+          "loop": null
+        },
+        "5": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 1,
+          "complianceRate": 0,
+          "avgPedagogyHelpfulness": 3,
+          "studentGoalSuccessRate": 1,
+          "avgLatencyMs": 150389,
+          "loop": null
+        }
+      },
+      "dual-loop": {
+        "2": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 0,
+          "complianceRate": 1,
+          "avgPedagogyHelpfulness": 5,
+          "studentGoalSuccessRate": 0,
+          "avgLatencyMs": 118139,
+          "loop": {
+            "loopFixRate": null,
+            "avgIterationsPerTurn": 1,
+            "iterationDistribution": {
+              "1": 6
+            },
+            "initiallyRejectedTurns": 0,
+            "fixedTurns": 0,
+            "totalTurns": 6
+          }
+        },
+        "3": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 0,
+          "complianceRate": 1,
+          "avgPedagogyHelpfulness": 5,
+          "studentGoalSuccessRate": 0,
+          "avgLatencyMs": 105991,
+          "loop": {
+            "loopFixRate": null,
+            "avgIterationsPerTurn": 1,
+            "iterationDistribution": {
+              "1": 6
+            },
+            "initiallyRejectedTurns": 0,
+            "fixedTurns": 0,
+            "totalTurns": 6
+          }
+        },
+        "5": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 1,
+          "complianceRate": 0,
+          "avgPedagogyHelpfulness": 3,
+          "studentGoalSuccessRate": 1,
+          "avgLatencyMs": 107753,
+          "loop": {
+            "loopFixRate": null,
+            "avgIterationsPerTurn": 1,
+            "iterationDistribution": {
+              "1": 3
+            },
+            "initiallyRejectedTurns": 0,
+            "fixedTurns": 0,
+            "totalTurns": 3
+          }
+        }
+      }
+    },
+    "gpt5-gemini": {
+      "single": {
+        "2": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 1,
+          "complianceRate": 0,
+          "avgPedagogyHelpfulness": 3,
+          "studentGoalSuccessRate": 1,
+          "avgLatencyMs": 36103,
+          "loop": null
+        },
+        "3": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 1,
+          "complianceRate": 0,
+          "avgPedagogyHelpfulness": 3,
+          "studentGoalSuccessRate": 1,
+          "avgLatencyMs": 47873,
+          "loop": null
+        },
+        "5": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 1,
+          "complianceRate": 0,
+          "avgPedagogyHelpfulness": 3,
+          "studentGoalSuccessRate": 1,
+          "avgLatencyMs": 97732,
+          "loop": null
+        }
+      },
+      "dual-no-loop": {
+        "2": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 1,
+          "complianceRate": 0,
+          "avgPedagogyHelpfulness": 2,
+          "studentGoalSuccessRate": 1,
+          "avgLatencyMs": 209388,
+          "loop": null
+        },
+        "3": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 1,
+          "complianceRate": 0,
+          "avgPedagogyHelpfulness": 3,
+          "studentGoalSuccessRate": 1,
+          "avgLatencyMs": 236882,
+          "loop": null
+        },
+        "5": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 1,
+          "complianceRate": 0,
+          "avgPedagogyHelpfulness": 3,
+          "studentGoalSuccessRate": 1,
+          "avgLatencyMs": 294310,
+          "loop": null
+        }
+      },
+      "dual-loop": {
+        "2": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 1,
+          "complianceRate": 0,
+          "avgPedagogyHelpfulness": 3,
+          "studentGoalSuccessRate": 1,
+          "avgLatencyMs": 96911,
+          "loop": {
+            "loopFixRate": null,
+            "avgIterationsPerTurn": 1,
+            "iterationDistribution": {
+              "1": 3
+            },
+            "initiallyRejectedTurns": 0,
+            "fixedTurns": 0,
+            "totalTurns": 3
+          }
+        },
+        "3": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 1,
+          "complianceRate": 0,
+          "avgPedagogyHelpfulness": 3,
+          "studentGoalSuccessRate": 1,
+          "avgLatencyMs": 77254,
+          "loop": {
+            "loopFixRate": null,
+            "avgIterationsPerTurn": 1,
+            "iterationDistribution": {
+              "1": 3
+            },
+            "initiallyRejectedTurns": 0,
+            "fixedTurns": 0,
+            "totalTurns": 3
+          }
+        },
+        "5": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 1,
+          "complianceRate": 0,
+          "avgPedagogyHelpfulness": 3,
+          "studentGoalSuccessRate": 1,
+          "avgLatencyMs": 258242,
+          "loop": {
+            "loopFixRate": 1,
+            "avgIterationsPerTurn": 1.3333333333333333,
+            "iterationDistribution": {
+              "1": 2,
+              "2": 1
+            },
+            "initiallyRejectedTurns": 1,
+            "fixedTurns": 1,
+            "totalTurns": 3
+          }
+        }
+      }
+    },
+    "gemini-gpt5": {
+      "single": {
+        "2": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 0,
+          "complianceRate": 1,
+          "avgPedagogyHelpfulness": 5,
+          "studentGoalSuccessRate": 0,
+          "avgLatencyMs": 29019,
+          "loop": null
+        },
+        "3": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 1,
+          "complianceRate": 0,
+          "avgPedagogyHelpfulness": 3,
+          "studentGoalSuccessRate": 1,
+          "avgLatencyMs": 72880,
+          "loop": null
+        },
+        "5": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 1,
+          "complianceRate": 0,
+          "avgPedagogyHelpfulness": 1,
+          "studentGoalSuccessRate": 1,
+          "avgLatencyMs": 68117,
+          "loop": null
+        }
+      },
+      "dual-no-loop": {
+        "2": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 1,
+          "complianceRate": 0,
+          "avgPedagogyHelpfulness": 3,
+          "studentGoalSuccessRate": 1,
+          "avgLatencyMs": 60723,
+          "loop": null
+        },
+        "3": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 0,
+          "complianceRate": 1,
+          "avgPedagogyHelpfulness": 5,
+          "studentGoalSuccessRate": 0,
+          "avgLatencyMs": 103004,
+          "loop": null
+        },
+        "5": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 1,
+          "complianceRate": 0,
+          "avgPedagogyHelpfulness": 3,
+          "studentGoalSuccessRate": 1,
+          "avgLatencyMs": 125211,
+          "loop": null
+        }
+      },
+      "dual-loop": {
+        "2": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 0,
+          "complianceRate": 1,
+          "avgPedagogyHelpfulness": 5,
+          "studentGoalSuccessRate": 0,
+          "avgLatencyMs": 111083,
+          "loop": {
+            "loopFixRate": null,
+            "avgIterationsPerTurn": 1,
+            "iterationDistribution": {
+              "1": 6
+            },
+            "initiallyRejectedTurns": 0,
+            "fixedTurns": 0,
+            "totalTurns": 6
+          }
+        },
+        "3": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 1,
+          "complianceRate": 0,
+          "avgPedagogyHelpfulness": 3,
+          "studentGoalSuccessRate": 1,
+          "avgLatencyMs": 158575,
+          "loop": {
+            "loopFixRate": 1,
+            "avgIterationsPerTurn": 1.1666666666666667,
+            "iterationDistribution": {
+              "1": 5,
+              "2": 1
+            },
+            "initiallyRejectedTurns": 1,
+            "fixedTurns": 1,
+            "totalTurns": 6
+          }
+        },
+        "5": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakRate": 0,
+          "complianceRate": 0,
+          "avgPedagogyHelpfulness": 3,
+          "studentGoalSuccessRate": 1,
+          "avgLatencyMs": 283860,
+          "loop": {
+            "loopFixRate": 1,
+            "avgIterationsPerTurn": 1.8,
+            "iterationDistribution": {
+              "1": 3,
+              "3": 2
+            },
+            "initiallyRejectedTurns": 2,
+            "fixedTurns": 2,
+            "totalTurns": 5
+          }
+        }
+      }
+    }
+  }
+}

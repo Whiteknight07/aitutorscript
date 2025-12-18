@@ -1,0 +1,30 @@
+{
+  "name": "aitutorscript",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/cli.js",
+  "scripts": {
+    "harness": "pnpm -s build && node dist/cli.js",
+    "smoke": "pnpm -s build && node dist/cli.js --smoke",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/cli.js",
+    "test": "echo \"No tests configured\" && exit 0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.6.1",
+  "bin": {
+    "aitutor-harness": "dist/cli.js"
+  },
+  "dependencies": {
+    "ai": "6.0.0-beta.159",
+    "dotenv": "^17.2.3",
+    "zod": "^4.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.3",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,184 @@
+import { generateObject, generateText } from 'ai';
+import { ZodTypeAny } from 'zod';
+import type { TimedCallRecord } from './types';
+import { hrNowMs, nowIso } from './util';
+
+async function resolveModelForSdk(modelId: string): Promise<any> {
+  if (process.env.AI_GATEWAY_API_KEY) return modelId;
+
+  const [provider, ...rest] = modelId.split('/');
+  const name = rest.join('/');
+  if (!provider || !name) return modelId;
+
+  if (provider === 'openai') {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const mod = require('@ai-sdk/openai') as any;
+      return mod.openai(name);
+    } catch {
+      throw new Error(
+        `AI_GATEWAY_API_KEY is not set and @ai-sdk/openai is not installed, so model "${modelId}" cannot be used.`
+      );
+    }
+  }
+
+  if (provider === 'google') {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const mod = require('@ai-sdk/google') as any;
+      return mod.google(name);
+    } catch {
+      throw new Error(
+        `AI_GATEWAY_API_KEY is not set and @ai-sdk/google is not installed, so model "${modelId}" cannot be used.`
+      );
+    }
+  }
+
+  return modelId;
+}
+
+export async function timedGenerateText({
+  calls,
+  name,
+  model,
+  system,
+  prompt,
+  temperature,
+  maxOutputTokens,
+}: {
+  calls: TimedCallRecord[];
+  name: string;
+  model: string;
+  system: string;
+  prompt: string;
+  temperature?: number;
+  maxOutputTokens?: number;
+}): Promise<{ text: string }> {
+  const startedAtIso = nowIso();
+  const t0 = hrNowMs();
+  const input = { model, system, prompt, temperature, maxOutputTokens };
+  const resolvedModel = await resolveModelForSdk(model);
+  try {
+    const result = await generateText({
+      model: resolvedModel,
+      system,
+      prompt,
+      temperature,
+      maxOutputTokens,
+    });
+    const durationMs = hrNowMs() - t0;
+
+    calls.push({
+      kind: 'generateText',
+      model,
+      name,
+      startedAtIso,
+      durationMs,
+      input,
+      output: { text: result.text, finishReason: (result as any).finishReason },
+      usage: (result as any).usage,
+    });
+
+    return { text: result.text };
+  } catch (err: any) {
+    const durationMs = hrNowMs() - t0;
+    const error = {
+      name: err?.name,
+      message: String(err?.message ?? err),
+      stack: err?.stack,
+      details: pickErrorDetails(err),
+    };
+    calls.push({
+      kind: 'generateText',
+      model,
+      name,
+      startedAtIso,
+      durationMs,
+      input,
+      output: null,
+      error,
+    });
+    throw err;
+  }
+}
+
+export async function timedGenerateObject<T>({
+  calls,
+  name,
+  model,
+  system,
+  prompt,
+  schema,
+  schemaName,
+  temperature,
+  maxOutputTokens,
+}: {
+  calls: TimedCallRecord[];
+  name: string;
+  model: string;
+  system: string;
+  prompt: string;
+  schema: ZodTypeAny;
+  schemaName: string;
+  temperature?: number;
+  maxOutputTokens?: number;
+}): Promise<{ object: T }> {
+  const startedAtIso = nowIso();
+  const t0 = hrNowMs();
+  const input = { model, system, prompt, schemaName, temperature, maxOutputTokens };
+  const resolvedModel = await resolveModelForSdk(model);
+  try {
+    const result = await generateObject({
+      model: resolvedModel,
+      system,
+      prompt,
+      schema,
+      temperature,
+      maxOutputTokens,
+    });
+    const durationMs = hrNowMs() - t0;
+
+    calls.push({
+      kind: 'generateObject',
+      model,
+      name,
+      startedAtIso,
+      durationMs,
+      input,
+      output: result.object,
+      usage: (result as any).usage,
+    });
+
+    return { object: result.object as T };
+  } catch (err: any) {
+    const durationMs = hrNowMs() - t0;
+    const error = {
+      name: err?.name,
+      message: String(err?.message ?? err),
+      stack: err?.stack,
+      details: pickErrorDetails(err),
+    };
+    calls.push({
+      kind: 'generateObject',
+      model,
+      name,
+      startedAtIso,
+      durationMs,
+      input,
+      output: null,
+      error,
+    });
+    throw err;
+  }
+}
+
+function pickErrorDetails(err: any): unknown {
+  const out: Record<string, unknown> = {};
+  if (!err || typeof err !== 'object') return out;
+
+  // AI SDK errors often include helpful fields:
+  for (const k of ['cause', 'text', 'response', 'finishReason', 'usage']) {
+    if (k in err) out[k] = err[k];
+  }
+  return out;
+}

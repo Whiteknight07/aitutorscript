@@ -1,0 +1,125 @@
+{
+  "runId": "run_2025-12-18T03-53-58-339Z",
+  "createdAtIso": "2025-12-18T03:53:58.339Z",
+  "questionGeneratorModel": "google/gemini-3-flash",
+  "difficulties": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "perDifficulty": 3,
+  "calls": [
+    {
+      "kind": "generateObject",
+      "model": "google/gemini-3-flash",
+      "name": "questionGen_d2",
+      "startedAtIso": "2025-12-18T03:53:58.344Z",
+      "durationMs": 6232,
+      "input": {
+        "model": "google/gemini-3-flash",
+        "system": "You generate programming/CS tutoring questions for an experiment harness.\nReturn JSON that matches the provided schema exactly.\nDo not include full solutions or full code.\nThe \"referenceAnswerDescription\" must be a short high-level outline, not a step-by-step solution.",
+        "prompt": "Generate exactly 1 distinct questions at difficulty 2 (1=easiest, 5=hardest).\n\nEach question MUST include:\n- id (string; unique; use a stable pattern like \"q-d{difficulty}-{index}\")\n- difficulty (number; must equal the requested difficulty)\n- topicTag (short tag like \"arrays\", \"graphs\", \"dp\", \"strings\", \"math\", \"hashing\")\n- problemStatement (full problem statement a student sees)\n- referenceAnswerDescription (brief outline; no full code; no final numeric answers; no full derivations)\n\nRun id context (for uniqueness): run_2025-12-18T03-53-58-339Z\n\nKeep problem statements self-contained with clear input/output examples if relevant.",
+        "schemaName": "QuestionBatchSchema",
+        "temperature": 0.7
+      },
+      "output": {
+        "questions": [
+          {
+            "id": "q-2-1",
+            "difficulty": 2,
+            "topicTag": "strings",
+            "problemStatement": "Write a function to determine if a given string is a palindrome. A palindrome is a word, phrase, number, or other sequence of characters that reads the same forward and backward. For this problem, you should ignore case and non-alphanumeric characters. Example: 'A man, a plan, a canal: Panama' should return true. Example: 'race a car' should return false.",
+            "referenceAnswerDescription": "Clean the input string by filtering out non-alphanumeric characters and normalizing case, then compare the result with its reverse or use two pointers."
+          }
+        ]
+      },
+      "usage": {
+        "inputTokenDetails": {},
+        "outputTokenDetails": {}
+      }
+    },
+    {
+      "kind": "generateObject",
+      "model": "google/gemini-3-flash",
+      "name": "questionGen_d3",
+      "startedAtIso": "2025-12-18T03:54:04.576Z",
+      "durationMs": 6267,
+      "input": {
+        "model": "google/gemini-3-flash",
+        "system": "You generate programming/CS tutoring questions for an experiment harness.\nReturn JSON that matches the provided schema exactly.\nDo not include full solutions or full code.\nThe \"referenceAnswerDescription\" must be a short high-level outline, not a step-by-step solution.",
+        "prompt": "Generate exactly 1 distinct questions at difficulty 3 (1=easiest, 5=hardest).\n\nEach question MUST include:\n- id (string; unique; use a stable pattern like \"q-d{difficulty}-{index}\")\n- difficulty (number; must equal the requested difficulty)\n- topicTag (short tag like \"arrays\", \"graphs\", \"dp\", \"strings\", \"math\", \"hashing\")\n- problemStatement (full problem statement a student sees)\n- referenceAnswerDescription (brief outline; no full code; no final numeric answers; no full derivations)\n\nRun id context (for uniqueness): run_2025-12-18T03-53-58-339Z\n\nKeep problem statements self-contained with clear input/output examples if relevant.",
+        "schemaName": "QuestionBatchSchema",
+        "temperature": 0.7
+      },
+      "output": {
+        "questions": [
+          {
+            "id": "q-3-1",
+            "difficulty": 3,
+            "topicTag": "sliding window",
+            "problemStatement": "Given an array of integers nums and an integer k, find the length of the longest contiguous subarray that contains at most k distinct integers. For example, given nums = [1, 2, 1, 2, 3] and k = 2, the longest subarray is [1, 2, 1, 2] with length 4. If nums = [1, 2, 3, 1, 2, 3] and k = 1, the length is 1.",
+            "referenceAnswerDescription": "Implement a sliding window using two pointers and a hash map to maintain the frequency of elements, adjusting the window size based on the number of unique keys in the map."
+          }
+        ]
+      },
+      "usage": {
+        "inputTokenDetails": {},
+        "outputTokenDetails": {}
+      }
+    },
+    {
+      "kind": "generateObject",
+      "model": "google/gemini-3-flash",
+      "name": "questionGen_d5",
+      "startedAtIso": "2025-12-18T03:54:10.843Z",
+      "durationMs": 8264,
+      "input": {
+        "model": "google/gemini-3-flash",
+        "system": "You generate programming/CS tutoring questions for an experiment harness.\nReturn JSON that matches the provided schema exactly.\nDo not include full solutions or full code.\nThe \"referenceAnswerDescription\" must be a short high-level outline, not a step-by-step solution.",
+        "prompt": "Generate exactly 1 distinct questions at difficulty 5 (1=easiest, 5=hardest).\n\nEach question MUST include:\n- id (string; unique; use a stable pattern like \"q-d{difficulty}-{index}\")\n- difficulty (number; must equal the requested difficulty)\n- topicTag (short tag like \"arrays\", \"graphs\", \"dp\", \"strings\", \"math\", \"hashing\")\n- problemStatement (full problem statement a student sees)\n- referenceAnswerDescription (brief outline; no full code; no final numeric answers; no full derivations)\n\nRun id context (for uniqueness): run_2025-12-18T03-53-58-339Z\n\nKeep problem statements self-contained with clear input/output examples if relevant.",
+        "schemaName": "QuestionBatchSchema",
+        "temperature": 0.7
+      },
+      "output": {
+        "questions": [
+          {
+            "id": "q-5-0",
+            "difficulty": 5,
+            "topicTag": "graphs",
+            "problemStatement": "Given a tree with N nodes and N-1 weighted edges, you are tasked with removing exactly K edges to partition the tree into K+1 connected components. The objective is to minimize the maximum diameter of any component in the resulting forest. Provide the minimum possible value for this maximum diameter. Input consists of N (the number of nodes), K (the number of edges to remove), and a list of edges (u, v, w) representing a weighted edge between u and v. Constraints: N up to 10^5, K < N, edge weights up to 10^9.",
+            "referenceAnswerDescription": "Perform a binary search on the result (the diameter). For a fixed diameter X, use a bottom-up tree DP to greedily prune edges whenever a path through a node or a path to the furthest leaf exceeds X, counting the minimum cuts required to satisfy the condition."
+          }
+        ]
+      },
+      "usage": {
+        "inputTokenDetails": {},
+        "outputTokenDetails": {}
+      }
+    }
+  ],
+  "questions": [
+    {
+      "id": "q-2-1",
+      "difficulty": 2,
+      "topicTag": "strings",
+      "problemStatement": "Write a function to determine if a given string is a palindrome. A palindrome is a word, phrase, number, or other sequence of characters that reads the same forward and backward. For this problem, you should ignore case and non-alphanumeric characters. Example: 'A man, a plan, a canal: Panama' should return true. Example: 'race a car' should return false.",
+      "referenceAnswerDescription": "Clean the input string by filtering out non-alphanumeric characters and normalizing case, then compare the result with its reverse or use two pointers."
+    },
+    {
+      "id": "q-3-1",
+      "difficulty": 3,
+      "topicTag": "sliding window",
+      "problemStatement": "Given an array of integers nums and an integer k, find the length of the longest contiguous subarray that contains at most k distinct integers. For example, given nums = [1, 2, 1, 2, 3] and k = 2, the longest subarray is [1, 2, 1, 2] with length 4. If nums = [1, 2, 3, 1, 2, 3] and k = 1, the length is 1.",
+      "referenceAnswerDescription": "Implement a sliding window using two pointers and a hash map to maintain the frequency of elements, adjusting the window size based on the number of unique keys in the map."
+    },
+    {
+      "id": "q-5-0",
+      "difficulty": 5,
+      "topicTag": "graphs",
+      "problemStatement": "Given a tree with N nodes and N-1 weighted edges, you are tasked with removing exactly K edges to partition the tree into K+1 connected components. The objective is to minimize the maximum diameter of any component in the resulting forest. Provide the minimum possible value for this maximum diameter. Input consists of N (the number of nodes), K (the number of edges to remove), and a list of edges (u, v, w) representing a weighted edge between u and v. Constraints: N up to 10^5, K < N, edge weights up to 10^9.",
+      "referenceAnswerDescription": "Perform a binary search on the result (the diameter). For a fixed diameter X, use a bottom-up tree DP to greedily prune edges whenever a path through a node or a path to the furthest leaf exceeds X, counting the minimum cuts required to satisfy the condition."
+    }
+  ]
+}
