@@ -11,18 +11,29 @@ const openrouter = process.env.OPENROUTER_API_KEY
 
 /**
  * Get provider-specific options for a model.
- * Used to disable reasoning/thinking for models that support it.
+ * - Configures OpenRouter to prefer high-throughput, low-price providers
+ * - Disables reasoning/thinking for OpenAI GPT-5.1 models
  */
 function getProviderOptions(modelId: string): any {
+  const options: any = {
+    // OpenRouter provider routing: sort by throughput first, then price
+    // See: https://openrouter.ai/docs/features/provider-routing
+    openrouter: {
+      provider: {
+        // Order of preference for provider selection
+        order: ['Throughput', 'Price'],
+      },
+    },
+  };
+
   // Disable reasoning/thinking for OpenAI GPT-5.1 models
   if (modelId.includes('gpt-5')) {
-    return {
-      openai: {
-        reasoning_effort: 'none',
-      },
+    options.openai = {
+      reasoning_effort: 'none',
     };
   }
-  return undefined;
+
+  return options;
 }
 
 async function resolveModelForSdk(modelId: string): Promise<any> {
