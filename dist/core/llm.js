@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getProviderOptions = getProviderOptions;
 exports.timedGenerateText = timedGenerateText;
 exports.timedGenerateObject = timedGenerateObject;
 const ai_1 = require("ai");
@@ -9,6 +10,21 @@ const util_1 = require("../utils/util");
 const openrouter = process.env.OPENROUTER_API_KEY
     ? (0, ai_sdk_provider_1.createOpenRouter)({ apiKey: process.env.OPENROUTER_API_KEY })
     : null;
+/**
+ * Get provider-specific options for a model.
+ * Used to disable reasoning/thinking for models that support it.
+ */
+function getProviderOptions(modelId) {
+    // Disable reasoning/thinking for OpenAI GPT-5.1 models
+    if (modelId.includes('gpt-5')) {
+        return {
+            openai: {
+                reasoning_effort: 'none',
+            },
+        };
+    }
+    return undefined;
+}
 async function resolveModelForSdk(modelId) {
     // Primary: Use OpenRouter if API key is available
     if (openrouter) {
@@ -47,6 +63,7 @@ async function timedGenerateText({ calls, name, model, system, prompt, temperatu
     const t0 = (0, util_1.hrNowMs)();
     const input = { model, system, prompt, temperature, maxOutputTokens };
     const resolvedModel = await resolveModelForSdk(model);
+    const providerOptions = getProviderOptions(model);
     try {
         const result = await (0, ai_1.generateText)({
             model: resolvedModel,
@@ -54,6 +71,7 @@ async function timedGenerateText({ calls, name, model, system, prompt, temperatu
             prompt,
             temperature,
             maxOutputTokens,
+            ...(providerOptions && { providerOptions }),
         });
         const durationMs = (0, util_1.hrNowMs)() - t0;
         calls.push({
@@ -94,6 +112,7 @@ async function timedGenerateObject({ calls, name, model, system, prompt, schema,
     const t0 = (0, util_1.hrNowMs)();
     const input = { model, system, prompt, schemaName, temperature, maxOutputTokens };
     const resolvedModel = await resolveModelForSdk(model);
+    const providerOptions = getProviderOptions(model);
     try {
         const result = await (0, ai_1.generateObject)({
             model: resolvedModel,
@@ -102,6 +121,7 @@ async function timedGenerateObject({ calls, name, model, system, prompt, schema,
             schema,
             temperature,
             maxOutputTokens,
+            ...(providerOptions && { providerOptions }),
         });
         const durationMs = (0, util_1.hrNowMs)() - t0;
         calls.push({

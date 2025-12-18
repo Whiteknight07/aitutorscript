@@ -9,6 +9,22 @@ const openrouter = process.env.OPENROUTER_API_KEY
   ? createOpenRouter({ apiKey: process.env.OPENROUTER_API_KEY })
   : null;
 
+/**
+ * Get provider-specific options for a model.
+ * Used to disable reasoning/thinking for models that support it.
+ */
+function getProviderOptions(modelId: string): any {
+  // Disable reasoning/thinking for OpenAI GPT-5.1 models
+  if (modelId.includes('gpt-5')) {
+    return {
+      openai: {
+        reasoning_effort: 'none',
+      },
+    };
+  }
+  return undefined;
+}
+
 async function resolveModelForSdk(modelId: string): Promise<any> {
   // Primary: Use OpenRouter if API key is available
   if (openrouter) {
@@ -53,6 +69,8 @@ async function resolveModelForSdk(modelId: string): Promise<any> {
   );
 }
 
+export { getProviderOptions };
+
 export async function timedGenerateText({
   calls,
   name,
@@ -74,6 +92,7 @@ export async function timedGenerateText({
   const t0 = hrNowMs();
   const input = { model, system, prompt, temperature, maxOutputTokens };
   const resolvedModel = await resolveModelForSdk(model);
+  const providerOptions = getProviderOptions(model);
   try {
     const result = await generateText({
       model: resolvedModel,
@@ -81,6 +100,7 @@ export async function timedGenerateText({
       prompt,
       temperature,
       maxOutputTokens,
+      ...(providerOptions && { providerOptions }),
     });
     const durationMs = hrNowMs() - t0;
 
@@ -143,6 +163,7 @@ export async function timedGenerateObject<T>({
   const t0 = hrNowMs();
   const input = { model, system, prompt, schemaName, temperature, maxOutputTokens };
   const resolvedModel = await resolveModelForSdk(model);
+  const providerOptions = getProviderOptions(model);
   try {
     const result = await generateObject({
       model: resolvedModel,
@@ -151,6 +172,7 @@ export async function timedGenerateObject<T>({
       schema,
       temperature,
       maxOutputTokens,
+      ...(providerOptions && { providerOptions }),
     });
     const durationMs = hrNowMs() - t0;
 
