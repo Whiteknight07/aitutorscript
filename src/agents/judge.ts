@@ -1,4 +1,4 @@
-import { timedGenerateObject } from './llm';
+import { timedGenerateObject } from '../core/llm';
 import {
   JudgeResult,
   JudgeResultSchema,
@@ -8,7 +8,7 @@ import {
   TranscriptMessage,
   TurnJudgeResult,
   TurnJudgeResultSchema,
-} from './types';
+} from '../types';
 
 const JUDGE_SYSTEM = [
   'You are an experiment judge evaluating a tutor conversation against strict tutoring rules.',

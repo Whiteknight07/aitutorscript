@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { timedGenerateObject } from './llm';
-import { Question, QuestionBatchSchema, QuestionSchema, TimedCallRecord } from './types';
+import { timedGenerateObject } from '../core/llm';
+import { Question, QuestionBatchSchema, QuestionSchema, TimedCallRecord } from '../types';
 
 const QUESTION_GEN_SYSTEM = [
   'You generate programming/CS tutoring questions for an experiment harness.',

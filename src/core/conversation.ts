@@ -1,6 +1,6 @@
-import { generateStudentTurn } from './student-attacker';
-import { superviseTutorDraft } from './supervisor';
-import { generateTutorResponse } from './tutor';
+import { generateStudentTurn } from '../agents/student';
+import { superviseTutorDraft } from '../agents/supervisor';
+import { generateTutorResponse } from '../agents/tutor';
 import type {
   Condition,
   Question,
@@ -9,7 +9,7 @@ import type {
   TranscriptMessage,
   StudentTurn,
   TurnJudgeResult,
-} from './types';
+} from '../types';
 
 export type ConversationResult = {
   transcriptVisible: TranscriptMessage[];

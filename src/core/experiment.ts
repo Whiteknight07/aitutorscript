@@ -1,14 +1,14 @@
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { parseArgs } from './args';
+import { parseArgs } from '../utils/args';
 import { simulateConversation } from './conversation';
-import { generateQuestionsBatch } from './question-gen';
-import { getTutorSupervisorModels } from './models';
-import { createJsonlWriter, ensureDir, nowIso } from './util';
-import type { Question, RunRecord, TimedCallRecord } from './types';
-import { runJudgeIfEnabled, runTurnJudge } from './judge';
-import { SummaryAggregator } from './summary';
-import { renderReportHtml } from './report';
+import { generateQuestionsBatch } from '../agents/question-gen';
+import { getPairingModels } from '../config';
+import { createJsonlWriter, ensureDir, nowIso } from '../utils/util';
+import type { Question, RunRecord, TimedCallRecord } from '../types';
+import { runJudgeIfEnabled, runTurnJudge } from '../agents/judge';
+import { SummaryAggregator } from '../output/summary';
+import { renderReportHtml } from '../output/report';
 
 export async function runExperiments({
   args,
@@ -118,7 +118,7 @@ export async function runExperiments({
   // This makes partial runs (e.g. --maxRuns 50) populate all pairings early.
   for (const question of questions) {
     for (const pairingId of args.pairings) {
-      const { tutorModel, supervisorModel } = getTutorSupervisorModels(pairingId);
+      const { tutorModel, supervisorModel } = getPairingModels(pairingId);
       for (const condition of args.conditions) {
         if (runIndex >= plannedRuns) break;
         const calls: TimedCallRecord[] = [];

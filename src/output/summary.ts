@@ -1,4 +1,4 @@
-import type { Condition, PairingId, RunRecord } from './types';
+import type { Condition, PairingId, RunRecord } from '../types';
 
 type GroupKey = `${PairingId}::${Condition}::${number}`;
 

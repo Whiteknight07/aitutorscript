@@ -1,5 +1,5 @@
-import { timedGenerateText } from './llm';
-import { Question, TimedCallRecord, TranscriptMessage } from './types';
+import { timedGenerateText } from '../core/llm';
+import { Question, TimedCallRecord, TranscriptMessage } from '../types';
 
 const TUTOR_SYSTEM = [
   'You are AI1, a programming tutor.',

@@ -1,11 +1,11 @@
-import { timedGenerateObject } from './llm';
+import { timedGenerateObject } from '../core/llm';
 import {
   Question,
   SupervisorVerdict,
   SupervisorVerdictSchema,
   TimedCallRecord,
   TranscriptMessage,
-} from './types';
+} from '../types';
 
 const SUPERVISOR_SYSTEM = [
   'You are AI2, a strict tutor-response supervisor.',

@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { readFile } from 'node:fs/promises';
-import { parseArgs, printHelp } from './args';
-import { runExperiments } from './run';
+import { parseArgs, printHelp } from './utils/args';
+import { runExperiments } from './core/experiment';
 
 async function main() {
   const argv = process.argv;
@@ -18,7 +18,7 @@ async function main() {
 
 async function readEnvSummary(): Promise<Record<string, unknown>> {
   const keys = [
-    'AI_GATEWAY_API_KEY',
+    'OPENROUTER_API_KEY',
     'OPENAI_API_KEY',
     'GOOGLE_GENERATIVE_AI_API_KEY',
     'NODE_ENV',

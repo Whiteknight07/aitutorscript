@@ -1,4 +1,4 @@
-import type { RunRecord } from './types';
+import type { RunRecord } from '../types';
 
 export type ReportInput = {
   runId: string;

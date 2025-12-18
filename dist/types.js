@@ -2,13 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TurnJudgeResultSchema = exports.JudgeResultSchema = exports.SupervisorVerdictSchema = exports.StudentTurnSchema = exports.StudentGoalSchema = exports.QuestionBatchSchema = exports.QuestionSchema = exports.PairingIdSchema = exports.ConditionSchema = void 0;
 const zod_1 = require("zod");
+const config_1 = require("./config");
 exports.ConditionSchema = zod_1.z.enum(['single', 'dual-loop']);
-exports.PairingIdSchema = zod_1.z.enum([
-    'gpt5-gpt5',
-    'gemini-gemini',
-    'gpt5-gemini',
-    'gemini-gpt5',
-]);
+// Create Zod schema dynamically from config
+exports.PairingIdSchema = zod_1.z.enum(config_1.PAIRING_IDS);
 exports.QuestionSchema = zod_1.z.object({
     id: zod_1.z.string().min(1),
     difficulty: zod_1.z.number().int().min(1).max(5),

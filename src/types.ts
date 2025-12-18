@@ -1,15 +1,14 @@
 import { z } from 'zod';
+import { PAIRING_IDS, type PairingId } from './config';
 
 export const ConditionSchema = z.enum(['single', 'dual-loop']);
 export type Condition = z.infer<typeof ConditionSchema>;
 
-export const PairingIdSchema = z.enum([
-  'gpt5-gpt5',
-  'gemini-gemini',
-  'gpt5-gemini',
-  'gemini-gpt5',
-]);
-export type PairingId = z.infer<typeof PairingIdSchema>;
+// Re-export PairingId from config for convenience
+export type { PairingId } from './config';
+
+// Create Zod schema dynamically from config
+export const PairingIdSchema = z.enum(PAIRING_IDS as [PairingId, ...PairingId[]]);
 
 export type RoleModelConfig = {
   questionGeneratorModel: string;

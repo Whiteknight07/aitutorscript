@@ -1,8 +1,8 @@
 import { generateObject, generateText } from 'ai';
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import { ZodTypeAny } from 'zod';
-import type { TimedCallRecord } from './types';
-import { hrNowMs, nowIso } from './util';
+import type { TimedCallRecord } from '../types';
+import { hrNowMs, nowIso } from '../utils/util';
 
 // Create OpenRouter provider instance
 const openrouter = process.env.OPENROUTER_API_KEY

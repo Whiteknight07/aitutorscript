@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 require("dotenv/config");
 const promises_1 = require("node:fs/promises");
-const args_1 = require("./args");
-const run_1 = require("./run");
+const args_1 = require("./utils/args");
+const experiment_1 = require("./core/experiment");
 async function main() {
     const argv = process.argv;
     if (argv.includes('--help')) {
@@ -12,11 +12,11 @@ async function main() {
     }
     const args = (0, args_1.parseArgs)(argv);
     const envSummary = await readEnvSummary();
-    await (0, run_1.runExperiments)({ args, envSummary });
+    await (0, experiment_1.runExperiments)({ args, envSummary });
 }
 async function readEnvSummary() {
     const keys = [
-        'AI_GATEWAY_API_KEY',
+        'OPENROUTER_API_KEY',
         'OPENAI_API_KEY',
         'GOOGLE_GENERATIVE_AI_API_KEY',
         'NODE_ENV',

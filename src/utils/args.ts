@@ -1,4 +1,5 @@
-import { ConditionSchema, PairingIdSchema } from './types';
+import { ConditionSchema, PairingIdSchema } from '../types';
+import { DEFAULT_MODELS, PAIRING_IDS, parsePairingId, type PairingId } from '../config';
 
 export type CliArgs = {
   perDifficulty: number;
@@ -11,7 +12,7 @@ export type CliArgs = {
   hardQuestions: number | null;
   earlyStop: boolean;
   outDir: string;
-  pairings: Array<ReturnType<typeof PairingIdSchema.parse>>;
+  pairings: PairingId[];
   conditions: Array<ReturnType<typeof ConditionSchema.parse>>;
   questionModel: string;
   studentModel: string;
@@ -108,15 +109,18 @@ export function parseArgs(argv: string[]): CliArgs {
 
   const outDir = raw['outDir'] ? String(raw['outDir']) : 'results';
 
+  // Use centralized config for model defaults
   const questionModel = raw['questionModel']
     ? String(raw['questionModel'])
-    : 'google/gemini-3-flash';
+    : DEFAULT_MODELS.questionGenerator;
 
   const studentModel = raw['studentModel']
     ? String(raw['studentModel'])
-    : 'google/gemini-3-flash';
+    : DEFAULT_MODELS.student;
 
-  const judgeModel = raw['judgeModel'] ? String(raw['judgeModel']) : 'google/gemini-2.0-flash';
+  const judgeModel = raw['judgeModel'] 
+    ? String(raw['judgeModel']) 
+    : DEFAULT_MODELS.judge;
 
   const difficulties =
     raw['difficulties'] != null
@@ -125,11 +129,12 @@ export function parseArgs(argv: string[]): CliArgs {
         ? [1]
         : [1, 2, 3, 4, 5];
 
-  const defaultPairings = smoke
+  // Use centralized config for pairing defaults
+  const defaultPairings: PairingId[] = smoke
     ? ['gemini-gemini']
-    : ['gpt5-gpt5', 'gemini-gemini', 'gpt5-gemini', 'gemini-gpt5'];
+    : PAIRING_IDS;
   const pairingsRaw = raw['pairings'] != null ? parseListFlag(String(raw['pairings'])) : defaultPairings;
-  const pairings = pairingsRaw.map((p) => PairingIdSchema.parse(p));
+  const pairings = pairingsRaw.map((p) => parsePairingId(p));
 
   const defaultConditions = smoke ? ['single'] : ['single', 'dual-loop'];
   const conditionsRaw = raw['conditions'] != null ? parseListFlag(String(raw['conditions'])) : defaultConditions;
@@ -175,11 +180,11 @@ Flags:
   --maxIters N             Max tutor revision loops (default 5)
   --maxRuns N              Stop after N completed runs (default unlimited)
   --outDir DIR             Output directory (default results)
-  --pairings LIST          gpt5-gpt5,gemini-gemini,gpt5-gemini,gemini-gpt5 (default all; smoke=gemini-gemini)
+  --pairings LIST          ${PAIRING_IDS.join(',')} (default all; smoke=gemini-gemini)
   --conditions LIST        single,dual-loop (default all; smoke=single)
-  --questionModel ID       Model for question generation (default google/gemini-3-flash)
-  --studentModel ID        Model for student attacker (default google/gemini-3-flash)
-  --judgeModel ID          Model for judge pass (default google/gemini-2.0-flash)
+  --questionModel ID       Model for question generation (default from config.ts)
+  --studentModel ID        Model for student attacker (default from config.ts)
+  --judgeModel ID          Model for judge pass (default from config.ts)
   --noJudge                Disable judge pass
   --noEarlyStop            Disable early stopping (otherwise stops when judge detects leakage or attacker goal success)
   --verbose                Extra per-turn logs (can be noisy)
@@ -187,7 +192,8 @@ Flags:
   --help                   Show help
 
 Models:
-  Use AI Gateway IDs like "openai/gpt-5.1" and "google/gemini-3-flash".
-  Requires AI_GATEWAY_API_KEY (or install provider modules and set provider keys).
+  Use OpenRouter model IDs like "openai/gpt-4o" and "google/gemini-2.0-flash-001".
+  Configure defaults in src/config.ts.
+  Requires OPENROUTER_API_KEY (or install provider modules and set provider keys).
 `.trim());
 }
