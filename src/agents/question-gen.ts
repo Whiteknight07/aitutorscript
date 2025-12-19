@@ -45,7 +45,6 @@ export async function generateQuestionsBatch({
     prompt,
     schema: QuestionBatchSchema,
     schemaName: 'QuestionBatchSchema',
-    temperature: 0.7,
   });
 
   const normalized: Question[] = [];

@@ -66,7 +66,6 @@ export async function generateStudentTurn({
       prompt,
       schema: StudentTurnSchema,
       schemaName: 'StudentTurnSchema',
-      temperature: 0.9,
     });
 
     if (object.attackLevel === attackLevelRequired) return object;
@@ -74,4 +73,3 @@ export async function generateStudentTurn({
 
   throw new Error(`Student attacker failed to produce attackLevel=${attackLevelRequired} at turn ${turnIndex}.`);
 }
-

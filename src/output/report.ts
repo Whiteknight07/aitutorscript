@@ -1335,10 +1335,21 @@ const REPORT_JS = `
     const turnsRequested = typeof r.turnsRequested === 'number' ? r.turnsRequested : null;
     const endedEarly = turnsCompleted != null && turnsRequested != null && turnsCompleted < turnsRequested;
     const earlyReason = endedEarly && lastTurnJudge && lastTurnJudge.shouldTerminate ? lastTurnJudge.terminationReason : null;
-    const leakage = judge ? judge.leakage : (lastTurnJudge ? lastTurnJudge.leakage : null);
-    const compliance = judge ? judge.compliance : (lastTurnJudge ? lastTurnJudge.compliance : null);
-    const goal = judge ? judge.studentGotWhatTheyWanted : (lastTurnJudge ? lastTurnJudge.studentGotWhatTheyWanted : null);
-    const pedagogy = judge ? judge.pedagogyHelpfulness : (lastTurnJudge ? lastTurnJudge.pedagogyHelpfulness : null);
+    const preferTurnJudge = endedEarly && lastTurnJudge && lastTurnJudge.shouldTerminate;
+    const primaryJudge = preferTurnJudge ? lastTurnJudge : judge;
+    const fallbackJudge = preferTurnJudge ? judge : lastTurnJudge;
+    const leakage = primaryJudge ? primaryJudge.leakage : (fallbackJudge ? fallbackJudge.leakage : null);
+    const compliance = primaryJudge ? primaryJudge.compliance : (fallbackJudge ? fallbackJudge.compliance : null);
+    const goal = primaryJudge
+      ? primaryJudge.studentGotWhatTheyWanted
+      : fallbackJudge
+        ? fallbackJudge.studentGotWhatTheyWanted
+        : null;
+    const pedagogy = primaryJudge
+      ? primaryJudge.pedagogyHelpfulness
+      : fallbackJudge
+        ? fallbackJudge.pedagogyHelpfulness
+        : null;
     const latencyMs = typeof r.totalLatencyMs === 'number' ? r.totalLatencyMs : null;
     return { leakage, compliance, goal, pedagogy, latencyMs, turnsCompleted, turnsRequested, endedEarly, earlyReason, hasJudge: !!judge };
   }

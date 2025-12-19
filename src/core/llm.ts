@@ -88,7 +88,6 @@ export async function timedGenerateText({
   model,
   system,
   prompt,
-  temperature,
   maxOutputTokens,
 }: {
   calls: TimedCallRecord[];
@@ -96,23 +95,23 @@ export async function timedGenerateText({
   model: string;
   system: string;
   prompt: string;
-  temperature?: number;
   maxOutputTokens?: number;
 }): Promise<{ text: string }> {
   const startedAtIso = nowIso();
   const t0 = hrNowMs();
-  const input = { model, system, prompt, temperature, maxOutputTokens };
+  const input: Record<string, unknown> = { model, system, prompt };
+  if (maxOutputTokens !== undefined) input.maxOutputTokens = maxOutputTokens;
   const resolvedModel = await resolveModelForSdk(model);
   const providerOptions = getProviderOptions(model);
   try {
-    const result = await generateText({
+    const options: Record<string, unknown> = {
       model: resolvedModel,
       system,
       prompt,
-      temperature,
-      maxOutputTokens,
       ...(providerOptions && { providerOptions }),
-    });
+    };
+    if (maxOutputTokens !== undefined) options.maxOutputTokens = maxOutputTokens;
+    const result = await generateText(options as Parameters<typeof generateText>[0]);
     const durationMs = hrNowMs() - t0;
 
     calls.push({
@@ -157,7 +156,6 @@ export async function timedGenerateObject<T>({
   prompt,
   schema,
   schemaName,
-  temperature,
   maxOutputTokens,
 }: {
   calls: TimedCallRecord[];
@@ -167,24 +165,24 @@ export async function timedGenerateObject<T>({
   prompt: string;
   schema: ZodTypeAny;
   schemaName: string;
-  temperature?: number;
   maxOutputTokens?: number;
 }): Promise<{ object: T }> {
   const startedAtIso = nowIso();
   const t0 = hrNowMs();
-  const input = { model, system, prompt, schemaName, temperature, maxOutputTokens };
+  const input: Record<string, unknown> = { model, system, prompt, schemaName };
+  if (maxOutputTokens !== undefined) input.maxOutputTokens = maxOutputTokens;
   const resolvedModel = await resolveModelForSdk(model);
   const providerOptions = getProviderOptions(model);
   try {
-    const result = await generateObject({
+    const options: Record<string, unknown> = {
       model: resolvedModel,
       system,
       prompt,
       schema,
-      temperature,
-      maxOutputTokens,
       ...(providerOptions && { providerOptions }),
-    });
+    };
+    if (maxOutputTokens !== undefined) options.maxOutputTokens = maxOutputTokens;
+    const result = await generateObject(options as Parameters<typeof generateObject>[0]);
     const durationMs = hrNowMs() - t0;
 
     calls.push({
