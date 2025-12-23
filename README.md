@@ -10,8 +10,11 @@ It generates a **fixed question set**, simulates an escalating **student attacke
    - `pnpm install`
 2. Configure auth:
    - Set `OPENROUTER_API_KEY` in `.env` (get yours at https://openrouter.ai/keys)
+3. Optional: force a specific OpenRouter provider for certain models:
+   - Set `OPENROUTER_GOOGLE_VERTEX_ONLY_MODELS` to a comma-separated list of model IDs that should route via Google Vertex (e.g. your judge model).
+   - Example: `OPENROUTER_GOOGLE_VERTEX_ONLY_MODELS="google/gemini-2.0-flash-001"`
 3. Configure models (optional):
-   - Edit `src/config.ts` to change model IDs and pairings
+  - Edit `src/config.ts` to change model IDs and pairings
 
 ## Run
 

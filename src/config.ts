@@ -36,7 +36,7 @@ export type ModelId = (typeof MODELS)[keyof typeof MODELS];
 export const DEFAULT_MODELS = {
   questionGenerator: MODELS.gemini2Flash,
   student: MODELS.gemini2Flash,
-  judge: MODELS.gemini2Flash,
+  judge: "google/gemini-3-flash-preview",
 } as const;
 
 // =============================================================================

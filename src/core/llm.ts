@@ -26,10 +26,32 @@ function getProviderOptions(modelId: string): any {
     },
   };
 
+  // Hardcode: route Kimi K2 judge via Google Vertex on OpenRouter.
+  // (OpenRouter provider naming varies; include both common identifiers.)
+  if (
+    modelId === 'moonshotai/kimi-k2-thinking' ||
+    modelId.endsWith('/kimi-k2-thinking') ||
+    modelId === 'kimik2' ||
+    modelId.endsWith('/kimik2')
+  ) {
+    options.openrouter.provider.order = ['google-vertex', 'Google Vertex'];
+  }
+
+  // Optional: force OpenRouter to use Google Vertex for specific model IDs.
+  // Example:
+  //   OPENROUTER_GOOGLE_VERTEX_ONLY_MODELS="google/gemini-2.0-flash-001,google/gemini-2.0-pro"
+  const vertexOnly = String(process.env.OPENROUTER_GOOGLE_VERTEX_ONLY_MODELS ?? '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (vertexOnly.includes(modelId)) {
+    options.openrouter.provider.order = ['google-vertex', 'Google Vertex'];
+  }
+
   // Disable reasoning/thinking for OpenAI GPT-5.1 models
   if (modelId.includes('gpt-5')) {
     options.openai = {
-      reasoning_effort: 'none',
+      reasoning_effort: 'low',
     };
   }
 

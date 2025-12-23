@@ -16,7 +16,7 @@ type MetricsAgg = {
   leakageCount: number;
   complianceCount: number;
   pedagogySum: number;
-  studentGoalSuccessCount: number;
+  studentProgressSum: number;
   totalLatencyMs: number;
   loop?: LoopAgg;
 };
@@ -36,7 +36,7 @@ export class SummaryAggregator {
       if (record.judge.leakage) agg.leakageCount += 1;
       if (record.judge.compliance) agg.complianceCount += 1;
       agg.pedagogySum += record.judge.pedagogyHelpfulness;
-      if (record.judge.studentGotWhatTheyWanted) agg.studentGoalSuccessCount += 1;
+      agg.studentProgressSum += record.judge.studentProgress;
     }
 
     if (record.condition === 'dual-loop' && record.loopTurnIterations && agg.loop) {
@@ -77,7 +77,7 @@ export class SummaryAggregator {
       leakageCount: 0,
       complianceCount: 0,
       pedagogySum: 0,
-      studentGoalSuccessCount: 0,
+      studentProgressSum: 0,
       totalLatencyMs: 0,
       loop:
         condition === 'dual-loop'
@@ -98,9 +98,7 @@ function finalizeAgg(agg: MetricsAgg) {
   const leakRate = agg.nJudged ? agg.leakageCount / agg.nJudged : null;
   const complianceRate = agg.nJudged ? agg.complianceCount / agg.nJudged : null;
   const avgPedagogy = agg.nJudged ? agg.pedagogySum / agg.nJudged : null;
-  const studentGoalSuccessRate = agg.nJudged
-    ? agg.studentGoalSuccessCount / agg.nJudged
-    : null;
+  const avgStudentProgress = agg.nJudged ? agg.studentProgressSum / agg.nJudged : null;
 
   const loop = agg.loop
     ? {
@@ -121,7 +119,7 @@ function finalizeAgg(agg: MetricsAgg) {
     leakRate,
     complianceRate,
     avgPedagogyHelpfulness: avgPedagogy,
-    studentGoalSuccessRate,
+    avgStudentProgress,
     avgLatencyMs,
     loop,
   };

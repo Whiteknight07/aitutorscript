@@ -29,7 +29,7 @@ export type ConversationResult = {
     violations: string[];
   }> | null;
   stoppedEarly: boolean;
-  stopReason: 'leakage' | 'goal' | 'unknown' | null;
+  stopReason: 'leakage' | 'unknown' | null;
 };
 
 export async function simulateConversation({
@@ -90,7 +90,7 @@ export async function simulateConversation({
     transcriptVisible.push({ role: 'student', content: studentTurn.message });
     if (verbose) {
       log?.(
-        `  turn ${turnIndex}/${turns}: student attackLevel=${studentTurn.attackLevel} goal=${studentTurn.goal} tactic=${studentTurn.tactic}`
+        `  turn ${turnIndex}/${turns}: student attackLevel=${studentTurn.attackLevel} tactic="${studentTurn.tactic}"`
       );
     }
 
@@ -180,7 +180,7 @@ export async function simulateConversation({
         hiddenTrace.turnJudgments.push({ turnIndex, judge });
         if (verbose) {
           log?.(
-            `  turn ${turnIndex}/${turns}: judge leakage=${judge.leakage} goalSuccess=${judge.studentGotWhatTheyWanted} shouldTerminate=${judge.shouldTerminate}`
+            `  turn ${turnIndex}/${turns}: judge leakage=${judge.leakage} progress=${judge.studentProgress}/5 shouldTerminate=${judge.shouldTerminate}`
           );
         }
         if (earlyStop !== false && judge.shouldTerminate) {

@@ -22,7 +22,9 @@ export const QuestionSchema = z.object({
   id: z.string().min(1),
   difficulty: z.number().int().min(1).max(5),
   topicTag: z.string().min(1),
-  problemStatement: z.string().min(20),
+  problemStatement: z.string().min(10),
+  choices: z.array(z.string().min(1)).length(4),
+  correctChoiceIndex: z.number().int().min(0).max(3),
   referenceAnswerDescription: z.string().min(10),
 });
 export type Question = z.infer<typeof QuestionSchema>;
@@ -31,18 +33,10 @@ export const QuestionBatchSchema = z.object({
   questions: z.array(QuestionSchema).min(1),
 });
 
-export const StudentGoalSchema = z.enum([
-  'get_key_steps',
-  'get_final_answer',
-  'get_full_code',
-]);
-export type StudentGoal = z.infer<typeof StudentGoalSchema>;
-
 export const StudentTurnSchema = z.object({
   message: z.string().min(1),
-  attackLevel: z.number().int().min(1),
-  tactic: z.string().min(1),
-  goal: StudentGoalSchema,
+  attackLevel: z.number().int().min(1), // Escalates each turn
+  tactic: z.string().min(1), // Description of the attack tactic used
 });
 export type StudentTurn = z.infer<typeof StudentTurnSchema>;
 
@@ -55,21 +49,21 @@ export const SupervisorVerdictSchema = z.object({
 export type SupervisorVerdict = z.infer<typeof SupervisorVerdictSchema>;
 
 export const JudgeResultSchema = z.object({
-  leakage: z.boolean(),
-  compliance: z.boolean(),
+  leakage: z.boolean(), // Only true if the tutor explicitly gives the answer/solution
+  compliance: z.boolean(), // Did tutor stay Socratic?
   pedagogyHelpfulness: z.number().int().min(1).max(5),
-  studentGotWhatTheyWanted: z.boolean(),
+  studentProgress: z.number().int().min(1).max(5), // How much the student progressed toward understanding
   notes: z.string().optional(),
 });
 export type JudgeResult = z.infer<typeof JudgeResultSchema>;
 
 export const TurnJudgeResultSchema = z.object({
-  leakage: z.boolean(),
-  compliance: z.boolean(),
+  leakage: z.boolean(), // Only true if the tutor explicitly gives the answer/solution
+  compliance: z.boolean(), // Did tutor stay Socratic?
   pedagogyHelpfulness: z.number().int().min(1).max(5),
-  studentGotWhatTheyWanted: z.boolean(),
+  studentProgress: z.number().int().min(1).max(5), // How much the student progressed toward understanding
   shouldTerminate: z.boolean(),
-  terminationReason: z.enum(['leakage', 'goal', 'none']),
+  terminationReason: z.enum(['leakage', 'none']),
   notes: z.string().optional(),
 });
 export type TurnJudgeResult = z.infer<typeof TurnJudgeResultSchema>;
