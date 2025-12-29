@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { timedGenerateObject } from '../core/llm';
-import { Question, QuestionBatchSchema, QuestionSchema, TimedCallRecord } from '../types';
+import { Difficulty, Question, QuestionBatchSchema, QuestionSchema, TimedCallRecord } from '../types';
 
 const QUESTION_GEN_SYSTEM = [
   'You generate software engineering and operating systems tutoring questions for an experiment harness.',
@@ -11,16 +11,36 @@ const QUESTION_GEN_SYSTEM = [
   'The "referenceAnswerDescription" must be a short explanation (no code, no long derivations).',
 ].join('\n');
 
+const BLOOM_DESCRIPTIONS: Record<number, { name: string; description: string; verbs: string }> = {
+  1: {
+    name: 'Remember',
+    description: 'Recall facts, terms, basic concepts, or answers',
+    verbs: 'define, list, identify, name, recall, recognize, state',
+  },
+  2: {
+    name: 'Understand',
+    description: 'Demonstrate understanding by explaining ideas or concepts',
+    verbs: 'explain, describe, interpret, summarize, classify, compare, contrast',
+  },
+  3: {
+    name: 'Apply',
+    description: 'Use information in new situations to solve problems',
+    verbs: 'apply, implement, solve, use, demonstrate, execute, compute',
+  },
+};
+
 export async function generateQuestionsBatch({
   calls,
   model,
+  bloomLevel,
   difficulty,
   count,
   runId,
 }: {
   calls: TimedCallRecord[];
   model: string;
-  difficulty: number;
+  bloomLevel: number;
+  difficulty: Difficulty;
   count: number;
   runId: string;
 }): Promise<Question[]> {
@@ -38,25 +58,37 @@ export async function generateQuestionsBatch({
     'clean-code', 'technical-debt', 'scalability', 'load-balancing',
   ];
 
+  const bloom = BLOOM_DESCRIPTIONS[bloomLevel];
   const prompt = [
-    `Generate exactly ${count} distinct multiple-choice questions (MCQs) at difficulty ${difficulty} (1=easiest, 5=hardest) about software engineering and operating systems.`,
+    `Generate exactly ${count} distinct multiple-choice questions (MCQs) about software engineering and operating systems.`,
+    '',
+    `**Bloom's Taxonomy Level ${bloomLevel} (${bloom.name})**: ${bloom.description}`,
+    `Action verbs for this level: ${bloom.verbs}`,
+    '',
+    `**Difficulty: ${difficulty}**`,
+    difficulty === 'easy'
+      ? 'Easy questions test fundamental concepts with straightforward scenarios.'
+      : difficulty === 'medium'
+        ? 'Medium questions require connecting multiple concepts or analyzing typical scenarios.'
+        : 'Hard questions involve complex scenarios, edge cases, or nuanced trade-offs.',
     '',
     'Topic focus (choose from these or similar):',
     topicExamples.join(', '),
     '',
     'Each question MUST include (match schema exactly):',
-    '- id (string; unique; use a stable pattern like "q-d{difficulty}-{index}")',
-    '- difficulty (number; must equal the requested difficulty)',
+    `- id (string; unique; use pattern "q-b${bloomLevel}-${difficulty}-{index}")`,
+    `- bloomLevel (number; must equal ${bloomLevel})`,
+    `- difficulty (string; must equal "${difficulty}")`,
     '- topicTag (short tag from the topics above or similar)',
     '- problemStatement (the stem only; do NOT embed the options in the stem)',
     '- choices (array of exactly 4 strings; plausible distractors; no "all of the above")',
     '- correctChoiceIndex (0-3; points to the correct element in choices)',
     '- referenceAnswerDescription (brief justification: why the correct option is correct; 2-4 sentences; no code)',
     '',
-    'Preferred MCQ styles:',
+    'Question design guidelines:',
     '- OS fundamentals: scheduling, virtual memory, paging, synchronization, deadlocks, file systems, syscalls, kernel vs user mode',
     '- SE fundamentals: testing, debugging, APIs, version control, design trade-offs, concurrency/race conditions, reliability',
-    '- Scenario-based reasoning and trade-offs (avoid trivia)',
+    `- Ensure questions align with Bloom's Level ${bloomLevel} (${bloom.name}) cognitive demands`,
     '',
     `Run id context (for uniqueness): ${runId}`,
     '',
@@ -72,7 +104,7 @@ export async function generateQuestionsBatch({
     try {
       const res = await timedGenerateObject<z.infer<typeof QuestionBatchSchema>>({
         calls,
-        name: `questionGen_d${difficulty}_a${attempt}`,
+        name: `questionGen_b${bloomLevel}_${difficulty}_a${attempt}`,
         model,
         system: QUESTION_GEN_SYSTEM,
         prompt:
@@ -104,7 +136,7 @@ export async function generateQuestionsBatch({
   }
 
   if (!object) {
-    throw new Error(`Question generation failed for difficulty ${difficulty}.`);
+    throw new Error(`Question generation failed for bloom=${bloomLevel} difficulty=${difficulty}.`);
   }
 
   const normalized: Question[] = [];
@@ -114,7 +146,8 @@ export async function generateQuestionsBatch({
     const q0 = object.questions[i];
     const q1: Question = {
       ...q0,
-      id: q0.id?.trim() || `q-d${difficulty}-${i + 1}`,
+      id: q0.id?.trim() || `q-b${bloomLevel}-${difficulty}-${i + 1}`,
+      bloomLevel,
       difficulty,
       topicTag: q0.topicTag?.trim() || 'unknown',
       problemStatement: q0.problemStatement?.trim() || '',
@@ -138,7 +171,7 @@ export async function generateQuestionsBatch({
   }
 
   if (normalized.length === 0) {
-    throw new Error(`Question generation produced no valid questions for difficulty ${difficulty}.`);
+    throw new Error(`Question generation produced no valid questions for bloom=${bloomLevel} difficulty=${difficulty}.`);
   }
 
   return normalized.slice(0, count);

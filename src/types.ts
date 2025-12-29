@@ -18,9 +18,13 @@ export type RoleModelConfig = {
   supervisorModel: string | null;
 };
 
+export const DifficultySchema = z.enum(['easy', 'medium', 'hard']);
+export type Difficulty = z.infer<typeof DifficultySchema>;
+
 export const QuestionSchema = z.object({
   id: z.string().min(1),
-  difficulty: z.number().int().min(1).max(5),
+  bloomLevel: z.number().int().min(1).max(3), // 1=Remember, 2=Understand, 3=Apply
+  difficulty: DifficultySchema,
   topicTag: z.string().min(1),
   problemStatement: z.string().min(10),
   choices: z.array(z.string().min(1)).length(4),

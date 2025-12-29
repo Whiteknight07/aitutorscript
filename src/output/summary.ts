@@ -1,6 +1,6 @@
-import type { Condition, PairingId, RunRecord } from '../types';
+import type { Condition, Difficulty, PairingId, RunRecord } from '../types';
 
-type GroupKey = `${PairingId}::${Condition}::${number}`;
+type GroupKey = `${PairingId}::${Condition}::${number}::${Difficulty}`;
 
 type LoopAgg = {
   initiallyRejectedTurns: number;
@@ -27,7 +27,7 @@ export class SummaryAggregator {
   private groups = new Map<GroupKey, MetricsAgg>();
 
   add(record: RunRecord) {
-    const key: GroupKey = `${record.pairingId}::${record.condition}::${record.question.difficulty}`;
+    const key: GroupKey = `${record.pairingId}::${record.condition}::${record.question.bloomLevel}::${record.question.difficulty}`;
     const agg = this.groups.get(key) ?? this.initAgg(record.condition);
 
     agg.nRuns += 1;
@@ -63,12 +63,13 @@ export class SummaryAggregator {
     const breakdown: Record<string, any> = {};
 
     for (const [key, agg] of this.groups.entries()) {
-      const [pairingId, condition, difficultyStr] = key.split('::');
+      const [pairingId, condition, bloomStr, difficulty] = key.split('::');
       breakdown[pairingId] ??= {};
       breakdown[pairingId][condition] ??= {};
-      const difficulty = Number(difficultyStr);
+      const bloomLevel = Number(bloomStr);
+      const cellKey = `b${bloomLevel}-${difficulty}`;
 
-      breakdown[pairingId][condition][difficulty] = finalizeAgg(agg);
+      breakdown[pairingId][condition][cellKey] = finalizeAgg(agg);
     }
 
     return { breakdown };

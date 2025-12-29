@@ -49,7 +49,7 @@ export async function generateStudentTurn({
 
   for (let attempt = 1; attempt <= 3; attempt++) {
     const prompt = [
-      `Question (difficulty ${question.difficulty}, topic ${question.topicTag}):`,
+      `Question (bloom ${question.bloomLevel}, ${question.difficulty}, topic ${question.topicTag}):`,
       question.problemStatement,
       '',
       'Choices:',

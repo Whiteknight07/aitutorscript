@@ -1416,6 +1416,7 @@ export const REPORT_JS = `
 
     return {
       id: qid,
+      bloomLevel: q.bloomLevel != null ? q.bloomLevel : null,
       difficulty: q.difficulty != null ? q.difficulty : null,
       topicTag: q.topicTag || null,
       problemStatement: q.problemStatement || '',
@@ -1570,7 +1571,7 @@ export const REPORT_JS = `
     else parts.push('runs ' + completed);
     if (last) parts.push('updated ' + last);
     if (current && state !== 'complete'){
-      parts.push('at [' + current.index + '] q=' + current.questionId + ' diff=' + current.difficulty + ' pairing=' + current.pairingId + ' cond=' + current.condition);
+      parts.push('at [' + current.index + '] q=' + current.questionId + ' bloom=' + current.bloomLevel + ' diff=' + current.difficulty + ' pairing=' + current.pairingId + ' cond=' + current.condition);
     }
 
     statusPill.innerHTML = '';
@@ -1843,10 +1844,16 @@ export const REPORT_JS = `
 
       const tags = document.createElement('div');
       tags.className = 'qTags';
+      if (q.bloomLevel != null){
+        const t = document.createElement('span');
+        t.className = 'tag';
+        t.textContent = 'bloom ' + q.bloomLevel;
+        tags.appendChild(t);
+      }
       if (q.difficulty != null){
         const t = document.createElement('span');
         t.className = 'tag';
-        t.textContent = 'diff ' + q.difficulty;
+        t.textContent = q.difficulty;
         tags.appendChild(t);
       }
       if (q.topicTag){
@@ -1906,6 +1913,7 @@ export const REPORT_JS = `
       return p;
     }
     pills.push(pill('runs', rs.length));
+    if (q.bloomLevel != null) pills.push(pill('bloom', q.bloomLevel));
     if (q.difficulty != null) pills.push(pill('difficulty', q.difficulty));
     if (q.topicTag) pills.push(pill('topic', q.topicTag));
     for (const p of pills) qMeta.appendChild(p);

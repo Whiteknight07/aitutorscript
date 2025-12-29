@@ -15,7 +15,8 @@ export type ReportInput = {
     current?: {
       index: number;
       questionId: string;
-      difficulty: number;
+      bloomLevel: number;
+      difficulty: string;
       pairingId: string;
       condition: string;
     } | null;

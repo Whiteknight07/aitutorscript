@@ -46,17 +46,9 @@ export async function runExperiments({
 
   const datasetCalls: TimedCallRecord[] = [];
   // eslint-disable-next-line no-console
-  if (args.easyQuestions != null || args.mediumQuestions != null || args.hardQuestions != null) {
-    // eslint-disable-next-line no-console
-    console.log(
-      `generating questions: easy=${args.easyQuestions ?? 0} medium=${args.mediumQuestions ?? 0} hard=${args.hardQuestions ?? 0} (maps to d1-2, d3, d4-5)`
-    );
-  } else {
-    // eslint-disable-next-line no-console
-    console.log(
-      `generating questions: difficulties=${args.difficulties.join(',')} perDifficulty=${args.perDifficulty}`
-    );
-  }
+  console.log(
+    `generating questions: bloomLevels=${args.bloomLevels.join(',')} difficulties=${args.difficulties.join(',')} perCell=${args.questionsPerCell}`
+  );
   const questions = await generateDataset({ runId, args, datasetCalls });
   // eslint-disable-next-line no-console
   console.log(`generated ${questions.length} questions`);
@@ -68,8 +60,9 @@ export async function runExperiments({
         runId,
         createdAtIso,
         questionGeneratorModel: args.questionModel,
+        bloomLevels: args.bloomLevels,
         difficulties: args.difficulties,
-        perDifficulty: args.perDifficulty,
+        questionsPerCell: args.questionsPerCell,
         calls: datasetCalls,
         questions,
       },
@@ -90,7 +83,8 @@ export async function runExperiments({
     | {
         index: number;
         questionId: string;
-        difficulty: number;
+        bloomLevel: number;
+        difficulty: string;
         pairingId: string;
         condition: string;
       }
@@ -125,7 +119,7 @@ export async function runExperiments({
         const t0 = Date.now();
 
         runIndex += 1;
-        const prefix = `[${runIndex}/${plannedRuns}] q=${question.id} diff=${question.difficulty} pairing=${pairingId} cond=${condition}`;
+        const prefix = `[${runIndex}/${plannedRuns}] q=${question.id} bloom=${question.bloomLevel} diff=${question.difficulty} pairing=${pairingId} cond=${condition}`;
         const elapsed = Date.now() - allStart;
         const avgPerRunMs = runIndex > 1 ? elapsed / (runIndex - 1) : null;
         const remainingRuns = plannedRuns - runIndex + 1;
@@ -140,6 +134,7 @@ export async function runExperiments({
         current = {
           index: runIndex,
           questionId: question.id,
+          bloomLevel: question.bloomLevel,
           difficulty: question.difficulty,
           pairingId,
           condition,
@@ -315,7 +310,7 @@ async function writePartialOutputs({
   plannedRuns: number;
   completedRuns: number;
   state: 'running' | 'complete' | 'failed';
-  current: { index: number; questionId: string; difficulty: number; pairingId: string; condition: string } | null;
+  current: { index: number; questionId: string; bloomLevel: number; difficulty: string; pairingId: string; condition: string } | null;
   error: { message: string; stack?: string } | null;
 }) {
   const summaryObject = {
@@ -361,54 +356,26 @@ async function generateDataset({
   args: ReturnType<typeof parseArgs>;
   datasetCalls: TimedCallRecord[];
 }): Promise<Question[]> {
-  const hasBuckets =
-    args.easyQuestions != null || args.mediumQuestions != null || args.hardQuestions != null;
-
-  const targetByDifficulty = new Map<number, number>();
-
-  if (hasBuckets) {
-    const easy = args.easyQuestions ?? 0;
-    const medium = args.mediumQuestions ?? 0;
-    const hard = args.hardQuestions ?? 0;
-
-    // Option A mapping:
-    // easy: difficulty 1-2, medium: 3, hard: 4-5
-    const d1 = Math.floor(easy / 2);
-    const d2 = easy - d1;
-    const d4 = Math.floor(hard / 2);
-    const d5 = hard - d4;
-
-    if (d1) targetByDifficulty.set(1, d1);
-    if (d2) targetByDifficulty.set(2, d2);
-    if (medium) targetByDifficulty.set(3, medium);
-    if (d4) targetByDifficulty.set(4, d4);
-    if (d5) targetByDifficulty.set(5, d5);
-  } else {
-    for (const difficulty of args.difficulties) {
-      targetByDifficulty.set(difficulty, args.perDifficulty);
-    }
-  }
-
   const questions: Question[] = [];
   const seenIds = new Set<string>();
 
-  const diffs = Array.from(targetByDifficulty.keys()).sort((a, b) => a - b);
-  for (const difficulty of diffs) {
-    const count = targetByDifficulty.get(difficulty) ?? 0;
-    if (count <= 0) continue;
+  // Generate questions for each combination of Bloom level and difficulty
+  for (const bloomLevel of args.bloomLevels) {
+    for (const difficulty of args.difficulties) {
+      const batch = await generateQuestionsBatch({
+        calls: datasetCalls,
+        model: args.questionModel,
+        bloomLevel,
+        difficulty,
+        count: args.questionsPerCell,
+        runId,
+      });
 
-    const batch = await generateQuestionsBatch({
-      calls: datasetCalls,
-      model: args.questionModel,
-      difficulty,
-      count,
-      runId,
-    });
-
-    for (const q of batch) {
-      if (seenIds.has(q.id)) continue;
-      seenIds.add(q.id);
-      questions.push(q);
+      for (const q of batch) {
+        if (seenIds.has(q.id)) continue;
+        seenIds.add(q.id);
+        questions.push(q);
+      }
     }
   }
 

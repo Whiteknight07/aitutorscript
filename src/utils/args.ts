@@ -1,15 +1,13 @@
-import { ConditionSchema, PairingIdSchema } from '../types';
+import { ConditionSchema, Difficulty, DifficultySchema, PairingIdSchema } from '../types';
 import { DEFAULT_MODELS, PAIRING_IDS, parsePairingId, type PairingId } from '../config';
 
 export type CliArgs = {
-  perDifficulty: number;
-  difficulties: number[];
+  questionsPerCell: number;
+  bloomLevels: number[];
+  difficulties: Difficulty[];
   turns: number;
   maxIters: number;
   maxRuns: number | null;
-  easyQuestions: number | null;
-  mediumQuestions: number | null;
-  hardQuestions: number | null;
   earlyStop: boolean;
   outDir: string;
   pairings: PairingId[];
@@ -63,14 +61,11 @@ export function parseArgs(argv: string[]): CliArgs {
   const verbose = raw['verbose'] === true;
   const earlyStop = raw['noEarlyStop'] === true ? false : true;
 
-  const perDifficultyProvided = raw['perDifficulty'] != null;
-  const difficultiesProvided = raw['difficulties'] != null;
-
-  const perDifficulty = raw['perDifficulty']
-    ? parseIntFlag(String(raw['perDifficulty']), 'perDifficulty')
+  const questionsPerCell = raw['questionsPerCell']
+    ? parseIntFlag(String(raw['questionsPerCell']), 'questionsPerCell')
     : smoke
       ? 1
-      : 3;
+      : 1;
 
   const turns = raw['turns']
     ? parseIntFlag(String(raw['turns']), 'turns')
@@ -85,27 +80,6 @@ export function parseArgs(argv: string[]): CliArgs {
   const maxRuns = raw['maxRuns']
     ? parseIntFlag(String(raw['maxRuns']), 'maxRuns')
     : null;
-
-  const easyQuestionsArg = raw['easyQuestions']
-    ? parseIntFlag(String(raw['easyQuestions']), 'easyQuestions')
-    : null;
-  const mediumQuestionsArg = raw['mediumQuestions']
-    ? parseIntFlag(String(raw['mediumQuestions']), 'mediumQuestions')
-    : null;
-  const hardQuestionsArg = raw['hardQuestions']
-    ? parseIntFlag(String(raw['hardQuestions']), 'hardQuestions')
-    : null;
-
-  const bucketProvided =
-    easyQuestionsArg != null || mediumQuestionsArg != null || hardQuestionsArg != null;
-
-  // Default "full suite" dataset (when user does not specify any dataset flags):
-  // 5 easy (d1-2), 5 medium (d3), 5 hard (d4-5)
-  const useBucketDefaults = !smoke && !bucketProvided && !perDifficultyProvided && !difficultiesProvided;
-
-  const easyQuestions = useBucketDefaults ? 5 : easyQuestionsArg;
-  const mediumQuestions = useBucketDefaults ? 5 : mediumQuestionsArg;
-  const hardQuestions = useBucketDefaults ? 5 : hardQuestionsArg;
 
   const outDir = raw['outDir'] ? String(raw['outDir']) : 'results';
 
@@ -122,12 +96,20 @@ export function parseArgs(argv: string[]): CliArgs {
     ? String(raw['judgeModel']) 
     : DEFAULT_MODELS.judge;
 
-  const difficulties =
-    raw['difficulties'] != null
-      ? parseListFlag(String(raw['difficulties'])).map((d) => Number.parseInt(d, 10))
+  const bloomLevels =
+    raw['bloomLevels'] != null
+      ? parseListFlag(String(raw['bloomLevels'])).map((d) => Number.parseInt(d, 10))
       : smoke
         ? [1]
-        : [1, 2, 3, 4, 5];
+        : [1, 2, 3];
+
+  const difficultiesRaw =
+    raw['difficulties'] != null
+      ? parseListFlag(String(raw['difficulties']))
+      : smoke
+        ? ['easy']
+        : ['easy', 'medium', 'hard'];
+  const difficulties = difficultiesRaw.map((d) => DifficultySchema.parse(d));
 
   // Use centralized config for pairing defaults
   const defaultPairings: PairingId[] = smoke
@@ -141,14 +123,12 @@ export function parseArgs(argv: string[]): CliArgs {
   const conditions = conditionsRaw.map((c) => ConditionSchema.parse(c));
 
   return {
-    perDifficulty,
+    questionsPerCell,
+    bloomLevels,
     difficulties,
     turns,
     maxIters,
     maxRuns,
-    easyQuestions,
-    mediumQuestions,
-    hardQuestions,
     earlyStop,
     outDir,
     pairings,
@@ -171,11 +151,10 @@ Usage:
   pnpm harness [flags]
 
 Flags:
-  --easyQuestions N        Generate N easy questions (difficulty 1-2)
-  --mediumQuestions N      Generate N medium questions (difficulty 3)
-  --hardQuestions N        Generate N hard questions (difficulty 4-5)
-  --perDifficulty N        Questions per difficulty (default 3; smoke=1)
-  --difficulties 1,2,3     Difficulty levels to generate (default 1-5; smoke=1)
+  --questionsPerCell N     Questions per Bloom x Difficulty cell (default 1)
+  --bloomLevels 1,2,3      Bloom's taxonomy levels (default 1,2,3; smoke=1)
+                           1=Remember, 2=Understand, 3=Apply
+  --difficulties LIST      easy,medium,hard (default all; smoke=easy)
   --turns N                Turns per conversation (default 6; smoke=2)
   --maxIters N             Max tutor revision loops (default 5)
   --maxRuns N              Stop after N completed runs (default unlimited)
@@ -188,8 +167,12 @@ Flags:
   --noJudge                Disable judge pass
   --noEarlyStop            Disable early stopping (otherwise stops when judge detects leakage or attacker goal success)
   --verbose                Extra per-turn logs (can be noisy)
-  --smoke                  1 question (difficulty 1), 2 turns, minimal variants
+  --smoke                  1 question (bloom 1, easy), 2 turns, minimal variants
   --help                   Show help
+
+Question Matrix:
+  Questions are generated for each combination of Bloom level and difficulty.
+  Default: 3 blooms x 3 difficulties x 1 per cell = 9 questions.
 
 Models:
   Use OpenRouter model IDs like "openai/gpt-4o" and "google/gemini-2.0-flash-001".
