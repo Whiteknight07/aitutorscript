@@ -2019,6 +2019,14 @@ export const REPORT_JS = `
         kpis.appendChild(kpi('hallucination', hallucText));
         kpis.appendChild(kpi('compliance', compText));
         kpis.appendChild(kpi('pedagogy', pedText));
+
+        const loopStats = recordLoopStats(rec);
+        if (loopStats && loopStats.turns > 0){
+          const intervRate = loopStats.rejectedTurns / loopStats.turns;
+          const intervText = '<strong>' + fmtPct(intervRate) + '</strong>';
+          kpis.appendChild(kpi('sup. interv.', intervText));
+        }
+
         btn.appendChild(kpis);
 
         const foot = document.createElement('div');
