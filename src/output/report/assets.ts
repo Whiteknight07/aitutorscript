@@ -1708,7 +1708,7 @@ export const REPORT_JS = `
     c2.innerHTML = '<div class="k">Leakage Rate</div><div class="v">' + (agg.nJudged ? fmtPct(agg.leakage / agg.nJudged) : 'n/a') + '</div><div class="s mono">judged=' + escapeHtml(agg.nJudged) + ' leaks=' + escapeHtml(agg.leakage) + '</div>';
     const c2b = document.createElement('div');
     c2b.className = 'card';
-    c2b.innerHTML = '<div class="k">Hallucination Rate</div><div class="v">' + (agg.nJudged ? fmtPct(agg.hallucination / agg.nJudged) : 'n/a') + '</div><div class="s mono">halluc=' + escapeHtml(agg.hallucination) + '</div>';
+    c2b.innerHTML = '<div class="k">Hallucination Rate</div><div class="v">' + (agg.nJudged ? fmtPct(agg.hallucination / agg.nJudged) : 'n/a') + '</div><div class="s mono">hallucination=' + escapeHtml(agg.hallucination) + '</div>';
     const c3 = document.createElement('div');
     c3.className = 'card';
     c3.innerHTML = '<div class="k">Compliance Rate</div><div class="v">' + (agg.nJudged ? fmtPct(agg.compliance / agg.nJudged) : 'n/a') + '</div><div class="s mono">stayed Socratic=' + escapeHtml(agg.compliance) + '</div>';
@@ -1766,7 +1766,7 @@ export const REPORT_JS = `
           '<div class="row">' +
             '<div class="miniStat"><div class="k">runs</div><div class="v mono"><strong>' + escapeHtml(g ? g.nRuns : 0) + '</strong></div></div>' +
             '<div class="miniStat"><div class="k">leak</div><div class="v mono"><strong>' + fmtPct(leakRate) + '</strong></div></div>' +
-            '<div class="miniStat"><div class="k">halluc</div><div class="v mono"><strong>' + (g && nJudged ? fmtPct(g.hallucination / nJudged) : 'n/a') + '</strong></div></div>' +
+            '<div class="miniStat"><div class="k">hallucination</div><div class="v mono"><strong>' + (g && nJudged ? fmtPct(g.hallucination / nJudged) : 'n/a') + '</strong></div></div>' +
             '<div class="miniStat"><div class="k">comp</div><div class="v mono"><strong>' + fmtPct(compRate) + '</strong></div></div>' +
             '<div class="miniStat"><div class="k">ped</div><div class="v mono"><strong>' + (avgPed != null ? avgPed.toFixed(2) + '/5' : 'n/a') + '</strong></div></div>' +
             '<div class="miniStat"><div class="k">lat</div><div class="v mono"><strong>' + fmtMs(avgLat) + '</strong></div></div>' +
@@ -1876,7 +1876,7 @@ export const REPORT_JS = `
       parts.push('runs ' + q.runs);
       if (q.judged) parts.push('judged ' + q.judged);
       if (q.leak) parts.push('leaks ' + q.leak);
-      if (q.halluc) parts.push('halluc ' + q.halluc);
+      if (q.halluc) parts.push('hallucination ' + q.halluc);
       if (q.noncomp) parts.push('noncomp ' + q.noncomp);
       if (q.avgPed != null) parts.push('ped ' + q.avgPed.toFixed(2) + '/5');
       if (q.avgLatencyMs != null) parts.push('lat ' + fmtMs(q.avgLatencyMs));
@@ -2019,7 +2019,7 @@ export const REPORT_JS = `
         const compText = k.compliance == null ? 'n/a' : (k.compliance ? '<strong>yes</strong>' : '<strong>no</strong>');
         const pedText = typeof k.pedagogy === 'number' ? '<strong>' + k.pedagogy + '</strong>/5' : 'n/a';
         kpis.appendChild(kpi('leakage', leakText));
-        kpis.appendChild(kpi('halluc', hallucText));
+        kpis.appendChild(kpi('hallucination', hallucText));
         kpis.appendChild(kpi('compliance', compText));
         kpis.appendChild(kpi('pedagogy', pedText));
         btn.appendChild(kpis);
