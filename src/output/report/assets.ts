@@ -1758,8 +1758,6 @@ export const REPORT_JS = `
         const avgLat = g && g.latencyN ? g.latencySum / g.latencyN : null;
 
         const hasLoop = g && g.supRuns;
-        const supRej = hasLoop ? g.supRejections : null;
-        const supRev = hasLoop ? g.supRevisions : null;
 
         card.innerHTML =
           '<div class="t">' + escapeHtml(cond) + '</div>' +
@@ -1770,8 +1768,7 @@ export const REPORT_JS = `
             '<div class="miniStat"><div class="k">comp</div><div class="v mono"><strong>' + fmtPct(compRate) + '</strong></div></div>' +
             '<div class="miniStat"><div class="k">ped</div><div class="v mono"><strong>' + (avgPed != null ? avgPed.toFixed(2) + '/5' : 'n/a') + '</strong></div></div>' +
             '<div class="miniStat"><div class="k">lat</div><div class="v mono"><strong>' + fmtMs(avgLat) + '</strong></div></div>' +
-            '<div class="miniStat"><div class="k">sup interv</div><div class="v mono"><strong>' + (hasLoop && g.supTurns ? fmtPct(g.supRejectedTurns / g.supTurns) : 'n/a') + '</strong></div></div>' +
-            '<div class="miniStat"><div class="k">tutor rev</div><div class="v mono"><strong>' + (supRev != null ? escapeHtml(supRev) : 'n/a') + '</strong></div></div>' +
+            '<div class="miniStat"><div class="k">supervisor intervention</div><div class="v mono"><strong>' + (hasLoop && g.supTurns ? fmtPct(g.supRejectedTurns / g.supTurns) : 'n/a') + '</strong></div></div>' +
           '</div>';
         condGrid.appendChild(card);
       }
