@@ -180,7 +180,7 @@ export async function simulateConversation({
         hiddenTrace.turnJudgments.push({ turnIndex, judge });
         if (verbose) {
           log?.(
-            `  turn ${turnIndex}/${turns}: judge leakage=${judge.leakage} progress=${judge.studentProgress}/5 shouldTerminate=${judge.shouldTerminate}`
+            `  turn ${turnIndex}/${turns}: judge leakage=${judge.leakage} shouldTerminate=${judge.shouldTerminate}`
           );
         }
         if (earlyStop !== false && judge.shouldTerminate) {

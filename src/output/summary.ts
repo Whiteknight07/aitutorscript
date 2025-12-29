@@ -8,15 +8,17 @@ type LoopAgg = {
   iterationCounts: Record<string, number>;
   totalIterations: number;
   totalTurns: number;
+  interventionCount: number;
+  turnsWithIntervention: number;
 };
 
 type MetricsAgg = {
   nRuns: number;
   nJudged: number;
   leakageCount: number;
+  hallucinationCount: number;
   complianceCount: number;
   pedagogySum: number;
-  studentProgressSum: number;
   totalLatencyMs: number;
   loop?: LoopAgg;
 };
@@ -34,9 +36,9 @@ export class SummaryAggregator {
     if (record.judge) {
       agg.nJudged += 1;
       if (record.judge.leakage) agg.leakageCount += 1;
+      if (record.judge.hallucination) agg.hallucinationCount += 1;
       if (record.judge.compliance) agg.complianceCount += 1;
       agg.pedagogySum += record.judge.pedagogyHelpfulness;
-      agg.studentProgressSum += record.judge.studentProgress;
     }
 
     if (record.condition === 'dual-loop' && record.loopTurnIterations && agg.loop) {
@@ -47,6 +49,8 @@ export class SummaryAggregator {
           (agg.loop.iterationCounts[String(t.iterationsUsed)] ?? 0) + 1;
         if (t.initiallyRejected) {
           agg.loop.initiallyRejectedTurns += 1;
+          agg.loop.turnsWithIntervention += 1;
+          agg.loop.interventionCount += t.iterationsUsed - 1;
           if (t.endedApproved) agg.loop.fixedTurns += 1;
         }
       }
@@ -75,9 +79,9 @@ export class SummaryAggregator {
       nRuns: 0,
       nJudged: 0,
       leakageCount: 0,
+      hallucinationCount: 0,
       complianceCount: 0,
       pedagogySum: 0,
-      studentProgressSum: 0,
       totalLatencyMs: 0,
       loop:
         condition === 'dual-loop'
@@ -87,6 +91,8 @@ export class SummaryAggregator {
               iterationCounts: {},
               totalIterations: 0,
               totalTurns: 0,
+              interventionCount: 0,
+              turnsWithIntervention: 0,
             }
           : undefined,
     };
@@ -95,10 +101,10 @@ export class SummaryAggregator {
 
 function finalizeAgg(agg: MetricsAgg) {
   const avgLatencyMs = agg.nRuns ? agg.totalLatencyMs / agg.nRuns : null;
-  const leakRate = agg.nJudged ? agg.leakageCount / agg.nJudged : null;
+  const leakageRate = agg.nJudged ? agg.leakageCount / agg.nJudged : null;
+  const hallucinationRate = agg.nJudged ? agg.hallucinationCount / agg.nJudged : null;
   const complianceRate = agg.nJudged ? agg.complianceCount / agg.nJudged : null;
   const avgPedagogy = agg.nJudged ? agg.pedagogySum / agg.nJudged : null;
-  const avgStudentProgress = agg.nJudged ? agg.studentProgressSum / agg.nJudged : null;
 
   const loop = agg.loop
     ? {
@@ -110,18 +116,21 @@ function finalizeAgg(agg: MetricsAgg) {
         initiallyRejectedTurns: agg.loop.initiallyRejectedTurns,
         fixedTurns: agg.loop.fixedTurns,
         totalTurns: agg.loop.totalTurns,
+        interventionCount: agg.loop.interventionCount,
+        turnsWithIntervention: agg.loop.turnsWithIntervention,
+        interventionRate: agg.loop.totalTurns ? agg.loop.turnsWithIntervention / agg.loop.totalTurns : null,
+        avgInterventionsPerTurn: agg.loop.totalTurns ? agg.loop.interventionCount / agg.loop.totalTurns : null,
       }
     : null;
 
   return {
     nRuns: agg.nRuns,
     nJudged: agg.nJudged,
-    leakRate,
+    leakageRate,
+    hallucinationRate,
     complianceRate,
     avgPedagogyHelpfulness: avgPedagogy,
-    avgStudentProgress,
     avgLatencyMs,
     loop,
   };
 }
-

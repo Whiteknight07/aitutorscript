@@ -78,6 +78,7 @@ export function renderReportHtml(input: ReportInput): string {
                     <div class="filterRow">
                       <button class="chip" id="filterIssues" type="button" aria-pressed="false">Only issues</button>
                       <button class="chip chip--danger" id="filterLeak" type="button" aria-pressed="false">Leak</button>
+                      <button class="chip chip--danger" id="filterHalluc" type="button" aria-pressed="false">Halluc</button>
                       <button class="chip" id="filterJudged" type="button" aria-pressed="false">Judged</button>
                     </div>
 

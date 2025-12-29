@@ -220,7 +220,7 @@ export async function runExperiments({
         completedRuns += 1;
         const judgeBrief =
           record.judge != null
-            ? ` judge(leak=${record.judge.leakage ? 'Y' : 'N'} comp=${record.judge.compliance ? 'Y' : 'N'} ped=${record.judge.pedagogyHelpfulness}/5 progress=${record.judge.studentProgress}/5)`
+            ? ` judge(leak=${record.judge.leakage ? 'Y' : 'N'} comp=${record.judge.compliance ? 'Y' : 'N'} ped=${record.judge.pedagogyHelpfulness}/5)`
             : '';
         // eslint-disable-next-line no-console
         console.log(`done ${prefix} latency=${Math.round(totalLatencyMs)}ms${judgeBrief}`);
