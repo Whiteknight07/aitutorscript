@@ -26,6 +26,80 @@ export const MODELS = {
 export type ModelId = (typeof MODELS)[keyof typeof MODELS];
 
 // =============================================================================
+// TUTOR AND SUPERVISOR DEFINITIONS
+// =============================================================================
+
+/**
+ * Tutor model definitions - maps short IDs to full model paths
+ */
+export const TUTORS = {
+  'gpt': MODELS.gpt51,
+  'gemini': MODELS.gemini2Flash,
+} as const;
+
+export type TutorId = keyof typeof TUTORS;
+export const TUTOR_IDS = Object.keys(TUTORS) as TutorId[];
+
+/**
+ * Supervisor model definitions - maps short IDs to full model paths
+ */
+export const SUPERVISORS = {
+  'gpt': MODELS.gpt51,
+  'gemini': MODELS.gemini2Flash,
+} as const;
+
+export type SupervisorId = keyof typeof SUPERVISORS;
+export const SUPERVISOR_IDS = Object.keys(SUPERVISORS) as SupervisorId[];
+
+/**
+ * Get the full model path for a tutor ID
+ */
+export function getTutorModel(tutorId: TutorId): string {
+  return TUTORS[tutorId];
+}
+
+/**
+ * Get the full model path for a supervisor ID
+ */
+export function getSupervisorModel(supervisorId: SupervisorId): string {
+  return SUPERVISORS[supervisorId];
+}
+
+/**
+ * Check if a string is a valid tutor ID
+ */
+export function isValidTutorId(id: string): id is TutorId {
+  return id in TUTORS;
+}
+
+/**
+ * Check if a string is a valid supervisor ID
+ */
+export function isValidSupervisorId(id: string): id is SupervisorId {
+  return id in SUPERVISORS;
+}
+
+/**
+ * Parse and validate a tutor ID
+ */
+export function parseTutorId(id: string): TutorId {
+  if (!isValidTutorId(id)) {
+    throw new Error(`Invalid tutor ID: "${id}". Valid options: ${TUTOR_IDS.join(', ')}`);
+  }
+  return id;
+}
+
+/**
+ * Parse and validate a supervisor ID
+ */
+export function parseSupervisorId(id: string): SupervisorId {
+  if (!isValidSupervisorId(id)) {
+    throw new Error(`Invalid supervisor ID: "${id}". Valid options: ${SUPERVISOR_IDS.join(', ')}`);
+  }
+  return id;
+}
+
+// =============================================================================
 // DEFAULT MODELS FOR EACH ROLE
 // =============================================================================
 

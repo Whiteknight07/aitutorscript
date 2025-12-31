@@ -17,7 +17,8 @@ export type ReportInput = {
       questionId: string;
       bloomLevel: number;
       difficulty: string;
-      pairingId: string;
+      tutorId: string;
+      supervisorId: string | null;
       condition: string;
     } | null;
     error?: {

@@ -1286,11 +1286,80 @@ export const REPORT_JS = `
     return uniqueStrings(pairs).sort((a, b) => (pref[a] ?? 99) - (pref[b] ?? 99) || byString(a, b));
   }
 
+  function orderedTutors(tutors){
+    const pref = { 'gpt': 0, 'gemini': 1 };
+    return uniqueStrings(tutors).sort((a, b) => (pref[a] ?? 99) - (pref[b] ?? 99) || byString(a, b));
+  }
+
+  function orderedSupervisors(sups){
+    const pref = { 'gpt': 0, 'gemini': 1 };
+    return uniqueStrings(sups).sort((a, b) => (pref[a] ?? 99) - (pref[b] ?? 99) || byString(a, b));
+  }
+
   const argsPairings = Array.isArray(data.args && data.args.pairings) ? data.args.pairings : [];
   const argsConditions = Array.isArray(data.args && data.args.conditions) ? data.args.conditions : [];
+  const argsTutors = Array.isArray(data.args && data.args.tutors) ? data.args.tutors : [];
+  const argsSupervisors = Array.isArray(data.args && data.args.supervisors) ? data.args.supervisors : [];
 
   const pairings = orderedPairings(argsPairings.length ? argsPairings : records.map(r => r.pairingId));
   const conditions = orderedConditions(argsConditions.length ? argsConditions : records.map(r => r.condition));
+  
+  // Extract tutors and supervisors from records if not in args
+  // Supports both new format (config.tutorId) and legacy format (pairingId like 'gpt-gpt')
+  function extractTutorsFromRecords(){
+    const tutors = new Set();
+    for (const r of records){
+      const cfg = r && r.config ? r.config : null;
+      // New format: tutorId in config
+      if (cfg && cfg.tutorId) {
+        tutors.add(cfg.tutorId);
+        continue;
+      }
+      // Legacy format: extract from pairingId (e.g., 'gpt-gpt' -> 'gpt', 'gemini-gpt' -> 'gemini')
+      const pid = r && r.pairingId ? String(r.pairingId) : '';
+      if (pid) {
+        const parts = pid.split('-');
+        if (parts.length >= 1 && parts[0]) tutors.add(parts[0]);
+      }
+    }
+    return Array.from(tutors);
+  }
+  
+  function extractSupervisorsFromRecords(){
+    const sups = new Set();
+    for (const r of records){
+      const cfg = r && r.config ? r.config : null;
+      // New format: supervisorId in config
+      if (cfg && cfg.supervisorId) {
+        sups.add(cfg.supervisorId);
+        continue;
+      }
+      // Legacy format: extract from pairingId (e.g., 'gpt-gpt' -> 'gpt', 'gpt-gemini' -> 'gemini')
+      // Only for dual-loop condition
+      if (r && r.condition === 'dual-loop') {
+        const pid = r.pairingId ? String(r.pairingId) : '';
+        if (pid) {
+          const parts = pid.split('-');
+          if (parts.length >= 2 && parts[1]) sups.add(parts[1]);
+        }
+      }
+    }
+    return Array.from(sups);
+  }
+  
+  const tutors = orderedTutors(argsTutors.length ? argsTutors : extractTutorsFromRecords());
+  const supervisors = orderedSupervisors(argsSupervisors.length ? argsSupervisors : extractSupervisorsFromRecords());
+  
+  // Build supervision columns: Single + each supervisor
+  const hasSingleCondition = conditions.includes('single');
+  const hasDualLoopCondition = conditions.includes('dual-loop');
+  const supervisionModes = [];
+  if (hasSingleCondition) supervisionModes.push({ id: 'single', label: 'Single', supervisorId: null });
+  if (hasDualLoopCondition) {
+    for (const sup of supervisors) {
+      supervisionModes.push({ id: sup, label: sup.toUpperCase() + ' Supervisor', supervisorId: sup });
+    }
+  }
 
   const allQuestionIds = uniqueStrings(
     questions.length ? questions.map(q => q.id) : Array.from(recordsByQuestionId.keys())
@@ -1442,11 +1511,45 @@ export const REPORT_JS = `
     return matches[matches.length - 1];
   }
 
+  // New function to pick record by tutor and supervision mode
+  // Supports both new format (config.tutorId/supervisorId) and legacy format (pairingId)
+  function pickRecordByTutorSupervision(qid, tutorId, supervisionMode){
+    const rs = recordsByQuestionId.get(qid) || [];
+    const matches = rs.filter(r => {
+      const cfg = r && r.config ? r.config : null;
+      
+      // Try new format first
+      let rTutorId = cfg && cfg.tutorId ? cfg.tutorId : null;
+      let rSupId = cfg && cfg.supervisorId ? cfg.supervisorId : null;
+      
+      // Fall back to legacy format: extract from pairingId
+      if (!rTutorId && r && r.pairingId) {
+        const parts = String(r.pairingId).split('-');
+        if (parts.length >= 1) rTutorId = parts[0];
+        if (parts.length >= 2 && r.condition === 'dual-loop') rSupId = parts[1];
+      }
+      
+      if (String(rTutorId) !== String(tutorId)) return false;
+      
+      if (supervisionMode.id === 'single') {
+        return r.condition === 'single';
+      } else {
+        return r.condition === 'dual-loop' && String(rSupId) === String(supervisionMode.supervisorId);
+      }
+    });
+    if (!matches.length) return null;
+    if (matches.length === 1) return matches[0];
+    matches.sort((a, b) => byString(a.createdAtIso, b.createdAtIso));
+    return matches[matches.length - 1];
+  }
+
   const ui = {
     tab: 'questions',
     qid: allQuestionIds[0] || 'unknown',
     pairingId: pairings[0] || '',
     condition: conditions[0] || '',
+    tutorId: tutors[0] || '',
+    supervisionModeId: supervisionModes[0] ? supervisionModes[0].id : '',
     drawerOpen: false,
     drawerTab: 'transcript',
     search: '',
@@ -1503,6 +1606,8 @@ export const REPORT_JS = `
     if (typeof parsed.qid === 'string' && allQuestionIds.includes(parsed.qid)) ui.qid = parsed.qid;
     if (typeof parsed.pairingId === 'string' && pairings.includes(parsed.pairingId)) ui.pairingId = parsed.pairingId;
     if (typeof parsed.condition === 'string' && conditions.includes(parsed.condition)) ui.condition = parsed.condition;
+    if (typeof parsed.tutorId === 'string' && tutors.includes(parsed.tutorId)) ui.tutorId = parsed.tutorId;
+    if (typeof parsed.supervisionModeId === 'string') ui.supervisionModeId = parsed.supervisionModeId;
     if (parsed.drawerTab && ['transcript','judging','timings','hidden'].includes(parsed.drawerTab)) ui.drawerTab = parsed.drawerTab;
     ui.drawerOpen = !!parsed.drawerOpen;
     ui.issuesOnly = !!parsed.issuesOnly;
@@ -1520,6 +1625,8 @@ export const REPORT_JS = `
       qid: ui.qid,
       pairingId: ui.pairingId,
       condition: ui.condition,
+      tutorId: ui.tutorId,
+      supervisionModeId: ui.supervisionModeId,
       drawerOpen: ui.drawerOpen,
       drawerTab: ui.drawerTab,
       search: ui.search,
@@ -1547,6 +1654,19 @@ export const REPORT_JS = `
   function openDrawer(pairingId, condition){
     ui.pairingId = pairingId;
     ui.condition = condition;
+    ui.drawerOpen = true;
+    render();
+  }
+
+  function openDrawerByTutorSupervision(tutorId, supervisionModeId){
+    ui.tutorId = tutorId;
+    ui.supervisionModeId = supervisionModeId;
+    // Set pairingId and condition for backward compatibility with drawer
+    const supMode = supervisionModes.find(m => m.id === supervisionModeId);
+    if (supMode) {
+      ui.pairingId = supMode.supervisorId ? tutorId + '-' + supMode.supervisorId : tutorId + '-single';
+      ui.condition = supMode.supervisorId ? 'dual-loop' : 'single';
+    }
     ui.drawerOpen = true;
     render();
   }
@@ -1946,35 +2066,38 @@ export const REPORT_JS = `
     matrix.innerHTML = '';
     const grid = document.createElement('div');
     grid.className = 'matrixGrid';
-    grid.style.setProperty('--cols', String(pairings.length));
+    // New matrix: rows = tutors, columns = supervision modes (Single, GPT Supervisor, Gemini Supervisor)
+    grid.style.setProperty('--cols', String(supervisionModes.length));
 
     const corner = document.createElement('div');
     corner.className = 'headCell';
-    corner.innerHTML = '<div class="t mono">condition ↓ / pairing →</div><div class="s">Each tile is one run record.</div>';
+    corner.innerHTML = '<div class="t mono">tutor ↓ / supervision →</div><div class="s">Each tile is one run record.</div>';
     grid.appendChild(corner);
 
-    for (const pid of pairings){
+    // Column headers: supervision modes
+    for (const supMode of supervisionModes){
       const head = document.createElement('div');
       head.className = 'headCell';
       head.innerHTML =
-        '<div class="t">' + escapeHtml(pid) + '</div>' +
-        '<div class="s mono">' + escapeHtml(pairingLabel(pid)) + '</div>';
+        '<div class="t">' + escapeHtml(supMode.label) + '</div>' +
+        '<div class="s mono">' + (supMode.supervisorId ? 'dual-loop with ' + supMode.supervisorId : 'no supervisor') + '</div>';
       grid.appendChild(head);
     }
 
-    for (const cond of conditions){
+    // Row for each tutor
+    for (const tutorId of tutors){
       const row = document.createElement('div');
       row.className = 'rowCell';
-      row.innerHTML = '<div class="t">' + escapeHtml(cond) + '</div>' +
-        '<div class="s mono">' + (cond === 'single' ? 'no supervisor' : cond === 'dual-loop' ? 'iterative revision' : 'variant') + '</div>';
+      row.innerHTML = '<div class="t">' + escapeHtml(tutorId.toUpperCase()) + ' Tutor</div>' +
+        '<div class="s mono">' + escapeHtml(pairingModels.get(tutorId + '-single')?.tutorModel || tutorId) + '</div>';
       grid.appendChild(row);
 
-      for (const pid of pairings){
-        const rec = pickRecord(ui.qid, pid, cond);
+      for (const supMode of supervisionModes){
+        const rec = pickRecordByTutorSupervision(ui.qid, tutorId, supMode);
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'tile';
-        btn.setAttribute('aria-selected', (ui.drawerOpen && ui.pairingId === pid && ui.condition === cond) ? 'true' : 'false');
+        btn.setAttribute('aria-selected', (ui.drawerOpen && ui.tutorId === tutorId && ui.supervisionModeId === supMode.id) ? 'true' : 'false');
         if (!rec){
           btn.disabled = true;
           btn.innerHTML = '<div class="emptyState">No run for this cell yet.</div>';
@@ -2047,7 +2170,7 @@ export const REPORT_JS = `
         foot.appendChild(meter);
         btn.appendChild(foot);
 
-        btn.addEventListener('click', () => openDrawer(pid, cond));
+        btn.addEventListener('click', () => openDrawerByTutorSupervision(tutorId, supMode.id));
         grid.appendChild(btn);
       }
     }
@@ -2056,7 +2179,11 @@ export const REPORT_JS = `
   }
 
   function renderDrawer(){
-    const rec = ui.drawerOpen ? pickRecord(ui.qid, ui.pairingId, ui.condition) : null;
+    // Try new tutor-based lookup first, fall back to legacy pairing lookup
+    const supMode = supervisionModes.find(m => m.id === ui.supervisionModeId);
+    const recNew = ui.drawerOpen && ui.tutorId && supMode ? pickRecordByTutorSupervision(ui.qid, ui.tutorId, supMode) : null;
+    const recLegacy = ui.drawerOpen && !recNew ? pickRecord(ui.qid, ui.pairingId, ui.condition) : null;
+    const rec = recNew || recLegacy;
     drawer.className = ui.drawerOpen ? 'drawer is-open' : 'drawer';
 
     if (!ui.drawerOpen){
@@ -2070,15 +2197,20 @@ export const REPORT_JS = `
       return;
     }
 
+    // Build title from tutor/supervision or fallback to pairing
+    const titleText = ui.tutorId && supMode 
+      ? escapeText(ui.tutorId.toUpperCase()) + ' Tutor · ' + escapeText(supMode.label)
+      : escapeText(ui.pairingId) + ' · ' + escapeText(ui.condition);
+
     if (!rec){
-      drawerTitle.textContent = escapeText(ui.pairingId) + ' · ' + escapeText(ui.condition);
+      drawerTitle.textContent = titleText;
       drawerMeta.textContent = 'No record found for this cell.';
       drawerBody.innerHTML = '<div class="emptyState">This run is missing.</div>';
       return;
     }
 
     const k = recordKpis(rec);
-    drawerTitle.textContent = escapeText(ui.pairingId) + ' · ' + escapeText(ui.condition);
+    drawerTitle.textContent = titleText;
     const metaParts = [];
     metaParts.push('q=' + escapeText(rec.question && rec.question.id ? rec.question.id : ui.qid));
     metaParts.push('lat=' + fmtMs(k.latencyMs));

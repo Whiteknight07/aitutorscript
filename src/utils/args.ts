@@ -1,5 +1,5 @@
 import { ConditionSchema, Difficulty, DifficultySchema, PairingIdSchema } from '../types';
-import { DEFAULT_MODELS, PAIRING_IDS, parsePairingId, type PairingId } from '../config';
+import { DEFAULT_MODELS, PAIRING_IDS, parsePairingId, type PairingId, TUTOR_IDS, SUPERVISOR_IDS, parseTutorId, parseSupervisorId, type TutorId, type SupervisorId } from '../config';
 
 export type CliArgs = {
   questionsPerCell: number;
@@ -11,6 +11,8 @@ export type CliArgs = {
   earlyStop: boolean;
   outDir: string;
   pairings: PairingId[];
+  tutors: TutorId[];
+  supervisors: SupervisorId[];
   conditions: Array<ReturnType<typeof ConditionSchema.parse>>;
   questionModel: string;
   studentModel: string;
@@ -111,12 +113,21 @@ export function parseArgs(argv: string[]): CliArgs {
         : ['easy', 'medium', 'hard'];
   const difficulties = difficultiesRaw.map((d) => DifficultySchema.parse(d));
 
-  // Use centralized config for pairing defaults
+  // Use centralized config for pairing defaults (legacy support)
   const defaultPairings: PairingId[] = smoke
     ? ['gemini-gemini']
     : PAIRING_IDS;
   const pairingsRaw = raw['pairings'] != null ? parseListFlag(String(raw['pairings'])) : defaultPairings;
   const pairings = pairingsRaw.map((p) => parsePairingId(p));
+
+  // New tutor/supervisor based configuration
+  const defaultTutors: TutorId[] = smoke ? ['gemini'] : TUTOR_IDS;
+  const tutorsRaw = raw['tutors'] != null ? parseListFlag(String(raw['tutors'])) : defaultTutors;
+  const tutors = tutorsRaw.map((t) => parseTutorId(t));
+
+  const defaultSupervisors: SupervisorId[] = smoke ? ['gemini'] : SUPERVISOR_IDS;
+  const supervisorsRaw = raw['supervisors'] != null ? parseListFlag(String(raw['supervisors'])) : defaultSupervisors;
+  const supervisors = supervisorsRaw.map((s) => parseSupervisorId(s));
 
   const defaultConditions = smoke ? ['single'] : ['single', 'dual-loop'];
   const conditionsRaw = raw['conditions'] != null ? parseListFlag(String(raw['conditions'])) : defaultConditions;
@@ -132,6 +143,8 @@ export function parseArgs(argv: string[]): CliArgs {
     earlyStop,
     outDir,
     pairings,
+    tutors,
+    supervisors,
     conditions,
     questionModel,
     studentModel,
@@ -159,7 +172,9 @@ Flags:
   --maxIters N             Max tutor revision loops (default 5)
   --maxRuns N              Stop after N completed runs (default unlimited)
   --outDir DIR             Output directory (default results)
-  --pairings LIST          ${PAIRING_IDS.join(',')} (default all; smoke=gemini-gemini)
+  --pairings LIST          ${PAIRING_IDS.join(',')} (legacy, use --tutors/--supervisors instead)
+  --tutors LIST            ${TUTOR_IDS.join(',')} (default all; smoke=gemini)
+  --supervisors LIST       ${SUPERVISOR_IDS.join(',')} (default all; smoke=gemini)
   --conditions LIST        single,dual-loop (default all; smoke=single)
   --questionModel ID       Model for question generation (default from config.ts)
   --studentModel ID        Model for student attacker (default from config.ts)

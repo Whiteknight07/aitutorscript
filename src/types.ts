@@ -1,11 +1,18 @@
 import { z } from 'zod';
-import { PAIRING_IDS, type PairingId } from './config';
+import { PAIRING_IDS, type PairingId, TUTOR_IDS, SUPERVISOR_IDS, type TutorId, type SupervisorId } from './config';
 
 export const ConditionSchema = z.enum(['single', 'dual-loop']);
 export type Condition = z.infer<typeof ConditionSchema>;
 
 // Re-export PairingId from config for convenience
 export type { PairingId } from './config';
+
+// Re-export TutorId and SupervisorId from config
+export type { TutorId, SupervisorId } from './config';
+
+// Create Zod schemas for tutor and supervisor IDs
+export const TutorIdSchema = z.enum(TUTOR_IDS as [TutorId, ...TutorId[]]);
+export const SupervisorIdSchema = z.enum(SUPERVISOR_IDS as [SupervisorId, ...SupervisorId[]]);
 
 // Create Zod schema dynamically from config
 export const PairingIdSchema = z.enum(PAIRING_IDS as [PairingId, ...PairingId[]]);
@@ -103,7 +110,7 @@ export type RunRecord = {
   };
   config: unknown;
   question: Question;
-  pairingId: PairingId;
+  pairingId: string; // Can be legacy PairingId or new format like 'gpt-single', 'gpt-gemini'
   condition: Condition;
   turnsRequested: number;
   maxIters: number;

@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { parseArgs } from '../utils/args';
 import { simulateConversation } from './conversation';
 import { generateQuestionsBatch } from '../agents/question-gen';
-import { getPairingModels } from '../config';
+import { getTutorModel, getSupervisorModel, type TutorId, type SupervisorId } from '../config';
 import { createJsonlWriter, ensureDir, nowIso } from '../utils/util';
 import type { Question, RunRecord, TimedCallRecord } from '../types';
 import { runJudgeIfEnabled, runTurnJudge } from '../agents/judge';
@@ -75,7 +75,14 @@ export async function runExperiments({
   const aggregator = new SummaryAggregator();
   const recordsForReport: RunRecord[] = [];
 
-  const totalRuns = questions.length * args.pairings.length * args.conditions.length;
+  // Calculate total runs based on new structure:
+  // For each question × tutor:
+  //   - 1 run for 'single' condition (if enabled)
+  //   - N runs for 'dual-loop' condition (one per supervisor, if enabled)
+  const hasSingle = args.conditions.includes('single');
+  const hasDualLoop = args.conditions.includes('dual-loop');
+  const runsPerQuestionTutor = (hasSingle ? 1 : 0) + (hasDualLoop ? args.supervisors.length : 0);
+  const totalRuns = questions.length * args.tutors.length * runsPerQuestionTutor;
   const plannedRuns = args.maxRuns != null ? Math.min(totalRuns, args.maxRuns) : totalRuns;
   let runIndex = 0;
   let completedRuns = 0;
@@ -85,7 +92,8 @@ export async function runExperiments({
         questionId: string;
         bloomLevel: number;
         difficulty: string;
-        pairingId: string;
+        tutorId: string;
+        supervisorId: string | null;
         condition: string;
       }
     | null = null;
@@ -106,134 +114,159 @@ export async function runExperiments({
     error: null,
   });
 
-  try {
-  // Interleaved schedule by default:
-  // question → pairing → condition
-  // This makes partial runs (e.g. --maxRuns 50) populate all pairings early.
-  for (const question of questions) {
-    for (const pairingId of args.pairings) {
-      const { tutorModel, supervisorModel } = getPairingModels(pairingId);
-      for (const condition of args.conditions) {
-        if (runIndex >= plannedRuns) break;
-        const calls: TimedCallRecord[] = [];
-        const t0 = Date.now();
+  // Helper to run a single experiment
+  async function runSingleExperiment(
+    question: Question,
+    tutorId: TutorId,
+    supervisorId: SupervisorId | null,
+    condition: 'single' | 'dual-loop'
+  ) {
+    if (runIndex >= plannedRuns) return;
+    
+    const calls: TimedCallRecord[] = [];
+    const t0 = Date.now();
+    const tutorModel = getTutorModel(tutorId);
+    const supervisorModel = supervisorId ? getSupervisorModel(supervisorId) : null;
+    const pairingId = supervisorId ? `${tutorId}-${supervisorId}` : `${tutorId}-single`;
 
-        runIndex += 1;
-        const prefix = `[${runIndex}/${plannedRuns}] q=${question.id} bloom=${question.bloomLevel} diff=${question.difficulty} pairing=${pairingId} cond=${condition}`;
-        const elapsed = Date.now() - allStart;
-        const avgPerRunMs = runIndex > 1 ? elapsed / (runIndex - 1) : null;
-        const remainingRuns = plannedRuns - runIndex + 1;
-        const etaMs = avgPerRunMs != null ? Math.round(avgPerRunMs * (remainingRuns - 1)) : null;
-        // eslint-disable-next-line no-console
-        console.log(
-          `start ${prefix} turns=${args.turns} maxIters=${args.maxIters} judge=${args.enableJudge ? 'on' : 'off'}${
-            etaMs != null ? ` eta~${Math.round(etaMs / 1000)}s` : ''
-          }`
-        );
+    runIndex += 1;
+    const prefix = `[${runIndex}/${plannedRuns}] q=${question.id} bloom=${question.bloomLevel} diff=${question.difficulty} tutor=${tutorId} sup=${supervisorId ?? 'none'} cond=${condition}`;
+    const elapsed = Date.now() - allStart;
+    const avgPerRunMs = runIndex > 1 ? elapsed / (runIndex - 1) : null;
+    const remainingRuns = plannedRuns - runIndex + 1;
+    const etaMs = avgPerRunMs != null ? Math.round(avgPerRunMs * (remainingRuns - 1)) : null;
+    // eslint-disable-next-line no-console
+    console.log(
+      `start ${prefix} turns=${args.turns} maxIters=${args.maxIters} judge=${args.enableJudge ? 'on' : 'off'}${
+        etaMs != null ? ` eta~${Math.round(etaMs / 1000)}s` : ''
+      }`
+    );
 
-        current = {
-          index: runIndex,
-          questionId: question.id,
-          bloomLevel: question.bloomLevel,
-          difficulty: question.difficulty,
-          pairingId,
-          condition,
-        };
+    current = {
+      index: runIndex,
+      questionId: question.id,
+      bloomLevel: question.bloomLevel,
+      difficulty: question.difficulty,
+      tutorId,
+      supervisorId,
+      condition,
+    };
 
-        const conversation = await simulateConversation({
-          calls,
-          condition,
-          question,
-          turns: args.turns,
-          maxIters: args.maxIters,
-          studentModel: args.studentModel,
+    const conversation = await simulateConversation({
+      calls,
+      condition,
+      question,
+      turns: args.turns,
+      maxIters: args.maxIters,
+      studentModel: args.studentModel,
+      tutorModel,
+      supervisorModel,
+      verbose: args.verbose,
+      log: (line) => console.log(line),
+      earlyStop: args.earlyStop,
+      turnJudge:
+        args.enableJudge && args.earlyStop
+          ? async ({ turnIndex, transcriptVisible, studentTurns }) =>
+              runTurnJudge({
+                calls,
+                model: args.judgeModel,
+                question,
+                transcriptVisible,
+                studentTurns,
+                turnIndex,
+              })
+          : undefined,
+    });
+
+    const judge = await runJudgeIfEnabled({
+      enabled: args.enableJudge,
+      calls,
+      model: args.judgeModel,
+      question,
+      transcriptVisible: conversation.transcriptVisible,
+      studentTurns: conversation.hiddenTrace.studentTurns,
+    });
+
+    const totalLatencyMs = Date.now() - t0;
+
+    const record: RunRecord = {
+      runId,
+      createdAtIso,
+      versions: {
+        node: process.version,
+        ai: await getAiVersion(),
+      },
+      config: {
+        args,
+        models: {
+          questionGeneratorModel: args.questionModel,
+          studentAttackerModel: args.studentModel,
+          judgeModel: args.judgeModel,
           tutorModel,
-          supervisorModel: condition === 'single' ? null : supervisorModel,
-          verbose: args.verbose,
-          log: (line) => console.log(line),
-          earlyStop: args.earlyStop,
-          turnJudge:
-            args.enableJudge && args.earlyStop
-              ? async ({ turnIndex, transcriptVisible, studentTurns }) =>
-                  runTurnJudge({
-                    calls,
-                    model: args.judgeModel,
-                    question,
-                    transcriptVisible,
-                    studentTurns,
-                    turnIndex,
-                  })
-              : undefined,
-        });
+          supervisorModel,
+        },
+        tutorId,
+        supervisorId,
+      },
+      question,
+      pairingId,
+      condition,
+      turnsRequested: args.turns,
+      maxIters: args.maxIters,
+      turnsCompleted: conversation.turnsCompleted,
+      loopIterationsTotal: conversation.loopIterationsTotal,
+      loopTurnIterations: conversation.loopTurnIterations,
+      transcriptVisible: conversation.transcriptVisible,
+      hiddenTrace: conversation.hiddenTrace,
+      calls,
+      totalLatencyMs,
+      judge,
+    };
 
-        const judge = await runJudgeIfEnabled({
-          enabled: args.enableJudge,
-          calls,
-          model: args.judgeModel,
-          question,
-          transcriptVisible: conversation.transcriptVisible,
-          studentTurns: conversation.hiddenTrace.studentTurns,
-        });
+    await rawWriter.write(record);
+    aggregator.add(record);
+    recordsForReport.push(record);
+    completedRuns += 1;
+    const judgeBrief =
+      record.judge != null
+        ? ` judge(leak=${record.judge.leakage ? 'Y' : 'N'} comp=${record.judge.compliance ? 'Y' : 'N'} ped=${record.judge.pedagogyHelpfulness}/5)`
+        : '';
+    // eslint-disable-next-line no-console
+    console.log(`done ${prefix} latency=${Math.round(totalLatencyMs)}ms${judgeBrief}`);
 
-        const totalLatencyMs = Date.now() - t0;
+    await writePartialOutputs({
+      runOutDir,
+      runId,
+      createdAtIso,
+      args,
+      questions,
+      aggregator,
+      records: recordsForReport,
+      plannedRuns,
+      completedRuns,
+      state: completedRuns >= plannedRuns ? 'complete' : 'running',
+      current,
+      error: null,
+    });
+  }
 
-        const record: RunRecord = {
-          runId,
-          createdAtIso,
-          versions: {
-            node: process.version,
-            ai: await getAiVersion(),
-          },
-          config: {
-            args,
-            models: {
-              questionGeneratorModel: args.questionModel,
-              studentAttackerModel: args.studentModel,
-              judgeModel: args.judgeModel,
-              tutorModel,
-              supervisorModel: condition === 'single' ? null : supervisorModel,
-            },
-          },
-          question,
-          pairingId,
-          condition,
-          turnsRequested: args.turns,
-          maxIters: args.maxIters,
-          turnsCompleted: conversation.turnsCompleted,
-          loopIterationsTotal: conversation.loopIterationsTotal,
-          loopTurnIterations: conversation.loopTurnIterations,
-          transcriptVisible: conversation.transcriptVisible,
-          hiddenTrace: conversation.hiddenTrace,
-          calls,
-          totalLatencyMs,
-          judge,
-        };
-
-        await rawWriter.write(record);
-        aggregator.add(record);
-        recordsForReport.push(record);
-        completedRuns += 1;
-        const judgeBrief =
-          record.judge != null
-            ? ` judge(leak=${record.judge.leakage ? 'Y' : 'N'} comp=${record.judge.compliance ? 'Y' : 'N'} ped=${record.judge.pedagogyHelpfulness}/5)`
-            : '';
-        // eslint-disable-next-line no-console
-        console.log(`done ${prefix} latency=${Math.round(totalLatencyMs)}ms${judgeBrief}`);
-
-        await writePartialOutputs({
-          runOutDir,
-          runId,
-          createdAtIso,
-          args,
-          questions,
-          aggregator,
-          records: recordsForReport,
-          plannedRuns,
-          completedRuns,
-          state: completedRuns >= plannedRuns ? 'complete' : 'running',
-          current,
-          error: null,
-        });
+  try {
+  // New structure: question → tutor → (single once, then dual-loop per supervisor)
+  // This avoids redundant single runs and makes the matrix tutor × supervision mode
+  for (const question of questions) {
+    for (const tutorId of args.tutors) {
+      // Run 'single' condition once per tutor (no supervisor)
+      if (hasSingle) {
+        await runSingleExperiment(question, tutorId, null, 'single');
+        if (runIndex >= plannedRuns) break;
+      }
+      
+      // Run 'dual-loop' for each supervisor
+      if (hasDualLoop) {
+        for (const supervisorId of args.supervisors) {
+          await runSingleExperiment(question, tutorId, supervisorId, 'dual-loop');
+          if (runIndex >= plannedRuns) break;
+        }
       }
       if (runIndex >= plannedRuns) break;
     }
@@ -310,7 +343,7 @@ async function writePartialOutputs({
   plannedRuns: number;
   completedRuns: number;
   state: 'running' | 'complete' | 'failed';
-  current: { index: number; questionId: string; bloomLevel: number; difficulty: string; pairingId: string; condition: string } | null;
+  current: { index: number; questionId: string; bloomLevel: number; difficulty: string; tutorId: string; supervisorId: string | null; condition: string } | null;
   error: { message: string; stack?: string } | null;
 }) {
   const summaryObject = {

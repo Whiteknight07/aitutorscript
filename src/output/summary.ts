@@ -1,6 +1,7 @@
-import type { Condition, Difficulty, PairingId, RunRecord } from '../types';
+import type { Condition, Difficulty, RunRecord } from '../types';
 
-type GroupKey = `${PairingId}::${Condition}::${number}::${Difficulty}`;
+// GroupKey now uses string for pairingId since it can be legacy or new format
+type GroupKey = `${string}::${Condition}::${number}::${Difficulty}`;
 
 type LoopAgg = {
   initiallyRejectedTurns: number;
