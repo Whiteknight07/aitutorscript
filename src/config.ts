@@ -17,10 +17,10 @@
  */
 export const MODELS = {
   // OpenAI models
-  gpt51: 'openai/gpt-5-mini',
-  
-  // Google models  
-  gemini2Flash: 'google/gemini-2.0-flash-001',
+  gpt51: "openai/gpt-5",
+
+  // Google models
+  gemini3flash: "google/gemini-3-flash-preview",
 } as const;
 
 export type ModelId = (typeof MODELS)[keyof typeof MODELS];
@@ -34,7 +34,7 @@ export type ModelId = (typeof MODELS)[keyof typeof MODELS];
  */
 export const TUTORS = {
   'gpt': MODELS.gpt51,
-  'gemini': MODELS.gemini2Flash,
+  'gemini': MODELS.gemini3flash,
 } as const;
 
 export type TutorId = keyof typeof TUTORS;
@@ -45,7 +45,7 @@ export const TUTOR_IDS = Object.keys(TUTORS) as TutorId[];
  */
 export const SUPERVISORS = {
   'gpt': MODELS.gpt51,
-  'gemini': MODELS.gemini2Flash,
+  'gemini': MODELS.gemini3flash,
 } as const;
 
 export type SupervisorId = keyof typeof SUPERVISORS;
@@ -108,8 +108,8 @@ export function parseSupervisorId(id: string): SupervisorId {
  * These can be overridden via CLI flags.
  */
 export const DEFAULT_MODELS = {
-  questionGenerator: MODELS.gemini2Flash,
-  student: MODELS.gemini2Flash,
+  questionGenerator: MODELS.gemini3flash,
+  student: MODELS.gemini3flash,
   judge: "google/gemini-3-flash-preview",
 } as const;
 
@@ -127,15 +127,15 @@ export const PAIRINGS = {
     supervisor: MODELS.gpt51 
   },
   'gemini-gemini': { 
-    tutor: MODELS.gemini2Flash, 
-    supervisor: MODELS.gemini2Flash 
+    tutor: MODELS.gemini3flash, 
+    supervisor: MODELS.gemini3flash 
   },
   'gpt-gemini': { 
     tutor: MODELS.gpt51, 
-    supervisor: MODELS.gemini2Flash 
+    supervisor: MODELS.gemini3flash 
   },
   'gemini-gpt': { 
-    tutor: MODELS.gemini2Flash, 
+    tutor: MODELS.gemini3flash, 
     supervisor: MODELS.gpt51 
   },
 } as const;
