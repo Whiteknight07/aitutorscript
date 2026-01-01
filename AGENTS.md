@@ -4,12 +4,16 @@
 
 - `src/`: TypeScript source code for the CLI harness.
   - `src/cli.ts`: CLI entrypoint (loads env, parses args, starts run).
-  - `src/run.ts`: Orchestrates dataset generation, experiment matrix, logging, and report writing.
-  - `src/conversation.ts`: Simulates multi-turn conversations and optional early stopping.
-  - `src/question-gen.ts`, `src/student-attacker.ts`: JSON-structured generation via AI SDK.
-  - `src/tutor.ts`, `src/supervisor.ts`: Tutor drafting and supervisor verdict logic.
-  - `src/judge.ts`: Judge scoring (and per-turn judge for early stop).
-  - `src/report.ts`: Self-contained `report.html` renderer.
+  - `src/core/experiment.ts`: Orchestrates dataset loading/generation, experiment matrix, logging, and report writing.
+  - `src/core/conversation.ts`: Simulates multi-turn conversations and optional early stopping.
+  - `src/core/llm.ts`: LLM abstraction with timing and multi-provider support.
+  - `src/agents/question-gen.ts`, `src/agents/student.ts`: JSON-structured generation via AI SDK.
+  - `src/agents/tutor.ts`, `src/agents/supervisor.ts`: Tutor drafting and supervisor verdict logic.
+  - `src/agents/judge.ts`: Judge scoring (and per-turn judge for early stop).
+  - `src/output/report.ts`: Self-contained `report.html` renderer.
+  - `src/scripts/generate-questions.ts`: Script to generate static question set.
+- `data/`: Static data files.
+  - `data/questions.json`: 36 pre-generated questions (4 per Bloom × Difficulty cell).
 - `dist/`: Compiled JavaScript output from `tsc`.
 - `results/`: Output folders per run (`results/<runId>/…`) containing `raw.jsonl`, `summary.json`, and `report.html`.
 
@@ -18,6 +22,7 @@
 - `pnpm build`: Compile TypeScript to `dist/`.
 - `pnpm harness -- [flags]`: Build and run the harness.
 - `pnpm smoke`: Small, fast run for sanity checking.
+- `pnpm generate-questions`: Regenerate static questions in `data/questions.json`.
 - `pnpm test`: No automated tests (prints a message and exits 0).
 
 ## Coding Style & Naming Conventions

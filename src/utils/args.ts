@@ -18,6 +18,7 @@ export type CliArgs = {
   studentModel: string;
   judgeModel: string;
   enableJudge: boolean;
+  dynamicQuestions: boolean;
   smoke: boolean;
   verbose: boolean;
 };
@@ -62,6 +63,7 @@ export function parseArgs(argv: string[]): CliArgs {
   const enableJudge = raw['noJudge'] === true ? false : true;
   const verbose = raw['verbose'] === true;
   const earlyStop = raw['noEarlyStop'] === true ? false : true;
+  const dynamicQuestions = raw['dynamic'] === true;
 
   const questionsPerCell = raw['questionsPerCell']
     ? parseIntFlag(String(raw['questionsPerCell']), 'questionsPerCell')
@@ -150,6 +152,7 @@ export function parseArgs(argv: string[]): CliArgs {
     studentModel,
     judgeModel,
     enableJudge,
+    dynamicQuestions,
     smoke,
     verbose,
   };
@@ -164,7 +167,8 @@ Usage:
   pnpm harness [flags]
 
 Flags:
-  --questionsPerCell N     Questions per Bloom x Difficulty cell (default 1)
+  --dynamic                Generate questions dynamically (default: use static data/questions.json)
+  --questionsPerCell N     Questions per Bloom x Difficulty cell (default 1, only with --dynamic)
   --bloomLevels 1,2,3      Bloom's taxonomy levels (default 1,2,3; smoke=1)
                            1=Remember, 2=Understand, 3=Apply
   --difficulties LIST      easy,medium,hard (default all; smoke=easy)
@@ -185,9 +189,10 @@ Flags:
   --smoke                  1 question (bloom 1, easy), 2 turns, minimal variants
   --help                   Show help
 
-Question Matrix:
-  Questions are generated for each combination of Bloom level and difficulty.
-  Default: 3 blooms x 3 difficulties x 1 per cell = 9 questions.
+Question Source:
+  By default, questions are loaded from data/questions.json (36 static questions).
+  Use --dynamic to generate questions at runtime instead.
+  To regenerate static questions: pnpm generate-questions
 
 Models:
   Use OpenRouter model IDs like "openai/gpt-4o" and "google/gemini-2.0-flash-001".

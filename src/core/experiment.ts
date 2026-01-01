@@ -1,4 +1,4 @@
-import { writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { parseArgs } from '../utils/args';
 import { simulateConversation } from './conversation';
@@ -45,13 +45,43 @@ export async function runExperiments({
   );
 
   const datasetCalls: TimedCallRecord[] = [];
-  // eslint-disable-next-line no-console
-  console.log(
-    `generating questions: bloomLevels=${args.bloomLevels.join(',')} difficulties=${args.difficulties.join(',')} perCell=${args.questionsPerCell}`
-  );
-  const questions = await generateDataset({ runId, args, datasetCalls });
-  // eslint-disable-next-line no-console
-  console.log(`generated ${questions.length} questions`);
+  
+  let questions: Question[];
+  if (args.dynamicQuestions) {
+    // Dynamic generation
+    // eslint-disable-next-line no-console
+    console.log(
+      `generating questions: bloomLevels=${args.bloomLevels.join(',')} difficulties=${args.difficulties.join(',')} perCell=${args.questionsPerCell}`
+    );
+    questions = await generateDataset({ runId, args, datasetCalls });
+    // eslint-disable-next-line no-console
+    console.log(`generated ${questions.length} questions`);
+  } else {
+    // Load static questions from data/questions.json
+    const staticPath = join(process.cwd(), 'data', 'questions.json');
+    // eslint-disable-next-line no-console
+    console.log(`loading static questions from ${staticPath}`);
+    try {
+      const raw = await readFile(staticPath, 'utf-8');
+      const data = JSON.parse(raw);
+      const allQuestions: Question[] = data.questions;
+      
+      // Filter by requested bloom levels and difficulties
+      questions = allQuestions.filter(
+        (q) =>
+          args.bloomLevels.includes(q.bloomLevel) &&
+          args.difficulties.includes(q.difficulty)
+      );
+      // eslint-disable-next-line no-console
+      console.log(`loaded ${questions.length} questions (filtered from ${allQuestions.length})`);
+    } catch (err: any) {
+      // eslint-disable-next-line no-console
+      console.error(`Failed to load static questions: ${err.message}`);
+      // eslint-disable-next-line no-console
+      console.error('Run "pnpm generate-questions" to create data/questions.json, or use --dynamic');
+      throw err;
+    }
+  }
 
   await writeFile(
     join(runOutDir, 'questions.json'),

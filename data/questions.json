@@ -1,0 +1,558 @@
+{
+  "generatedAt": "2026-01-01T02:01:06.208Z",
+  "model": "google/gemini-3-flash-preview",
+  "bloomLevels": [
+    1,
+    2,
+    3
+  ],
+  "difficulties": [
+    "easy",
+    "medium",
+    "hard"
+  ],
+  "questionsPerCell": 4,
+  "totalQuestions": 36,
+  "questions": [
+    {
+      "id": "q-b1-easy-0",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "kernel-vs-user-mode",
+      "problemStatement": "Which mechanism is primarily used by a process to request a service from the operating system kernel?",
+      "choices": [
+        "Memory mapping",
+        "Context switching",
+        "System calls",
+        "Signal handling"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "System calls act as the programmatic interface between a running program and the operating system kernel. They allow user-mode applications to safely request privileged operations like file access or process creation."
+    },
+    {
+      "id": "q-b1-easy-1",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "version-control",
+      "problemStatement": "In the context of the Git version control system, which command is used to record changes from the staging area to the local repository?",
+      "choices": [
+        "git push",
+        "git commit",
+        "git add",
+        "git pull"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "The commit command captures a snapshot of the project's currently staged changes. This creates a new entry in the local repository history with a unique identifier."
+    },
+    {
+      "id": "q-b1-easy-2",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "deadlocks",
+      "problemStatement": "In the study of operating systems, which of the following is one of the four necessary conditions for a deadlock to occur?",
+      "choices": [
+        "Preemption",
+        "Circular wait",
+        "Resource sharing",
+        "Dynamic linking"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "Circular wait is one of the four Coffman conditions required for deadlock. It occurs when a set of processes are waiting for resources held by each other in a closed chain."
+    },
+    {
+      "id": "q-b1-easy-3",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "solid-principles",
+      "problemStatement": "The 'S' in the SOLID principles of software engineering stands for which concept?",
+      "choices": [
+        "Structural Integrity Principle",
+        "Single Responsibility Principle",
+        "System Scalability Principle",
+        "Service Segmentation Principle"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "The Single Responsibility Principle states that a class should have only one reason to change. This promotes high cohesion and makes the software easier to maintain and test."
+    },
+    {
+      "id": "q-b1-medium-1",
+      "bloomLevel": 1,
+      "difficulty": "medium",
+      "topicTag": "virtual-memory",
+      "problemStatement": "In the context of virtual memory, identify the specific hardware component primarily responsible for translating virtual addresses into physical addresses.",
+      "choices": [
+        "Arithmetic Logic Unit",
+        "Translation Lookaside Buffer",
+        "Instruction Register",
+        "Memory Address Register"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "The Translation Lookaside Buffer is a specialized cache used specifically to speed up virtual-to-physical address translation. It stores recent mapping entries from the page table."
+    },
+    {
+      "id": "q-b1-medium-2",
+      "bloomLevel": 1,
+      "difficulty": "medium",
+      "topicTag": "solid-principles",
+      "problemStatement": "Identify which SOLID principle states that a software module should be open for extension but closed for modification.",
+      "choices": [
+        "Single Responsibility Principle",
+        "Liskov Substitution Principle",
+        "Open/Closed Principle",
+        "Interface Segregation Principle"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "The Open/Closed Principle encourages developers to design systems where behavior can be extended via inheritance or interfaces without altering existing source code."
+    },
+    {
+      "id": "q-b1-medium-3",
+      "bloomLevel": 1,
+      "difficulty": "medium",
+      "topicTag": "deadlocks",
+      "problemStatement": "Recall the necessary conditions for a deadlock to occur and identify which condition refers specifically to a process holding at least one resource while waiting to acquire additional resources held by other processes.",
+      "choices": [
+        "Mutual Exclusion",
+        "Circular Wait",
+        "No Preemption",
+        "Hold and Wait"
+      ],
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "The Hold and Wait condition describes a scenario where a process maintains its current resource allocations while requesting new ones. This is one of the four Coffman conditions."
+    },
+    {
+      "id": "q-b1-medium-4",
+      "bloomLevel": 1,
+      "difficulty": "medium",
+      "topicTag": "version-control",
+      "problemStatement": "In Git, identify the command used to safely record the state of the staging area into the repository history with a descriptive message.",
+      "choices": [
+        "git push",
+        "git commit",
+        "git checkout",
+        "git merge"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "The commit command creates a snapshot of the changes currently in the staging area and adds them to the local repository timeline. Other commands handle synchronization or branch management."
+    },
+    {
+      "id": "q-b1-hard-0",
+      "bloomLevel": 1,
+      "difficulty": "hard",
+      "topicTag": "page-replacement",
+      "problemStatement": "In the context of Belady's Anomaly, identify which specific class of page replacement algorithms is mathematically guaranteed to never exhibit an increase in page faults when the number of physical frames increases.",
+      "choices": [
+        "Stack algorithms",
+        "First-In-First-Out (FIFO) algorithms",
+        "Non-preemptive algorithms",
+        "Cyclic buffer algorithms"
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "Stack algorithms like LRU and LFU ensure that the set of pages in memory for N frames is always a subset of the pages in memory for N+1 frames. This inclusion property prevents the anomaly characterized by FIFO."
+    },
+    {
+      "id": "q-b1-hard-1",
+      "bloomLevel": 1,
+      "difficulty": "hard",
+      "topicTag": "synchronization",
+      "problemStatement": "Identify the specific condition among Coffman's four necessary conditions for deadlock that is directly mitigated by the use of a Banker's Algorithm during resource allocation.",
+      "choices": [
+        "Mutual Exclusion",
+        "Hold and Wait",
+        "No Preemption",
+        "Circular Wait"
+      ],
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "The Banker's Algorithm performs a safety check to ensure that resources are granted only if a sequence exists that prevents a cycle. This specifically targets the Circular Wait condition by maintaining the system in a safe state."
+    },
+    {
+      "id": "q-b1-hard-2",
+      "bloomLevel": 1,
+      "difficulty": "hard",
+      "topicTag": "design-patterns",
+      "problemStatement": "In software architecture, identify the primary structural difference between the Decorator pattern and the Proxy pattern when both utilize the same interface as the object they reference.",
+      "choices": [
+        "Decorator changes the interface whereas Proxy maintains it",
+        "Proxy controls access to the object while Decorator adds functional responsibilities",
+        "Decorator is used for remote object access while Proxy handles local caching",
+        "Proxy creates a copy of the object whereas Decorator uses inheritance"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "While the implementation structures appear similar, the patterns are distinguished by intent. Proxy focuses on controlling or managing access to the original object, whereas Decorator focuses on dynamically adding behavior."
+    },
+    {
+      "id": "q-b1-hard-3",
+      "bloomLevel": 1,
+      "difficulty": "hard",
+      "topicTag": "file-systems",
+      "problemStatement": "Recall the primary limitation of using an Inode-based file system when dealing with a high frequency of very small files (less than 100 bytes) compared to a system using extents.",
+      "choices": [
+        "Internal fragmentation within the Inode table",
+        "Exhaustion of fixed-count Inodes despite available disk space",
+        "Mandatory global locking during Inode pointer updates",
+        "Inability to support symbolic links for small files"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "Inode-based systems often allocate a fixed number of Inodes at disk formatting. If many small files are created, the system may run out of Inodes to track files even though physical block space remains available."
+    },
+    {
+      "id": "q-b2-easy-0",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "kernel-vs-user-mode",
+      "problemStatement": "Which of the following describes the primary purpose of the 'dual-mode' operation (User Mode vs. Kernel Mode) in modern operating systems?",
+      "choices": [
+        "To allow user applications to access hardware registers directly for performance",
+        "To protect the system and other users from errant or malicious programs",
+        "To enable the CPU to execute multiple threads simultaneously within a single process",
+        "To partition physical memory into equal-sized blocks for easier indexing"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "Dual-mode operation provides hardware-level protection by restricting privileged instructions to kernel mode. This prevents user applications from accidentally or intentionally crashing the system or accessing memory belonging to other processes."
+    },
+    {
+      "id": "q-b2-easy-1",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "solid-principles",
+      "problemStatement": "In the context of the SOLID principles, what is the core idea behind the Single Responsibility Principle (SRP)?",
+      "choices": [
+        "A class should have only one reason to change",
+        "A class should be open for extension but closed for modification",
+        "Derived classes must be substitutable for their base classes",
+        "Interfaces should be split into smaller, specific ones"
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "The Single Responsibility Principle states that a class should encapsulate a single functionality or concern. This ensures that the class only has one reason to change, which improves maintainability and reduces unintended side effects during updates."
+    },
+    {
+      "id": "q-b2-easy-2",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "page-replacement",
+      "problemStatement": "How does the Least Recently Used (LRU) page replacement algorithm differ from the First-In-First-Out (FIFO) algorithm?",
+      "choices": [
+        "LRU replaces the page that was brought into memory earliest regardless of usage",
+        "LRU replaces the page that has not been accessed for the longest period of time",
+        "LRU replaces the page that is used most frequently by the processor",
+        "LRU requires no hardware support while FIFO requires a hardware clock"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "LRU looks back in time to identify which page in memory has the oldest timestamp of last access. Unlike FIFO, which only cares about when a page entered memory, LRU assumes that pages used recently are likely to be used again soon."
+    },
+    {
+      "id": "q-b2-easy-3",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "version-control",
+      "problemStatement": "In a version control system like Git, what is the primary distinction between the 'git fetch' and 'git pull' commands?",
+      "choices": [
+        "Fetch deletes local changes while pull merges them automatically",
+        "Fetch updates the local database with remote changes without merging them into the working directory",
+        "Fetch is used for uploading code to a server while pull is used for downloading code",
+        "Fetch clones an entire repository while pull only updates a single branch"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "The fetch command downloads the latest metadata and objects from the remote repository but does not modify the local working branch. In contrast, pull performs a fetch followed by an automatic merge into the current branch."
+    },
+    {
+      "id": "q-b2-medium-1",
+      "bloomLevel": 2,
+      "difficulty": "medium",
+      "topicTag": "synchronization",
+      "problemStatement": "In the context of concurrent programming, compare the behavior of a binary semaphore with a standard mutex when used for managing access to a critical section.",
+      "choices": [
+        "Binary semaphores allow for priority inheritance while mutexes never do",
+        "Mutexes include a concept of ownership that allows only the locking thread to unlock them",
+        "Binary semaphores are more performant because they operate entirely in user-space",
+        "Mutexes can be used for signaling between threads whereas semaphores cannot"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "A mutex is strictly an ownership-based locking mechanism where the thread that acquires the lock is the only one authorized to release it. Conversely, a binary semaphore is a signaling mechanism that can be released by any thread, not just the one that performed the wait operation."
+    },
+    {
+      "id": "q-b2-medium-2",
+      "bloomLevel": 2,
+      "difficulty": "medium",
+      "topicTag": "virtual-memory",
+      "problemStatement": "Which of the following best describes the core difference between internal and external fragmentation in memory management?",
+      "choices": [
+        "Internal fragmentation occurs with segment tables while external occurs with page tables",
+        "Internal fragmentation is unused space within allocated blocks while external is unused space between blocks",
+        "External fragmentation is solved by paging while internal fragmentation is solved by compaction",
+        "External fragmentation only happens in virtual memory while internal occurs in physical memory"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "Internal fragmentation happens when a process is allocated more memory than it needs, leaving a gap inside the allocated partition. External fragmentation happens when there is enough total free space for a request, but the space is non-contiguous and cannot be used."
+    },
+    {
+      "id": "q-b2-medium-3",
+      "bloomLevel": 2,
+      "difficulty": "medium",
+      "topicTag": "clean-code",
+      "problemStatement": "When applying the Single Responsibility Principle (SRP) during a refactoring session, what is the primary indicator that a class may need to be decomposed?",
+      "choices": [
+        "The class contains more than five private methods or helper functions",
+        "The class relies on multiple external libraries to perform its primary function",
+        "There are multiple unrelated reasons or actors that could force the class to change",
+        "The class has a high number of lines of code compared to the project average"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "The Single Responsibility Principle defines a responsibility as a 'reason to change.' If a class serves multiple stakeholders or handles unrelated logic, it violates SRP because changes to one requirement may unnecessarily impact the others."
+    },
+    {
+      "id": "q-b2-medium-4",
+      "bloomLevel": 2,
+      "difficulty": "medium",
+      "topicTag": "system-calls",
+      "problemStatement": "Explain the sequence of events that occurs when a user-space application requests a service from the operating system kernel via a system call.",
+      "choices": [
+        "The application executes a jump instruction to a specific memory address within the kernel",
+        "The system performs a context switch to a new process that handles the request",
+        "A trap or software interrupt is triggered to switch the CPU to privileged mode and jump to a handler",
+        "The kernel copies the entire application stack into its own address space to verify permissions"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "System calls use a trap mechanism to switch the processor from user mode to kernel mode. This ensures the transition is controlled through a pre-defined vector table, preventing the user application from executing arbitrary code in privileged mode."
+    },
+    {
+      "id": "q-b2-hard-1",
+      "bloomLevel": 2,
+      "difficulty": "hard",
+      "topicTag": "virtual-memory",
+      "problemStatement": "Compare the behavior of Hierarchical (Multi-level) Paging versus Inverted Page Tables in systems with large, sparse address spaces. Which statement best interprets the memory overhead trade-offs between these two approaches?",
+      "choices": [
+        "Hierarchical paging requires more physical memory for page tables because it must store entries for the entire physical RAM regardless of process count.",
+        "Inverted page tables scale their memory usage based on the size of physical memory rather than the size of the virtual address space.",
+        "Hierarchical paging eliminates the need for TLBs by ensuring that top-level page directories are always resident in the cache.",
+        "Inverted page tables significantly reduce memory overhead because they store one entry for every virtual page mapped by every active process."
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "Inverted page tables are indexed by frame number, meaning the table size is proportional to physical RAM. This is generally more efficient for sparse address spaces than hierarchical paging, which requires multiple levels of tables proportional to the virtual address range."
+    },
+    {
+      "id": "q-b2-hard-2",
+      "bloomLevel": 2,
+      "difficulty": "hard",
+      "topicTag": "design-patterns",
+      "problemStatement": "Consider the trade-offs between the Dependency Injection pattern and the Service Locator pattern in a large-scale microservices environment. Which observation best describes their impact on testing and maintainability?",
+      "choices": [
+        "Dependency Injection increases coupling by requiring components to know how their dependencies are instantiated at runtime.",
+        "Service Locator is preferred for unit testing because it allows developers to globally mock services without changing constructor signatures.",
+        "Dependency Injection improves maintainability by making a component's external dependencies explicit in its interface rather than hidden inside the implementation.",
+        "Service Locator simplifies the architecture by ensuring that all components share a single global state for dependency resolution and management."
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "Dependency Injection promotes better design by making dependencies visible in the constructor or method signature. This enhances testability and prevents the 'hidden dependency' problem common with the Service Locator pattern."
+    },
+    {
+      "id": "q-b2-hard-3",
+      "bloomLevel": 2,
+      "difficulty": "hard",
+      "topicTag": "synchronization",
+      "problemStatement": "How does the 'Priority Inheritance' protocol compare to the 'Priority Ceiling' protocol in addressing the problem of priority inversion within real-time operating systems?",
+      "choices": [
+        "Priority Inheritance prevents deadlocks by ensuring that a process can never be blocked by a lower-priority process.",
+        "Priority Ceiling prevents both priority inversion and deadlocks by assigning a maximum priority to every shared resource before runtime.",
+        "Priority Inheritance allows a high-priority task to temporarily lower its priority to match the waiter to prevent starvation.",
+        "Priority Ceiling is easier to implement because it does not require the kernel to track which task currently holds a specific mutex."
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "Priority Ceiling Protocol avoids deadlocks and minimizes blocking time by ensuring a task cannot lock a resource unless its priority is higher than the ceilings of all currently locked resources. Priority Inheritance only addresses inversion when a conflict occurs."
+    },
+    {
+      "id": "q-b2-hard-4",
+      "bloomLevel": 2,
+      "difficulty": "hard",
+      "topicTag": "microservices",
+      "problemStatement": "When transitioning from a monolithic architecture to microservices, how does the adoption of 'Eventual Consistency' change the way system failures are interpreted compared to traditional ACID transactions?",
+      "choices": [
+        "Eventual consistency guarantees that all distributed nodes will see the same data at the same time during a network partition.",
+        "Systems using eventual consistency must implement complex distributed locking to ensure that no data is lost during service crashes.",
+        "Eventual consistency shifts the responsibility of data integrity from the database layer to the application logic and compensation workflows.",
+        "The use of eventual consistency eliminates the need for idempotency in service communication because updates are guaranteed to be ordered."
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "In a microservices environment, ACID transactions across services are difficult to scale. Eventual consistency requires the application to handle transient states and use patterns like Sagas to revert or compensate for partial failures."
+    },
+    {
+      "id": "q-b3-easy-0",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "cpu-scheduling",
+      "problemStatement": "Suppose three processes arrive at time 0 with burst times of 5, 2, and 8 milliseconds. If you apply the First-Come, First-Served (FCFS) scheduling algorithm in the order of their arrival, what is the average waiting time for these processes?",
+      "choices": [
+        "4.0 milliseconds",
+        "5.0 milliseconds",
+        "2.3 milliseconds",
+        "7.5 milliseconds"
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "The first process waits 0ms, the second waits 5ms, and the third waits 7ms. Calculating the average of 0, 5, and 7 results in 4ms."
+    },
+    {
+      "id": "q-b3-easy-1",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "version-control",
+      "problemStatement": "A developer is working on a new feature in a Git-based project and realizes they accidentally made changes to the main branch instead of a feature branch. To move these uncommitted changes to a new branch without losing work, which sequence of commands should be executed?",
+      "choices": [
+        "git merge main, git push origin new-feature",
+        "git branch new-feature, git checkout new-feature",
+        "git reset --hard, git checkout new-feature",
+        "git commit -m 'save', git branch -D new-feature"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "Creating a new branch and switching to it keeps the uncommitted working directory changes intact on the new branch, allowing the developer to continue work there safely."
+    },
+    {
+      "id": "q-b3-easy-2",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "virtual-memory",
+      "problemStatement": "Assuming a system uses a page size of 4 KB (4096 bytes), compute the physical address for a process where the logical address is 5000, given that page 1 is mapped to frame 5.",
+      "choices": [
+        "25496",
+        "21384",
+        "9096",
+        "5000"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "Logical address 5000 is on page 1 with an offset of 904. Mapping page 1 to frame 5 means the physical address is (5 * 4096) + 904, which equals 21384."
+    },
+    {
+      "id": "q-b3-easy-3",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "testing-strategies",
+      "problemStatement": "You are implementing a function that calculates the square root of an integer. To demonstrate effective unit testing for edge cases, which set of inputs would best represent boundary value analysis?",
+      "choices": [
+        "10, 20, 30",
+        "5, 5.5, 6",
+        "-1, 0, 1",
+        "100, 200, 300"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "Boundary value analysis focuses on the limits of input domains. Testing 0, the first positive integer, and the first negative integer captures behavior at the transition points of validity for a square root function."
+    },
+    {
+      "id": "q-b3-medium-1",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "cpu-scheduling",
+      "problemStatement": "A system uses a Round Robin scheduling algorithm with a time quantum of 4ms. If a process requires 15ms of CPU time to complete and no other processes are waiting, how many times will this process be preempted before it finishes its execution?",
+      "choices": [
+        "2 times",
+        "3 times",
+        "4 times",
+        "5 times"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "Preemption occurs at the end of each quantum if the process still has work remaining. For a 15ms task with a 4ms quantum, it runs at 0-4ms, 4-8ms, and 8-12ms (three preemptions) before finishing the final 3ms stretch."
+    },
+    {
+      "id": "q-b3-medium-2",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "dependency-injection",
+      "problemStatement": "You are refactoring a legacy module where a High-Level 'OrderProcessor' class directly instantiates a Concrete 'SqliteDatabase' class. Which implementation change best demonstrates the Dependency Inversion Principle to allow for easier unit testing with mocks?",
+      "choices": [
+        "Change the access modifier of the SqliteDatabase constructor to protected",
+        "Pass an IDatabase interface into the OrderProcessor constructor",
+        "Create a static Singleton instance of the SqliteDatabase",
+        "Move the SqliteDatabase instantiation to a private helper method within OrderProcessor"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "By passing an interface through the constructor, the high-level module depends on an abstraction rather than a volatile concrete detail. This allows the testing suite to inject a mock implementation without modifying the OrderProcessor code."
+    },
+    {
+      "id": "q-b3-medium-3",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "paging",
+      "problemStatement": "A system uses a 32-bit logical address space and a page size of 4 KB (2^12 bytes). If a process attempts to access a memory location but the corresponding entry in the page table has the 'Valid/Invalid' bit set to 0, what sequence of events will the operating system execute?",
+      "choices": [
+        "Generate a segmentation fault and immediately terminate the process",
+        "Check the backing store, find a free frame, and swap the page into physical memory",
+        "Adjust the page size dynamically to fit the requested address",
+        "Busy-wait until the hardware memory controller sets the bit to 1"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "The described scenario is a page fault. The operating system must trap to the kernel, locate the page on disk, find an available physical frame, and update the page table to map the logical address to the new physical frame."
+    },
+    {
+      "id": "q-b3-medium-4",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "synchronization",
+      "problemStatement": "Two threads are executing a 'withdraw' function on a shared bank account balance. Thread A reads the balance ($100), Thread B reads the balance ($100), Thread A subtracts $20 and writes $80 back, then Thread B subtracts $30 and writes $70 back. Which synchronization primitive would most effectively prevent this specific error in a multi-core environment?",
+      "choices": [
+        "A read-only software barrier",
+        "A spinlock or mutex around the read-modify-write section",
+        "A priority-based thread scheduler",
+        "An idempotent logging system"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "This is a classic race condition known as a 'lost update.' Using a mutex ensures that the entire transaction of reading, calculating, and writing the balance is atomic, preventing other threads from seeing stale data."
+    },
+    {
+      "id": "q-b3-hard-1",
+      "bloomLevel": 3,
+      "difficulty": "hard",
+      "topicTag": "page-replacement",
+      "problemStatement": "Consider a system using demand paging with 3 physical frames and the LRU replacement policy. Given the reference string [4, 3, 2, 1, 4, 3, 5, 4, 3, 2, 1, 5], calculate the total number of page faults that occur, assuming frames are initially empty.",
+      "choices": [
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "The sequence begins with 4 faults for 4, 3, 2, 1. Subsequent references cause additional faults as older pages are evicted based on the Least Recently Used logic, resulting in 10 total faults."
+    },
+    {
+      "id": "q-b3-hard-2",
+      "bloomLevel": 3,
+      "difficulty": "hard",
+      "topicTag": "synchronization",
+      "problemStatement": "A developer implements a concurrent lock using a test-and-set instruction. If the critical section performs high-latency I/O operations and the system runs on a single-core processor with a non-preemptive scheduler, identify the most likely consequence of a thread entering the critical section.",
+      "choices": [
+        "The system will suffer from priority inversion",
+        "Deadlock will occur as other threads spin infinitely",
+        "Live-lock will occur due to yielding",
+        "The system will achieve maximum throughput"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "On a single-core non-preemptive system, a spinning thread will never relinquish the CPU to let the holding thread finish. This results in a deadlock-like state where the CPU is occupied by a busy-wait loop that cannot be interrupted."
+    },
+    {
+      "id": "q-b3-hard-3",
+      "bloomLevel": 3,
+      "difficulty": "hard",
+      "topicTag": "design-patterns",
+      "problemStatement": "You are designing a notification module where multiple disparate consumer classes must react to state changes in a central telemetry service. The consumers are unknown at compile time and need to be added or removed dynamically. Which pattern should be implemented to ensure the telemetry service remains decoupled from the specific consumer implementations?",
+      "choices": [
+        "Abstract Factory",
+        "Strategy",
+        "Observer",
+        "Decorator"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "The Observer pattern is specifically designed to allow a subject to maintain a list of dependents and notify them of state changes without knowing their concrete types. This facilitates dynamic subscription and unsubscription during runtime."
+    },
+    {
+      "id": "q-b3-hard-4",
+      "bloomLevel": 3,
+      "difficulty": "hard",
+      "topicTag": "cpu-scheduling",
+      "problemStatement": "A system uses a Multi-Level Feedback Queue (MLFQ) with three priority levels: Q0 (RR quantum=8), Q1 (RR quantum=16), and Q2 (FCFS). A new CPU-bound process arrives that requires 30 units of burst time. Compute the total amount of time this process spends specifically in level Q1 before it is demoted to Q2.",
+      "choices": [
+        "8 units",
+        "16 units",
+        "22 units",
+        "24 units"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "In MLFQ, a process uses its full quantum at one level before being demoted. The process uses 8 units in Q0, then moves to Q1 where it uses its full allocated quantum of 16 units before being moved to the final FCFS queue."
+    }
+  ]
+}
