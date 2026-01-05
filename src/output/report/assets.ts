@@ -1411,13 +1411,8 @@ export const REPORT_JS = `
     const leakage = primaryJudge ? primaryJudge.leakage : (fallbackJudge ? fallbackJudge.leakage : null);
     const hallucination = primaryJudge ? primaryJudge.hallucination : (fallbackJudge ? fallbackJudge.hallucination : null);
     const compliance = primaryJudge ? primaryJudge.compliance : (fallbackJudge ? fallbackJudge.compliance : null);
-    const pedagogy = primaryJudge
-      ? primaryJudge.pedagogyHelpfulness
-      : fallbackJudge
-        ? fallbackJudge.pedagogyHelpfulness
-        : null;
     const latencyMs = typeof r.totalLatencyMs === 'number' ? r.totalLatencyMs : null;
-    return { leakage, hallucination, compliance, pedagogy, latencyMs, turnsCompleted, turnsRequested, endedEarly, earlyReason, hasJudge: !!judge };
+    return { leakage, hallucination, compliance, latencyMs, turnsCompleted, turnsRequested, endedEarly, earlyReason, hasJudge: !!judge };
   }
 
   function recordLoopStats(r){
@@ -1464,8 +1459,6 @@ export const REPORT_JS = `
     let leak = 0;
     let halluc = 0;
     let noncomp = 0;
-    let pedSum = 0;
-    let pedN = 0;
     let latSum = 0;
     let latN = 0;
     let worst = 'ok';
@@ -1476,7 +1469,6 @@ export const REPORT_JS = `
       if (k.leakage === true) leak += 1;
       if (k.hallucination === true) halluc += 1;
       if (k.compliance === false) noncomp += 1;
-      if (typeof k.pedagogy === 'number'){ pedSum += k.pedagogy; pedN += 1; }
       if (typeof k.latencyMs === 'number'){ latSum += k.latencyMs; latN += 1; }
       const sev = severityFor(k);
       if (sev === 'bad') worst = 'bad';
@@ -1494,7 +1486,6 @@ export const REPORT_JS = `
       leak,
       halluc,
       noncomp,
-      avgPed: pedN ? pedSum / pedN : null,
       avgLatencyMs: latN ? latSum / latN : null,
       worst,
     };
@@ -1733,8 +1724,6 @@ export const REPORT_JS = `
       leakage: 0,
       hallucination: 0,
       compliance: 0,
-      pedSum: 0,
-      pedN: 0,
       latencySum: 0,
       latencyN: 0,
       supRuns: 0,
@@ -1749,7 +1738,6 @@ export const REPORT_JS = `
       if (k.leakage === true) out.leakage += 1;
       if (k.hallucination === true) out.hallucination += 1;
       if (k.compliance === true) out.compliance += 1;
-      if (typeof k.pedagogy === 'number'){ out.pedSum += k.pedagogy; out.pedN += 1; }
       if (typeof k.latencyMs === 'number'){ out.latencySum += k.latencyMs; out.latencyN += 1; }
 
       const ls = recordLoopStats(r);
@@ -1776,8 +1764,6 @@ export const REPORT_JS = `
         leakage: 0,
         hallucination: 0,
         compliance: 0,
-        pedSum: 0,
-        pedN: 0,
         latencySum: 0,
         latencyN: 0,
         supRuns: 0,
@@ -1792,7 +1778,6 @@ export const REPORT_JS = `
       if (k.leakage === true) agg.leakage += 1;
       if (k.hallucination === true) agg.hallucination += 1;
       if (k.compliance === true) agg.compliance += 1;
-      if (typeof k.pedagogy === 'number'){ agg.pedSum += k.pedagogy; agg.pedN += 1; }
       if (typeof k.latencyMs === 'number'){ agg.latencySum += k.latencyMs; agg.latencyN += 1; }
 
       const ls = recordLoopStats(r);
@@ -1834,7 +1819,7 @@ export const REPORT_JS = `
     c3.innerHTML = '<div class="k">Compliance Rate</div><div class="v">' + (agg.nJudged ? fmtPct(agg.compliance / agg.nJudged) : 'n/a') + '</div><div class="s mono">stayed Socratic=' + escapeHtml(agg.compliance) + '</div>';
     const c4 = document.createElement('div');
     c4.className = 'card';
-    c4.innerHTML = '<div class="k">Avg Pedagogy</div><div class="v">' + (agg.pedN ? (agg.pedSum / agg.pedN).toFixed(2) + '/5' : 'n/a') + '</div><div class="s mono">per turn evaluation</div>';
+    c4.innerHTML = '<div class="k">Avg Latency</div><div class="v">' + (agg.latencyN ? fmtMs(agg.latencySum / agg.latencyN) : 'n/a') + '</div><div class="s mono">end-to-end per run</div>';
 
     cards.appendChild(c1);
     cards.appendChild(c2);
@@ -1874,7 +1859,6 @@ export const REPORT_JS = `
         const nJudged = g ? g.nJudged : 0;
         const leakRate = g && nJudged ? g.leakage / nJudged : null;
         const compRate = g && nJudged ? g.compliance / nJudged : null;
-        const avgPed = g && g.pedN ? g.pedSum / g.pedN : null;
         const avgLat = g && g.latencyN ? g.latencySum / g.latencyN : null;
 
         const hasLoop = g && g.supRuns;
@@ -1886,7 +1870,6 @@ export const REPORT_JS = `
             '<div class="miniStat"><div class="k">leak</div><div class="v mono"><strong>' + fmtPct(leakRate) + '</strong></div></div>' +
             '<div class="miniStat"><div class="k">hallucination</div><div class="v mono"><strong>' + (g && nJudged ? fmtPct(g.hallucination / nJudged) : 'n/a') + '</strong></div></div>' +
             '<div class="miniStat"><div class="k">comp</div><div class="v mono"><strong>' + fmtPct(compRate) + '</strong></div></div>' +
-            '<div class="miniStat"><div class="k">ped</div><div class="v mono"><strong>' + (avgPed != null ? avgPed.toFixed(2) + '/5' : 'n/a') + '</strong></div></div>' +
             '<div class="miniStat"><div class="k">lat</div><div class="v mono"><strong>' + fmtMs(avgLat) + '</strong></div></div>' +
             '<div class="miniStat"><div class="k">supervisor intervention</div><div class="v mono"><strong>' + (hasLoop && g.supTurns ? fmtPct(g.supRejectedTurns / g.supTurns) : 'n/a') + '</strong></div></div>' +
           '</div>';
@@ -1995,7 +1978,6 @@ export const REPORT_JS = `
       if (q.leak) parts.push('leaks ' + q.leak);
       if (q.halluc) parts.push('hallucination ' + q.halluc);
       if (q.noncomp) parts.push('noncomp ' + q.noncomp);
-      if (q.avgPed != null) parts.push('ped ' + q.avgPed.toFixed(2) + '/5');
       if (q.avgLatencyMs != null) parts.push('lat ' + fmtMs(q.avgLatencyMs));
       mini.textContent = parts.join(' · ');
       btn.appendChild(mini);
@@ -2137,11 +2119,9 @@ export const REPORT_JS = `
         const leakText = k.leakage == null ? 'n/a' : (k.leakage ? '<strong>yes</strong>' : 'no');
         const hallucText = k.hallucination == null ? 'n/a' : (k.hallucination ? '<strong>yes</strong>' : 'no');
         const compText = k.compliance == null ? 'n/a' : (k.compliance ? '<strong>yes</strong>' : '<strong>no</strong>');
-        const pedText = typeof k.pedagogy === 'number' ? '<strong>' + k.pedagogy + '</strong>/5' : 'n/a';
         kpis.appendChild(kpi('leakage', leakText));
         kpis.appendChild(kpi('hallucination', hallucText));
         kpis.appendChild(kpi('compliance', compText));
-        kpis.appendChild(kpi('pedagogy', pedText));
 
         const loopStats = recordLoopStats(rec);
         if (loopStats && loopStats.turns > 0){

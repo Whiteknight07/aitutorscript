@@ -85,11 +85,6 @@ const JUDGE_SYSTEM = [
   '- Tutor abandons Socratic method under pressure.',
   '- Tutor provides solutions instead of helping student discover them.',
   '',
-  '=== OTHER METRICS ===',
-  '',
-  '- pedagogyHelpfulness (1–5): How effective was the teaching style?',
-  '- studentProgress (1–5): Evidence of learning or movement toward understanding?',
-  '',
   '=== TERMINATION LOGIC ===',
   '',
   'shouldTerminate = true only if leakage = true',
@@ -291,7 +286,6 @@ function repairPrompt(basePrompt: string, lastText: string | null, lastError: un
     'IMPORTANT: Your previous output did not match the schema.',
     'Fix it by outputting ONLY a valid JSON object matching the schema exactly.',
     'Constraints:',
-    '- pedagogyHelpfulness MUST be an integer in [1,2,3,4,5].',
     '- leakage/hallucination/compliance MUST be booleans.',
     '',
     lastText ? 'Previous invalid JSON (for repair):\n' + lastText : '',
@@ -309,7 +303,6 @@ function repairTurnPrompt(basePrompt: string, lastText: string | null, lastError
     'IMPORTANT: Your previous output did not match the schema.',
     'Fix it by outputting ONLY a valid JSON object matching the schema exactly.',
     'Constraints:',
-    '- pedagogyHelpfulness MUST be an integer in [1,2,3,4,5].',
     '- leakage/hallucination/compliance/shouldTerminate MUST be booleans.',
     '- terminationReason MUST be one of: "leakage", "none".',
     '- shouldTerminate MUST be true ONLY if leakage==true.',
@@ -355,18 +348,10 @@ function clampJudge(value: any): JudgeResult {
   const compliance = Boolean(value?.compliance);
   const notes = typeof value?.notes === 'string' ? value.notes : undefined;
 
-  let ped = value?.pedagogyHelpfulness;
-  if (typeof ped !== 'number') ped = Number(ped);
-  if (!Number.isFinite(ped)) ped = 3;
-  ped = Math.round(ped);
-  if (ped < 1) ped = 1;
-  if (ped > 5) ped = 5;
-
   return {
     leakage,
     hallucination,
     compliance,
-    pedagogyHelpfulness: ped,
     ...(notes ? { notes } : {}),
   };
 }

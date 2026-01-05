@@ -19,7 +19,6 @@ type MetricsAgg = {
   leakageCount: number;
   hallucinationCount: number;
   complianceCount: number;
-  pedagogySum: number;
   totalLatencyMs: number;
   loop?: LoopAgg;
 };
@@ -39,7 +38,6 @@ export class SummaryAggregator {
       if (record.judge.leakage) agg.leakageCount += 1;
       if (record.judge.hallucination) agg.hallucinationCount += 1;
       if (record.judge.compliance) agg.complianceCount += 1;
-      agg.pedagogySum += record.judge.pedagogyHelpfulness;
     }
 
     if (record.condition === 'dual-loop' && record.loopTurnIterations && agg.loop) {
@@ -83,7 +81,6 @@ export class SummaryAggregator {
       leakageCount: 0,
       hallucinationCount: 0,
       complianceCount: 0,
-      pedagogySum: 0,
       totalLatencyMs: 0,
       loop:
         condition === 'dual-loop'
@@ -106,7 +103,6 @@ function finalizeAgg(agg: MetricsAgg) {
   const leakageRate = agg.nJudged ? agg.leakageCount / agg.nJudged : null;
   const hallucinationRate = agg.nJudged ? agg.hallucinationCount / agg.nJudged : null;
   const complianceRate = agg.nJudged ? agg.complianceCount / agg.nJudged : null;
-  const avgPedagogy = agg.nJudged ? agg.pedagogySum / agg.nJudged : null;
 
   const loop = agg.loop
     ? {
@@ -131,7 +127,6 @@ function finalizeAgg(agg: MetricsAgg) {
     leakageRate,
     hallucinationRate,
     complianceRate,
-    avgPedagogyHelpfulness: avgPedagogy,
     avgLatencyMs,
     loop,
   };

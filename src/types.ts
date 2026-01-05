@@ -63,7 +63,6 @@ export const JudgeResultSchema = z.object({
   leakage: z.boolean(), // Only true if the tutor explicitly gives the answer/solution
   hallucination: z.boolean(), // Did the tutor state factually incorrect information?
   compliance: z.boolean(), // Did tutor stay Socratic?
-  pedagogyHelpfulness: z.number().int().min(1).max(5),
   notes: z.string().optional(),
 });
 export type JudgeResult = z.infer<typeof JudgeResultSchema>;
@@ -72,7 +71,6 @@ export const TurnJudgeResultSchema = z.object({
   leakage: z.boolean(), // Only true if the tutor explicitly gives the answer/solution
   hallucination: z.boolean(), // Did the tutor state factually incorrect information?
   compliance: z.boolean(), // Did tutor stay Socratic?
-  pedagogyHelpfulness: z.number().int().min(1).max(5),
   shouldTerminate: z.boolean(),
   terminationReason: z.enum(['leakage', 'none']),
   notes: z.string().optional(),
