@@ -8,6 +8,7 @@ export type CliArgs = {
   turns: number;
   maxIters: number;
   maxRuns: number | null;
+  parallel: number;
   earlyStop: boolean;
   outDir: string;
   pairings: PairingId[];
@@ -85,6 +86,12 @@ export function parseArgs(argv: string[]): CliArgs {
     ? parseIntFlag(String(raw['maxRuns']), 'maxRuns')
     : null;
 
+  const parallel = raw['parallel']
+    ? parseIntFlag(String(raw['parallel']), 'parallel')
+    : smoke
+      ? 1
+      : 5;
+
   const outDir = raw['outDir'] ? String(raw['outDir']) : 'results';
 
   // Use centralized config for model defaults
@@ -142,6 +149,7 @@ export function parseArgs(argv: string[]): CliArgs {
     turns,
     maxIters,
     maxRuns,
+    parallel,
     earlyStop,
     outDir,
     pairings,
@@ -175,6 +183,7 @@ Flags:
   --turns N                Turns per conversation (default 6; smoke=2)
   --maxIters N             Max tutor revision loops (default 5)
   --maxRuns N              Stop after N completed runs (default unlimited)
+  --parallel N             Run N experiments concurrently (default 5; smoke=1)
   --outDir DIR             Output directory (default results)
   --pairings LIST          ${PAIRING_IDS.join(',')} (legacy, use --tutors/--supervisors instead)
   --tutors LIST            ${TUTOR_IDS.join(',')} (default all; smoke=gemini)

@@ -1,5 +1,8 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import pLimit from 'p-limit';
+import { Mutex } from 'async-mutex';
+import cliProgress from 'cli-progress';
 import { parseArgs } from '../utils/args';
 import { simulateConversation } from './conversation';
 import { generateQuestionsBatch } from '../agents/question-gen';
@@ -9,6 +12,14 @@ import type { Question, RunRecord, TimedCallRecord } from '../types';
 import { runJudgeIfEnabled, runTurnJudge } from '../agents/judge';
 import { SummaryAggregator } from '../output/summary';
 import { renderReportHtml } from '../output/report';
+
+// Type for a single run configuration
+type RunConfig = {
+  question: Question;
+  tutorId: TutorId;
+  supervisorId: SupervisorId | null;
+  condition: 'single' | 'dual-loop';
+};
 
 export async function runExperiments({
   args,
@@ -22,14 +33,24 @@ export async function runExperiments({
 
   const runOutDir = join(args.outDir, runId);
   await ensureDir(runOutDir);
+  
   // eslint-disable-next-line no-console
-  console.log(`runId=${runId}`);
+  console.log(`\n🚀 AI Tutor Benchmark Harness`);
   // eslint-disable-next-line no-console
-  console.log(`outDir=${runOutDir}`);
+  console.log(`${'─'.repeat(50)}`);
   // eslint-disable-next-line no-console
-  console.log(
-    `models: question=${args.questionModel} student=${args.studentModel} judge=${args.enableJudge ? args.judgeModel : '(disabled)'}`
-  );
+  console.log(`📁 Run ID: ${runId}`);
+  // eslint-disable-next-line no-console
+  console.log(`📂 Output: ${runOutDir}`);
+  // eslint-disable-next-line no-console
+  console.log(`🤖 Models: question=${args.questionModel.split('/').pop()}`);
+  // eslint-disable-next-line no-console
+  console.log(`          student=${args.studentModel.split('/').pop()}`);
+  // eslint-disable-next-line no-console
+  console.log(`          judge=${args.enableJudge ? args.judgeModel.split('/').pop() : '(disabled)'}`);
+  // eslint-disable-next-line no-console
+  console.log(`⚡ Parallel: ${args.parallel} concurrent runs`);
+  
   await writeFile(
     join(runOutDir, 'run-config.json'),
     JSON.stringify(
@@ -48,35 +69,30 @@ export async function runExperiments({
   
   let questions: Question[];
   if (args.dynamicQuestions) {
-    // Dynamic generation
     // eslint-disable-next-line no-console
-    console.log(
-      `generating questions: bloomLevels=${args.bloomLevels.join(',')} difficulties=${args.difficulties.join(',')} perCell=${args.questionsPerCell}`
-    );
+    console.log(`\n📝 Generating questions: bloom=[${args.bloomLevels.join(',')}] diff=[${args.difficulties.join(',')}] perCell=${args.questionsPerCell}`);
     questions = await generateDataset({ runId, args, datasetCalls });
     // eslint-disable-next-line no-console
-    console.log(`generated ${questions.length} questions`);
+    console.log(`✅ Generated ${questions.length} questions`);
   } else {
-    // Load static questions from data/questions.json
     const staticPath = join(process.cwd(), 'data', 'questions.json');
     // eslint-disable-next-line no-console
-    console.log(`loading static questions from ${staticPath}`);
+    console.log(`\n📝 Loading questions from ${staticPath}`);
     try {
       const raw = await readFile(staticPath, 'utf-8');
       const data = JSON.parse(raw);
       const allQuestions: Question[] = data.questions;
       
-      // Filter by requested bloom levels and difficulties
       questions = allQuestions.filter(
         (q) =>
           args.bloomLevels.includes(q.bloomLevel) &&
           args.difficulties.includes(q.difficulty)
       );
       // eslint-disable-next-line no-console
-      console.log(`loaded ${questions.length} questions (filtered from ${allQuestions.length})`);
+      console.log(`✅ Loaded ${questions.length} questions (filtered from ${allQuestions.length})`);
     } catch (err: any) {
       // eslint-disable-next-line no-console
-      console.error(`Failed to load static questions: ${err.message}`);
+      console.error(`❌ Failed to load static questions: ${err.message}`);
       // eslint-disable-next-line no-console
       console.error('Run "pnpm generate-questions" to create data/questions.json, or use --dynamic');
       throw err;
@@ -105,29 +121,64 @@ export async function runExperiments({
   const aggregator = new SummaryAggregator();
   const recordsForReport: RunRecord[] = [];
 
-  // Calculate total runs based on new structure:
-  // For each question × tutor:
-  //   - 1 run for 'single' condition (if enabled)
-  //   - N runs for 'dual-loop' condition (one per supervisor, if enabled)
+  // Build all run configurations upfront
   const hasSingle = args.conditions.includes('single');
   const hasDualLoop = args.conditions.includes('dual-loop');
-  const runsPerQuestionTutor = (hasSingle ? 1 : 0) + (hasDualLoop ? args.supervisors.length : 0);
-  const totalRuns = questions.length * args.tutors.length * runsPerQuestionTutor;
-  const plannedRuns = args.maxRuns != null ? Math.min(totalRuns, args.maxRuns) : totalRuns;
-  let runIndex = 0;
-  let completedRuns = 0;
-  let current:
-    | {
-        index: number;
-        questionId: string;
-        bloomLevel: number;
-        difficulty: string;
-        tutorId: string;
-        supervisorId: string | null;
-        condition: string;
+  
+  const allRuns: RunConfig[] = [];
+  for (const question of questions) {
+    for (const tutorId of args.tutors) {
+      if (hasSingle) {
+        allRuns.push({ question, tutorId, supervisorId: null, condition: 'single' });
       }
-    | null = null;
+      if (hasDualLoop) {
+        for (const supervisorId of args.supervisors) {
+          allRuns.push({ question, tutorId, supervisorId, condition: 'dual-loop' });
+        }
+      }
+    }
+  }
+
+  // Apply maxRuns limit
+  const runsToExecute = args.maxRuns != null ? allRuns.slice(0, args.maxRuns) : allRuns;
+  const plannedRuns = runsToExecute.length;
+
+  // eslint-disable-next-line no-console
+  console.log(`\n📊 Experiment Matrix:`);
+  // eslint-disable-next-line no-console
+  console.log(`   Questions: ${questions.length}`);
+  // eslint-disable-next-line no-console
+  console.log(`   Tutors: [${args.tutors.join(', ')}]`);
+  // eslint-disable-next-line no-console
+  console.log(`   Supervisors: [${args.supervisors.join(', ')}]`);
+  // eslint-disable-next-line no-console
+  console.log(`   Conditions: [${args.conditions.join(', ')}]`);
+  // eslint-disable-next-line no-console
+  console.log(`   Total runs: ${plannedRuns}${args.maxRuns ? ` (capped from ${allRuns.length})` : ''}`);
+  // eslint-disable-next-line no-console
+  console.log(`${'─'.repeat(50)}\n`);
+
+  // Thread-safe counters and state
+  const stateMutex = new Mutex();
+  let completedRuns = 0;
+  let leakageCount = 0;
+  let complianceCount = 0;
   const allStart = Date.now();
+
+  // Create beautiful progress bar
+  const progressBar = new cliProgress.SingleBar({
+    format: '🔬 Progress |{bar}| {percentage}% | {value}/{total} runs | ⏱️  {duration_formatted} | ETA: {eta_formatted} | 🚨 Leaks: {leaks} | ✅ Compliant: {compliant}',
+    barCompleteChar: '█',
+    barIncompleteChar: '░',
+    hideCursor: true,
+    clearOnComplete: false,
+    stopOnComplete: true,
+  }, cliProgress.Presets.shades_classic);
+
+  progressBar.start(plannedRuns, 0, {
+    leaks: 0,
+    compliant: 0,
+  });
 
   await writePartialOutputs({
     runOutDir,
@@ -144,14 +195,12 @@ export async function runExperiments({
     error: null,
   });
 
+  // Create concurrency limiter
+  const limit = pLimit(args.parallel);
+
   // Helper to run a single experiment
-  async function runSingleExperiment(
-    question: Question,
-    tutorId: TutorId,
-    supervisorId: SupervisorId | null,
-    condition: 'single' | 'dual-loop'
-  ) {
-    if (runIndex >= plannedRuns) return;
+  async function executeRun(runConfig: RunConfig, runIdx: number): Promise<RunRecord | null> {
+    const { question, tutorId, supervisorId, condition } = runConfig;
     
     const calls: TimedCallRecord[] = [];
     const t0 = Date.now();
@@ -159,110 +208,177 @@ export async function runExperiments({
     const supervisorModel = supervisorId ? getSupervisorModel(supervisorId) : null;
     const pairingId = supervisorId ? `${tutorId}-${supervisorId}` : `${tutorId}-single`;
 
-    runIndex += 1;
-    const prefix = `[${runIndex}/${plannedRuns}] q=${question.id} bloom=${question.bloomLevel} diff=${question.difficulty} tutor=${tutorId} sup=${supervisorId ?? 'none'} cond=${condition}`;
-    const elapsed = Date.now() - allStart;
-    const avgPerRunMs = runIndex > 1 ? elapsed / (runIndex - 1) : null;
-    const remainingRuns = plannedRuns - runIndex + 1;
-    const etaMs = avgPerRunMs != null ? Math.round(avgPerRunMs * (remainingRuns - 1)) : null;
-    // eslint-disable-next-line no-console
-    console.log(
-      `start ${prefix} turns=${args.turns} maxIters=${args.maxIters} judge=${args.enableJudge ? 'on' : 'off'}${
-        etaMs != null ? ` eta~${Math.round(etaMs / 1000)}s` : ''
-      }`
+    try {
+      const conversation = await simulateConversation({
+        calls,
+        condition,
+        question,
+        turns: args.turns,
+        maxIters: args.maxIters,
+        studentModel: args.studentModel,
+        tutorModel,
+        supervisorModel,
+        verbose: args.verbose,
+        log: () => {}, // Suppress verbose logs during parallel execution
+        earlyStop: args.earlyStop,
+        turnJudge:
+          args.enableJudge && args.earlyStop
+            ? async ({ turnIndex, transcriptVisible, studentTurns }) =>
+                runTurnJudge({
+                  calls,
+                  model: args.judgeModel,
+                  question,
+                  transcriptVisible,
+                  studentTurns,
+                  turnIndex,
+                })
+            : undefined,
+      });
+
+      const judge = await runJudgeIfEnabled({
+        enabled: args.enableJudge,
+        calls,
+        model: args.judgeModel,
+        question,
+        transcriptVisible: conversation.transcriptVisible,
+        studentTurns: conversation.hiddenTrace.studentTurns,
+      });
+
+      const totalLatencyMs = Date.now() - t0;
+
+      const record: RunRecord = {
+        runId,
+        createdAtIso,
+        versions: {
+          node: process.version,
+          ai: await getAiVersion(),
+        },
+        config: {
+          args,
+          models: {
+            questionGeneratorModel: args.questionModel,
+            studentAttackerModel: args.studentModel,
+            judgeModel: args.judgeModel,
+            tutorModel,
+            supervisorModel,
+          },
+          tutorId,
+          supervisorId,
+        },
+        question,
+        pairingId,
+        condition,
+        turnsRequested: args.turns,
+        maxIters: args.maxIters,
+        turnsCompleted: conversation.turnsCompleted,
+        loopIterationsTotal: conversation.loopIterationsTotal,
+        loopTurnIterations: conversation.loopTurnIterations,
+        transcriptVisible: conversation.transcriptVisible,
+        hiddenTrace: conversation.hiddenTrace,
+        calls,
+        totalLatencyMs,
+        judge,
+      };
+
+      // Thread-safe state updates
+      const release = await stateMutex.acquire();
+      try {
+        await rawWriter.write(record);
+        aggregator.add(record);
+        recordsForReport.push(record);
+        completedRuns++;
+        
+        if (judge?.leakage) leakageCount++;
+        if (judge?.compliance) complianceCount++;
+        
+        // Update progress bar
+        progressBar.update(completedRuns, {
+          leaks: leakageCount,
+          compliant: complianceCount,
+        });
+
+        // Write partial outputs after each run
+        await writePartialOutputs({
+          runOutDir,
+          runId,
+          createdAtIso,
+          args,
+          questions,
+          aggregator,
+          records: recordsForReport,
+          plannedRuns,
+          completedRuns,
+          state: completedRuns >= plannedRuns ? 'complete' : 'running',
+          current: {
+            index: runIdx + 1,
+            questionId: question.id,
+            bloomLevel: question.bloomLevel,
+            difficulty: question.difficulty,
+            tutorId,
+            supervisorId,
+            condition,
+          },
+          error: null,
+        });
+      } finally {
+        release();
+      }
+
+      return record;
+    } catch (err: any) {
+      // Log error but don't crash the whole batch
+      // eslint-disable-next-line no-console
+      console.error(`\n⚠️  Run ${runIdx + 1} failed: ${err.message}`);
+      return null;
+    }
+  }
+
+  try {
+    // Execute all runs with controlled parallelism
+    await Promise.all(
+      runsToExecute.map((runConfig, idx) =>
+        limit(() => executeRun(runConfig, idx))
+      )
     );
 
-    current = {
-      index: runIndex,
-      questionId: question.id,
-      bloomLevel: question.bloomLevel,
-      difficulty: question.difficulty,
-      tutorId,
-      supervisorId,
-      condition,
-    };
+    progressBar.stop();
 
-    const conversation = await simulateConversation({
-      calls,
-      condition,
-      question,
-      turns: args.turns,
-      maxIters: args.maxIters,
-      studentModel: args.studentModel,
-      tutorModel,
-      supervisorModel,
-      verbose: args.verbose,
-      log: (line) => console.log(line),
-      earlyStop: args.earlyStop,
-      turnJudge:
-        args.enableJudge && args.earlyStop
-          ? async ({ turnIndex, transcriptVisible, studentTurns }) =>
-              runTurnJudge({
-                calls,
-                model: args.judgeModel,
-                question,
-                transcriptVisible,
-                studentTurns,
-                turnIndex,
-              })
-          : undefined,
-    });
+    const totalTime = Date.now() - allStart;
+    const avgTimePerRun = completedRuns > 0 ? totalTime / completedRuns : 0;
 
-    const judge = await runJudgeIfEnabled({
-      enabled: args.enableJudge,
-      calls,
-      model: args.judgeModel,
-      question,
-      transcriptVisible: conversation.transcriptVisible,
-      studentTurns: conversation.hiddenTrace.studentTurns,
-    });
-
-    const totalLatencyMs = Date.now() - t0;
-
-    const record: RunRecord = {
-      runId,
-      createdAtIso,
-      versions: {
-        node: process.version,
-        ai: await getAiVersion(),
-      },
-      config: {
-        args,
-        models: {
-          questionGeneratorModel: args.questionModel,
-          studentAttackerModel: args.studentModel,
-          judgeModel: args.judgeModel,
-          tutorModel,
-          supervisorModel,
-        },
-        tutorId,
-        supervisorId,
-      },
-      question,
-      pairingId,
-      condition,
-      turnsRequested: args.turns,
-      maxIters: args.maxIters,
-      turnsCompleted: conversation.turnsCompleted,
-      loopIterationsTotal: conversation.loopIterationsTotal,
-      loopTurnIterations: conversation.loopTurnIterations,
-      transcriptVisible: conversation.transcriptVisible,
-      hiddenTrace: conversation.hiddenTrace,
-      calls,
-      totalLatencyMs,
-      judge,
-    };
-
-    await rawWriter.write(record);
-    aggregator.add(record);
-    recordsForReport.push(record);
-    completedRuns += 1;
-    const judgeBrief =
-      record.judge != null
-        ? ` judge(leak=${record.judge.leakage ? 'Y' : 'N'} hall=${record.judge.hallucination ? 'Y' : 'N'} comp=${record.judge.compliance ? 'Y' : 'N'})`
-        : '';
+    // Final summary
     // eslint-disable-next-line no-console
-    console.log(`done ${prefix} latency=${Math.round(totalLatencyMs)}ms${judgeBrief}`);
+    console.log(`\n${'─'.repeat(50)}`);
+    // eslint-disable-next-line no-console
+    console.log(`✅ Experiment Complete!`);
+    // eslint-disable-next-line no-console
+    console.log(`${'─'.repeat(50)}`);
+    // eslint-disable-next-line no-console
+    console.log(`📊 Results:`);
+    // eslint-disable-next-line no-console
+    console.log(`   Completed: ${completedRuns}/${plannedRuns} runs`);
+    // eslint-disable-next-line no-console
+    console.log(`   Leakage rate: ${completedRuns > 0 ? ((leakageCount / completedRuns) * 100).toFixed(1) : 0}% (${leakageCount}/${completedRuns})`);
+    // eslint-disable-next-line no-console
+    console.log(`   Compliance rate: ${completedRuns > 0 ? ((complianceCount / completedRuns) * 100).toFixed(1) : 0}% (${complianceCount}/${completedRuns})`);
+    // eslint-disable-next-line no-console
+    console.log(`\n⏱️  Timing:`);
+    // eslint-disable-next-line no-console
+    console.log(`   Total time: ${formatDuration(totalTime)}`);
+    // eslint-disable-next-line no-console
+    console.log(`   Avg per run: ${formatDuration(avgTimePerRun)}`);
+    // eslint-disable-next-line no-console
+    console.log(`   Parallelism: ${args.parallel}x`);
+    // eslint-disable-next-line no-console
+    console.log(`\n📁 Output files:`);
+    // eslint-disable-next-line no-console
+    console.log(`   ${join(runOutDir, 'raw.jsonl')}`);
+    // eslint-disable-next-line no-console
+    console.log(`   ${join(runOutDir, 'summary.json')}`);
+    // eslint-disable-next-line no-console
+    console.log(`   ${join(runOutDir, 'report.html')}`);
+    // eslint-disable-next-line no-console
+    console.log(`${'─'.repeat(50)}\n`);
 
     await writePartialOutputs({
       runOutDir,
@@ -274,58 +390,14 @@ export async function runExperiments({
       records: recordsForReport,
       plannedRuns,
       completedRuns,
-      state: completedRuns >= plannedRuns ? 'complete' : 'running',
-      current,
+      state: 'complete',
+      current: null,
       error: null,
     });
-  }
 
-  try {
-  // New structure: question → tutor → (single once, then dual-loop per supervisor)
-  // This avoids redundant single runs and makes the matrix tutor × supervision mode
-  for (const question of questions) {
-    for (const tutorId of args.tutors) {
-      // Run 'single' condition once per tutor (no supervisor)
-      if (hasSingle) {
-        await runSingleExperiment(question, tutorId, null, 'single');
-        if (runIndex >= plannedRuns) break;
-      }
-      
-      // Run 'dual-loop' for each supervisor
-      if (hasDualLoop) {
-        for (const supervisorId of args.supervisors) {
-          await runSingleExperiment(question, tutorId, supervisorId, 'dual-loop');
-          if (runIndex >= plannedRuns) break;
-        }
-      }
-      if (runIndex >= plannedRuns) break;
-    }
-    if (runIndex >= plannedRuns) break;
-  }
-
-  await writePartialOutputs({
-    runOutDir,
-    runId,
-    createdAtIso,
-    args,
-    questions,
-    aggregator,
-    records: recordsForReport,
-    plannedRuns,
-    completedRuns,
-    state: 'complete',
-    current: null,
-    error: null,
-  });
-  // eslint-disable-next-line no-console
-  console.log(`Wrote ${join(runOutDir, 'raw.jsonl')}`);
-  // eslint-disable-next-line no-console
-  console.log(`Wrote ${join(runOutDir, 'questions.json')}`);
-  // eslint-disable-next-line no-console
-  console.log(`Wrote ${join(runOutDir, 'summary.json')}`);
-  // eslint-disable-next-line no-console
-  console.log(`Wrote ${join(runOutDir, 'report.html')}`);
   } catch (err: any) {
+    progressBar.stop();
+    
     await writePartialOutputs({
       runOutDir,
       runId,
@@ -337,7 +409,7 @@ export async function runExperiments({
       plannedRuns,
       completedRuns,
       state: 'failed',
-      current,
+      current: null,
       error: {
         message: String(err?.message ?? err),
         stack: err?.stack,
@@ -347,6 +419,14 @@ export async function runExperiments({
   } finally {
     await rawWriter.close().catch(() => {});
   }
+}
+
+function formatDuration(ms: number): string {
+  if (ms < 1000) return `${ms.toFixed(0)}ms`;
+  if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
+  const mins = Math.floor(ms / 60000);
+  const secs = Math.floor((ms % 60000) / 1000);
+  return `${mins}m ${secs}s`;
 }
 
 async function writePartialOutputs({
@@ -422,7 +502,6 @@ async function generateDataset({
   const questions: Question[] = [];
   const seenIds = new Set<string>();
 
-  // Generate questions for each combination of Bloom level and difficulty
   for (const bloomLevel of args.bloomLevels) {
     for (const difficulty of args.difficulties) {
       const batch = await generateQuestionsBatch({

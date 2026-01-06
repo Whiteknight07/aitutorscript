@@ -1,6 +1,7 @@
 import { createWriteStream } from 'node:fs';
 import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
+import { Mutex } from 'async-mutex';
 
 export function nowIso(): string {
   return new Date().toISOString();
@@ -18,13 +19,19 @@ export async function createJsonlWriter(outDir: string, filename: string) {
   await ensureDir(outDir);
   const path = join(outDir, filename);
   const stream = createWriteStream(path, { flags: 'a' });
+  const writeMutex = new Mutex();
 
   return {
     path,
     write: async (obj: unknown) => {
-      const line = JSON.stringify(obj);
-      if (!stream.write(line + '\n')) {
-        await new Promise<void>((resolve) => stream.once('drain', resolve));
+      const release = await writeMutex.acquire();
+      try {
+        const line = JSON.stringify(obj);
+        if (!stream.write(line + '\n')) {
+          await new Promise<void>((resolve) => stream.once('drain', resolve));
+        }
+      } finally {
+        release();
       }
     },
     close: async () => {
