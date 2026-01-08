@@ -15,7 +15,7 @@ import { nowIso } from '../utils/util';
 
 const BLOOM_LEVELS = [1, 2, 3];
 const DIFFICULTIES: Difficulty[] = ['easy', 'medium', 'hard'];
-const TOTAL_QUESTIONS = 100;
+const TOTAL_QUESTIONS = 54;
 
 function getQuestionsForCell(cellIndex: number, totalCells: number): number {
   const basePerCell = Math.floor(TOTAL_QUESTIONS / totalCells);
