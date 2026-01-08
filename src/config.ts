@@ -17,7 +17,7 @@
  */
 export const MODELS = {
   // OpenAI models
-  gpt51: "openai/gpt-5",
+  gpt51: "openai/gpt-5.1",
 
   // Google models
   gemini3flash: "google/gemini-3-flash-preview",
