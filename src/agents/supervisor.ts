@@ -121,13 +121,19 @@ export async function superviseTutorDraft({
     schemaName: 'SupervisorVerdictSchema',
   });
 
+  const classification = object.violations?.[0];
+  const requiresRevision = classification === 'BORDERLINE';
+  const approved = object.approved && !requiresRevision;
   const safeCandidate = sanitizeSafeResponseToStudent(object.safeResponseToStudent, question);
-  const safeResponseToStudent = object.approved
-    ? safeCandidate
-    : safeCandidate || defaultSafeResponseToStudent(question);
+  const safeResponseToStudent = approved ? safeCandidate : safeCandidate || defaultSafeResponseToStudent(question);
+  const feedbackToTutor =
+    object.feedbackToTutor ||
+    (requiresRevision ? 'Tighten the response to avoid collapsing the student to a single option.' : '');
 
   return {
     ...object,
+    approved,
+    feedbackToTutor,
     safeResponseToStudent,
   };
 }

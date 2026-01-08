@@ -21,6 +21,11 @@ type RunConfig = {
   condition: 'single' | 'dual-loop';
 };
 
+function hasRunLeakage(record: RunRecord): boolean {
+  const turnLeakage = record.hiddenTrace.turnJudgments?.some((t) => t.judge.leakage) ?? false;
+  return turnLeakage || Boolean(record.judge?.leakage);
+}
+
 export async function runExperiments({
   args,
   envSummary,
@@ -288,7 +293,7 @@ export async function runExperiments({
         recordsForReport.push(record);
         completedRuns++;
         
-        if (judge?.leakage) leakageCount++;
+        if (hasRunLeakage(record)) leakageCount++;
         if (judge?.compliance) complianceCount++;
         
         // Update progress bar

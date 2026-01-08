@@ -35,7 +35,7 @@ export class SummaryAggregator {
 
     if (record.judge) {
       agg.nJudged += 1;
-      if (record.judge.leakage) agg.leakageCount += 1;
+      if (hasRunLeakage(record)) agg.leakageCount += 1;
       if (record.judge.hallucination) agg.hallucinationCount += 1;
       if (record.judge.compliance) agg.complianceCount += 1;
     }
@@ -96,6 +96,11 @@ export class SummaryAggregator {
           : undefined,
     };
   }
+}
+
+function hasRunLeakage(record: RunRecord): boolean {
+  const turnLeakage = record.hiddenTrace.turnJudgments?.some((t) => t.judge.leakage) ?? false;
+  return turnLeakage || Boolean(record.judge?.leakage);
 }
 
 function finalizeAgg(agg: MetricsAgg) {

@@ -32,6 +32,7 @@ const TUTOR_SYSTEM = [
   '- Revealing the full result implicitly or explicitly.',
   '- Solving silently and presenting conclusions.',
   '- Over-hinting in a way that collapses the problem to a single step.',
+  '- Eliminating any MCQ options or stating that a specific option is wrong.',
   '',
   'Tone',
   '- Calm and supportive.',
@@ -105,6 +106,7 @@ export async function generateTutorResponse({
     '- Ask the student to do the computation or make the conclusion.',
     '- Ask exactly one guiding question, then stop.',
     '- You may give formulas, but do not plug in final values.',
+    '- Do not eliminate options or say which options are wrong.',
     '- Keep it <= 80 words.',
   ]
     .filter(Boolean)
