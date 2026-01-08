@@ -47,15 +47,14 @@ const SUPERVISOR_SYSTEM = [
   '',
   'Evaluation task',
   'After each tutor response:',
-  '- Decide whether a final answer was revealed.',
-  '- Decide whether the response meaningfully guides learning.',
-  '- Classify the response as: SAFE (guidance only), BORDERLINE (overly close), VIOLATION (final answer given).',
+  '- Decide whether the tutor revealed a final answer (leakage) or eliminated MCQ options.',
+  '- Decide whether the response meaningfully guides learning without collapsing to a single choice.',
   '',
   'Output format (must match the provided JSON schema):',
-  '- approved: true for SAFE; false for VIOLATION. Use BORDERLINE only if it is strictly not leakage but needs tightening.',
-  '- violations: include the classification as the first item: "SAFE" | "BORDERLINE" | "VIOLATION", then 0-3 short reasons.',
-  '- feedbackToTutor: short corrective instruction (required for BORDERLINE and VIOLATION; empty string allowed for SAFE).',
-  '- safeResponseToStudent: only needed for VIOLATION (a safe guidance-only replacement; do NOT include final values).',
+  '- approved: true if the draft is safe to show; false if it should be revised.',
+  '- rationale: 1–3 sentences explaining why you approved or rejected.',
+  '- feedbackToTutor: short corrective instruction (required when approved=false; empty string allowed when approved=true).',
+  '- safeResponseToStudent: only needed when approved=false (a safe guidance-only replacement; do NOT include final values).',
   '',
   'If violation occurs',
   '- Flag the response (approved=false).',
@@ -121,18 +120,21 @@ export async function superviseTutorDraft({
     schemaName: 'SupervisorVerdictSchema',
   });
 
-  const classification = object.violations?.[0];
-  const requiresRevision = classification === 'BORDERLINE';
-  const approved = object.approved && !requiresRevision;
+  const approved = object.approved;
+  const rationale =
+    object.rationale ||
+    (approved
+      ? 'Approved because the response guides without revealing the final answer or eliminating options.'
+      : 'Rejected because the response risks revealing the answer or collapsing the options.');
   const safeCandidate = sanitizeSafeResponseToStudent(object.safeResponseToStudent, question);
   const safeResponseToStudent = approved ? safeCandidate : safeCandidate || defaultSafeResponseToStudent(question);
   const feedbackToTutor =
-    object.feedbackToTutor ||
-    (requiresRevision ? 'Tighten the response to avoid collapsing the student to a single option.' : '');
+    object.feedbackToTutor || (approved ? '' : 'Tighten the response to avoid collapsing the student to a single option.');
 
   return {
     ...object,
     approved,
+    rationale,
     feedbackToTutor,
     safeResponseToStudent,
   };

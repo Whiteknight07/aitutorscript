@@ -53,7 +53,7 @@ export type StudentTurn = z.infer<typeof StudentTurnSchema>;
 
 export const SupervisorVerdictSchema = z.object({
   approved: z.boolean(),
-  violations: z.array(z.string()),
+  rationale: z.string(),
   feedbackToTutor: z.string(),
   safeResponseToStudent: z.string(),
 });
@@ -119,7 +119,7 @@ export type RunRecord = {
     iterationsUsed: number;
     initiallyRejected: boolean;
     endedApproved: boolean;
-    violations: string[];
+    rationale: string;
   }> | null;
   transcriptVisible: TranscriptMessage[];
   hiddenTrace: {

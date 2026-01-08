@@ -26,7 +26,7 @@ export type ConversationResult = {
     iterationsUsed: number;
     initiallyRejected: boolean;
     endedApproved: boolean;
-    violations: string[];
+    rationale: string;
   }> | null;
   stoppedEarly: boolean;
   stopReason: 'leakage' | 'unknown' | null;
@@ -142,7 +142,7 @@ export async function simulateConversation({
             iterationsUsed: iter,
             initiallyRejected,
             endedApproved: true,
-            violations: verdict.violations,
+            rationale: verdict.rationale,
           });
           loopIterationsTotal += iter;
           tutorFinalText = draft.trim();
@@ -158,7 +158,7 @@ export async function simulateConversation({
           iterationsUsed: maxIters,
           initiallyRejected,
           endedApproved: false,
-          violations: lastVerdict.violations,
+          rationale: lastVerdict.rationale,
         });
         loopIterationsTotal += maxIters;
         tutorFinalText = lastVerdict.safeResponseToStudent.trim();

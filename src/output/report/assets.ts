@@ -2298,17 +2298,17 @@ export const REPORT_JS = `
 
         const table = document.createElement('table');
         table.className = 'table mono';
-        table.innerHTML = '<thead><tr><th>turn</th><th>iters</th><th>rejected</th><th>approved</th><th>violations</th></tr></thead>';
+        table.innerHTML = '<thead><tr><th>turn</th><th>iters</th><th>rejected</th><th>approved</th><th>rationale</th></tr></thead>';
         const tb = document.createElement('tbody');
         for (const row of loop){
           const tr = document.createElement('tr');
-          const violations = Array.isArray(row.violations) ? row.violations.join(', ') : '';
+          const rationale = row.rationale ? String(row.rationale) : '';
           tr.innerHTML =
             '<td>' + escapeHtml(row.turnIndex) + '</td>' +
             '<td>' + escapeHtml(row.iterationsUsed) + '</td>' +
             '<td>' + escapeHtml(row.initiallyRejected ? 'yes' : 'no') + '</td>' +
             '<td>' + escapeHtml(row.endedApproved ? 'yes' : 'no') + '</td>' +
-            '<td>' + escapeHtml(violations) + '</td>';
+            '<td>' + escapeHtml(rationale) + '</td>';
           tb.appendChild(tr);
         }
         table.appendChild(tb);
