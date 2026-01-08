@@ -1,5 +1,5 @@
 /**
- * Script to generate a static set of 36 questions (4 per Bloom x Difficulty cell)
+ * Script to generate a static set of 100 questions across Bloom x Difficulty cells
  * and save them to data/questions.json
  * 
  * Usage: pnpm generate-questions
@@ -15,7 +15,13 @@ import { nowIso } from '../utils/util';
 
 const BLOOM_LEVELS = [1, 2, 3];
 const DIFFICULTIES: Difficulty[] = ['easy', 'medium', 'hard'];
-const QUESTIONS_PER_CELL = 4;
+const TOTAL_QUESTIONS = 100;
+
+function getQuestionsForCell(cellIndex: number, totalCells: number): number {
+  const basePerCell = Math.floor(TOTAL_QUESTIONS / totalCells);
+  const remainder = TOTAL_QUESTIONS % totalCells;
+  return basePerCell + (cellIndex < remainder ? 1 : 0);
+}
 
 async function main() {
   const runId = `static_${nowIso().replace(/[:.]/g, '-')}`;
@@ -23,14 +29,19 @@ async function main() {
   const calls: TimedCallRecord[] = [];
   const questions: Question[] = [];
   const seenIds = new Set<string>();
+  const totalCells = BLOOM_LEVELS.length * DIFFICULTIES.length;
 
-  console.log(`Generating ${BLOOM_LEVELS.length * DIFFICULTIES.length * QUESTIONS_PER_CELL} questions...`);
+  console.log(`Generating ${TOTAL_QUESTIONS} questions...`);
   console.log(`Model: ${model}`);
-  console.log(`Matrix: ${BLOOM_LEVELS.length} bloom levels × ${DIFFICULTIES.length} difficulties × ${QUESTIONS_PER_CELL} per cell`);
+  console.log(`Matrix: ${BLOOM_LEVELS.length} bloom levels × ${DIFFICULTIES.length} difficulties (${totalCells} cells total)`);
   console.log('');
 
+  let cellIndex = 0;
   for (const bloomLevel of BLOOM_LEVELS) {
     for (const difficulty of DIFFICULTIES) {
+      const count = getQuestionsForCell(cellIndex, totalCells);
+      cellIndex++;
+
       console.log(`Generating bloom=${bloomLevel} difficulty=${difficulty}...`);
       
       const batch = await generateQuestionsBatch({
@@ -38,7 +49,7 @@ async function main() {
         model,
         bloomLevel,
         difficulty,
-        count: QUESTIONS_PER_CELL,
+        count,
         runId,
       });
 
@@ -59,7 +70,8 @@ async function main() {
     model,
     bloomLevels: BLOOM_LEVELS,
     difficulties: DIFFICULTIES,
-    questionsPerCell: QUESTIONS_PER_CELL,
+    totalQuestionsTarget: TOTAL_QUESTIONS,
+    questionsPerCellBase: Math.floor(TOTAL_QUESTIONS / totalCells),
     totalQuestions: questions.length,
     questions,
   };

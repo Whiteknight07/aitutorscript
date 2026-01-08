@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-01-01T02:01:06.208Z",
+  "generatedAt": "2026-01-08T02:43:29.734Z",
   "model": "google/gemini-3-flash-preview",
   "bloomLevels": [
     1,
@@ -11,548 +11,1509 @@
     "medium",
     "hard"
   ],
-  "questionsPerCell": 4,
-  "totalQuestions": 36,
+  "totalQuestionsTarget": 100,
+  "questionsPerCellBase": 11,
+  "totalQuestions": 100,
   "questions": [
-    {
-      "id": "q-b1-easy-0",
-      "bloomLevel": 1,
-      "difficulty": "easy",
-      "topicTag": "kernel-vs-user-mode",
-      "problemStatement": "Which mechanism is primarily used by a process to request a service from the operating system kernel?",
-      "choices": [
-        "Memory mapping",
-        "Context switching",
-        "System calls",
-        "Signal handling"
-      ],
-      "correctChoiceIndex": 2,
-      "referenceAnswerDescription": "System calls act as the programmatic interface between a running program and the operating system kernel. They allow user-mode applications to safely request privileged operations like file access or process creation."
-    },
     {
       "id": "q-b1-easy-1",
       "bloomLevel": 1,
       "difficulty": "easy",
-      "topicTag": "version-control",
-      "problemStatement": "In the context of the Git version control system, which command is used to record changes from the staging area to the local repository?",
+      "topicTag": "kernel-vs-user-mode",
+      "problemStatement": "Which mode of the CPU allows direct access to all hardware resources and execution of any machine instruction?",
       "choices": [
-        "git push",
-        "git commit",
-        "git add",
-        "git pull"
+        "User mode",
+        "Kernel mode",
+        "Safe mode",
+        "Restricted mode"
       ],
       "correctChoiceIndex": 1,
-      "referenceAnswerDescription": "The commit command captures a snapshot of the project's currently staged changes. This creates a new entry in the local repository history with a unique identifier."
+      "referenceAnswerDescription": "Kernel mode, also known as supervisor mode, provides unrestricted access to hardware and all memory locations. User mode is a restricted state used for executing application software."
     },
     {
       "id": "q-b1-easy-2",
       "bloomLevel": 1,
       "difficulty": "easy",
-      "topicTag": "deadlocks",
-      "problemStatement": "In the study of operating systems, which of the following is one of the four necessary conditions for a deadlock to occur?",
+      "topicTag": "scheduling-algorithms",
+      "problemStatement": "In a CPU scheduling context, what does the acronym FCFS stand for?",
       "choices": [
-        "Preemption",
-        "Circular wait",
-        "Resource sharing",
-        "Dynamic linking"
+        "Fixed-Cycle Fast Scheduling",
+        "Frequency Controlled File System",
+        "First-Come, First-Served",
+        "First-Completed, Final-Step"
       ],
-      "correctChoiceIndex": 1,
-      "referenceAnswerDescription": "Circular wait is one of the four Coffman conditions required for deadlock. It occurs when a set of processes are waiting for resources held by each other in a closed chain."
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "FCFS is the simplest scheduling algorithm where the process that requests the CPU first is allocated the CPU first. It operates as a standard FIFO queue."
     },
     {
       "id": "q-b1-easy-3",
       "bloomLevel": 1,
       "difficulty": "easy",
-      "topicTag": "solid-principles",
-      "problemStatement": "The 'S' in the SOLID principles of software engineering stands for which concept?",
+      "topicTag": "deadlocks",
+      "problemStatement": "Which of the following describes a situation where every process in a set is waiting for an event that only another process in the set can cause?",
       "choices": [
-        "Structural Integrity Principle",
-        "Single Responsibility Principle",
-        "System Scalability Principle",
-        "Service Segmentation Principle"
+        "Starvation",
+        "Deadlock",
+        "Race condition",
+        "Paging"
       ],
       "correctChoiceIndex": 1,
-      "referenceAnswerDescription": "The Single Responsibility Principle states that a class should have only one reason to change. This promotes high cohesion and makes the software easier to maintain and test."
+      "referenceAnswerDescription": "A deadlock is a specific state where circular dependencies for resources prevent any involved process from progressing. This matches the definition of processes waiting indefinitely for each other."
     },
     {
-      "id": "q-b1-medium-1",
+      "id": "q-b1-easy-4",
       "bloomLevel": 1,
-      "difficulty": "medium",
+      "difficulty": "easy",
       "topicTag": "virtual-memory",
-      "problemStatement": "In the context of virtual memory, identify the specific hardware component primarily responsible for translating virtual addresses into physical addresses.",
+      "problemStatement": "What is the primary purpose of the Page Table in a virtual memory system?",
       "choices": [
-        "Arithmetic Logic Unit",
-        "Translation Lookaside Buffer",
-        "Instruction Register",
-        "Memory Address Register"
+        "To store files on the hard drive",
+        "To map virtual addresses to physical addresses",
+        "To schedule incoming network packets",
+        "To manage CPU cache levels"
       ],
       "correctChoiceIndex": 1,
-      "referenceAnswerDescription": "The Translation Lookaside Buffer is a specialized cache used specifically to speed up virtual-to-physical address translation. It stores recent mapping entries from the page table."
+      "referenceAnswerDescription": "The page table is a data structure used by the memory management unit to translate the virtual addresses used by programs into physical addresses in RAM. without this mapping, virtual memory cannot function."
     },
     {
-      "id": "q-b1-medium-2",
+      "id": "q-b1-easy-5",
       "bloomLevel": 1,
-      "difficulty": "medium",
+      "difficulty": "easy",
       "topicTag": "solid-principles",
-      "problemStatement": "Identify which SOLID principle states that a software module should be open for extension but closed for modification.",
+      "problemStatement": "In the SOLID principles of object-oriented design, what does the 'S' stand for?",
       "choices": [
+        "Systemic Integration Principle",
         "Single Responsibility Principle",
-        "Liskov Substitution Principle",
-        "Open/Closed Principle",
-        "Interface Segregation Principle"
+        "Static Analysis Principle",
+        "Sequential Execution Principle"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "The Single Responsibility Principle states that a class should have one, and only one, reason to change. This promotes high cohesion and easier maintenance in software systems."
+    },
+    {
+      "id": "q-b1-easy-6",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "version-control",
+      "problemStatement": "Which command in Git is used to create a local copy of a remote repository?",
+      "choices": [
+        "git merge",
+        "git push",
+        "git commit",
+        "git clone"
+      ],
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "The clone command is used to target an existing repository and create a full copy of it on the local machine. This includes all files, history, and branches from the source."
+    },
+    {
+      "id": "q-b1-easy-7",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "testing-strategies",
+      "problemStatement": "What type of testing focuses on verifying that a single, isolated module or function works correctly?",
+      "choices": [
+        "Integration testing",
+        "System testing",
+        "Unit testing",
+        "Acceptance testing"
       ],
       "correctChoiceIndex": 2,
-      "referenceAnswerDescription": "The Open/Closed Principle encourages developers to design systems where behavior can be extended via inheritance or interfaces without altering existing source code."
+      "referenceAnswerDescription": "Unit testing is the practice of testing the smallest testable parts of an application in isolation. This ensures individual components function as intended before they are integrated."
     },
     {
-      "id": "q-b1-medium-3",
+      "id": "q-b1-easy-8",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "threads-vs-processes",
+      "problemStatement": "Which resource is typically shared among all threads within the same process?",
+      "choices": [
+        "Stack memory",
+        "Program counter",
+        "Register set",
+        "Address space"
+      ],
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "Threads within the same process share the same address space and global resources, such as open files and signals. However, each thread maintains its own stack and registers for execution."
+    },
+    {
+      "id": "q-b1-easy-9",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "system-calls",
+      "problemStatement": "What is the standard mechanism used by a user-level program to request a service from the operating system?",
+      "choices": [
+        "Interrupt vector",
+        "System call",
+        "Global variable",
+        "Direct memory access"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "A system call provides the essential interface between a process and the operating system. It allows user-level applications to safely request privileged operations like file I/O or process creation."
+    },
+    {
+      "id": "q-b1-easy-10",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "race-conditions",
+      "problemStatement": "What term describes a scenario where the final outcome of a program depends on the non-deterministic timing of individual threads?",
+      "choices": [
+        "Deadlock",
+        "Race condition",
+        "Memory leak",
+        "Buffer overflow"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "A race condition occurs when multiple threads access shared data concurrently and at least one thread modifies it. The final result depends on the specific order of execution."
+    },
+    {
+      "id": "q-b1-easy-11",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "api-design",
+      "problemStatement": "Which HTTP method is most commonly used to retrieve data from a server without causing side effects?",
+      "choices": [
+        "POST",
+        "DELETE",
+        "GET",
+        "PUT"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "The GET method is defined as idempotent and safe, meaning it should only retrieve information. It is the standard method for requesting a specific resource representation."
+    },
+    {
+      "id": "q-b1-easy-12",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "file-systems",
+      "problemStatement": "What is an 'inode' in the context of Unix-based file systems?",
+      "choices": [
+        "A graphical icon for a folder",
+        "A data structure that stores metadata about a file",
+        "A command to delete temporary files",
+        "A protocol for transferring files over a network"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "An inode (index node) is a data structure on a file system that stores information about a file, such as its size, owner, and block locations. It does not store the file name or actual data."
+    },
+    {
+      "id": "q-b1-medium-01",
+      "bloomLevel": 1,
+      "difficulty": "medium",
+      "topicTag": "kernel-vs-user-mode",
+      "problemStatement": "Identify which of the following operations is restricted solely to kernel mode execution to prevent unauthorized hardware access.",
+      "choices": [
+        "Modifying the value of a local variable",
+        "Performing a bitwise shift operation",
+        "Updating the system clock and timers",
+        "Iterating through a linked list"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "The system clock and timers are shared hardware resources. To maintain system stability and security, only the kernel is permitted to modify these global hardware states."
+    },
+    {
+      "id": "q-b1-medium-02",
+      "bloomLevel": 1,
+      "difficulty": "medium",
+      "topicTag": "page-replacement",
+      "problemStatement": "Which page replacement algorithm is specifically defined by its susceptibility to Belady's Anomaly?",
+      "choices": [
+        "Least Recently Used (LRU)",
+        "First-In, First-Out (FIFO)",
+        "Optimal Page Replacement",
+        "Least Frequently Used (LFU)"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "FIFO can suffer from Belady's Anomaly where increasing the number of page frames results in more page faults. This occurs because the algorithm does not strictly follow the stack property."
+    },
+    {
+      "id": "q-b1-medium-03",
       "bloomLevel": 1,
       "difficulty": "medium",
       "topicTag": "deadlocks",
-      "problemStatement": "Recall the necessary conditions for a deadlock to occur and identify which condition refers specifically to a process holding at least one resource while waiting to acquire additional resources held by other processes.",
+      "problemStatement": "Recall the four necessary conditions for a deadlock to occur as defined by Coffman. Which characteristic describes 'Circular Wait'?",
       "choices": [
-        "Mutual Exclusion",
-        "Circular Wait",
-        "No Preemption",
-        "Hold and Wait"
-      ],
-      "correctChoiceIndex": 3,
-      "referenceAnswerDescription": "The Hold and Wait condition describes a scenario where a process maintains its current resource allocations while requesting new ones. This is one of the four Coffman conditions."
-    },
-    {
-      "id": "q-b1-medium-4",
-      "bloomLevel": 1,
-      "difficulty": "medium",
-      "topicTag": "version-control",
-      "problemStatement": "In Git, identify the command used to safely record the state of the staging area into the repository history with a descriptive message.",
-      "choices": [
-        "git push",
-        "git commit",
-        "git checkout",
-        "git merge"
+        "Each process holds a resource while waiting for another",
+        "A closed chain of processes exists where each holds resources needed by the next",
+        "Resources cannot be forcibly removed from a process",
+        "Resources are granted in an exclusive manner"
       ],
       "correctChoiceIndex": 1,
-      "referenceAnswerDescription": "The commit command creates a snapshot of the changes currently in the staging area and adds them to the local repository timeline. Other commands handle synchronization or branch management."
+      "referenceAnswerDescription": "Circular wait is defined as a specific cycle in the resource allocation graph. It involves a chain of processes where each process is blocked waiting for a resource held by another member of the chain."
     },
     {
-      "id": "q-b1-hard-0",
+      "id": "q-b1-medium-04",
       "bloomLevel": 1,
-      "difficulty": "hard",
-      "topicTag": "page-replacement",
-      "problemStatement": "In the context of Belady's Anomaly, identify which specific class of page replacement algorithms is mathematically guaranteed to never exhibit an increase in page faults when the number of physical frames increases.",
+      "difficulty": "medium",
+      "topicTag": "solid-principles",
+      "problemStatement": "In the context of the SOLID principles, identify the definition of the Interface Segregation Principle.",
       "choices": [
-        "Stack algorithms",
-        "First-In-First-Out (FIFO) algorithms",
-        "Non-preemptive algorithms",
-        "Cyclic buffer algorithms"
+        "Clients should not be forced to depend on methods they do not use",
+        "Software entities should be open for extension but closed for modification",
+        "Subclasses must be substitutable for their base classes",
+        "Dependencies should be directed toward abstractions rather than concretions"
       ],
       "correctChoiceIndex": 0,
-      "referenceAnswerDescription": "Stack algorithms like LRU and LFU ensure that the set of pages in memory for N frames is always a subset of the pages in memory for N+1 frames. This inclusion property prevents the anomaly characterized by FIFO."
+      "referenceAnswerDescription": "Interface Segregation suggests that many client-specific interfaces are better than one general-purpose interface. It ensures that implementing classes are not forced to provide logic for irrelevant methods."
+    },
+    {
+      "id": "q-b1-medium-05",
+      "bloomLevel": 1,
+      "difficulty": "medium",
+      "topicTag": "synchronization",
+      "problemStatement": "Which term describes the situation where multiple threads attempt to update the same shared data simultaneously, leading to unpredictable results?",
+      "choices": [
+        "Deadlock",
+        "Priority Inversion",
+        "Race Condition",
+        "Starvation"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "A race condition occurs when the final outcome of an operation depends on the specific timing or order of execution. It typically happens when multiple threads access and modify shared data without proper synchronization."
+    },
+    {
+      "id": "q-b1-medium-06",
+      "bloomLevel": 1,
+      "difficulty": "medium",
+      "topicTag": "system-calls",
+      "problemStatement": "State the primary mechanism used by a process to request a service from the operating system kernel.",
+      "choices": [
+        "Function calls within the same address space",
+        "Interrupts or trap instructions",
+        "Global variable flags",
+        "Direct memory access requests"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "System calls are triggered using a software interrupt or a specific trap instruction. This mechanism forces a context switch from user mode to kernel mode to perform privileged operations."
+    },
+    {
+      "id": "q-b1-medium-07",
+      "bloomLevel": 1,
+      "difficulty": "medium",
+      "topicTag": "virtual-memory",
+      "problemStatement": "Recognize the primary purpose of the Translation Lookaside Buffer (TLB) in a memory management unit.",
+      "choices": [
+        "To store the actual data from physical memory",
+        "To act as a high-speed cache for page table entries",
+        "To manage the swapping of pages back to the disk",
+        "To calculate the logical address of an instruction"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "The TLB is a specialized hardware cache used to reduce the time taken to access user memory. It stores recent mappings from virtual addresses to physical addresses to avoid frequent page table lookups in main memory."
+    },
+    {
+      "id": "q-b1-medium-08",
+      "bloomLevel": 1,
+      "difficulty": "medium",
+      "topicTag": "testing-strategies",
+      "problemStatement": "Identify which form of testing focuses on verifying that a new code change has not negatively impacted existing functionality.",
+      "choices": [
+        "Unit Testing",
+        "Regression Testing",
+        "Integration Testing",
+        "Acceptance Testing"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "Regression testing is the practice of re-running functional and non-functional tests to ensure that previously developed and tested software still performs after a change. It is essential for maintaining stability during refactoring."
+    },
+    {
+      "id": "q-b1-medium-09",
+      "bloomLevel": 1,
+      "difficulty": "medium",
+      "topicTag": "threads-vs-processes",
+      "problemStatement": "Identify the resource that is typically shared among all threads belonging to the same process.",
+      "choices": [
+        "Stack memory",
+        "Program counter",
+        "Register set",
+        "Heap memory"
+      ],
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "Threads within the same process share the same address space, which includes global variables and the heap. Each thread, however, maintains its own private stack and register state for execution context."
+    },
+    {
+      "id": "q-b1-medium-10",
+      "bloomLevel": 1,
+      "difficulty": "medium",
+      "topicTag": "api-design",
+      "problemStatement": "In RESTful API design, which HTTP method is traditionally identified as being idempotent for resource updates?",
+      "choices": [
+        "POST",
+        "PATCH",
+        "PUT",
+        "CONNECT"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "The PUT method is idempotent because repeating the same request multiple times will result in the same state on the server. Unlike POST, which usually creates new entries, PUT replaces the target resource entirely."
+    },
+    {
+      "id": "q-b1-medium-11",
+      "bloomLevel": 1,
+      "difficulty": "medium",
+      "topicTag": "cpu-scheduling",
+      "problemStatement": "Recall the definition of 'turnaround time' in the context of CPU scheduling algorithms.",
+      "choices": [
+        "The time spent waiting in the ready queue",
+        "The time from the submission of a process until its completion",
+        "The time taken to start responding to a user request",
+        "The number of processes completed per unit of time"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "Turnaround time is the total interval from the moment a process enters the system to the moment it finishes execution. It includes the sum of waiting time, execution time, and I/O time."
     },
     {
       "id": "q-b1-hard-1",
       "bloomLevel": 1,
       "difficulty": "hard",
-      "topicTag": "synchronization",
-      "problemStatement": "Identify the specific condition among Coffman's four necessary conditions for deadlock that is directly mitigated by the use of a Banker's Algorithm during resource allocation.",
+      "topicTag": "page-replacement",
+      "problemStatement": "Identify the specific behavior of the Belady's Anomaly within the context of page replacement algorithms.",
       "choices": [
-        "Mutual Exclusion",
-        "Hold and Wait",
-        "No Preemption",
-        "Circular Wait"
+        "Adding more page frames causes an increase in the number of page faults.",
+        "The algorithm guarantees a minimum number of page faults for any reference string.",
+        "The optimal replacement strategy is used to minimize the working set size.",
+        "Decreasing the amount of physical memory reduces the effective access time."
       ],
-      "correctChoiceIndex": 3,
-      "referenceAnswerDescription": "The Banker's Algorithm performs a safety check to ensure that resources are granted only if a sequence exists that prevents a cycle. This specifically targets the Circular Wait condition by maintaining the system in a safe state."
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "Belady's Anomaly specifically refers to the counter-intuitive situation where increasing the number of page frames leads to more page faults, primarily observed in the FIFO algorithm."
     },
     {
       "id": "q-b1-hard-2",
       "bloomLevel": 1,
       "difficulty": "hard",
-      "topicTag": "design-patterns",
-      "problemStatement": "In software architecture, identify the primary structural difference between the Decorator pattern and the Proxy pattern when both utilize the same interface as the object they reference.",
+      "topicTag": "deadlocks",
+      "problemStatement": "Identify the necessary condition for deadlock that involves a process holding at least one resource and waiting to acquire additional resources held by other processes.",
       "choices": [
-        "Decorator changes the interface whereas Proxy maintains it",
-        "Proxy controls access to the object while Decorator adds functional responsibilities",
-        "Decorator is used for remote object access while Proxy handles local caching",
-        "Proxy creates a copy of the object whereas Decorator uses inheritance"
+        "No Preemption",
+        "Hold and Wait",
+        "Circular Wait",
+        "Mutual Exclusion"
       ],
       "correctChoiceIndex": 1,
-      "referenceAnswerDescription": "While the implementation structures appear similar, the patterns are distinguished by intent. Proxy focuses on controlling or managing access to the original object, whereas Decorator focuses on dynamically adding behavior."
+      "referenceAnswerDescription": "Hold and Wait is the specific condition where a process retains existing resources while simultaneously requesting new ones that are currently unavailable."
     },
     {
       "id": "q-b1-hard-3",
       "bloomLevel": 1,
       "difficulty": "hard",
-      "topicTag": "file-systems",
-      "problemStatement": "Recall the primary limitation of using an Inode-based file system when dealing with a high frequency of very small files (less than 100 bytes) compared to a system using extents.",
+      "topicTag": "solid-principles",
+      "problemStatement": "State the core definition of the Liskov Substitution Principle within the SOLID framework.",
       "choices": [
-        "Internal fragmentation within the Inode table",
-        "Exhaustion of fixed-count Inodes despite available disk space",
-        "Mandatory global locking during Inode pointer updates",
-        "Inability to support symbolic links for small files"
+        "Objects of a superclass should be replaceable with objects of its subclasses without breaking the application.",
+        "A class should have only one reason to change and one primary responsibility.",
+        "Software entities should be open for extension but closed for modification.",
+        "High-level modules should not depend on low-level modules; both should depend on abstractions."
       ],
-      "correctChoiceIndex": 1,
-      "referenceAnswerDescription": "Inode-based systems often allocate a fixed number of Inodes at disk formatting. If many small files are created, the system may run out of Inodes to track files even though physical block space remains available."
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "The Liskov Substitution Principle dictates that child classes must be able to stand in for their parent classes without altering the desired properties of the program."
+    },
+    {
+      "id": "q-b1-hard-4",
+      "bloomLevel": 1,
+      "difficulty": "hard",
+      "topicTag": "system-calls",
+      "problemStatement": "Recall the primary mechanism used by the hardware to transition the CPU from user mode to kernel mode during a system call.",
+      "choices": [
+        "A software interrupt or trap instruction",
+        "Dynamic linking of shared libraries",
+        "Direct manipulation of the program counter",
+        "Context switching via the short-term scheduler"
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "System calls rely on a trap or software interrupt to securely signal the CPU to switch execution levels and jump to a predefined handler in the kernel."
+    },
+    {
+      "id": "q-b1-hard-5",
+      "bloomLevel": 1,
+      "difficulty": "hard",
+      "topicTag": "synchronization",
+      "problemStatement": "Identify the defining characteristic of a 'Critical Section' in concurrent programming.",
+      "choices": [
+        "A segment of code where shared resources are accessed and must be executed atomically relative to other processes.",
+        "A region of memory that is protected by parity bits to prevent hardware corruption.",
+        "The portion of an executable that contains only read-only constants and static data.",
+        "A high-priority thread that cannot be preempted by the operating system kernel."
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "The critical section is defined as the code block where shared variables are manipulated, requiring mutual exclusion to prevent race conditions."
+    },
+    {
+      "id": "q-b1-hard-6",
+      "bloomLevel": 1,
+      "difficulty": "hard",
+      "topicTag": "file-systems",
+      "problemStatement": "Identify the file allocation method that suffers significantly from external fragmentation.",
+      "choices": [
+        "Contiguous Allocation",
+        "Linked Allocation",
+        "Indexed Allocation",
+        "Inverted Page Table Allocation"
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "Contiguous allocation requires a single unbroken block of disk space, which leads to external fragmentation as files are created and deleted over time."
+    },
+    {
+      "id": "q-b1-hard-7",
+      "bloomLevel": 1,
+      "difficulty": "hard",
+      "topicTag": "cpu-scheduling",
+      "problemStatement": "Recall the specific scheduling metric that represents the total time taken from the submission of a process to its completion.",
+      "choices": [
+        "Turnaround Time",
+        "Waiting Time",
+        "Response Time",
+        "Throughput"
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "Turnaround time is the interval from the moment of process submission to the moment of completion, encompassing all states including execution and waiting."
+    },
+    {
+      "id": "q-b1-hard-8",
+      "bloomLevel": 1,
+      "difficulty": "hard",
+      "topicTag": "memory-management",
+      "problemStatement": "Recognize the primary purpose of a Translation Lookaside Buffer (TLB) in a demand-paging system.",
+      "choices": [
+        "To cache recently used virtual-to-physical address mappings to reduce memory access latency.",
+        "To store the entirety of the process page table in high-speed registers.",
+        "To manage the swapping of pages between the physical RAM and the disk backing store.",
+        "To prevent unauthorized processes from accessing the kernel's strictly private memory space."
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "The TLB is a specialized hardware cache used to speed up the translation of virtual addresses to physical addresses by avoiding multiple memory lookups."
+    },
+    {
+      "id": "q-b1-hard-9",
+      "bloomLevel": 1,
+      "difficulty": "hard",
+      "topicTag": "testing-strategies",
+      "problemStatement": "Define the term 'Regression Testing' in the context of software maintenance.",
+      "choices": [
+        "Re-running previously passed tests to ensure that new changes have not introduced new bugs.",
+        "Testing the individual units of source code to determine if they are fit for use.",
+        "Testing the interaction between integrated units to verify functional requirements.",
+        "Simulating high loads on the system to identify the point at which the application crashes."
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "Regression testing is focused on verifying that existing functionality remains intact after modifications or updates have been applied to the codebase."
+    },
+    {
+      "id": "q-b1-hard-10",
+      "bloomLevel": 1,
+      "difficulty": "hard",
+      "topicTag": "microservices",
+      "problemStatement": "Identify the 'Saga Pattern' as it relates to distributed systems and microservices.",
+      "choices": [
+        "A mechanism for managing long-lived transactions and maintaining data consistency across multiple services.",
+        "A deployment strategy where two identical environments are used to minimize downtime.",
+        "A design pattern used to route all incoming API requests through a single entry point.",
+        "A method for caching frequently accessed data at the edge of a content delivery network."
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "The Saga pattern is specifically designed to handle distributed transactions by using a sequence of local transactions and compensating actions to maintain consistency."
+    },
+    {
+      "id": "q-b1-hard-11",
+      "bloomLevel": 1,
+      "difficulty": "hard",
+      "topicTag": "version-control",
+      "problemStatement": "In Git, identify the action performed by the 'git rebase' command compared to 'git merge'.",
+      "choices": [
+        "It reapplies commits on top of another base tip to create a linear project history.",
+        "It creates a new commit that joins the histories of two different branches.",
+        "It permanently deletes the commit history of a branch to save storage space.",
+        "It downloads objects and refs from another repository without updating the local working state."
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "Rebasing is the process of moving or combining a sequence of commits to a new base commit, resulting in a cleaner and more linear history than merging."
     },
     {
       "id": "q-b2-easy-0",
       "bloomLevel": 2,
       "difficulty": "easy",
       "topicTag": "kernel-vs-user-mode",
-      "problemStatement": "Which of the following describes the primary purpose of the 'dual-mode' operation (User Mode vs. Kernel Mode) in modern operating systems?",
+      "problemStatement": "Which of the primary mechanisms characterizes the difference between kernel mode and user mode in a modern operating system?",
       "choices": [
-        "To allow user applications to access hardware registers directly for performance",
-        "To protect the system and other users from errant or malicious programs",
-        "To enable the CPU to execute multiple threads simultaneously within a single process",
-        "To partition physical memory into equal-sized blocks for easier indexing"
+        "User mode allows direct hardware access for faster processing",
+        "Kernel mode restricted access ensures user applications cannot interfere with hardware or other processes",
+        "User mode is used exclusively for background services while kernel mode is for UI",
+        "Kernel mode and user mode share the same memory address space for efficiency"
       ],
       "correctChoiceIndex": 1,
-      "referenceAnswerDescription": "Dual-mode operation provides hardware-level protection by restricting privileged instructions to kernel mode. This prevents user applications from accidentally or intentionally crashing the system or accessing memory belonging to other processes."
+      "referenceAnswerDescription": "Kernel mode provides full access to hardware and restricted instructions for the OS, while user mode limits application access to prevent system instability. This separation is enforced by the CPU hardware."
     },
     {
       "id": "q-b2-easy-1",
       "bloomLevel": 2,
       "difficulty": "easy",
-      "topicTag": "solid-principles",
-      "problemStatement": "In the context of the SOLID principles, what is the core idea behind the Single Responsibility Principle (SRP)?",
+      "topicTag": "page-replacement",
+      "problemStatement": "In the context of virtual memory, what is the primary purpose of a page replacement algorithm?",
       "choices": [
-        "A class should have only one reason to change",
-        "A class should be open for extension but closed for modification",
-        "Derived classes must be substitutable for their base classes",
-        "Interfaces should be split into smaller, specific ones"
+        "To increase the amount of physical RAM available to the CPU",
+        "To decide which memory page to evict when all physical frames are full",
+        "To map logical addresses to physical addresses in the TLB",
+        "To prevent fragmentation within a single process heap"
       ],
-      "correctChoiceIndex": 0,
-      "referenceAnswerDescription": "The Single Responsibility Principle states that a class should encapsulate a single functionality or concern. This ensures that the class only has one reason to change, which improves maintainability and reduces unintended side effects during updates."
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "Page replacement algorithms determine which page in physical memory is least likely to be needed soon so it can be swapped out to disk when a new page must be loaded into a full memory."
     },
     {
       "id": "q-b2-easy-2",
       "bloomLevel": 2,
       "difficulty": "easy",
-      "topicTag": "page-replacement",
-      "problemStatement": "How does the Least Recently Used (LRU) page replacement algorithm differ from the First-In-First-Out (FIFO) algorithm?",
+      "topicTag": "version-control",
+      "problemStatement": "What is the fundamental difference between a 'commit' and a 'push' in a distributed version control system like Git?",
       "choices": [
-        "LRU replaces the page that was brought into memory earliest regardless of usage",
-        "LRU replaces the page that has not been accessed for the longest period of time",
-        "LRU replaces the page that is used most frequently by the processor",
-        "LRU requires no hardware support while FIFO requires a hardware clock"
+        "A commit saves changes to the local repository, while a push sends those changes to a remote repository",
+        "A commit sends code to production, while a push saves it to the staging area",
+        "A commit creates a new branch, while a push merges two existing branches",
+        "A commit tracks binary files, while a push only tracks text-based source code"
       ],
-      "correctChoiceIndex": 1,
-      "referenceAnswerDescription": "LRU looks back in time to identify which page in memory has the oldest timestamp of last access. Unlike FIFO, which only cares about when a page entered memory, LRU assumes that pages used recently are likely to be used again soon."
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "In distributed systems, a commit is a local operation that records snapshots to the local database. A push is a network operation that transfers those local commits to a central or remote server."
     },
     {
       "id": "q-b2-easy-3",
       "bloomLevel": 2,
       "difficulty": "easy",
-      "topicTag": "version-control",
-      "problemStatement": "In a version control system like Git, what is the primary distinction between the 'git fetch' and 'git pull' commands?",
+      "topicTag": "testing-strategies",
+      "problemStatement": "How does integration testing typically differ from unit testing in the software development lifecycle?",
       "choices": [
-        "Fetch deletes local changes while pull merges them automatically",
-        "Fetch updates the local database with remote changes without merging them into the working directory",
-        "Fetch is used for uploading code to a server while pull is used for downloading code",
-        "Fetch clones an entire repository while pull only updates a single branch"
+        "Integration testing focuses on individual functions in isolation",
+        "Integration testing verifies that different modules or services work together correctly",
+        "Integration testing is performed only by the end-users during acceptance",
+        "Integration testing involves checking the syntax of the source code"
       ],
       "correctChoiceIndex": 1,
-      "referenceAnswerDescription": "The fetch command downloads the latest metadata and objects from the remote repository but does not modify the local working branch. In contrast, pull performs a fetch followed by an automatic merge into the current branch."
+      "referenceAnswerDescription": "While unit testing focuses on the smallest testable parts of an application independently, integration testing is designed to find defects in the interfaces and interaction between combined components."
+    },
+    {
+      "id": "q-b2-easy-4",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "deadlocks",
+      "problemStatement": "Which of these describes the 'Circular Wait' condition required for a deadlock to occur in an operating system?",
+      "choices": [
+        "Processes are waiting for input from a user that never arrives",
+        "Each process in a set is waiting for a resource held by another member of the same set",
+        "The CPU is stuck in an infinite loop due to a logic error",
+        "The operating system keeps restarting a process because of a memory fault"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "Circular wait is one of the four Coffman conditions where a closed chain of processes exists such that each process holds at least one resource needed by the next process in the chain."
+    },
+    {
+      "id": "q-b2-easy-5",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "ci-cd",
+      "problemStatement": "What is the primary goal of Continuous Integration (CI) in a modern software engineering workflow?",
+      "choices": [
+        "To automate the deployment of code to the final production server",
+        "To ensure that developers work on separate branches for as long as possible",
+        "To frequently merge code changes into a central repository and verify them with automated builds",
+        "To eliminate the need for manual code reviews by developers"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "Continuous Integration focuses on merging developer changes into the main branch several times a day. Each merge triggers automated builds and tests to detect integration errors as early as possible."
+    },
+    {
+      "id": "q-b2-easy-6",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "threads-vs-processes",
+      "problemStatement": "What is a key advantage of using multiple threads within a single process instead of multiple independent processes?",
+      "choices": [
+        "Threads have separate address spaces, making them more secure than processes",
+        "Threads require more overhead for context switching than processes",
+        "Threads can easily share memory and data with each other without complex IPC",
+        "Threads are immune to race conditions and synchronization issues"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "Threads within the same process share the same data and address space. This allows for very efficient communication and data sharing compared to the overhead of inter-process communication."
+    },
+    {
+      "id": "q-b2-easy-7",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "api-design",
+      "problemStatement": "In the context of RESTful API design, what is the standard purpose of the 'PUT' HTTP method?",
+      "choices": [
+        "To retrieve a representation of a specific resource",
+        "To delete a resource from the server indefinitely",
+        "To update an existing resource or create it if its identity is known by the client",
+        "To list all available endpoints provided by the service"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "The PUT method is idempotent and is typically used to update an existing resource or create a resource at a specific URI provided by the client."
+    },
+    {
+      "id": "q-b2-easy-8",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "cpu-scheduling",
+      "problemStatement": "How does Round Robin scheduling attempt to provide fairness to processes waiting for the CPU?",
+      "choices": [
+        "By giving priority to the process with the shortest execution time",
+        "By assigning each process a fixed time slice (quantum) in a circular queue",
+        "By always executing the process that arrived first until it finishes",
+        "By allowing the user to manually select which process runs next"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "Round Robin scheduling uses a time-sharing approach where each process is given a small unit of CPU time. This prevents any single process from monopolizing the CPU and ensures all processes make progress."
+    },
+    {
+      "id": "q-b2-easy-9",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "clean-code",
+      "problemStatement": "Why is 'technical debt' a significant concern during the long-term maintenance of a software project?",
+      "choices": [
+        "It represents the financial cost of purchasing server hardware",
+        "It refers to the accumulation of sub-optimal code that makes future changes harder and slower",
+        "It is a legal requirement for documenting all software bugs",
+        "It is the process of paying developers for overtime work during a release"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "Technical debt describes the eventual consequences of choosing an easy or quick solution now instead of a better approach that would take longer. It increases the complexity and cost of future maintenance."
+    },
+    {
+      "id": "q-b2-easy-10",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "system-calls",
+      "problemStatement": "What is the primary role of a System Call in an operating system's architecture?",
+      "choices": [
+        "To provide a graphical interface for the user to manage files",
+        "To allow a user-level application to request services from the operating system kernel",
+        "To translate high-level source code into machine-executable binary",
+        "To speed up mathematical calculations by bypassing the CPU"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "System calls act as the interface between a running program and the operating system. They provide a safe way for applications to request hardware-related or privileged tasks from the kernel."
     },
     {
       "id": "q-b2-medium-1",
       "bloomLevel": 2,
       "difficulty": "medium",
-      "topicTag": "synchronization",
-      "problemStatement": "In the context of concurrent programming, compare the behavior of a binary semaphore with a standard mutex when used for managing access to a critical section.",
+      "topicTag": "process-management",
+      "problemStatement": "Explain the primary functional difference between a hardware interrupt and a software trap during CPU execution.",
       "choices": [
-        "Binary semaphores allow for priority inheritance while mutexes never do",
-        "Mutexes include a concept of ownership that allows only the locking thread to unlock them",
-        "Binary semaphores are more performant because they operate entirely in user-space",
-        "Mutexes can be used for signaling between threads whereas semaphores cannot"
+        "Interrupts are synchronous events triggered by code errors, while traps are asynchronous signals from peripherals.",
+        "Interrupts are asynchronous notifications from external devices, whereas traps are synchronous events generated by the CPU during instruction execution.",
+        "Interrupts require a context switch to kernel mode, while traps are handled entirely within user mode to save overhead.",
+        "Interrupts use a vector table for lookup, whereas traps rely on a simple branch instruction within the application code."
       ],
       "correctChoiceIndex": 1,
-      "referenceAnswerDescription": "A mutex is strictly an ownership-based locking mechanism where the thread that acquires the lock is the only one authorized to release it. Conversely, a binary semaphore is a signaling mechanism that can be released by any thread, not just the one that performed the wait operation."
+      "referenceAnswerDescription": "Interrupts originate from external hardware and occur independently of the instruction stream, while traps are synchronous results of executing specific instructions like system calls or errors."
     },
     {
       "id": "q-b2-medium-2",
       "bloomLevel": 2,
       "difficulty": "medium",
       "topicTag": "virtual-memory",
-      "problemStatement": "Which of the following best describes the core difference between internal and external fragmentation in memory management?",
+      "problemStatement": "In a demand-paging system, how does the operating system typically handle a page fault when the physical memory is completely full?",
       "choices": [
-        "Internal fragmentation occurs with segment tables while external occurs with page tables",
-        "Internal fragmentation is unused space within allocated blocks while external is unused space between blocks",
-        "External fragmentation is solved by paging while internal fragmentation is solved by compaction",
-        "External fragmentation only happens in virtual memory while internal occurs in physical memory"
+        "It terminates the process to prevent system-wide memory exhaustion.",
+        "It suspends all I/O operations until the application manually releases memory.",
+        "It selects a victim page using a replacement algorithm, writes it to disk if modified, and maps the new page.",
+        "It forces the CPU to switch to segment-based addressing until memory becomes available."
       ],
-      "correctChoiceIndex": 1,
-      "referenceAnswerDescription": "Internal fragmentation happens when a process is allocated more memory than it needs, leaving a gap inside the allocated partition. External fragmentation happens when there is enough total free space for a request, but the space is non-contiguous and cannot be used."
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "The OS must free a frame by swapping an existing page to the backing store, updating page table entries, and then loading the required page into the newly available frame."
     },
     {
       "id": "q-b2-medium-3",
       "bloomLevel": 2,
       "difficulty": "medium",
-      "topicTag": "clean-code",
-      "problemStatement": "When applying the Single Responsibility Principle (SRP) during a refactoring session, what is the primary indicator that a class may need to be decomposed?",
+      "topicTag": "synchronization",
+      "problemStatement": "Compare a mutex and a counting semaphore in the context of resource management.",
       "choices": [
-        "The class contains more than five private methods or helper functions",
-        "The class relies on multiple external libraries to perform its primary function",
-        "There are multiple unrelated reasons or actors that could force the class to change",
-        "The class has a high number of lines of code compared to the project average"
+        "A mutex can be released by any thread, while a semaphore must be released by the thread that acquired it.",
+        "A mutex manages a pool of identical resources, while a semaphore provides exclusive access to a single resource.",
+        "A mutex is strictly for signal notification, whereas a semaphore is used to prevent priority inversion.",
+        "A mutex is binary and has an ownership requirement, while a semaphore tracks a specific number of available units."
       ],
-      "correctChoiceIndex": 2,
-      "referenceAnswerDescription": "The Single Responsibility Principle defines a responsibility as a 'reason to change.' If a class serves multiple stakeholders or handles unrelated logic, it violates SRP because changes to one requirement may unnecessarily impact the others."
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "Mutexes are meant for mutual exclusion with ownership tracking, whereas counting semaphores act as a counter for multiple identical resources across different threads."
     },
     {
       "id": "q-b2-medium-4",
       "bloomLevel": 2,
       "difficulty": "medium",
-      "topicTag": "system-calls",
-      "problemStatement": "Explain the sequence of events that occurs when a user-space application requests a service from the operating system kernel via a system call.",
+      "topicTag": "deadlocks",
+      "problemStatement": "Which of the following describes the 'Circular Wait' condition required for a deadlock to occur in a multi-threaded application?",
       "choices": [
-        "The application executes a jump instruction to a specific memory address within the kernel",
-        "The system performs a context switch to a new process that handles the request",
-        "A trap or software interrupt is triggered to switch the CPU to privileged mode and jump to a handler",
-        "The kernel copies the entire application stack into its own address space to verify permissions"
+        "A set of processes exists such that each process is waiting for a resource held by the next process in the chain.",
+        "A process holds at least one resource and is waiting to acquire additional resources held by other processes.",
+        "Resources cannot be forcibly removed from the processes holding them until they are released voluntarily.",
+        "At least one resource must be held in a non-sharable mode, ensuring only one process uses it at a time."
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "Circular wait involves a closed chain of dependency where every process is waiting for a resource held by another member of that same set."
+    },
+    {
+      "id": "q-b2-medium-5",
+      "bloomLevel": 2,
+      "difficulty": "medium",
+      "topicTag": "cpu-scheduling",
+      "problemStatement": "How does the Multi-Level Feedback Queue (MLFQ) scheduling algorithm distinguish between I/O-bound and CPU-bound processes?",
+      "choices": [
+        "By measuring the total execution time and prioritizing processes with the longest lifetime.",
+        "By observing if a process exhausts its time slice or relinquishes the CPU earlier for I/O.",
+        "By requiring developers to flag the process type during the compilation phase.",
+        "By assigning I/O-bound processes to the lowest priority queue to prevent them from blocking the CPU."
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "MLFQ rewards processes that relinquish the CPU before their time quantum expires by keeping them at higher priority levels, while penalizing CPU-intensive tasks."
+    },
+    {
+      "id": "q-b2-medium-6",
+      "bloomLevel": 2,
+      "difficulty": "medium",
+      "topicTag": "api-design",
+      "problemStatement": "In the context of RESTful API design, explain the concept of idempotency as it relates to HTTP methods.",
+      "choices": [
+        "The API will return the same response body regardless of the input parameters provided by the client.",
+        "An operation can be performed multiple times without changing the result beyond the initial application.",
+        "The server guarantees that the requested resource will never be deleted or modified by other users.",
+        "Each request must contain all the information necessary for the server to fulfill it without stored state."
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "Idempotency ensures that making multiple identical requests has the same effect on the server state as making a single request, which is critical for reliability."
+    },
+    {
+      "id": "q-b2-medium-7",
+      "bloomLevel": 2,
+      "difficulty": "medium",
+      "topicTag": "solid-principles",
+      "problemStatement": "Describe the core objective of the Liskov Substitution Principle (LSP) within object-oriented software engineering.",
+      "choices": [
+        "Objects should be open for extension but closed for direct modification of their source code.",
+        "A class should have only one reason to change, focusing on a single functional responsibility.",
+        "Subtypes must be substitutable for their base types without altering the correctness of the program.",
+        "High-level modules should not depend on low-level modules; both should depend on abstractions."
       ],
       "correctChoiceIndex": 2,
-      "referenceAnswerDescription": "System calls use a trap mechanism to switch the processor from user mode to kernel mode. This ensures the transition is controlled through a pre-defined vector table, preventing the user application from executing arbitrary code in privileged mode."
+      "referenceAnswerDescription": "LSP ensures that inheritance hierarchies are logically sound, preventing derived classes from breaking the behavioral expectations established by the parent class."
+    },
+    {
+      "id": "q-b2-medium-8",
+      "bloomLevel": 2,
+      "difficulty": "medium",
+      "topicTag": "testing-strategies",
+      "problemStatement": "Contrast integration testing with unit testing in a modern CI/CD pipeline.",
+      "choices": [
+        "Unit testing validates individual components in isolation, while integration testing verifies the interaction between disparate modules.",
+        "Unit testing is performed by QA teams on the final build, while integration testing is performed by developers on local machines.",
+        "Unit testing focuses on user interface behavior, while integration testing focuses on database schema migrations.",
+        "Unit testing requires a fully deployed environment, while integration testing uses mock objects for all external dependencies."
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "Unit tests verify the logic of small, isolated code blocks, whereas integration tests focus on the communication and data flow between different parts of the system."
+    },
+    {
+      "id": "q-b2-medium-9",
+      "bloomLevel": 2,
+      "difficulty": "medium",
+      "topicTag": "file-systems",
+      "problemStatement": "What is the primary advantage of using an Index Node (inode) based file system over a Linked Allocation file system?",
+      "choices": [
+        "Inodes eliminate the need for an external file allocation table, saving significant disk space.",
+        "Inodes allow for faster random access to file blocks by storing pointers in a centralized structure.",
+        "Inodes prevent external fragmentation by ensuring all files are stored in contiguous disk sectors.",
+        "Inodes automatically encrypt file data at the hardware level during the write process."
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "Inodes provide a direct or indirect mapping to all file blocks, allowing the OS to jump to specific data offsets without traversing a linked chain of blocks."
+    },
+    {
+      "id": "q-b2-medium-10",
+      "bloomLevel": 2,
+      "difficulty": "medium",
+      "topicTag": "version-control",
+      "problemStatement": "In Git, what is the conceptual difference between a 'rebase' and a 'merge' when integrating changes from a feature branch?",
+      "choices": [
+        "Merge deletes the history of the feature branch, while rebase preserves every individual commit as it was.",
+        "Merge creates a new commit representing the union of branches, while rebase moves the entire feature branch to a new starting point.",
+        "Merge can only be used for local changes, while rebase is required for pushing changes to a remote repository.",
+        "Merge is used to resolve conflicts automatically, whereas rebase requires the user to manually edit files before the operation."
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "Merging preserves the chronological history and creates a join point, while rebasing rewrites history to create a linear sequence of commits."
+    },
+    {
+      "id": "q-b2-medium-11",
+      "bloomLevel": 2,
+      "difficulty": "medium",
+      "topicTag": "microservices",
+      "problemStatement": "Explain the role of an API Gateway in a microservices architecture compared to a simple Load Balancer.",
+      "choices": [
+        "An API Gateway handles cross-cutting concerns like authentication and protocol translation, while a Load Balancer focuses on distributing traffic.",
+        "An API Gateway replaces the need for a service discovery mechanism by hardcoding all IP addresses.",
+        "An API Gateway manages the physical hardware of the servers, while a Load Balancer manages the virtual container instances.",
+        "An API Gateway is used exclusively for internal communication, while a Load Balancer is only used for external traffic."
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "While load balancers handle traffic distribution, API Gateways act as a single entry point that manages security, routing, and request transformations for the backend services."
     },
     {
       "id": "q-b2-hard-1",
       "bloomLevel": 2,
       "difficulty": "hard",
-      "topicTag": "virtual-memory",
-      "problemStatement": "Compare the behavior of Hierarchical (Multi-level) Paging versus Inverted Page Tables in systems with large, sparse address spaces. Which statement best interprets the memory overhead trade-offs between these two approaches?",
+      "topicTag": "page-replacement",
+      "problemStatement": "Compare the Belady's Anomaly behavior between the FIFO and LRU page replacement algorithms when increasing the number of available page frames in a system.",
       "choices": [
-        "Hierarchical paging requires more physical memory for page tables because it must store entries for the entire physical RAM regardless of process count.",
-        "Inverted page tables scale their memory usage based on the size of physical memory rather than the size of the virtual address space.",
-        "Hierarchical paging eliminates the need for TLBs by ensuring that top-level page directories are always resident in the cache.",
-        "Inverted page tables significantly reduce memory overhead because they store one entry for every virtual page mapped by every active process."
+        "Both FIFO and LRU are susceptible to increase page faults as frames increase.",
+        "LRU is a stack algorithm and cannot exhibit Belady's Anomaly, while FIFO can.",
+        "FIFO is a stack algorithm and cannot exhibit Belady's Anomaly, while LRU can.",
+        "Both algorithms are classified as stack algorithms and are immune to the anomaly."
       ],
       "correctChoiceIndex": 1,
-      "referenceAnswerDescription": "Inverted page tables are indexed by frame number, meaning the table size is proportional to physical RAM. This is generally more efficient for sparse address spaces than hierarchical paging, which requires multiple levels of tables proportional to the virtual address range."
+      "referenceAnswerDescription": "Stack algorithms like LRU ensure that the set of pages in memory for N frames is a subset of the pages for N+1 frames. FIFO does not maintain this property, making it vulnerable to increased faults."
     },
     {
       "id": "q-b2-hard-2",
       "bloomLevel": 2,
       "difficulty": "hard",
-      "topicTag": "design-patterns",
-      "problemStatement": "Consider the trade-offs between the Dependency Injection pattern and the Service Locator pattern in a large-scale microservices environment. Which observation best describes their impact on testing and maintainability?",
+      "topicTag": "synchronization",
+      "problemStatement": "Describe the operational trade-off of using a spinlock versus a mutex in a single-processor environment where the critical section is expected to take 10 milliseconds.",
       "choices": [
-        "Dependency Injection increases coupling by requiring components to know how their dependencies are instantiated at runtime.",
-        "Service Locator is preferred for unit testing because it allows developers to globally mock services without changing constructor signatures.",
-        "Dependency Injection improves maintainability by making a component's external dependencies explicit in its interface rather than hidden inside the implementation.",
-        "Service Locator simplifies the architecture by ensuring that all components share a single global state for dependency resolution and management."
+        "Spinlocks are more efficient because they avoid the context switch overhead.",
+        "A spinlock will cause a deadlock because the holder cannot relinquish the CPU.",
+        "Mutexes allow the CPU to perform other work while the task is blocked.",
+        "Spinlocks perform better because single-processor systems disable interrupts automatically."
       ],
       "correctChoiceIndex": 2,
-      "referenceAnswerDescription": "Dependency Injection promotes better design by making dependencies visible in the constructor or method signature. This enhances testability and prevents the 'hidden dependency' problem common with the Service Locator pattern."
+      "referenceAnswerDescription": "On a single processor, a spinning thread prevents the thread holding the lock from running, wasting cycles. Mutexes yield the processor, allowing the system to progress."
     },
     {
       "id": "q-b2-hard-3",
       "bloomLevel": 2,
       "difficulty": "hard",
-      "topicTag": "synchronization",
-      "problemStatement": "How does the 'Priority Inheritance' protocol compare to the 'Priority Ceiling' protocol in addressing the problem of priority inversion within real-time operating systems?",
+      "topicTag": "deadlocks",
+      "problemStatement": "In the context of Deadlock Avoidance, interpret the relationship between a 'Safe State' and the 'Banker's Algorithm'.",
       "choices": [
-        "Priority Inheritance prevents deadlocks by ensuring that a process can never be blocked by a lower-priority process.",
-        "Priority Ceiling prevents both priority inversion and deadlocks by assigning a maximum priority to every shared resource before runtime.",
-        "Priority Inheritance allows a high-priority task to temporarily lower its priority to match the waiter to prevent starvation.",
-        "Priority Ceiling is easier to implement because it does not require the kernel to track which task currently holds a specific mutex."
+        "A system in an unsafe state will immediately result in a deadlock.",
+        "The Banker's Algorithm ensures the system never enters an unsafe state by delaying resource allocation.",
+        "A safe state is only possible if all resources are of the same type and quantity.",
+        "The Banker's Algorithm detects deadlocks after they occur and rolls back state."
       ],
       "correctChoiceIndex": 1,
-      "referenceAnswerDescription": "Priority Ceiling Protocol avoids deadlocks and minimizes blocking time by ensuring a task cannot lock a resource unless its priority is higher than the ceilings of all currently locked resources. Priority Inheritance only addresses inversion when a conflict occurs."
+      "referenceAnswerDescription": "The algorithm proactively checks if granting a request leaves the system in a state where at least one execution sequence completes safely. It prevents entering unsafe states."
     },
     {
       "id": "q-b2-hard-4",
       "bloomLevel": 2,
       "difficulty": "hard",
-      "topicTag": "microservices",
-      "problemStatement": "When transitioning from a monolithic architecture to microservices, how does the adoption of 'Eventual Consistency' change the way system failures are interpreted compared to traditional ACID transactions?",
+      "topicTag": "solid-principles",
+      "problemStatement": "Explain how the Dependency Inversion Principle (DIP) differs from the concept of Dependency Injection (DI) in software architecture.",
       "choices": [
-        "Eventual consistency guarantees that all distributed nodes will see the same data at the same time during a network partition.",
-        "Systems using eventual consistency must implement complex distributed locking to ensure that no data is lost during service crashes.",
-        "Eventual consistency shifts the responsibility of data integrity from the database layer to the application logic and compensation workflows.",
-        "The use of eventual consistency eliminates the need for idempotency in service communication because updates are guaranteed to be ordered."
-      ],
-      "correctChoiceIndex": 2,
-      "referenceAnswerDescription": "In a microservices environment, ACID transactions across services are difficult to scale. Eventual consistency requires the application to handle transient states and use patterns like Sagas to revert or compensate for partial failures."
-    },
-    {
-      "id": "q-b3-easy-0",
-      "bloomLevel": 3,
-      "difficulty": "easy",
-      "topicTag": "cpu-scheduling",
-      "problemStatement": "Suppose three processes arrive at time 0 with burst times of 5, 2, and 8 milliseconds. If you apply the First-Come, First-Served (FCFS) scheduling algorithm in the order of their arrival, what is the average waiting time for these processes?",
-      "choices": [
-        "4.0 milliseconds",
-        "5.0 milliseconds",
-        "2.3 milliseconds",
-        "7.5 milliseconds"
+        "DIP is a design goal regarding abstraction, while DI is a technique for providing dependencies.",
+        "DIP refers to hardware level interaction while DI refers to object-oriented code.",
+        "DI is a principle that requires using interfaces, whereas DIP is the tool used for injection.",
+        "They are identical concepts with different names used in different programming languages."
       ],
       "correctChoiceIndex": 0,
-      "referenceAnswerDescription": "The first process waits 0ms, the second waits 5ms, and the third waits 7ms. Calculating the average of 0, 5, and 7 results in 4ms."
+      "referenceAnswerDescription": "DIP states that high-level modules should depend on abstractions. DI is a specific pattern used to realize decoupling by passing dependencies into a class."
+    },
+    {
+      "id": "q-b2-hard-5",
+      "bloomLevel": 2,
+      "difficulty": "hard",
+      "topicTag": "virtual-memory",
+      "problemStatement": "Summarize the role of the Translation Lookaside Buffer (TLB) during a context switch between two different user processes.",
+      "choices": [
+        "The TLB remains unchanged to speed up the translation of shared libraries.",
+        "The TLB must be flushed or use Address Space Identifiers to prevent incorrect translations.",
+        "The TLB translates logical addresses directly to permanent disk sectors.",
+        "The TLB is only used by the kernel and is disabled during user process execution."
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "Because each process has its own virtual map, old entries in the TLB are invalid for the new process. Flushing or tagging ensures memory isolation and correctness."
+    },
+    {
+      "id": "q-b2-hard-6",
+      "bloomLevel": 2,
+      "difficulty": "hard",
+      "topicTag": "api-design",
+      "problemStatement": "Contrast 'Idempotency' with 'Safety' in the context of designing RESTful API HTTP methods.",
+      "choices": [
+        "Safe methods change state, while idempotent methods do not.",
+        "Idempotent methods can be called multiple times with the same result; safe methods do not modify resources.",
+        "Safety refers to encryption, while idempotency refers to data validation and integrity.",
+        "A method must be safe to be considered idempotent according to the HTTP specification."
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "Safety implies no side effects on the server. Idempotency implies that multiple identical requests have the same effect as a single request."
+    },
+    {
+      "id": "q-b2-hard-7",
+      "bloomLevel": 2,
+      "difficulty": "hard",
+      "topicTag": "cpu-scheduling",
+      "problemStatement": "Classify the primary weakness of the Shortest Job First (SJF) scheduling algorithm in a system with a continuous stream of short and long tasks.",
+      "choices": [
+        "It causes significant overhead due to frequent context switching.",
+        "It leads to starvation of longer processes as shorter jobs keep arriving.",
+        "It requires a preemptive kernel to function at all.",
+        "Shortest Job First is mathematically proven to have the highest average wait time."
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "SJF prioritizes shortest tasks, which can indefinitely delay long tasks if short tasks are constantly added to the queue, leading to starvation."
+    },
+    {
+      "id": "q-b2-hard-8",
+      "bloomLevel": 2,
+      "difficulty": "hard",
+      "topicTag": "microservices",
+      "problemStatement": "Explain the 'CAP Theorem' trade-off when a network partition occurs in a distributed microservices architecture.",
+      "choices": [
+        "The system can maintain both consistency and availability simultaneously during a partition.",
+        "The system must choose between consistency of data or availability for the users.",
+        "Network partitions are prevented by using redundant hardware and high-speed fiber.",
+        "Partitions only affect system latency and do not impact data consistency or availability."
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "In the presence of a network partition, a distributed system must drop either availability or consistency to remain operational."
+    },
+    {
+      "id": "q-b2-hard-9",
+      "bloomLevel": 2,
+      "difficulty": "hard",
+      "topicTag": "file-systems",
+      "problemStatement": "Interpret the advantage of using an Inode-based file system compared to a Linked Allocation file system.",
+      "choices": [
+        "Inodes prevent fragmentation by storing all file data in contiguous disk blocks.",
+        "Inodes allow for efficient random access to file blocks via an index structure.",
+        "Inodes eliminate the need for a directory structure to locate files.",
+        "Linked Allocation is faster because it does not require a block table in memory."
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "Linked allocation requires traversing pointers through blocks for random access. Inodes provide a direct or indirect index, facilitating much faster seeking."
+    },
+    {
+      "id": "q-b2-hard-10",
+      "bloomLevel": 2,
+      "difficulty": "hard",
+      "topicTag": "testing-strategies",
+      "problemStatement": "Describe the main objective of 'Regression Testing' after a bug fix has been applied to a mature software system.",
+      "choices": [
+        "To ensure that the newly written code is as fast as possible.",
+        "To verify that the specific bug was fixed and no new bugs were introduced in existing features.",
+        "To provide a high-level overview of the system's architecture for new developers.",
+        "To replace all previous unit tests with a single comprehensive integration test."
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "The goal is to confirm that recent changes have not negatively affected parts of the system that were previously working correctly."
+    },
+    {
+      "id": "q-b2-hard-11",
+      "bloomLevel": 2,
+      "difficulty": "hard",
+      "topicTag": "kernel-vs-user-mode",
+      "problemStatement": "Contrast the handling of software exceptions versus hardware interrupts in a modern operating system kernel.",
+      "choices": [
+        "Exceptions are asynchronous events from external devices; interrupts are synchronous.",
+        "Exceptions are generated by the CPU for internal errors; interrupts are triggered by external hardware.",
+        "Interrupts require a context switch to kernel mode, while exceptions are handled in user mode.",
+        "Exceptions always terminate the process, whereas interrupts never block execution."
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "Exceptions (traps) are synchronous with the instruction flow (e.g., divide by zero). Interrupts are asynchronous signals from external hardware."
     },
     {
       "id": "q-b3-easy-1",
       "bloomLevel": 3,
       "difficulty": "easy",
-      "topicTag": "version-control",
-      "problemStatement": "A developer is working on a new feature in a Git-based project and realizes they accidentally made changes to the main branch instead of a feature branch. To move these uncommitted changes to a new branch without losing work, which sequence of commands should be executed?",
+      "topicTag": "cpu-scheduling",
+      "problemStatement": "A system uses First-Come, First-Served (FCFS) scheduling. Three processes arrive at time 0 in the order P1 (burst 10), P2 (burst 4), and P3 (burst 2). Calculate the waiting time for P3.",
       "choices": [
-        "git merge main, git push origin new-feature",
-        "git branch new-feature, git checkout new-feature",
-        "git reset --hard, git checkout new-feature",
-        "git commit -m 'save', git branch -D new-feature"
+        "10",
+        "14",
+        "16",
+        "6"
       ],
       "correctChoiceIndex": 1,
-      "referenceAnswerDescription": "Creating a new branch and switching to it keeps the uncommitted working directory changes intact on the new branch, allowing the developer to continue work there safely."
+      "referenceAnswerDescription": "In FCFS, P3 must wait for P1 and P2 to finish. Total waiting time is the sum of the burst times of preceding processes, which is 10 + 4 = 14."
     },
     {
       "id": "q-b3-easy-2",
       "bloomLevel": 3,
       "difficulty": "easy",
-      "topicTag": "virtual-memory",
-      "problemStatement": "Assuming a system uses a page size of 4 KB (4096 bytes), compute the physical address for a process where the logical address is 5000, given that page 1 is mapped to frame 5.",
+      "topicTag": "paging",
+      "problemStatement": "A system uses 4 KB pages and 16-bit logical addresses. If a process attempts to access the logical address 5000, calculate the page number associated with this address.",
       "choices": [
-        "25496",
-        "21384",
-        "9096",
-        "5000"
+        "0",
+        "1",
+        "2",
+        "5"
       ],
       "correctChoiceIndex": 1,
-      "referenceAnswerDescription": "Logical address 5000 is on page 1 with an offset of 904. Mapping page 1 to frame 5 means the physical address is (5 * 4096) + 904, which equals 21384."
+      "referenceAnswerDescription": "The page number is calculated by dividing the logical address by the page size. Since 5000 divided by 4096 (4 KB) equals 1 with a remainder, the address falls into page 1."
     },
     {
       "id": "q-b3-easy-3",
       "bloomLevel": 3,
       "difficulty": "easy",
-      "topicTag": "testing-strategies",
-      "problemStatement": "You are implementing a function that calculates the square root of an integer. To demonstrate effective unit testing for edge cases, which set of inputs would best represent boundary value analysis?",
+      "topicTag": "version-control",
+      "problemStatement": "A developer wants to integrate changes from a feature branch back into the main branch while keeping a clean, linear history. Which Git command should they use before merging?",
       "choices": [
-        "10, 20, 30",
-        "5, 5.5, 6",
-        "-1, 0, 1",
-        "100, 200, 300"
+        "git push",
+        "git rebase",
+        "git status",
+        "git checkout"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "Rebasing moves or combines a sequence of commits to a new base commit, which allows for a linear project history by avoiding unnecessary merge commits."
+    },
+    {
+      "id": "q-b3-easy-4",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "deadlocks",
+      "problemStatement": "An operating system is managing 10 units of a resource. Process A holds 4 and needs 3 more. Process B holds 3 and needs 5 more. If Process C arrives and requests 4 units, what state would the system enter if the request is granted immediately?",
+      "choices": [
+        "Safe state",
+        "Deadlock state",
+        "Unsafe state",
+        "Starvation state"
       ],
       "correctChoiceIndex": 2,
-      "referenceAnswerDescription": "Boundary value analysis focuses on the limits of input domains. Testing 0, the first positive integer, and the first negative integer captures behavior at the transition points of validity for a square root function."
+      "referenceAnswerDescription": "Granting the request leaves only 0 units available. Neither A nor B can finish their work because their remaining needs exceed the available resources, potentially leading to a deadlock."
+    },
+    {
+      "id": "q-b3-easy-5",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "solid-principles",
+      "problemStatement": "A developer is refactoring a class where one method calculates area and another prints it to a console. Which SOLID principle suggests these should be in separate classes?",
+      "choices": [
+        "Liskov Substitution Principle",
+        "Interface Segregation Principle",
+        "Single Responsibility Principle",
+        "Open-Closed Principle"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "The Single Responsibility Principle states that a class should have only one reason to change. Separating calculation logic from I/O logic ensures each class has one specific purpose."
+    },
+    {
+      "id": "q-b3-easy-6",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "page-replacement",
+      "problemStatement": "Using the First-In-First-Out (FIFO) page replacement algorithm with 3 empty frames, calculate the number of page faults for the reference string: 1, 2, 3, 4, 1.",
+      "choices": [
+        "3",
+        "4",
+        "5",
+        "2"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "The first three (1, 2, 3) cause faults as they load into empty frames. The fourth (4) replaces the first (1), causing a fourth fault. The final (1) is not in memory, causing a fifth fault if not counted carefully, but in this sequence, the result is 4 faults."
+    },
+    {
+      "id": "q-b3-easy-7",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "testing-strategies",
+      "problemStatement": "A tester is examining a function that accepts an integer between 1 and 100. They select the values 1, 2, 99, and 100 to test. Which testing technique are they demonstrating?",
+      "choices": [
+        "Equivalence Partitioning",
+        "Boundary Value Analysis",
+        "White-box Testing",
+        "Regression Testing"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "Boundary Value Analysis focuses on the values at the edges of input ranges. Testing the minimum, maximum, and values just inside the borders is a direct application of this technique."
+    },
+    {
+      "id": "q-b3-easy-8",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "synchronization",
+      "problemStatement": "Two threads are incrementing a shared variable 'counter' without a mutex. If both threads read the value 10 simultaneously, increment it, and write it back, what is the final value of 'counter'?",
+      "choices": [
+        "10",
+        "11",
+        "12",
+        "20"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "This is a classic race condition. Both threads read 10, calculate 11 locally, and write 11 back to memory, resulting in one increment being lost."
+    },
+    {
+      "id": "q-b3-easy-9",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "system-calls",
+      "problemStatement": "A programmer is writing a C application that needs to create a new process to execute a separate task. Which system call should they implement to duplicate the current process?",
+      "choices": [
+        "exec()",
+        "wait()",
+        "fork()",
+        "exit()"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "The fork system call is used to create a new process by duplicating the existing calling process. The new process is referred to as the child process."
+    },
+    {
+      "id": "q-b3-easy-10",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "api-design",
+      "problemStatement": "A RESTful API needs to be designed to update an existing user's email address in a database. Which HTTP method is most appropriate for this partial update?",
+      "choices": [
+        "GET",
+        "POST",
+        "PATCH",
+        "DELETE"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "The PATCH method is used to apply partial modifications to a resource. Since only the email field is being updated rather than replacing the entire user object, PATCH is the correct choice."
+    },
+    {
+      "id": "q-b3-easy-11",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "memory-allocation",
+      "problemStatement": "A memory manager uses the First-Fit strategy. There are holes of 100 KB, 500 KB, and 200 KB in that order. Where will a request for 150 KB be allocated?",
+      "choices": [
+        "The 100 KB hole",
+        "The 500 KB hole",
+        "The 200 KB hole",
+        "It remains unallocated"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "First-Fit scans the list of holes and allocates the first one that is large enough. Since 100 KB is too small, it moves to the next hole, which is 500 KB, and places the 150 KB request there."
+    },
+    {
+      "id": "q-b3-medium-0",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "scheduling-algorithms",
+      "problemStatement": "In a preemptive Shortest Remaining Time First (SRTF) scheduler, Process A arrives at t=0 with a burst time of 8ms. Process B arrives at t=2 with a burst time of 3ms. Calculate which process is running at t=3 and how much time remains for Process A.",
+      "choices": [
+        "Process A is running; 8ms remaining.",
+        "Process B is running; 2ms remaining.",
+        "Process B is running; 3ms remaining.",
+        "Process A is running; 6ms remaining."
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "At t=2, B arrives with 3ms, which is less than A's remaining 6ms. B preempts A and runs for 1ms by t=3, leaving 2ms remaining for B."
     },
     {
       "id": "q-b3-medium-1",
       "bloomLevel": 3,
       "difficulty": "medium",
-      "topicTag": "cpu-scheduling",
-      "problemStatement": "A system uses a Round Robin scheduling algorithm with a time quantum of 4ms. If a process requires 15ms of CPU time to complete and no other processes are waiting, how many times will this process be preempted before it finishes its execution?",
+      "topicTag": "paging",
+      "problemStatement": "A system uses 32-bit logical addresses with a page size of 4 KB. If a process attempts to access a memory address where the page table entry has the 'Valid' bit set to 0 but the address is within the process's allocated heap range, what sequence occurs?",
       "choices": [
-        "2 times",
-        "3 times",
-        "4 times",
-        "5 times"
+        "A segmentation fault occurs and the process terminates.",
+        "The MMU transparently maps it to physical frame 0.",
+        "A page fault exception is raised and the OS loads the page from disk.",
+        "The CPU ignores the instruction and moves to the next PC."
       ],
-      "correctChoiceIndex": 1,
-      "referenceAnswerDescription": "Preemption occurs at the end of each quantum if the process still has work remaining. For a 15ms task with a 4ms quantum, it runs at 0-4ms, 4-8ms, and 8-12ms (three preemptions) before finishing the final 3ms stretch."
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "The 'Valid' bit set to 0 indicates the page is not currently in RAM. Since the address is valid within the process heap, the OS must handle a page fault to bring the data into a physical frame."
     },
     {
       "id": "q-b3-medium-2",
       "bloomLevel": 3,
       "difficulty": "medium",
-      "topicTag": "dependency-injection",
-      "problemStatement": "You are refactoring a legacy module where a High-Level 'OrderProcessor' class directly instantiates a Concrete 'SqliteDatabase' class. Which implementation change best demonstrates the Dependency Inversion Principle to allow for easier unit testing with mocks?",
+      "topicTag": "deadlocks",
+      "problemStatement": "Using the Banker's Algorithm, a system has 10 total units of a resource. Process P1 holds 3 units and has a maximum claim of 8. Process P2 holds 4 units and has a maximum claim of 6. If P2 requests 2 more units, how should the OS respond to ensure safety?",
       "choices": [
-        "Change the access modifier of the SqliteDatabase constructor to protected",
-        "Pass an IDatabase interface into the OrderProcessor constructor",
-        "Create a static Singleton instance of the SqliteDatabase",
-        "Move the SqliteDatabase instantiation to a private helper method within OrderProcessor"
+        "Grant the request because 3 units are currently free.",
+        "Deny the request because it would leave only 1 free unit, which is less than P1's remaining need.",
+        "Grant the request because P2's total allocation would then meet its maximum claim.",
+        "Deny the request because P2 already holds more than P1."
       ],
       "correctChoiceIndex": 1,
-      "referenceAnswerDescription": "By passing an interface through the constructor, the high-level module depends on an abstraction rather than a volatile concrete detail. This allows the testing suite to inject a mock implementation without modifying the OrderProcessor code."
+      "referenceAnswerDescription": "Granting the units leaves 1 free. P2 would need 0 more to finish, but P1 would need 5 more. If P2 finishes and releases all 6, the system stays safe; however, the initial check must ensure all processes can finish."
     },
     {
       "id": "q-b3-medium-3",
       "bloomLevel": 3,
       "difficulty": "medium",
-      "topicTag": "paging",
-      "problemStatement": "A system uses a 32-bit logical address space and a page size of 4 KB (2^12 bytes). If a process attempts to access a memory location but the corresponding entry in the page table has the 'Valid/Invalid' bit set to 0, what sequence of events will the operating system execute?",
+      "topicTag": "testing-strategies",
+      "problemStatement": "A developer is implementing a function to calculate the square root of a number. To achieve high branch coverage while minimizing redundant tests, which set of inputs for the input 'x' is most effective?",
       "choices": [
-        "Generate a segmentation fault and immediately terminate the process",
-        "Check the backing store, find a free frame, and swap the page into physical memory",
-        "Adjust the page size dynamically to fit the requested address",
-        "Busy-wait until the hardware memory controller sets the bit to 1"
+        "x = 1, x = 2, x = 3",
+        "x = -1, x = 0, x = 4",
+        "x = 10, x = 20, x = 100",
+        "x = 0, x = 0.0001, x = 0.5"
       ],
       "correctChoiceIndex": 1,
-      "referenceAnswerDescription": "The described scenario is a page fault. The operating system must trap to the kernel, locate the page on disk, find an available physical frame, and update the page table to map the logical address to the new physical frame."
+      "referenceAnswerDescription": "Branch coverage requires testing the different logical paths, such as handling negative inputs (error path), zero (boundary case), and positive numbers (standard calculation path)."
     },
     {
       "id": "q-b3-medium-4",
       "bloomLevel": 3,
       "difficulty": "medium",
       "topicTag": "synchronization",
-      "problemStatement": "Two threads are executing a 'withdraw' function on a shared bank account balance. Thread A reads the balance ($100), Thread B reads the balance ($100), Thread A subtracts $20 and writes $80 back, then Thread B subtracts $30 and writes $70 back. Which synchronization primitive would most effectively prevent this specific error in a multi-core environment?",
+      "problemStatement": "Consider two threads incrementing a shared global counter 'count' 100 times each without synchronization. If the assembly for 'count++' involves: Load R1, (count); Add R1, 1; Store (count), R1. What is the minimum possible final value of 'count' if it starts at 0?",
       "choices": [
-        "A read-only software barrier",
-        "A spinlock or mutex around the read-modify-write section",
-        "A priority-based thread scheduler",
-        "An idempotent logging system"
+        "0",
+        "1",
+        "2",
+        "100"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "The minimum value is 2 because both threads can read 0, one finishes its 99 increments (storing 99), then the other stores its first increment (1). This can repeat such that only the final increments of each thread effectively count."
+    },
+    {
+      "id": "q-b3-medium-5",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "version-control",
+      "problemStatement": "A developer is working on a feature branch and realizes the 'main' branch has received critical security updates. To incorporate these updates into the feature branch while maintaining a linear project history without merge commits, which Git command should be applied?",
+      "choices": [
+        "git merge main",
+        "git checkout main; git pull",
+        "git rebase main",
+        "git push origin feature --force"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "Rebase reapplies commits from the current branch on top of the specified base branch. This avoids a merge commit and results in a linear history."
+    },
+    {
+      "id": "q-b3-medium-6",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "page-replacement",
+      "problemStatement": "In a system using the Least Recently Used (LRU) page replacement algorithm with 3 physical frames, the page reference string is: 1, 2, 3, 4, 1, 2, 5. Which page will be replaced when page 5 is referenced?",
+      "choices": [
+        "Page 1",
+        "Page 2",
+        "Page 3",
+        "Page 4"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "The sequence of frames is: [1], [1,2], [1,2,3]. When 4 arrives, 1 is oldest and replaced: [4,2,3]. Then 1 arrives, 2 replaced: [4,1,3]. Then 2 arrives, 3 replaced: [4,1,2]. Finally, when 5 arrives, 4 is the least recently used."
+    },
+    {
+      "id": "q-b3-medium-7",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "refactoring",
+      "problemStatement": "A function in a legacy codebase contains a large 'switch' statement that performs different calculations based on an object's 'type' attribute. To improve the design for future extensibility and adhere to the Open/Closed Principle, which refactoring should be applied?",
+      "choices": [
+        "Move the switch statement into a separate utility class.",
+        "Replace the switch with a chain of if-else statements.",
+        "Replace the conditional logic with Polymorphism using subclasses or strategies.",
+        "Wrap the switch statement in a Try-Catch block."
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "Using polymorphism allows adding new types by creating new classes without modifying existing logic. This satisfies the Open/Closed Principle and removes the maintenance burden of large conditionals."
+    },
+    {
+      "id": "q-b3-medium-8",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "system-calls",
+      "problemStatement": "When a user-level program executes a 'read()' system call to get data from a file, what is the primary mechanism the hardware uses to transition from user mode to kernel mode?",
+      "choices": [
+        "The program counter is manually set to the disk driver address.",
+        "The CPU executes a specific trap or software interrupt instruction.",
+        "The OS periodically polls a register to see if the user wants to read.",
+        "The Memory Management Unit (MMU) swaps the entire process out of RAM."
       ],
       "correctChoiceIndex": 1,
-      "referenceAnswerDescription": "This is a classic race condition known as a 'lost update.' Using a mutex ensures that the entire transaction of reading, calculating, and writing the balance is atomic, preventing other threads from seeing stale data."
+      "referenceAnswerDescription": "A trap or software interrupt triggers a controlled transition into kernel mode. This allows the hardware to switch the privilege level and jump to a predefined handler in the OS."
+    },
+    {
+      "id": "q-b3-medium-9",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "race-conditions",
+      "problemStatement": "An application uses a Singleton pattern that is not thread-safe. If two threads call 'getInstance()' simultaneously and both find the instance variable to be null, what is the most likely outcome?",
+      "choices": [
+        "The application will crash with a NullPointerException.",
+        "Both threads will share the same instance created by the first thread.",
+        "Two separate instances of the Singleton class will be created in memory.",
+        "The operating system will block one thread automatically via the scheduler."
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "In a race condition where two threads see a null instance, both will proceed to execute the instantiation logic. This results in two distinct objects, violating the Singleton's constraint."
+    },
+    {
+      "id": "q-b3-medium-10",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "dependency-injection",
+      "problemStatement": "A class 'OrderService' creates a new instance of 'SqlDatabase' directly in its constructor. To make 'OrderService' more testable using mock objects, how should the dependency be handled?",
+      "choices": [
+        "Make 'SqlDatabase' a static class so it can be accessed globally.",
+        "Pass an interface 'IDatabase' into the 'OrderService' constructor.",
+        "Use a global flag to switch between real and mock databases inside the constructor.",
+        "Inherit 'OrderService' from 'SqlDatabase' to gain access to its methods."
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "Constructor injection of an interface allows the caller to provide a mock implementation during testing. This decouples the class from a specific implementation and facilitates unit testing."
     },
     {
       "id": "q-b3-hard-1",
       "bloomLevel": 3,
       "difficulty": "hard",
       "topicTag": "page-replacement",
-      "problemStatement": "Consider a system using demand paging with 3 physical frames and the LRU replacement policy. Given the reference string [4, 3, 2, 1, 4, 3, 5, 4, 3, 2, 1, 5], calculate the total number of page faults that occur, assuming frames are initially empty.",
+      "problemStatement": "A system uses the LRU page replacement algorithm with 3 physical frames. Given the reference string [7, 0, 1, 2, 0, 3, 0, 4, 2, 3], compute the total number of page faults that occur, assuming frames are initially empty.",
       "choices": [
+        "6",
         "7",
         "8",
-        "9",
-        "10"
+        "9"
       ],
-      "correctChoiceIndex": 3,
-      "referenceAnswerDescription": "The sequence begins with 4 faults for 4, 3, 2, 1. Subsequent references cause additional faults as older pages are evicted based on the Least Recently Used logic, resulting in 10 total faults."
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "Applying the LRU algorithm, page faults occur at 7, 0, 1, 2, 3, 4, 2, and 3. The least recently used page is evicted whenever a new page needs to be loaded into a full memory set, resulting in 8 total faults."
     },
     {
       "id": "q-b3-hard-2",
       "bloomLevel": 3,
       "difficulty": "hard",
-      "topicTag": "synchronization",
-      "problemStatement": "A developer implements a concurrent lock using a test-and-set instruction. If the critical section performs high-latency I/O operations and the system runs on a single-core processor with a non-preemptive scheduler, identify the most likely consequence of a thread entering the critical section.",
+      "topicTag": "deadlocks",
+      "problemStatement": "In a system with 4 processes (P1-P4) and a single resource type with 10 total instances, the current allocations are P1:2, P2:3, P3:2, P4:1. The maximum demands are P1:5, P2:6, P3:4, P4:3. Determine if the system is in a safe state and identify the sequence.",
       "choices": [
-        "The system will suffer from priority inversion",
-        "Deadlock will occur as other threads spin infinitely",
-        "Live-lock will occur due to yielding",
-        "The system will achieve maximum throughput"
+        "Safe: P3, P4, P1, P2",
+        "Safe: P4, P3, P2, P1",
+        "Unsafe: No valid sequence exists",
+        "Safe: P1, P2, P3, P4"
       ],
-      "correctChoiceIndex": 1,
-      "referenceAnswerDescription": "On a single-core non-preemptive system, a spinning thread will never relinquish the CPU to let the holding thread finish. This results in a deadlock-like state where the CPU is occupied by a busy-wait loop that cannot be interrupted."
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "With 2 instances remaining, only P3 or P4 can be satisfied. Finishing P3 releases 2 more, allowing P4 to finish, which eventually provides enough resources for P1 and P2 in several valid sequences."
     },
     {
       "id": "q-b3-hard-3",
       "bloomLevel": 3,
       "difficulty": "hard",
-      "topicTag": "design-patterns",
-      "problemStatement": "You are designing a notification module where multiple disparate consumer classes must react to state changes in a central telemetry service. The consumers are unknown at compile time and need to be added or removed dynamically. Which pattern should be implemented to ensure the telemetry service remains decoupled from the specific consumer implementations?",
+      "topicTag": "synchronization",
+      "problemStatement": "Two threads execute a function that increments a shared global counter 100 times without mutexes. On a multi-core processor, the final counter value is observed to be 140. Which specific condition explains why the result is not 200?",
       "choices": [
-        "Abstract Factory",
-        "Strategy",
-        "Observer",
-        "Decorator"
+        "The scheduler prioritized one thread exclusively",
+        "A race condition occurred where increments were lost during context switches",
+        "The CPU cache invalidated the counter on every write",
+        "The compiler optimized the loop into a single addition"
       ],
-      "correctChoiceIndex": 2,
-      "referenceAnswerDescription": "The Observer pattern is specifically designed to allow a subject to maintain a list of dependents and notify them of state changes without knowing their concrete types. This facilitates dynamic subscription and unsubscription during runtime."
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "A race condition occurs because the increment operation is not atomic (read-modify-write). When two threads perform the operation concurrently, one thread may overwrite the update of another, leading to lost increments."
     },
     {
       "id": "q-b3-hard-4",
       "bloomLevel": 3,
       "difficulty": "hard",
       "topicTag": "cpu-scheduling",
-      "problemStatement": "A system uses a Multi-Level Feedback Queue (MLFQ) with three priority levels: Q0 (RR quantum=8), Q1 (RR quantum=16), and Q2 (FCFS). A new CPU-bound process arrives that requires 30 units of burst time. Compute the total amount of time this process spends specifically in level Q1 before it is demoted to Q2.",
+      "problemStatement": "Calculate the average waiting time for three processes P1 (Burst: 24ms), P2 (Burst: 3ms), and P3 (Burst: 3ms) using Shortest Job First (SJF) non-preemptive scheduling, assuming they all arrive at time 0.",
       "choices": [
-        "8 units",
-        "16 units",
-        "22 units",
-        "24 units"
+        "3 ms",
+        "6 ms",
+        "7 ms",
+        "17 ms"
       ],
       "correctChoiceIndex": 1,
-      "referenceAnswerDescription": "In MLFQ, a process uses its full quantum at one level before being demoted. The process uses 8 units in Q0, then moves to Q1 where it uses its full allocated quantum of 16 units before being moved to the final FCFS queue."
+      "referenceAnswerDescription": "In SJF, the execution order is P2, P3, then P1. P2 waits 0ms, P3 waits 3ms, and P1 waits 6ms; the average is (0+3+6)/3, which equals 3ms for the first two and 3ms for the average wait."
+    },
+    {
+      "id": "q-b3-hard-5",
+      "bloomLevel": 3,
+      "difficulty": "hard",
+      "topicTag": "memory-management",
+      "problemStatement": "A 32-bit system uses 4KB pages and 4-byte page table entries. If a process uses 2GB of its virtual address space, calculate the size of a single-level page table required for this process.",
+      "choices": [
+        "512 KB",
+        "1 MB",
+        "2 MB",
+        "4 MB"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "A 2GB space with 4KB pages requires 524,288 entries. Since each entry is 4 bytes, the table size is 524,288 multiplied by 4, resulting in exactly 2,097,152 bytes or 2 MB."
+    },
+    {
+      "id": "q-b3-hard-6",
+      "bloomLevel": 3,
+      "difficulty": "hard",
+      "topicTag": "solid-principles",
+      "problemStatement": "You are refactoring a reporting module where adding a new report type requires modifying a large switch statement in the central generator class. Which SOLID principle are you primarily violating, and how should it be solved?",
+      "choices": [
+        "Liskov Substitution; use more specific subclasses",
+        "Single Responsibility; split the class into data and UI",
+        "Open-Closed Principle; implement a strategy pattern or plugin architecture",
+        "Interface Segregation; create smaller interfaces for each report"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "The Open-Closed Principle states that classes should be open for extension but closed for modification. Using a strategy pattern allows adding new reports without changing the existing generator code."
+    },
+    {
+      "id": "q-b3-hard-7",
+      "bloomLevel": 3,
+      "difficulty": "hard",
+      "topicTag": "api-design",
+      "problemStatement": "A mobile application needs to sync large amounts of nested data with a backend. The REST API is causing excessive latency due to multiple round-trips (N+1 problem) and over-fetching. Which architectural change would most effectively address this?",
+      "choices": [
+        "Implement HTTP/2 server push",
+        "Switch to a GraphQL implementation",
+        "Increase the server timeout values",
+        "Implement client-side aggressive caching"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "GraphQL allows the client to specify exactly what data is needed in a single request, effectively solving the N+1 problem and eliminating over-fetching by traversing graph relationships in one query."
+    },
+    {
+      "id": "q-b3-hard-8",
+      "bloomLevel": 3,
+      "difficulty": "hard",
+      "topicTag": "file-systems",
+      "problemStatement": "An inode-based file system uses 1KB blocks and 32-bit pointers. Each inode has 12 direct pointers, 1 single indirect pointer, and 1 double indirect pointer. What is the maximum file size supported?",
+      "choices": [
+        "~16 MB",
+        "~64 MB",
+        "~256 MB",
+        "~1 GB"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "Direct pointers cover 12KB. Single indirect covers 256 blocks (256KB). Double indirect covers 256 * 256 blocks (65,536KB). Summing these yields approximately 65.8 MB, which is closest to the 64MB range."
+    },
+    {
+      "id": "q-b3-hard-9",
+      "bloomLevel": 3,
+      "difficulty": "hard",
+      "topicTag": "design-patterns",
+      "problemStatement": "A system requires creating objects that belong to different families (e.g., Windows buttons vs. Mac buttons) without specifying concrete classes. Which pattern should be implemented to ensure family consistency?",
+      "choices": [
+        "Builder",
+        "Factory Method",
+        "Abstract Factory",
+        "Prototype"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "The Abstract Factory pattern provides an interface for creating families of related or dependent objects without specifying their concrete classes, ensuring that objects from the same family are used together."
+    },
+    {
+      "id": "q-b3-hard-10",
+      "bloomLevel": 3,
+      "difficulty": "hard",
+      "topicTag": "concurrency",
+      "problemStatement": "In a high-concurrency database application, you observe a frequent 'Deadlock Detected' error involving two transactions updating the same two rows in opposite orders. How should you modify the application logic to prevent this specifically?",
+      "choices": [
+        "Increase the database isolation level to Serializable",
+        "Implement a global mutex for all database writes",
+        "Enforce a consistent ordering of row updates across all transactions",
+        "Reduce the frequency of updates by batching transactions"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "Deadlocks caused by circular wait can be prevented by enforcing a strict resource acquisition order. If all transactions update row A before row B, a circular wait condition cannot occur."
+    },
+    {
+      "id": "q-b3-hard-11",
+      "bloomLevel": 3,
+      "difficulty": "hard",
+      "topicTag": "testing-strategies",
+      "problemStatement": "While unit testing a module that talks to a 3rd party payment gateway, you need to verify that your code correctly handles a 'Low Balance' error without actually charging a credit card. Which technique is most appropriate?",
+      "choices": [
+        "Integration testing against a sandbox environment",
+        "Black-box testing of the production API",
+        "Using a Mock object to simulate the gateway response",
+        "Static code analysis of the payment handling logic"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "Mocks allow developers to simulate the behavior of complex or external dependencies. By mocking the gateway, you can explicitly trigger specific error responses to verify the internal error-handling logic."
     }
   ]
 }
