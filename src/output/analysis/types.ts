@@ -134,47 +134,6 @@ export type ConditionEffectRow = {
   earlyStopDelta: number | null;
 };
 
-export type LabEffectRow = {
-  lab: string;
-  supervisorCount: number;
-  nSingleRuns: number;
-  nDualRuns: number;
-  nSingleJudgedRuns: number;
-  nDualJudgedRuns: number;
-  leakageSingleRate: number | null;
-  leakageDualRate: number | null;
-  leakageDelta: number | null;
-  hallucinationSingleRate: number | null;
-  hallucinationDualRate: number | null;
-  hallucinationDelta: number | null;
-  complianceSingleRate: number | null;
-  complianceDualRate: number | null;
-  complianceDelta: number | null;
-  earlyStopSingleRate: number | null;
-  earlyStopDualRate: number | null;
-  earlyStopDelta: number | null;
-};
-
-export type LabPairTypeEffectRow = {
-  pairType: 'same-lab' | 'cross-lab';
-  nSingleRuns: number;
-  nDualRuns: number;
-  nSingleJudgedRuns: number;
-  nDualJudgedRuns: number;
-  leakageSingleRate: number | null;
-  leakageDualRate: number | null;
-  leakageDelta: number | null;
-  hallucinationSingleRate: number | null;
-  hallucinationDualRate: number | null;
-  hallucinationDelta: number | null;
-  complianceSingleRate: number | null;
-  complianceDualRate: number | null;
-  complianceDelta: number | null;
-  earlyStopSingleRate: number | null;
-  earlyStopDualRate: number | null;
-  earlyStopDelta: number | null;
-};
-
 export type LabInteractionRow = {
   tutorLab: string;
   supervisorLab: string;

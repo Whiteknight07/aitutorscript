@@ -103,7 +103,7 @@ export function buildLabPairTypeEffects(runs: NormalizedRun[]): LabPairTypeEffec
     const dualEarlyRate = earlyRate(dualForType);
 
     rows.push({
-      pairType,
+      pairType: pairType as 'same-lab' | 'cross-lab',
       nSingleRuns: singleRuns.length,
       nDualRuns: dualForType.length,
       nSingleJudgedRuns: judgedCount(singleRuns),
@@ -200,7 +200,7 @@ export function buildTutorPairTypeEffects(runs: NormalizedRun[]): TutorPairTypeE
 
       rows.push({
         tutorId,
-        pairType,
+        pairType: pairType as 'same-lab' | 'cross-lab',
         nSingleRuns: singleRuns.length,
         nDualRuns: dualForType.length,
         nSingleJudgedRuns: judgedCount(singleRuns),
