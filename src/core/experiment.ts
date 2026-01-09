@@ -12,6 +12,7 @@ import type { Question, RunRecord, TimedCallRecord } from '../types';
 import { runJudgeIfEnabled, runTurnJudge } from '../agents/judge';
 import { SummaryAggregator } from '../output/summary';
 import { renderReportHtml } from '../output/report';
+import { renderAnalysisDashboard, generateAnalysisCsvs } from '../output/analysis';
 
 // Type for a single run configuration
 type RunConfig = {
@@ -383,6 +384,8 @@ export async function runExperiments({
     // eslint-disable-next-line no-console
     console.log(`   ${join(runOutDir, 'report.html')}`);
     // eslint-disable-next-line no-console
+    console.log(`   ${join(runOutDir, 'analysis-dashboard.html')}`);
+    // eslint-disable-next-line no-console
     console.log(`${'─'.repeat(50)}\n`);
 
     await writePartialOutputs({
@@ -493,6 +496,20 @@ async function writePartialOutputs({
       },
     })
   );
+
+  // Generate analysis dashboard (only when we have data)
+  if (records.length > 0) {
+    await writeFile(
+      join(runOutDir, 'analysis-dashboard.html'),
+      renderAnalysisDashboard({ runId, createdAtIso, records, questions })
+    );
+
+    // Generate CSV exports
+    const csvs = generateAnalysisCsvs(records);
+    for (const [filename, content] of Object.entries(csvs)) {
+      await writeFile(join(runOutDir, filename), content);
+    }
+  }
 }
 
 async function generateDataset({
