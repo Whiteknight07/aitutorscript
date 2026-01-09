@@ -1,51 +1,192 @@
 # Repository Guidelines
 
-## Project Structure & Module Organization
+AI Tutor Harness: A benchmarking framework that tests whether AI tutors leak answers under adversarial student attacks. Uses a judge to evaluate leakage, hallucination, and Socratic compliance.
 
-- `src/`: TypeScript source code for the CLI harness.
-  - `src/cli.ts`: CLI entrypoint (loads env, parses args, starts run).
-  - `src/core/experiment.ts`: Orchestrates dataset loading/generation, experiment matrix, logging, and report writing.
-  - `src/core/conversation.ts`: Simulates multi-turn conversations and optional early stopping.
-  - `src/core/llm.ts`: LLM abstraction with timing and multi-provider support.
-  - `src/agents/question-gen.ts`, `src/agents/student.ts`: JSON-structured generation via AI SDK.
-  - `src/agents/tutor.ts`, `src/agents/supervisor.ts`: Tutor drafting and supervisor verdict logic.
-  - `src/agents/judge.ts`: Judge scoring (and per-turn judge for early stop).
-  - `src/output/report.ts`: Self-contained `report.html` renderer.
-  - `src/scripts/generate-questions.ts`: Script to generate static question set.
-- `data/`: Static data files.
-  - `data/questions.json`: 36 pre-generated questions (4 per Bloom × Difficulty cell).
-- `dist/`: Compiled JavaScript output from `tsc`.
-- `results/`: Output folders per run (`results/<runId>/…`) containing `raw.jsonl`, `summary.json`, and `report.html`.
+## Project Structure
+
+```
+src/
+├── cli.ts                 # CLI entrypoint (loads env, parses args, starts run)
+├── config.ts              # Single source of truth for model IDs and pairings
+├── types.ts               # Zod schemas and TypeScript types
+├── core/
+│   ├── experiment.ts      # Orchestrates dataset loading, experiment matrix, logging
+│   ├── conversation.ts    # Multi-turn conversation simulation with early stopping
+│   └── llm.ts             # LLM abstraction with timing and multi-provider support
+├── agents/
+│   ├── question-gen.ts    # Question generation via AI SDK
+│   ├── student.ts         # Adversarial student attacker simulation
+│   ├── tutor.ts           # Tutor drafting logic
+│   ├── supervisor.ts      # Supervisor verdict logic (returns `rationale` explaining approval/rejection)
+│   └── judge.ts           # Judge scoring (leakage, hallucination, compliance)
+├── output/
+│   ├── report.ts          # Self-contained report.html renderer
+│   ├── summary.ts         # Summary JSON generation
+│   └── report/            # Report assets and rendering
+├── utils/
+│   ├── args.ts            # CLI argument parsing
+│   └── util.ts            # Helpers (timing, file I/O, mutex)
+└── scripts/
+    └── generate-questions.ts  # Script to generate static question set
+
+data/
+└── questions.json         # 36 pre-generated questions (4 per Bloom x Difficulty cell)
+
+results/                   # Output folders per run (raw.jsonl, summary.json, report.html)
+dist/                      # Compiled JavaScript output from tsc
+```
 
 ## Build, Test, and Development Commands
 
-- `pnpm build`: Compile TypeScript to `dist/`.
-- `pnpm harness -- [flags]`: Build and run the harness.
-- `pnpm smoke`: Small, fast run for sanity checking.
-- `pnpm generate-questions`: Regenerate static questions in `data/questions.json`.
-- `pnpm test`: No automated tests (prints a message and exits 0).
+```bash
+# Build TypeScript to dist/
+pnpm build
 
-## Coding Style & Naming Conventions
+# Run the harness (builds first via bun)
+pnpm harness -- [flags]
 
-- Language: TypeScript (Node).
-- Use 2-space indentation and keep functions small and single-purpose.
-- Prefer descriptive names (e.g., `turnIndex`, `plannedRuns`) over abbreviations.
-- Output files follow `results/<runId>/…` and questions use IDs like `q-d{difficulty}-{n}`.
+# Smoke test: 1 question, bloom 1, easy, 2 turns, minimal variants
+pnpm smoke
 
-## Testing Guidelines
+# Regenerate static questions in data/questions.json
+pnpm generate-questions
 
-- No test framework is configured yet. Validate changes by running:
-  - `pnpm smoke`
-  - a small capped run: `pnpm harness -- --maxRuns 5 --turns 2 --noJudge`
+# No automated tests yet
+pnpm test
+```
 
-## Commit & Pull Request Guidelines
+### Validating Changes
 
-- This repo may not be a Git repository in your environment; if you add Git later:
-  - Use imperative commits (e.g., “Add report banner”, “Fix judge schema retry”).
-  - PRs should include: purpose, CLI flags used to validate, and a screenshot of `report.html` when UI changes.
+```bash
+# Quick sanity check
+pnpm smoke
 
-## Security & Configuration Tips
+# Small capped run without judge overhead
+pnpm harness -- --maxRuns 5 --turns 2 --noJudge
 
-- Preferred auth is AI Gateway: set `AI_GATEWAY_API_KEY` in `.env`.
-- Logs may contain prompts and model outputs; avoid committing `results/` and secrets.
+# Full run with specific config
+pnpm harness -- --tutors gemini --conditions single --turns 4
+```
 
+### Key CLI Flags
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--smoke` | Minimal run for sanity checking | - |
+| `--turns N` | Turns per conversation | 6 (smoke: 2) |
+| `--maxRuns N` | Stop after N runs | unlimited |
+| `--parallel N` | Concurrent experiments | 5 (smoke: 1) |
+| `--tutors LIST` | gpt, gemini | all |
+| `--conditions LIST` | single, dual-loop | all |
+| `--noJudge` | Disable judge pass | - |
+| `--noEarlyStop` | Disable early stopping on leakage | - |
+| `--verbose` | Extra per-turn logs | - |
+
+## Code Style Guidelines
+
+### Language and Formatting
+
+- **Language**: TypeScript (Node.js, ES2022 target)
+- **Module**: CommonJS
+- **Indentation**: 2 spaces
+- **Quotes**: Single quotes for strings
+- **Semicolons**: Required
+- **Line length**: No strict limit, but keep readable (~100-120 chars)
+- **Trailing commas**: Use in multiline arrays/objects
+
+### Imports
+
+Order imports as follows, with blank lines between groups:
+
+```typescript
+// 1. Node built-ins
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+
+// 2. External packages
+import { generateObject, generateText } from 'ai';
+import { z } from 'zod';
+
+// 3. Internal modules (relative paths)
+import { Question, SupervisorVerdict } from '../types';
+import { timedGenerateObject } from '../core/llm';
+```
+
+### Types and Schemas
+
+- Define Zod schemas in `src/types.ts` and derive TypeScript types from them
+- Use `z.infer<typeof Schema>` pattern for type derivation
+- Export both schema and type together
+
+```typescript
+export const QuestionSchema = z.object({
+  id: z.string().min(1),
+  bloomLevel: z.number().int().min(1).max(3),
+  difficulty: DifficultySchema,
+});
+export type Question = z.infer<typeof QuestionSchema>;
+```
+
+### Naming Conventions
+
+- **Files**: kebab-case (`question-gen.ts`, `dual-loop.ts`)
+- **Variables/functions**: camelCase (`turnIndex`, `parseArgs`)
+- **Types/interfaces**: PascalCase (`Question`, `SupervisorVerdict`)
+- **Constants**: SCREAMING_SNAKE_CASE for config (`PAIRING_IDS`, `DEFAULT_MODELS`)
+- **Question IDs**: `q-b{bloom}-{difficulty}-{n}` (e.g., `q-b1-easy-1`)
+- **Run IDs**: `run_{ISO_timestamp}` (e.g., `run_2026-01-08T10-41-40-225Z`)
+
+### Functions
+
+- Keep functions small and single-purpose
+- Prefer descriptive names over abbreviations
+- Use async/await over raw promises
+- Document complex functions with JSDoc
+
+```typescript
+/**
+ * Get provider-specific options for a model.
+ * - Configures OpenRouter to prefer high-throughput providers
+ * - Disables reasoning for GPT-5.1 models
+ */
+function getProviderOptions(modelId: string): any {
+  // ...
+}
+```
+
+### Error Handling
+
+- Throw descriptive `Error` with context
+- Use try/catch for recoverable errors
+- Log errors to console.error before re-throwing or exiting
+
+```typescript
+if (!isValidTutorId(id)) {
+  throw new Error(`Invalid tutor ID: "${id}". Valid options: ${TUTOR_IDS.join(', ')}`);
+}
+```
+
+### Configuration
+
+- All model IDs live in `src/config.ts` (single source of truth)
+- Use OpenRouter format: `provider/model-name` (e.g., `google/gemini-3-flash-preview`)
+- Environment variables: `OPENROUTER_API_KEY`, `OPENAI_API_KEY`, `GOOGLE_GENERATIVE_AI_API_KEY`
+
+## Output Files
+
+Each run creates `results/<runId>/`:
+- `raw.jsonl` - One JSON object per experiment run
+- `summary.json` - Aggregated stats (leakage rate, hallucination rate, etc.)
+- `report.html` - Self-contained interactive report
+
+## Security Notes
+
+- Preferred auth: Set `OPENROUTER_API_KEY` in `.env`
+- Logs contain prompts and model outputs; avoid committing `results/` and secrets
+- Never commit `.env` files
+
+## Commit Guidelines
+
+- Use imperative commits: "Add report banner", "Fix judge schema retry"
+- PRs should include: purpose, CLI flags used to validate
+- Include screenshot of `report.html` when UI changes
