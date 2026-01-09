@@ -1,6 +1,15 @@
 import type { RunRecord } from '../../types';
 import { nowIso } from '../../utils/util';
-import { buildConditionEffects, buildLabEffects, buildLabPairTypeEffects, buildRunGroupRow, buildTurnGroupRow } from './aggregation';
+import { buildConditionEffects, buildRunGroupRow, buildTurnGroupRow } from './aggregation';
+import {
+  buildBloomDifficultyEffects,
+  buildLabEffects,
+  buildLabInteraction,
+  buildLabPairTypeEffects,
+  buildSurvivalByCondition,
+  buildSurvivalByPairType,
+  buildTutorPairTypeEffects,
+} from './comparisons';
 import { buildTurnRows, normalizeRun } from './normalize';
 import { difficultyOrder, groupBy, uniqueSorted, uniqueSortedNumbers } from './utils';
 import type { AnalysisOutput, NormalizedRun, TurnRow } from './types';
@@ -29,7 +38,7 @@ function buildTotals(runs: NormalizedRun[], turnRows: TurnRow[]) {
 }
 
 export function buildAnalysis(options: AnalysisOptions): AnalysisOutput {
-  const runs = options.records.map(normalizeRun);
+  const runs = options.records.map((record, idx) => normalizeRun(record, `${options.runId}::${idx}`));
   const turnRows = options.records.flatMap((record, idx) => buildTurnRows(record, runs[idx]));
 
   const totals = buildTotals(runs, turnRows);
@@ -164,6 +173,8 @@ export function buildAnalysis(options: AnalysisOptions): AnalysisOutput {
       return difficultyOrder(a.difficulty ?? null) - difficultyOrder(b.difficulty ?? null);
     });
 
+  const bloomDifficultyEffects = buildBloomDifficultyEffects(runs);
+
   const byQuestion = Array.from(groupBy(runs, (r) => r.questionId).entries())
     .map(([questionId, group]) => ({
       questionId,
@@ -200,6 +211,10 @@ export function buildAnalysis(options: AnalysisOptions): AnalysisOutput {
   const labPairTypeEffects = buildLabPairTypeEffects(runs).sort((a, b) =>
     String(a.pairType).localeCompare(String(b.pairType))
   );
+  const labInteraction = buildLabInteraction(runs);
+  const tutorPairTypeEffects = buildTutorPairTypeEffects(runs);
+  const survivalByCondition = buildSurvivalByCondition(runs, turnRows);
+  const survivalByPairType = buildSurvivalByPairType(runs, turnRows);
 
   return {
     meta: {
@@ -220,6 +235,7 @@ export function buildAnalysis(options: AnalysisOptions): AnalysisOutput {
       byLabPair,
       byLabPairType,
       byBloomDifficulty,
+      bloomDifficultyEffects,
       byQuestion,
       perTurn: {
         byAttackLevel,
@@ -228,6 +244,10 @@ export function buildAnalysis(options: AnalysisOptions): AnalysisOutput {
       conditionEffects,
       labEffects,
       labPairTypeEffects,
+      labInteraction,
+      tutorPairTypeEffects,
+      survivalByCondition,
+      survivalByPairType,
     },
   };
 }

@@ -10,6 +10,7 @@ export type LoopSummary = {
 
 export type NormalizedRun = {
   runId: string;
+  runKey: string;
   createdAtIso: string;
   questionId: string;
   bloomLevel: number | null;
@@ -36,6 +37,7 @@ export type NormalizedRun = {
 };
 
 export type TurnRow = {
+  runKey: string;
   tutorId: string;
   supervisorId: string | null;
   condition: Condition;
@@ -173,6 +175,102 @@ export type LabPairTypeEffectRow = {
   earlyStopDelta: number | null;
 };
 
+export type LabInteractionRow = {
+  tutorLab: string;
+  supervisorLab: string;
+  nSingleRuns: number;
+  nDualRuns: number;
+  nSingleJudgedRuns: number;
+  nDualJudgedRuns: number;
+  leakageSingleRate: number | null;
+  leakageDualRate: number | null;
+  leakageDelta: number | null;
+  complianceSingleRate: number | null;
+  complianceDualRate: number | null;
+  complianceDelta: number | null;
+};
+
+export type TutorPairTypeEffectRow = {
+  tutorId: string;
+  pairType: 'same-lab' | 'cross-lab';
+  nSingleRuns: number;
+  nDualRuns: number;
+  nSingleJudgedRuns: number;
+  nDualJudgedRuns: number;
+  leakageSingleRate: number | null;
+  leakageDualRate: number | null;
+  leakageDelta: number | null;
+  complianceSingleRate: number | null;
+  complianceDualRate: number | null;
+  complianceDelta: number | null;
+};
+
+export type BloomDifficultyEffectRow = {
+  bloomLevel: number | null;
+  difficulty: string | null;
+  nSingleRuns: number;
+  nDualRuns: number;
+  nSingleJudgedRuns: number;
+  nDualJudgedRuns: number;
+  leakageSingleRate: number | null;
+  leakageDualRate: number | null;
+  leakageDelta: number | null;
+  complianceSingleRate: number | null;
+  complianceDualRate: number | null;
+  complianceDelta: number | null;
+  hallucinationSingleRate: number | null;
+  hallucinationDualRate: number | null;
+  hallucinationDelta: number | null;
+};
+
+export type SurvivalRow = {
+  group: string;
+  turnIndex: number;
+  survivalRate: number | null;
+  nRuns: number;
+};
+
+export type LabEffectRow = {
+  lab: string;
+  supervisorCount: number;
+  nSingleRuns: number;
+  nDualRuns: number;
+  nSingleJudgedRuns: number;
+  nDualJudgedRuns: number;
+  leakageSingleRate: number | null;
+  leakageDualRate: number | null;
+  leakageDelta: number | null;
+  hallucinationSingleRate: number | null;
+  hallucinationDualRate: number | null;
+  hallucinationDelta: number | null;
+  complianceSingleRate: number | null;
+  complianceDualRate: number | null;
+  complianceDelta: number | null;
+  earlyStopSingleRate: number | null;
+  earlyStopDualRate: number | null;
+  earlyStopDelta: number | null;
+};
+
+export type LabPairTypeEffectRow = {
+  pairType: 'same-lab' | 'cross-lab';
+  nSingleRuns: number;
+  nDualRuns: number;
+  nSingleJudgedRuns: number;
+  nDualJudgedRuns: number;
+  leakageSingleRate: number | null;
+  leakageDualRate: number | null;
+  leakageDelta: number | null;
+  hallucinationSingleRate: number | null;
+  hallucinationDualRate: number | null;
+  hallucinationDelta: number | null;
+  complianceSingleRate: number | null;
+  complianceDualRate: number | null;
+  complianceDelta: number | null;
+  earlyStopSingleRate: number | null;
+  earlyStopDualRate: number | null;
+  earlyStopDelta: number | null;
+};
+
 export type AnalysisOutput = {
   meta: {
     runId: string;
@@ -203,6 +301,7 @@ export type AnalysisOutput = {
     byLabPair: RunGroupRow[];
     byLabPairType: RunGroupRow[];
     byBloomDifficulty: RunGroupRow[];
+    bloomDifficultyEffects: BloomDifficultyEffectRow[];
     byQuestion: RunGroupRow[];
     perTurn: {
       byAttackLevel: TurnGroupRow[];
@@ -211,5 +310,9 @@ export type AnalysisOutput = {
     conditionEffects: ConditionEffectRow[];
     labEffects: LabEffectRow[];
     labPairTypeEffects: LabPairTypeEffectRow[];
+    labInteraction: LabInteractionRow[];
+    tutorPairTypeEffects: TutorPairTypeEffectRow[];
+    survivalByCondition: SurvivalRow[];
+    survivalByPairType: SurvivalRow[];
   };
 };

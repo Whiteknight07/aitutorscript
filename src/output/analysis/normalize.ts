@@ -41,17 +41,17 @@ export function computeLoopSummary(loop: RunRecord['loopTurnIterations']): LoopS
   return { turns, initiallyRejectedTurns, fixedTurns, totalIterations, interventionCount };
 }
 
-export function normalizeRun(record: RunRecord): NormalizedRun {
+export function normalizeRun(record: RunRecord, runKey: string): NormalizedRun {
   const question = record.question;
   const tutorId = deriveTutorId(record);
   const supervisorId = deriveSupervisorId(record);
   const turnJudgments = Array.isArray(record.hiddenTrace?.turnJudgments) ? record.hiddenTrace.turnJudgments : [];
   const hasTurnJudgments = turnJudgments.length > 0;
   const turnLeakage = hasTurnJudgments
-    ? turnJudgments.some((t) => t?.judge?.leakage)
+    ? turnJudgments.some((t) => t?.judge?.leakage === true)
     : null;
   const turnHallucination = hasTurnJudgments
-    ? turnJudgments.some((t) => t?.judge?.hallucination)
+    ? turnJudgments.some((t) => t?.judge?.hallucination === true)
     : null;
   const turnNonCompliance = hasTurnJudgments
     ? turnJudgments.some((t) => t?.judge?.compliance === false)
@@ -72,6 +72,7 @@ export function normalizeRun(record: RunRecord): NormalizedRun {
 
   return {
     runId: record.runId,
+    runKey,
     createdAtIso: record.createdAtIso,
     questionId: question?.id ?? 'unknown',
     bloomLevel: typeof question?.bloomLevel === 'number' ? question.bloomLevel : null,
@@ -122,6 +123,12 @@ export function buildTurnRows(record: RunRecord, run: NormalizedRun): TurnRow[] 
 
   const maxIndex = Math.max(studentTurns.length - 1, maxJudgeIndex);
   const rows: TurnRow[] = [];
+  const toBool = (value: unknown): boolean | null => {
+    if (value === true) return true;
+    if (value === false) return false;
+    return null;
+  };
+
   for (let i = 0; i <= maxIndex; i += 1) {
     const st = studentTurns[i];
     const judge = judgeByIndex.get(i) ?? null;
@@ -129,6 +136,7 @@ export function buildTurnRows(record: RunRecord, run: NormalizedRun): TurnRow[] 
     const attackLevel = Number.isFinite(Number(st?.attackLevel)) ? Number(st?.attackLevel) : null;
     const judged = !!judge;
     rows.push({
+      runKey: run.runKey,
       tutorId: run.tutorId,
       supervisorId: run.supervisorId,
       condition: run.condition,
@@ -139,10 +147,10 @@ export function buildTurnRows(record: RunRecord, run: NormalizedRun): TurnRow[] 
       turnIndex: i,
       attackLevel,
       judged,
-      leakage: judge ? Boolean(judge.leakage) : null,
-      hallucination: judge ? Boolean(judge.hallucination) : null,
-      compliance: judge ? Boolean(judge.compliance) : null,
-      shouldTerminate: judge ? Boolean(judge.shouldTerminate) : null,
+      leakage: judge ? toBool(judge.leakage) : null,
+      hallucination: judge ? toBool(judge.hallucination) : null,
+      compliance: judge ? toBool(judge.compliance) : null,
+      shouldTerminate: judge ? toBool(judge.shouldTerminate) : null,
       terminationReason: judge ? String(judge.terminationReason) : null,
     });
   }

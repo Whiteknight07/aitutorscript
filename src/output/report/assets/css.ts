@@ -1142,8 +1142,8 @@ html[data-theme="dark"] .chartCard{ background: var(--paper); }
   height: 16px;
   margin-left: 6px;
   border-radius: 999px;
-  border: 1px solid var(--ink-2);
-  color: var(--ink-2);
+  border: 1px solid var(--muted2);
+  color: var(--muted2);
   font-size: 11px;
   line-height: 1;
   cursor: help;
@@ -1181,6 +1181,45 @@ html[data-theme="dark"] .chartCard{ background: var(--paper); }
   text-align: right;
   font-size: 11px;
   color: var(--muted);
+}
+.groupedBar{
+  display:flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.groupedBar__row{
+  display:grid;
+  grid-template-columns: 120px minmax(0, 1fr) 140px;
+  gap: 10px;
+  align-items: center;
+}
+.groupedBar__label{
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--muted2);
+}
+.groupedBar__bars{
+  display:flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.groupedBar__bar{
+  background: var(--paper2);
+  border: 2px solid var(--line);
+  height: 12px;
+}
+.groupedBar__bar span{
+  display:block;
+  height: 100%;
+}
+.groupedBar__value{
+  text-align: right;
+  font-size: 10px;
+  color: var(--muted2);
+  display:flex;
+  flex-direction: column;
+  gap: 4px;
 }
 .lineChart{
   width: 100%;
@@ -1227,6 +1266,54 @@ html[data-theme="dark"] .chartCard{ background: var(--paper); }
   height: 10px;
   display:inline-block;
   border: 1px solid var(--line);
+}
+.heatmap{
+  display:flex;
+  flex-direction: column;
+  border: 2px solid var(--line);
+  background: var(--paper2);
+}
+.heatmap__row{
+  display:grid;
+  grid-template-columns: 120px repeat(auto-fit, minmax(60px, 1fr));
+}
+.heatmap__row--head{
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.heatmap__cell{
+  border: 1px solid var(--line);
+  padding: 6px 8px;
+  font-size: 11px;
+  text-align: center;
+}
+.heatmap__cell--head{
+  background: var(--paper3);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--muted2);
+}
+.heatmap__cell--corner{
+  background: var(--paper3);
+}
+.scatterChart{
+  width: 100%;
+  height: 260px;
+  display:block;
+}
+.scatterChart__bg{
+  fill: var(--paper2);
+  stroke: var(--line);
+  stroke-width: 2;
+}
+.scatterChart__axis{
+  stroke: var(--line);
+  stroke-width: 1.5;
+}
+.scatterChart__point{
+  opacity: 0.85;
 }
 
 .pairingPanel{
@@ -1316,6 +1403,8 @@ html[data-theme="dark"] .miniStat{ background: var(--paper); }
   .condGrid{ grid-template-columns: 1fr; }
   .analysisCharts{ grid-template-columns: 1fr; }
   .barChart__row{ grid-template-columns: 90px minmax(0, 1fr) 60px; }
+  .groupedBar__row{ grid-template-columns: 90px minmax(0, 1fr) 120px; }
+  .heatmap__row{ grid-template-columns: 90px repeat(auto-fit, minmax(54px, 1fr)); }
 }
 
 @media (prefers-reduced-motion: reduce){

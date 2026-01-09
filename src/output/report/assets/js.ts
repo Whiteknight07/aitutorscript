@@ -912,6 +912,177 @@ export const REPORT_JS = `
     return wrap;
   }
 
+  function buildGroupedBarChart(labels, series, formatter){
+    const wrap = document.createElement('div');
+    wrap.className = 'groupedBar';
+    const maxVal = Math.max(
+      0,
+      ...series.flatMap(s => s.values.map(v => (Number.isFinite(v) ? Math.abs(v) : 0)))
+    );
+    labels.forEach((label, idx) => {
+      const row = document.createElement('div');
+      row.className = 'groupedBar__row';
+      const lab = document.createElement('div');
+      lab.className = 'groupedBar__label mono';
+      lab.textContent = label;
+      const bars = document.createElement('div');
+      bars.className = 'groupedBar__bars';
+      const val = document.createElement('div');
+      val.className = 'groupedBar__value mono';
+      series.forEach((s, sIdx) => {
+        const raw = s.values[idx];
+        const safe = Number.isFinite(raw) ? Math.abs(raw) : 0;
+        const pct = maxVal > 0 ? Math.max(0, Math.min(1, safe / maxVal)) : 0;
+        const bar = document.createElement('div');
+        bar.className = 'groupedBar__bar';
+        const fill = document.createElement('span');
+        fill.style.width = (pct * 100).toFixed(1) + '%';
+        fill.style.background = s.color;
+        bar.appendChild(fill);
+        bars.appendChild(bar);
+        const line = document.createElement('div');
+        line.className = 'groupedBar__valueLine';
+        line.textContent = s.name + ' ' + formatter(raw);
+        val.appendChild(line);
+      });
+      row.appendChild(lab);
+      row.appendChild(bars);
+      row.appendChild(val);
+      wrap.appendChild(row);
+    });
+    return wrap;
+  }
+
+  function heatColor(value, maxAbs){
+    if (value == null || !Number.isFinite(value)) return 'transparent';
+    if (!maxAbs) return 'transparent';
+    const t = Math.min(1, Math.abs(value) / maxAbs);
+    if (value < 0){
+      return 'rgba(30, 86, 49, ' + (0.12 + t * 0.5).toFixed(3) + ')';
+    }
+    return 'rgba(155, 27, 27, ' + (0.12 + t * 0.5).toFixed(3) + ')';
+  }
+
+  function buildHeatmap(rowLabels, colLabels, rows, valueKey, formatter){
+    const wrap = document.createElement('div');
+    wrap.className = 'heatmap';
+    const values = rows.map(r => r[valueKey]).filter(v => Number.isFinite(v));
+    const maxAbs = values.length ? Math.max(...values.map(v => Math.abs(v))) : 0;
+
+    const header = document.createElement('div');
+    header.className = 'heatmap__row heatmap__row--head';
+    const corner = document.createElement('div');
+    corner.className = 'heatmap__cell heatmap__cell--corner';
+    header.appendChild(corner);
+    colLabels.forEach((label) => {
+      const cell = document.createElement('div');
+      cell.className = 'heatmap__cell heatmap__cell--head mono';
+      cell.textContent = label;
+      header.appendChild(cell);
+    });
+    wrap.appendChild(header);
+
+    rowLabels.forEach((rowLabel) => {
+      const row = document.createElement('div');
+      row.className = 'heatmap__row';
+      const head = document.createElement('div');
+      head.className = 'heatmap__cell heatmap__cell--head mono';
+      head.textContent = rowLabel;
+      row.appendChild(head);
+      colLabels.forEach((colLabel) => {
+        const data = rows.find(r => r.rowLabel === rowLabel && r.colLabel === colLabel);
+        const val = data ? data[valueKey] : null;
+        const cell = document.createElement('div');
+        cell.className = 'heatmap__cell';
+        cell.style.background = heatColor(val, maxAbs);
+        cell.title = formatter(val);
+        cell.textContent = formatter(val);
+        row.appendChild(cell);
+      });
+      wrap.appendChild(row);
+    });
+
+    return wrap;
+  }
+
+  function buildScatterPlot(points, options){
+    const svgNs = 'http://www.w3.org/2000/svg';
+    const width = options && options.width ? options.width : 520;
+    const height = options && options.height ? options.height : 260;
+    const pad = 30;
+    const innerW = width - pad * 2;
+    const innerH = height - pad * 2;
+    const xs = points.map(p => p.x).filter(v => Number.isFinite(v));
+    const ys = points.map(p => p.y).filter(v => Number.isFinite(v));
+    const minX = Math.min(0, ...xs);
+    const maxX = Math.max(0, ...xs);
+    const minY = Math.min(0, ...ys);
+    const maxY = Math.max(0, ...ys);
+    const padX = (maxX - minX) * 0.1 || 0.1;
+    const padY = (maxY - minY) * 0.1 || 0.1;
+    const x0 = minX - padX;
+    const x1 = maxX + padX;
+    const y0 = minY - padY;
+    const y1 = maxY + padY;
+    const scaleX = (v) => pad + ((v - x0) / (x1 - x0 || 1)) * innerW;
+    const scaleY = (v) => pad + innerH - ((v - y0) / (y1 - y0 || 1)) * innerH;
+
+    const svg = document.createElementNS(svgNs, 'svg');
+    svg.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+    svg.classList.add('scatterChart');
+
+    const bg = document.createElementNS(svgNs, 'rect');
+    bg.setAttribute('x', String(pad));
+    bg.setAttribute('y', String(pad));
+    bg.setAttribute('width', String(innerW));
+    bg.setAttribute('height', String(innerH));
+    bg.setAttribute('rx', '2');
+    bg.setAttribute('class', 'scatterChart__bg');
+    svg.appendChild(bg);
+
+    const axis = document.createElementNS(svgNs, 'line');
+    axis.setAttribute('x1', String(pad));
+    axis.setAttribute('x2', String(pad + innerW));
+    axis.setAttribute('y1', String(scaleY(0)));
+    axis.setAttribute('y2', String(scaleY(0)));
+    axis.setAttribute('class', 'scatterChart__axis');
+    svg.appendChild(axis);
+
+    const axisY = document.createElementNS(svgNs, 'line');
+    axisY.setAttribute('x1', String(scaleX(0)));
+    axisY.setAttribute('x2', String(scaleX(0)));
+    axisY.setAttribute('y1', String(pad));
+    axisY.setAttribute('y2', String(pad + innerH));
+    axisY.setAttribute('class', 'scatterChart__axis');
+    svg.appendChild(axisY);
+
+    points.forEach((p) => {
+      if (!Number.isFinite(p.x) || !Number.isFinite(p.y)) return;
+      if (p.shape === 'square') {
+        const rect = document.createElementNS(svgNs, 'rect');
+        rect.setAttribute('x', String(scaleX(p.x) - 4));
+        rect.setAttribute('y', String(scaleY(p.y) - 4));
+        rect.setAttribute('width', '8');
+        rect.setAttribute('height', '8');
+        rect.setAttribute('fill', p.color || 'var(--accent)');
+        rect.setAttribute('class', 'scatterChart__point');
+        if (p.label) rect.setAttribute('title', p.label);
+        svg.appendChild(rect);
+        return;
+      }
+      const circle = document.createElementNS(svgNs, 'circle');
+      circle.setAttribute('cx', String(scaleX(p.x)));
+      circle.setAttribute('cy', String(scaleY(p.y)));
+      circle.setAttribute('r', '4');
+      circle.setAttribute('fill', p.color || 'var(--accent)');
+      circle.setAttribute('class', 'scatterChart__point');
+      if (p.label) circle.setAttribute('title', p.label);
+      svg.appendChild(circle);
+    });
+
+    return svg;
+  }
+
   function buildLineChart(labels, series){
     const svgNs = 'http://www.w3.org/2000/svg';
     const width = 640;
@@ -1173,6 +1344,141 @@ export const REPORT_JS = `
       chartGrid.appendChild(card);
     }
 
+    if (analysis.tables.labInteraction && analysis.tables.labInteraction.length){
+      const { card, body } = buildChartCard(
+        'Lab interaction heatmap',
+        'Leakage delta by tutor lab x supervisor lab',
+        'Each cell is dual minus single leakage for that tutor lab baseline. Negative is improvement.'
+      );
+      const rows = analysis.tables.labInteraction.map((r) => ({
+        rowLabel: String(r.tutorLab || 'unknown'),
+        colLabel: String(r.supervisorLab || 'unknown'),
+        leakageDelta: r.leakageDelta,
+      }));
+      const rowLabels = Array.from(new Set(rows.map((r) => r.rowLabel))).sort(byString);
+      const colLabels = Array.from(new Set(rows.map((r) => r.colLabel))).sort(byString);
+      body.appendChild(buildHeatmap(rowLabels, colLabels, rows, 'leakageDelta', fmtPct));
+      chartGrid.appendChild(card);
+    }
+
+    if (analysis.tables.tutorPairTypeEffects && analysis.tables.tutorPairTypeEffects.length){
+      const { card, body } = buildChartCard(
+        'Leakage delta by tutor and lab pairing',
+        'Same-lab vs cross-lab per tutor',
+        'For each tutor, compares leakage delta for same-lab vs cross-lab supervisors.'
+      );
+      const rows = analysis.tables.tutorPairTypeEffects;
+      const labels = Array.from(new Set(rows.map((r) => String(r.tutorId || 'unknown'))));
+      const series = [
+        {
+          name: 'Same-lab',
+          color: 'var(--accent)',
+          values: labels.map((label) => {
+            const row = rows.find((r) => String(r.tutorId) === label && r.pairType === 'same-lab');
+            return row ? row.leakageDelta : null;
+          }),
+        },
+        {
+          name: 'Cross-lab',
+          color: 'var(--accent2)',
+          values: labels.map((label) => {
+            const row = rows.find((r) => String(r.tutorId) === label && r.pairType === 'cross-lab');
+            return row ? row.leakageDelta : null;
+          }),
+        },
+      ];
+      body.appendChild(buildGroupedBarChart(labels, series, fmtPct));
+      chartGrid.appendChild(card);
+    }
+
+    if (analysis.tables.bloomDifficultyEffects && analysis.tables.bloomDifficultyEffects.length){
+      const { card, body } = buildChartCard(
+        'Bloom x difficulty heatmap',
+        'Leakage delta (dual - single)',
+        'Shows where supervision helps most across curriculum complexity.'
+      );
+      const rows = analysis.tables.bloomDifficultyEffects.map((r) => ({
+        rowLabel: r.bloomLevel != null ? 'B' + r.bloomLevel : 'B?',
+        colLabel: r.difficulty != null ? String(r.difficulty) : 'unknown',
+        leakageDelta: r.leakageDelta,
+      }));
+      const difficultyRank = { easy: 1, medium: 2, hard: 3 };
+      const rowLabels = Array.from(new Set(rows.map((r) => r.rowLabel))).sort(byString);
+      const colLabels = Array.from(new Set(rows.map((r) => r.colLabel))).sort((a, b) => {
+        const ar = difficultyRank[String(a)] ?? 99;
+        const br = difficultyRank[String(b)] ?? 99;
+        if (ar !== br) return ar - br;
+        return String(a).localeCompare(String(b));
+      });
+      body.appendChild(buildHeatmap(rowLabels, colLabels, rows, 'leakageDelta', fmtPct));
+      chartGrid.appendChild(card);
+    }
+
+    if (analysis.tables.survivalByCondition && analysis.tables.survivalByCondition.length){
+      const { card, body } = buildChartCard(
+        'Survival curve',
+        'Probability of no leak yet by turn',
+        'Kaplan–Meier style: higher lines mean fewer leaks over time.'
+      );
+      const rows = analysis.tables.survivalByCondition.concat(
+        (analysis.tables.survivalByPairType || []).map((r) => ({
+          group: 'pair:' + r.group,
+          turnIndex: r.turnIndex,
+          survivalRate: r.survivalRate,
+        }))
+      );
+      const maxTurn = Math.max(0, ...rows.map((r) => r.turnIndex ?? 0));
+      const labels = Array.from({ length: maxTurn + 1 }, (_, i) => String(i + 1));
+      const buildSeries = (name, color, key) => {
+        const points = rows.filter((r) => r.group === key);
+        if (!points.length) return null;
+        const values = labels.map((_, idx) => {
+          const row = points.find((p) => p.turnIndex === idx);
+          return row ? row.survivalRate : 0;
+        });
+        return { name, color, values };
+      };
+      const series = [
+        buildSeries('Single', 'var(--danger)', 'single'),
+        buildSeries('Dual-loop', 'var(--ok)', 'dual-loop'),
+        buildSeries('Same-lab', 'var(--accent)', 'pair:same-lab'),
+        buildSeries('Cross-lab', 'var(--accent2)', 'pair:cross-lab'),
+      ].filter(Boolean);
+      body.appendChild(buildLineChart(labels, series));
+      body.appendChild(buildLegend(series));
+      chartGrid.appendChild(card);
+    }
+
+    if (analysis.tables.labEffects && analysis.tables.labEffects.length){
+      const { card, body } = buildChartCard(
+        'Leakage vs compliance',
+        'Lab and pairing trade-offs',
+        'Each point is a lab or lab pairing. Left/down is better.'
+      );
+      const labPoints = analysis.tables.labEffects.map((r) => ({
+        x: r.leakageDelta,
+        y: r.complianceDelta,
+        label: String(r.lab || 'unknown'),
+        color: 'var(--accent)',
+        shape: 'circle',
+      }));
+      const pairPoints = (analysis.tables.labPairTypeEffects || []).map((r) => ({
+        x: r.leakageDelta,
+        y: r.complianceDelta,
+        label: String(r.pairType || 'unknown'),
+        color: 'var(--accent2)',
+        shape: 'square',
+      }));
+      body.appendChild(buildScatterPlot(labPoints.concat(pairPoints)));
+      body.appendChild(
+        buildLegend([
+          { name: 'Lab', color: 'var(--accent)' },
+          { name: 'Pair type', color: 'var(--accent2)' },
+        ])
+      );
+      chartGrid.appendChild(card);
+    }
+
     if (analysis.tables.perTurn && analysis.tables.perTurn.byTurnIndex && analysis.tables.perTurn.byTurnIndex.length){
       const { card, body } = buildChartCard(
         'Outcomes by turn',
@@ -1271,6 +1577,48 @@ export const REPORT_JS = `
       { label: 'Early delta', value: (row) => row.earlyStopDelta, format: (v) => fmtPct(v) },
     ];
 
+    const labInteractionCols = [
+      { label: 'Tutor lab', value: (row) => row.tutorLab },
+      { label: 'Supervisor lab', value: (row) => row.supervisorLab },
+      { label: 'n single', value: (row) => row.nSingleRuns },
+      { label: 'n dual', value: (row) => row.nDualRuns },
+      { label: 'Leak single', value: (row) => row.leakageSingleRate, format: (v) => fmtPct(v) },
+      { label: 'Leak dual', value: (row) => row.leakageDualRate, format: (v) => fmtPct(v) },
+      { label: 'Leak delta', value: (row) => row.leakageDelta, format: (v) => fmtPct(v) },
+      { label: 'Comp single', value: (row) => row.complianceSingleRate, format: (v) => fmtPct(v) },
+      { label: 'Comp dual', value: (row) => row.complianceDualRate, format: (v) => fmtPct(v) },
+      { label: 'Comp delta', value: (row) => row.complianceDelta, format: (v) => fmtPct(v) },
+    ];
+
+    const tutorPairTypeCols = [
+      { label: 'Tutor', value: (row) => row.tutorId },
+      { label: 'Lab pair', value: (row) => row.pairType },
+      { label: 'n single', value: (row) => row.nSingleRuns },
+      { label: 'n dual', value: (row) => row.nDualRuns },
+      { label: 'Leak single', value: (row) => row.leakageSingleRate, format: (v) => fmtPct(v) },
+      { label: 'Leak dual', value: (row) => row.leakageDualRate, format: (v) => fmtPct(v) },
+      { label: 'Leak delta', value: (row) => row.leakageDelta, format: (v) => fmtPct(v) },
+      { label: 'Comp single', value: (row) => row.complianceSingleRate, format: (v) => fmtPct(v) },
+      { label: 'Comp dual', value: (row) => row.complianceDualRate, format: (v) => fmtPct(v) },
+      { label: 'Comp delta', value: (row) => row.complianceDelta, format: (v) => fmtPct(v) },
+    ];
+
+    const bloomDifficultyEffectCols = [
+      { label: 'Bloom', value: (row) => row.bloomLevel },
+      { label: 'Difficulty', value: (row) => row.difficulty },
+      { label: 'n single', value: (row) => row.nSingleRuns },
+      { label: 'n dual', value: (row) => row.nDualRuns },
+      { label: 'Leak single', value: (row) => row.leakageSingleRate, format: (v) => fmtPct(v) },
+      { label: 'Leak dual', value: (row) => row.leakageDualRate, format: (v) => fmtPct(v) },
+      { label: 'Leak delta', value: (row) => row.leakageDelta, format: (v) => fmtPct(v) },
+      { label: 'Comp single', value: (row) => row.complianceSingleRate, format: (v) => fmtPct(v) },
+      { label: 'Comp dual', value: (row) => row.complianceDualRate, format: (v) => fmtPct(v) },
+      { label: 'Comp delta', value: (row) => row.complianceDelta, format: (v) => fmtPct(v) },
+      { label: 'Halluc single', value: (row) => row.hallucinationSingleRate, format: (v) => fmtPct(v) },
+      { label: 'Halluc dual', value: (row) => row.hallucinationDualRate, format: (v) => fmtPct(v) },
+      { label: 'Halluc delta', value: (row) => row.hallucinationDelta, format: (v) => fmtPct(v) },
+    ];
+
     const turnRateCol = (label, rateKey) => ({
       label,
       value: (row) => row[rateKey],
@@ -1309,6 +1657,24 @@ export const REPORT_JS = `
         'Single vs dual-loop by lab pairing',
         analysis.tables.labPairTypeEffects,
         labPairTypeEffectCols
+      )
+    );
+
+    wrap.appendChild(
+      buildAnalysisPanel(
+        'Lab interaction',
+        'Tutor lab x supervisor lab deltas',
+        analysis.tables.labInteraction,
+        labInteractionCols
+      )
+    );
+
+    wrap.appendChild(
+      buildAnalysisPanel(
+        'Tutor pairing effects',
+        'Same-lab vs cross-lab per tutor',
+        analysis.tables.tutorPairTypeEffects,
+        tutorPairTypeCols
       )
     );
 
@@ -1402,6 +1768,15 @@ export const REPORT_JS = `
           { label: 'Difficulty', value: (row) => row.difficulty },
           ...baseRunCols,
         ]
+      )
+    );
+
+    wrap.appendChild(
+      buildAnalysisPanel(
+        'Bloom x difficulty effects',
+        'Dual minus single by Bloom level and difficulty',
+        analysis.tables.bloomDifficultyEffects,
+        bloomDifficultyEffectCols
       )
     );
 
