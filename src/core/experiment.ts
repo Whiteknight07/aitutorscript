@@ -1,8 +1,10 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+
 import pLimit from 'p-limit';
 import { Mutex } from 'async-mutex';
 import cliProgress from 'cli-progress';
+
 import { parseArgs } from '../utils/args';
 import { simulateConversation } from './conversation';
 import { generateQuestionsBatch } from '../agents/question-gen';
@@ -11,6 +13,7 @@ import { createJsonlWriter, ensureDir, nowIso } from '../utils/util';
 import type { Question, RunRecord, TimedCallRecord } from '../types';
 import { runJudgeIfEnabled, runTurnJudge } from '../agents/judge';
 import { SummaryAggregator } from '../output/summary';
+import { buildAnalysis } from '../output/analysis';
 import { renderReportHtml } from '../output/report';
 
 // Type for a single run configuration
@@ -381,6 +384,10 @@ export async function runExperiments({
     // eslint-disable-next-line no-console
     console.log(`   ${join(runOutDir, 'summary.json')}`);
     // eslint-disable-next-line no-console
+    console.log(`   ${join(runOutDir, 'analysis.json')}`);
+    // eslint-disable-next-line no-console
+    console.log(`   ${join(runOutDir, 'analysis')}`);
+    // eslint-disable-next-line no-console
     console.log(`   ${join(runOutDir, 'report.html')}`);
     // eslint-disable-next-line no-console
     console.log(`${'─'.repeat(50)}\n`);
@@ -473,7 +480,18 @@ async function writePartialOutputs({
     ...aggregator.toSummaryObject(),
   };
 
+  const analysis = buildAnalysis({
+    runId,
+    createdAtIso,
+    records,
+  });
+
   await writeFile(join(runOutDir, 'summary.json'), JSON.stringify(summaryObject, null, 2));
+  await writeFile(join(runOutDir, 'analysis.json'), JSON.stringify(analysis, null, 2));
+  if (state !== 'running') {
+    const analysisDir = join(runOutDir, 'analysis');
+    await ensureDir(analysisDir);
+  }
   await writeFile(
     join(runOutDir, 'report.html'),
     renderReportHtml({
@@ -482,6 +500,7 @@ async function writePartialOutputs({
       args,
       questions,
       summary: summaryObject,
+      analysis,
       records,
       status: {
         state,

@@ -6,6 +6,7 @@ export type ReportInput = {
   args: unknown;
   questions: unknown;
   summary: unknown;
+  analysis: unknown;
   records: RunRecord[];
   status: {
     state: 'running' | 'complete' | 'failed';
@@ -27,4 +28,3 @@ export type ReportInput = {
     } | null;
   };
 };
-

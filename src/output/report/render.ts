@@ -16,6 +16,7 @@ export function renderReportHtml(input: ReportInput): string {
     args: input.args,
     questions: input.questions,
     summary: input.summary,
+    analysis: input.analysis,
     records: input.records,
   };
 
@@ -53,12 +54,17 @@ export function renderReportHtml(input: ReportInput): string {
 
         <nav class="tabs" role="tablist" aria-label="Report sections">
           <button class="tab" id="tabOverview" type="button" role="tab" aria-selected="false">Overview</button>
+          <button class="tab" id="tabAnalysis" type="button" role="tab" aria-selected="false">Analysis</button>
           <button class="tab" id="tabQuestions" type="button" role="tab" aria-selected="true">Questions</button>
         </nav>
 
         <main class="views">
           <section class="view" id="viewOverview" hidden>
             <div id="overviewRoot"></div>
+          </section>
+
+          <section class="view" id="viewAnalysis" hidden>
+            <div id="analysisRoot"></div>
           </section>
 
           <section class="view" id="viewQuestions">
@@ -156,4 +162,3 @@ export function renderReportHtml(input: ReportInput): string {
   </body>
 </html>`;
 }
-

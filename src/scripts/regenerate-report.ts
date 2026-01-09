@@ -1,5 +1,8 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
+
+import { ensureDir } from '../utils/util';
+import { buildAnalysis } from '../output/analysis';
 import { renderReportHtml } from '../output/report';
 
 type RunConfig = {
@@ -66,12 +69,19 @@ async function main() {
   const args = runConfig.args ?? summaryJson.args ?? {};
   const questions = questionsJson.questions ?? [];
 
+  const analysis = buildAnalysis({ runId, createdAtIso, records });
+
+  await writeFile(join(runDir, 'analysis.json'), JSON.stringify(analysis, null, 2));
+  const analysisDir = join(runDir, 'analysis');
+  await ensureDir(analysisDir);
+
   const html = renderReportHtml({
     runId,
     createdAtIso,
     args,
     questions,
     summary: summaryJson,
+    analysis,
     records,
     status: {
       state: completedRuns >= plannedRuns ? 'complete' : 'running',
@@ -94,4 +104,3 @@ main().catch((err) => {
   console.error(err instanceof Error ? err.message : err);
   process.exit(1);
 });
-

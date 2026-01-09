@@ -1054,6 +1054,166 @@ html[data-theme="dark"] .card::before{
   z-index: 1;
 }
 
+.analysisGrid{
+  display:grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+.analysisNote{
+  font-size: 11px;
+  color: var(--muted2);
+}
+.analysisPanel{
+  border: 2px solid var(--ink);
+  background: var(--paper);
+  overflow: clip;
+}
+html[data-theme="dark"] .analysisPanel{ background: var(--paper); }
+.analysisPanel__hd{
+  display:flex;
+  align-items:flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px 14px;
+  border-bottom: 2px solid var(--ink);
+  background: var(--paper3);
+}
+html[data-theme="dark"] .analysisPanel__hd{ background: var(--paper3); }
+.analysisPanel__meta{
+  display:flex;
+  flex-direction: column;
+}
+.analysisPanel__title{
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.analysisPanel__sub{
+  margin-top: 6px;
+  color: var(--muted2);
+  font-size: 12px;
+}
+.analysisPanel__actions{
+  display:flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.analysisPanel__bd{ padding: 16px; }
+.tableWrap{
+  border: 2px solid var(--line);
+  background: var(--paper2);
+  padding: 8px;
+  overflow-x: auto;
+}
+html[data-theme="dark"] .tableWrap{ background: var(--paper2); }
+
+.analysisCharts{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.chartCard{
+  border: 2px solid var(--ink);
+  background: var(--paper);
+  padding: 16px;
+}
+html[data-theme="dark"] .chartCard{ background: var(--paper); }
+.chartCard__hd{
+  margin-bottom: 12px;
+}
+.chartCard__title{
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.chartCard__sub{
+  margin-top: 6px;
+  color: var(--muted2);
+  font-size: 12px;
+}
+.barChart{
+  display:flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.barChart__row{
+  display:grid;
+  grid-template-columns: 120px minmax(0, 1fr) 70px;
+  gap: 10px;
+  align-items: center;
+}
+.barChart__label{
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--muted2);
+}
+.barChart__bar{
+  background: var(--paper2);
+  border: 2px solid var(--line);
+  height: 14px;
+  position: relative;
+}
+.barChart__bar span{
+  display:block;
+  height: 100%;
+  background: var(--accent);
+}
+.barChart__value{
+  text-align: right;
+  font-size: 11px;
+  color: var(--muted);
+}
+.lineChart{
+  width: 100%;
+  height: 220px;
+  display:block;
+}
+.lineChart__bg{
+  fill: var(--paper2);
+  stroke: var(--line);
+  stroke-width: 2;
+}
+.lineChart__grid{
+  stroke: var(--line);
+  stroke-width: 1;
+}
+.lineChart__line{
+  fill: none;
+  stroke-width: 2.5;
+}
+.lineChart__label{
+  font-size: 10px;
+  fill: var(--muted2);
+}
+.lineChart__tick{
+  font-size: 10px;
+  fill: var(--muted2);
+  text-anchor: middle;
+}
+.chartLegend{
+  margin-top: 10px;
+  display:flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  color: var(--muted2);
+}
+.chartLegend__item{
+  display:flex;
+  align-items: center;
+  gap: 6px;
+}
+.chartLegend__swatch{
+  width: 10px;
+  height: 10px;
+  display:inline-block;
+  border: 1px solid var(--line);
+}
+
 .pairingPanel{
   border: 2px solid var(--ink);
   background: var(--paper);
@@ -1139,6 +1299,8 @@ html[data-theme="dark"] .miniStat{ background: var(--paper); }
   .drawer{ inset: auto 16px 16px 16px; max-height: 70vh; }
   .cards{ grid-template-columns: 1fr 1fr; }
   .condGrid{ grid-template-columns: 1fr; }
+  .analysisCharts{ grid-template-columns: 1fr; }
+  .barChart__row{ grid-template-columns: 90px minmax(0, 1fr) 60px; }
 }
 
 @media (prefers-reduced-motion: reduce){
@@ -1151,6 +1313,8 @@ export const REPORT_JS = `
   const data = window.__HARNESS_DATA__ || {};
 
   const records = Array.isArray(data.records) ? data.records : [];
+  const analysis = data.analysis || null;
+  const hasAnalysis = analysis && analysis.tables;
   const questionsRaw = Array.isArray(data.questions) ? data.questions : [];
 
   function byString(a, b){
@@ -1187,6 +1351,7 @@ export const REPORT_JS = `
     return (value / 1000).toFixed(2) + 's';
   }
 
+
   function safeJson(value){
     try{ return JSON.stringify(value, null, 2); }catch{ return String(value); }
   }
@@ -1194,12 +1359,14 @@ export const REPORT_JS = `
   function el(id){ return document.getElementById(id); }
 
   const viewOverview = el('viewOverview');
+  const viewAnalysis = el('viewAnalysis');
   const viewQuestions = el('viewQuestions');
   const statusPill = el('statusPill');
   const metaRunId = el('metaRunId');
   const metaCreatedAt = el('metaCreatedAt');
 
   const tabOverview = el('tabOverview');
+  const tabAnalysis = el('tabAnalysis');
   const tabQuestions = el('tabQuestions');
 
   const themeToggle = el('themeToggle');
@@ -1207,6 +1374,7 @@ export const REPORT_JS = `
   const downloadJsonBtn = el('downloadJson');
 
   const overviewRoot = el('overviewRoot');
+  const analysisRoot = el('analysisRoot');
 
   const qCounts = el('qCounts');
   const qSearch = el('qSearch');
@@ -1535,7 +1703,7 @@ export const REPORT_JS = `
   }
 
   const ui = {
-    tab: 'questions',
+    tab: hasAnalysis ? 'analysis' : 'questions',
     qid: allQuestionIds[0] || 'unknown',
     pairingId: pairings[0] || '',
     condition: conditions[0] || '',
@@ -1593,7 +1761,7 @@ export const REPORT_JS = `
     if (!m) return;
     const parsed = decodeHashState(m[1]);
     if (!parsed || typeof parsed !== 'object') return;
-    if (parsed.tab === 'overview' || parsed.tab === 'questions') ui.tab = parsed.tab;
+    if (parsed.tab === 'overview' || parsed.tab === 'analysis' || parsed.tab === 'questions') ui.tab = parsed.tab;
     if (typeof parsed.qid === 'string' && allQuestionIds.includes(parsed.qid)) ui.qid = parsed.qid;
     if (typeof parsed.pairingId === 'string' && pairings.includes(parsed.pairingId)) ui.pairingId = parsed.pairingId;
     if (typeof parsed.condition === 'string' && conditions.includes(parsed.condition)) ui.condition = parsed.condition;
@@ -1712,8 +1880,10 @@ export const REPORT_JS = `
 
   function renderTabs(){
     tabOverview.setAttribute('aria-selected', ui.tab === 'overview' ? 'true' : 'false');
+    tabAnalysis.setAttribute('aria-selected', ui.tab === 'analysis' ? 'true' : 'false');
     tabQuestions.setAttribute('aria-selected', ui.tab === 'questions' ? 'true' : 'false');
     viewOverview.hidden = ui.tab !== 'overview';
+    viewAnalysis.hidden = ui.tab !== 'analysis';
     viewQuestions.hidden = ui.tab !== 'questions';
   }
 
@@ -1895,6 +2065,655 @@ export const REPORT_JS = `
     wrap.appendChild(argsBlock);
 
     overviewRoot.appendChild(wrap);
+  }
+
+  function buildTable(columns, rows){
+    const table = document.createElement('table');
+    table.className = 'table';
+    const thead = document.createElement('thead');
+    const hr = document.createElement('tr');
+    for (const col of columns){
+      const th = document.createElement('th');
+      th.textContent = col.label;
+      hr.appendChild(th);
+    }
+    thead.appendChild(hr);
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+    for (const row of rows){
+      const tr = document.createElement('tr');
+      for (const col of columns){
+        const td = document.createElement('td');
+        const raw = col.value(row);
+        const text = col.format ? col.format(raw, row) : (raw == null ? 'n/a' : String(raw));
+        td.textContent = text;
+        tr.appendChild(td);
+      }
+      tbody.appendChild(tr);
+    }
+    table.appendChild(tbody);
+    return table;
+  }
+
+  function buildAnalysisPanel(title, subtitle, rows, columns){
+    const panel = document.createElement('div');
+    panel.className = 'analysisPanel';
+    const hd = document.createElement('div');
+    hd.className = 'analysisPanel__hd';
+    const meta = document.createElement('div');
+    meta.className = 'analysisPanel__meta';
+    const t = document.createElement('div');
+    t.className = 'analysisPanel__title';
+    t.textContent = title;
+    meta.appendChild(t);
+    if (subtitle){
+      const sub = document.createElement('div');
+      sub.className = 'analysisPanel__sub mono';
+      sub.textContent = subtitle;
+      meta.appendChild(sub);
+    }
+    hd.appendChild(meta);
+
+    panel.appendChild(hd);
+
+    const bd = document.createElement('div');
+    bd.className = 'analysisPanel__bd';
+    if (!rows || !rows.length){
+      const empty = document.createElement('div');
+      empty.className = 'emptyState';
+      empty.textContent = 'No data in this section.';
+      bd.appendChild(empty);
+    }else{
+      const wrap = document.createElement('div');
+      wrap.className = 'tableWrap';
+      wrap.appendChild(buildTable(columns, rows));
+      bd.appendChild(wrap);
+    }
+    panel.appendChild(bd);
+    return panel;
+  }
+
+  function buildChartCard(title, subtitle){
+    const card = document.createElement('div');
+    card.className = 'chartCard';
+    const hd = document.createElement('div');
+    hd.className = 'chartCard__hd';
+    const t = document.createElement('div');
+    t.className = 'chartCard__title';
+    t.textContent = title;
+    hd.appendChild(t);
+    if (subtitle){
+      const sub = document.createElement('div');
+      sub.className = 'chartCard__sub mono';
+      sub.textContent = subtitle;
+      hd.appendChild(sub);
+    }
+    card.appendChild(hd);
+    const bd = document.createElement('div');
+    bd.className = 'chartCard__bd';
+    card.appendChild(bd);
+    return { card, body: bd };
+  }
+
+  function buildBarChartRows(labels, values, formatter){
+    const wrap = document.createElement('div');
+    wrap.className = 'barChart';
+    const maxVal = Math.max(0, ...values.map(v => (Number.isFinite(v) ? v : 0)));
+    labels.forEach((label, idx) => {
+      const value = values[idx];
+      const safeValue = Number.isFinite(value) ? value : 0;
+      const row = document.createElement('div');
+      row.className = 'barChart__row';
+      const lab = document.createElement('div');
+      lab.className = 'barChart__label mono';
+      lab.textContent = label;
+      const bar = document.createElement('div');
+      bar.className = 'barChart__bar';
+      const fill = document.createElement('span');
+      const pct = maxVal > 0 ? Math.max(0, Math.min(1, safeValue / maxVal)) : 0;
+      fill.style.width = (pct * 100).toFixed(1) + '%';
+      bar.appendChild(fill);
+      const val = document.createElement('div');
+      val.className = 'barChart__value mono';
+      val.textContent = formatter(value);
+      row.appendChild(lab);
+      row.appendChild(bar);
+      row.appendChild(val);
+      wrap.appendChild(row);
+    });
+    return wrap;
+  }
+
+  function buildBarChartRowsWithValues(labels, barValues, labelValues, formatter){
+    const wrap = document.createElement('div');
+    wrap.className = 'barChart';
+    const maxVal = Math.max(0, ...barValues.map(v => (Number.isFinite(v) ? Math.abs(v) : 0)));
+    labels.forEach((label, idx) => {
+      const barValue = barValues[idx];
+      const labelValue = labelValues[idx];
+      const safeBar = Number.isFinite(barValue) ? Math.abs(barValue) : 0;
+      const row = document.createElement('div');
+      row.className = 'barChart__row';
+      const lab = document.createElement('div');
+      lab.className = 'barChart__label mono';
+      lab.textContent = label;
+      const bar = document.createElement('div');
+      bar.className = 'barChart__bar';
+      const fill = document.createElement('span');
+      const pct = maxVal > 0 ? Math.max(0, Math.min(1, safeBar / maxVal)) : 0;
+      fill.style.width = (pct * 100).toFixed(1) + '%';
+      bar.appendChild(fill);
+      const val = document.createElement('div');
+      val.className = 'barChart__value mono';
+      val.textContent = formatter(labelValue);
+      row.appendChild(lab);
+      row.appendChild(bar);
+      row.appendChild(val);
+      wrap.appendChild(row);
+    });
+    return wrap;
+  }
+
+  function buildLineChart(labels, series){
+    const svgNs = 'http://www.w3.org/2000/svg';
+    const width = 640;
+    const height = 220;
+    const pad = 28;
+    const innerW = width - pad * 2;
+    const innerH = height - pad * 2;
+
+    const svg = document.createElementNS(svgNs, 'svg');
+    svg.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+    svg.classList.add('lineChart');
+
+    const bg = document.createElementNS(svgNs, 'rect');
+    bg.setAttribute('x', String(pad));
+    bg.setAttribute('y', String(pad));
+    bg.setAttribute('width', String(innerW));
+    bg.setAttribute('height', String(innerH));
+    bg.setAttribute('rx', '2');
+    bg.setAttribute('class', 'lineChart__bg');
+    svg.appendChild(bg);
+
+    const grid = [0, 0.5, 1];
+    grid.forEach((g) => {
+      const y = pad + innerH - innerH * g;
+      const line = document.createElementNS(svgNs, 'line');
+      line.setAttribute('x1', String(pad));
+      line.setAttribute('x2', String(pad + innerW));
+      line.setAttribute('y1', String(y));
+      line.setAttribute('y2', String(y));
+      line.setAttribute('class', 'lineChart__grid');
+      svg.appendChild(line);
+
+      const label = document.createElementNS(svgNs, 'text');
+      label.setAttribute('x', String(4));
+      label.setAttribute('y', String(y + 4));
+      label.setAttribute('class', 'lineChart__label');
+      label.textContent = String(Math.round(g * 100)) + '%';
+      svg.appendChild(label);
+    });
+
+    const count = labels.length;
+    const xAt = (i) => pad + innerW * (count <= 1 ? 0 : i / (count - 1));
+    const yAt = (v) => pad + innerH - innerH * Math.max(0, Math.min(1, v || 0));
+
+    series.forEach((s) => {
+      const points = s.values.map((v, i) => xAt(i) + ',' + yAt(v)).join(' ');
+      const poly = document.createElementNS(svgNs, 'polyline');
+      poly.setAttribute('points', points);
+      poly.setAttribute('class', 'lineChart__line');
+      poly.style.stroke = s.color;
+      svg.appendChild(poly);
+    });
+
+    const step = count > 10 ? 2 : 1;
+    labels.forEach((label, i) => {
+      if (i % step !== 0) return;
+      const x = xAt(i);
+      const text = document.createElementNS(svgNs, 'text');
+      text.setAttribute('x', String(x));
+      text.setAttribute('y', String(height - 6));
+      text.setAttribute('class', 'lineChart__tick');
+      text.textContent = label;
+      svg.appendChild(text);
+    });
+
+    return svg;
+  }
+
+  function buildLegend(series){
+    const legend = document.createElement('div');
+    legend.className = 'chartLegend';
+    series.forEach((s) => {
+      const item = document.createElement('div');
+      item.className = 'chartLegend__item';
+      const swatch = document.createElement('span');
+      swatch.className = 'chartLegend__swatch';
+      swatch.style.background = s.color;
+      const label = document.createElement('span');
+      label.textContent = s.name;
+      item.appendChild(swatch);
+      item.appendChild(label);
+      legend.appendChild(item);
+    });
+    return legend;
+  }
+
+  function renderAnalysis(){
+    if (!analysisRoot) return;
+    analysisRoot.innerHTML = '';
+    if (!analysis || !analysis.tables){
+      const empty = document.createElement('div');
+      empty.className = 'emptyState';
+      empty.textContent = 'Analysis data is missing for this report.';
+      analysisRoot.appendChild(empty);
+      return;
+    }
+
+    const wrap = document.createElement('div');
+    wrap.className = 'analysisGrid';
+
+    const overall = analysis.tables.overall && analysis.tables.overall[0] ? analysis.tables.overall[0] : null;
+    if (overall){
+      const cards = document.createElement('div');
+      cards.className = 'cards';
+
+      const c1 = document.createElement('div');
+      c1.className = 'card';
+      c1.innerHTML =
+        '<div class="k">Runs</div><div class="v">' +
+        escapeHtml(overall.nRuns) +
+        '</div><div class="s mono">judged ' +
+        escapeHtml(overall.nJudgedRuns) +
+        '</div>';
+
+      const c2 = document.createElement('div');
+      c2.className = 'card';
+      c2.innerHTML =
+        '<div class="k">Leakage Rate</div><div class="v">' +
+        escapeHtml(fmtPct(overall.leakageRate)) +
+        '</div><div class="s mono">count ' +
+        escapeHtml(overall.leakageCount) +
+        '</div>';
+
+      const c3 = document.createElement('div');
+      c3.className = 'card';
+      c3.innerHTML =
+        '<div class="k">Hallucination Rate</div><div class="v">' +
+        escapeHtml(fmtPct(overall.hallucinationRate)) +
+        '</div><div class="s mono">count ' +
+        escapeHtml(overall.hallucinationCount) +
+        '</div>';
+
+      const c4 = document.createElement('div');
+      c4.className = 'card';
+      c4.innerHTML =
+        '<div class="k">Compliance Rate</div><div class="v">' +
+        escapeHtml(fmtPct(overall.complianceRate)) +
+        '</div><div class="s mono">count ' +
+        escapeHtml(overall.complianceCount) +
+        '</div>';
+
+      const c5 = document.createElement('div');
+      c5.className = 'card';
+      c5.innerHTML =
+        '<div class="k">Early Stop</div><div class="v">' +
+        escapeHtml(fmtPct(overall.earlyStopRate)) +
+        '</div><div class="s mono">leakage ' +
+        escapeHtml(overall.earlyStopLeakageCount) +
+        '</div>';
+
+      const c6 = document.createElement('div');
+      c6.className = 'card';
+      c6.innerHTML =
+        '<div class="k">Latency Mean</div><div class="v">' +
+        escapeHtml(fmtMs(overall.latencyMeanMs)) +
+        '</div><div class="s mono">p90 ' +
+        escapeHtml(fmtMs(overall.latencyP90Ms)) +
+        '</div>';
+
+      const c7 = document.createElement('div');
+      c7.className = 'card';
+      c7.innerHTML =
+        '<div class="k">Supervisor Interv.</div><div class="v">' +
+        escapeHtml(fmtPct(overall.loopInterventionRate)) +
+        '</div><div class="s mono">fix ' +
+        escapeHtml(fmtPct(overall.loopFixRate)) +
+        '</div>';
+
+      cards.appendChild(c1);
+      cards.appendChild(c2);
+      cards.appendChild(c3);
+      cards.appendChild(c4);
+      cards.appendChild(c5);
+      cards.appendChild(c6);
+      cards.appendChild(c7);
+      wrap.appendChild(cards);
+    }
+
+    const chartGrid = document.createElement('div');
+    chartGrid.className = 'analysisCharts';
+
+    if (analysis.tables.byTutor && analysis.tables.byTutor.length){
+      const { card, body } = buildChartCard('Leakage by tutor', 'Run-level leakage rate');
+      const labels = analysis.tables.byTutor.map((r) => String(r.tutorId || 'unknown'));
+      const values = analysis.tables.byTutor.map((r) => r.leakageRate);
+      body.appendChild(buildBarChartRows(labels, values, fmtPct));
+      chartGrid.appendChild(card);
+    }
+
+    if (analysis.tables.byCondition && analysis.tables.byCondition.length){
+      const { card, body } = buildChartCard('Leakage by condition', 'Single vs dual-loop');
+      const labels = analysis.tables.byCondition.map((r) => String(r.condition || 'unknown'));
+      const values = analysis.tables.byCondition.map((r) => r.leakageRate);
+      body.appendChild(buildBarChartRows(labels, values, fmtPct));
+      chartGrid.appendChild(card);
+    }
+
+    if (analysis.tables.labEffects && analysis.tables.labEffects.length){
+      const { card, body } = buildChartCard('Leakage delta by supervisor lab', 'Dual - single (bar = magnitude)');
+      const rows = analysis.tables.labEffects;
+      const labels = rows.map((r) => String(r.lab || 'unknown'));
+      const barValues = rows.map((r) => r.leakageDelta ?? 0);
+      const labelValues = rows.map((r) => r.leakageDelta);
+      body.appendChild(buildBarChartRowsWithValues(labels, barValues, labelValues, fmtPct));
+      chartGrid.appendChild(card);
+    }
+
+    if (analysis.tables.labPairTypeEffects && analysis.tables.labPairTypeEffects.length){
+      const { card, body } = buildChartCard('Leakage delta by lab pairing', 'Same-lab vs cross-lab (bar = magnitude)');
+      const rows = analysis.tables.labPairTypeEffects;
+      const labels = rows.map((r) => String(r.pairType || 'unknown'));
+      const barValues = rows.map((r) => r.leakageDelta ?? 0);
+      const labelValues = rows.map((r) => r.leakageDelta);
+      body.appendChild(buildBarChartRowsWithValues(labels, barValues, labelValues, fmtPct));
+      chartGrid.appendChild(card);
+    }
+
+    if (analysis.tables.labEffects && analysis.tables.labEffects.length){
+      const { card, body } = buildChartCard('Compliance delta by supervisor lab', 'Dual - single (bar = magnitude)');
+      const rows = analysis.tables.labEffects;
+      const labels = rows.map((r) => String(r.lab || 'unknown'));
+      const barValues = rows.map((r) => r.complianceDelta ?? 0);
+      const labelValues = rows.map((r) => r.complianceDelta);
+      body.appendChild(buildBarChartRowsWithValues(labels, barValues, labelValues, fmtPct));
+      chartGrid.appendChild(card);
+    }
+
+    if (analysis.tables.labPairTypeEffects && analysis.tables.labPairTypeEffects.length){
+      const { card, body } = buildChartCard('Compliance delta by lab pairing', 'Same-lab vs cross-lab (bar = magnitude)');
+      const rows = analysis.tables.labPairTypeEffects;
+      const labels = rows.map((r) => String(r.pairType || 'unknown'));
+      const barValues = rows.map((r) => r.complianceDelta ?? 0);
+      const labelValues = rows.map((r) => r.complianceDelta);
+      body.appendChild(buildBarChartRowsWithValues(labels, barValues, labelValues, fmtPct));
+      chartGrid.appendChild(card);
+    }
+
+    if (analysis.tables.perTurn && analysis.tables.perTurn.byTurnIndex && analysis.tables.perTurn.byTurnIndex.length){
+      const { card, body } = buildChartCard('Outcomes by turn', 'Per-turn leakage, hallucination, compliance');
+      const rows = analysis.tables.perTurn.byTurnIndex;
+      const labels = rows.map((r) => String((r.turnIndex ?? 0) + 1));
+      const series = [
+        { name: 'Leakage', color: 'var(--danger)', values: rows.map((r) => r.leakageRate || 0) },
+        { name: 'Hallucination', color: 'var(--warn)', values: rows.map((r) => r.hallucinationRate || 0) },
+        { name: 'Compliance', color: 'var(--ok)', values: rows.map((r) => r.complianceRate || 0) },
+      ];
+      body.appendChild(buildLineChart(labels, series));
+      body.appendChild(buildLegend(series));
+      chartGrid.appendChild(card);
+    }
+
+    if (chartGrid.children.length){
+      wrap.appendChild(chartGrid);
+    }
+
+    const rateCol = (label, rateKey) => ({
+      label,
+      value: (row) => row[rateKey],
+      format: (_, row) => fmtPct(row[rateKey]),
+    });
+    const latencyMeanCol = {
+      label: 'Latency mean',
+      value: (row) => row.latencyMeanMs,
+      format: (_, row) => fmtMs(row.latencyMeanMs),
+    };
+    const loopIntervCol = {
+      label: 'Sup. interv.',
+      value: (row) => row.loopInterventionRate,
+      format: (_, row) => fmtPct(row.loopInterventionRate),
+    };
+
+    const baseRunCols = [
+      { label: 'Runs', value: (row) => row.nRuns },
+      { label: 'Judged', value: (row) => row.nJudgedRuns },
+      rateCol('Leakage', 'leakageRate'),
+      rateCol('Halluc', 'hallucinationRate'),
+      rateCol('Compliance', 'complianceRate'),
+      rateCol('Early stop', 'earlyStopRate'),
+      latencyMeanCol,
+      loopIntervCol,
+    ];
+
+    const conditionEffectsCols = [
+      { label: 'Tutor', value: (row) => row.tutorId },
+      { label: 'n single', value: (row) => row.nSingleRuns },
+      { label: 'n dual', value: (row) => row.nDualRuns },
+      { label: 'Leak single', value: (row) => row.leakageSingleRate, format: (v) => fmtPct(v) },
+      { label: 'Leak dual', value: (row) => row.leakageDualRate, format: (v) => fmtPct(v) },
+      { label: 'Leak delta', value: (row) => row.leakageDelta, format: (v) => fmtPct(v) },
+      { label: 'Halluc single', value: (row) => row.hallucinationSingleRate, format: (v) => fmtPct(v) },
+      { label: 'Halluc dual', value: (row) => row.hallucinationDualRate, format: (v) => fmtPct(v) },
+      { label: 'Halluc delta', value: (row) => row.hallucinationDelta, format: (v) => fmtPct(v) },
+      { label: 'Comp single', value: (row) => row.complianceSingleRate, format: (v) => fmtPct(v) },
+      { label: 'Comp dual', value: (row) => row.complianceDualRate, format: (v) => fmtPct(v) },
+      { label: 'Comp delta', value: (row) => row.complianceDelta, format: (v) => fmtPct(v) },
+      { label: 'Early single', value: (row) => row.earlyStopSingleRate, format: (v) => fmtPct(v) },
+      { label: 'Early dual', value: (row) => row.earlyStopDualRate, format: (v) => fmtPct(v) },
+      { label: 'Early delta', value: (row) => row.earlyStopDelta, format: (v) => fmtPct(v) },
+    ];
+
+    const labEffectCols = [
+      { label: 'Lab', value: (row) => row.lab },
+      { label: 'Supervisors', value: (row) => row.supervisorCount },
+      { label: 'n single', value: (row) => row.nSingleRuns },
+      { label: 'n dual', value: (row) => row.nDualRuns },
+      { label: 'Leak single', value: (row) => row.leakageSingleRate, format: (v) => fmtPct(v) },
+      { label: 'Leak dual', value: (row) => row.leakageDualRate, format: (v) => fmtPct(v) },
+      { label: 'Leak delta', value: (row) => row.leakageDelta, format: (v) => fmtPct(v) },
+      { label: 'Comp single', value: (row) => row.complianceSingleRate, format: (v) => fmtPct(v) },
+      { label: 'Comp dual', value: (row) => row.complianceDualRate, format: (v) => fmtPct(v) },
+      { label: 'Comp delta', value: (row) => row.complianceDelta, format: (v) => fmtPct(v) },
+      { label: 'Early single', value: (row) => row.earlyStopSingleRate, format: (v) => fmtPct(v) },
+      { label: 'Early dual', value: (row) => row.earlyStopDualRate, format: (v) => fmtPct(v) },
+      { label: 'Early delta', value: (row) => row.earlyStopDelta, format: (v) => fmtPct(v) },
+    ];
+
+    const labPairTypeEffectCols = [
+      { label: 'Lab pair', value: (row) => row.pairType },
+      { label: 'n single', value: (row) => row.nSingleRuns },
+      { label: 'n dual', value: (row) => row.nDualRuns },
+      { label: 'Leak single', value: (row) => row.leakageSingleRate, format: (v) => fmtPct(v) },
+      { label: 'Leak dual', value: (row) => row.leakageDualRate, format: (v) => fmtPct(v) },
+      { label: 'Leak delta', value: (row) => row.leakageDelta, format: (v) => fmtPct(v) },
+      { label: 'Comp single', value: (row) => row.complianceSingleRate, format: (v) => fmtPct(v) },
+      { label: 'Comp dual', value: (row) => row.complianceDualRate, format: (v) => fmtPct(v) },
+      { label: 'Comp delta', value: (row) => row.complianceDelta, format: (v) => fmtPct(v) },
+      { label: 'Early single', value: (row) => row.earlyStopSingleRate, format: (v) => fmtPct(v) },
+      { label: 'Early dual', value: (row) => row.earlyStopDualRate, format: (v) => fmtPct(v) },
+      { label: 'Early delta', value: (row) => row.earlyStopDelta, format: (v) => fmtPct(v) },
+    ];
+
+    const turnRateCol = (label, rateKey) => ({
+      label,
+      value: (row) => row[rateKey],
+      format: (_, row) => fmtPct(row[rateKey]),
+    });
+    const baseTurnCols = [
+      { label: 'Turns', value: (row) => row.nTurns },
+      { label: 'Judged', value: (row) => row.nJudgedTurns },
+      turnRateCol('Leakage', 'leakageRate'),
+      turnRateCol('Halluc', 'hallucinationRate'),
+      turnRateCol('Compliance', 'complianceRate'),
+      turnRateCol('Terminate', 'terminationRate'),
+    ];
+
+    wrap.appendChild(
+      buildAnalysisPanel(
+        'Condition effects',
+        'Single vs dual-loop by tutor',
+        analysis.tables.conditionEffects,
+        conditionEffectsCols
+      )
+    );
+
+    wrap.appendChild(
+      buildAnalysisPanel(
+        'Lab effects',
+        'Single vs dual-loop by supervisor lab',
+        analysis.tables.labEffects,
+        labEffectCols
+      )
+    );
+
+    wrap.appendChild(
+      buildAnalysisPanel(
+        'Lab pair effects',
+        'Single vs dual-loop by lab pairing',
+        analysis.tables.labPairTypeEffects,
+        labPairTypeEffectCols
+      )
+    );
+
+    wrap.appendChild(
+      buildAnalysisPanel(
+        'By tutor',
+        'Aggregate outcomes by tutor',
+        analysis.tables.byTutor,
+        [{ label: 'Tutor', value: (row) => row.tutorId }, ...baseRunCols]
+      )
+    );
+
+    wrap.appendChild(
+      buildAnalysisPanel(
+        'By supervisor',
+        'Dual-loop outcomes by supervisor',
+        analysis.tables.bySupervisor,
+        [{ label: 'Supervisor', value: (row) => row.supervisorId }, ...baseRunCols]
+      )
+    );
+
+    wrap.appendChild(
+      buildAnalysisPanel(
+        'By tutor lab',
+        'Aggregate outcomes by tutor lab',
+        analysis.tables.byTutorLab,
+        [{ label: 'Tutor lab', value: (row) => row.tutorLab }, ...baseRunCols]
+      )
+    );
+
+    wrap.appendChild(
+      buildAnalysisPanel(
+        'By supervisor lab',
+        'Dual-loop outcomes by supervisor lab',
+        analysis.tables.bySupervisorLab,
+        [{ label: 'Supervisor lab', value: (row) => row.supervisorLab }, ...baseRunCols]
+      )
+    );
+
+    wrap.appendChild(
+      buildAnalysisPanel(
+        'Tutor x supervisor',
+        'Dual-loop outcomes by tutor and supervisor',
+        analysis.tables.byTutorSupervisor,
+        [
+          { label: 'Tutor', value: (row) => row.tutorId },
+          { label: 'Supervisor', value: (row) => row.supervisorId },
+          ...baseRunCols,
+        ]
+      )
+    );
+
+    wrap.appendChild(
+      buildAnalysisPanel(
+        'Lab pairing',
+        'Dual-loop outcomes by tutor lab and supervisor lab',
+        analysis.tables.byLabPair,
+        [
+          { label: 'Tutor lab', value: (row) => row.tutorLab },
+          { label: 'Supervisor lab', value: (row) => row.supervisorLab },
+          ...baseRunCols,
+        ]
+      )
+    );
+
+    wrap.appendChild(
+      buildAnalysisPanel(
+        'Lab pairing type',
+        'Dual-loop outcomes by same-lab vs cross-lab',
+        analysis.tables.byLabPairType,
+        [{ label: 'Lab pair', value: (row) => row.labPairType }, ...baseRunCols]
+      )
+    );
+
+    wrap.appendChild(
+      buildAnalysisPanel(
+        'Condition',
+        'Single vs dual-loop aggregates',
+        analysis.tables.byCondition,
+        [{ label: 'Condition', value: (row) => row.condition }, ...baseRunCols]
+      )
+    );
+
+    wrap.appendChild(
+      buildAnalysisPanel(
+        'Bloom x difficulty',
+        'Outcome rates by Bloom level and difficulty',
+        analysis.tables.byBloomDifficulty,
+        [
+          { label: 'Bloom', value: (row) => row.bloomLevel },
+          { label: 'Difficulty', value: (row) => row.difficulty },
+          ...baseRunCols,
+        ]
+      )
+    );
+
+    wrap.appendChild(
+      buildAnalysisPanel(
+        'Attack level',
+        'Per-turn outcomes by attack level',
+        analysis.tables.perTurn.byAttackLevel,
+        [{ label: 'Attack level', value: (row) => row.attackLevel }, ...baseTurnCols]
+      )
+    );
+
+    wrap.appendChild(
+      buildAnalysisPanel(
+        'Turn index',
+        'Per-turn outcomes by turn index',
+        analysis.tables.perTurn.byTurnIndex,
+        [{ label: 'Turn', value: (row) => (row.turnIndex != null ? row.turnIndex + 1 : null) }, ...baseTurnCols]
+      )
+    );
+
+    wrap.appendChild(
+      buildAnalysisPanel(
+        'By question',
+        'Outcome rates by question',
+        analysis.tables.byQuestion,
+        [
+          { label: 'Question', value: (row) => row.questionId },
+          { label: 'Bloom', value: (row) => row.bloomLevel },
+          { label: 'Difficulty', value: (row) => row.difficulty },
+          { label: 'Topic', value: (row) => row.topicTag },
+          ...baseRunCols,
+        ]
+      )
+    );
+
+    analysisRoot.appendChild(wrap);
   }
 
   function filteredQuestionStats(){
@@ -2432,6 +3251,7 @@ export const REPORT_JS = `
     setPressed(filterJudged, ui.judgedOnly);
 
     if (ui.tab === 'overview') renderOverview();
+    if (ui.tab === 'analysis') renderAnalysis();
     if (ui.tab === 'questions'){
       renderQuestionList();
       renderSelectedQuestion();
@@ -2444,6 +3264,7 @@ export const REPORT_JS = `
   }
 
   tabOverview.addEventListener('click', () => selectTab('overview'));
+  tabAnalysis.addEventListener('click', () => selectTab('analysis'));
   tabQuestions.addEventListener('click', () => selectTab('questions'));
 
   themeToggle.addEventListener('click', () => applyTheme(ui.theme === 'dark' ? 'light' : 'dark'));
