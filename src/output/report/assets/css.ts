@@ -1316,6 +1316,36 @@ html[data-theme="dark"] .chartCard{ background: var(--paper); }
   opacity: 0.85;
 }
 
+.boxPlot{
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.boxPlot__label{
+  font-family: var(--font-mono);
+  font-size: 11px;
+  fill: var(--ink);
+}
+.boxPlot__whisker{
+  stroke: var(--muted2);
+  stroke-width: 1.5;
+}
+.boxPlot__box{
+  fill: var(--accent);
+  opacity: 0.7;
+  stroke: var(--ink);
+  stroke-width: 1;
+}
+.boxPlot__median{
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+.boxPlot__value{
+  font-family: var(--font-mono);
+  font-size: 10px;
+  fill: var(--muted2);
+}
+
 .pairingPanel{
   border: 2px solid var(--ink);
   background: var(--paper);

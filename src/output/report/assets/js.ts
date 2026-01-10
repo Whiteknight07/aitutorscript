@@ -963,6 +963,137 @@ export const REPORT_JS = `
     return 'rgba(155, 27, 27, ' + (0.12 + t * 0.5).toFixed(3) + ')';
   }
 
+  function heatColorAbsolute(value, maxVal){
+    if (value == null || !Number.isFinite(value)) return 'transparent';
+    if (!maxVal) return 'transparent';
+    const t = Math.min(1, value / maxVal);
+    return 'rgba(155, 27, 27, ' + (0.08 + t * 0.55).toFixed(3) + ')';
+  }
+
+  function buildAbsoluteHeatmap(rowLabels, colLabels, rows, valueKey, formatter){
+    const wrap = document.createElement('div');
+    wrap.className = 'heatmap';
+    const values = rows.map(r => r[valueKey]).filter(v => Number.isFinite(v));
+    const maxVal = values.length ? Math.max(...values) : 0;
+
+    const header = document.createElement('div');
+    header.className = 'heatmap__row heatmap__row--head';
+    const corner = document.createElement('div');
+    corner.className = 'heatmap__cell heatmap__cell--corner';
+    header.appendChild(corner);
+    colLabels.forEach((label) => {
+      const cell = document.createElement('div');
+      cell.className = 'heatmap__cell heatmap__cell--head mono';
+      cell.textContent = label;
+      header.appendChild(cell);
+    });
+    wrap.appendChild(header);
+
+    rowLabels.forEach((rowLabel) => {
+      const row = document.createElement('div');
+      row.className = 'heatmap__row';
+      const head = document.createElement('div');
+      head.className = 'heatmap__cell heatmap__cell--head mono';
+      head.textContent = rowLabel;
+      row.appendChild(head);
+      colLabels.forEach((colLabel) => {
+        const data = rows.find(r => r.rowLabel === rowLabel && r.colLabel === colLabel);
+        const val = data ? data[valueKey] : null;
+        const cell = document.createElement('div');
+        cell.className = 'heatmap__cell';
+        cell.style.background = heatColorAbsolute(val, maxVal);
+        cell.title = formatter(val);
+        cell.textContent = formatter(val);
+        row.appendChild(cell);
+      });
+      wrap.appendChild(row);
+    });
+
+    return wrap;
+  }
+
+  function buildBoxPlot(items, options){
+    const svgNs = 'http://www.w3.org/2000/svg';
+    const width = options && options.width ? options.width : 500;
+    const rowHeight = 36;
+    const labelWidth = 100;
+    const padRight = 60;
+    const height = items.length * rowHeight + 20;
+    
+    const allValues = items.flatMap(item => [item.min, item.max, item.p25, item.p75, item.median].filter(v => Number.isFinite(v)));
+    const minVal = Math.min(0, ...allValues);
+    const maxVal = Math.max(...allValues);
+    const range = maxVal - minVal || 1;
+    
+    const scaleX = (v) => labelWidth + ((v - minVal) / range) * (width - labelWidth - padRight);
+    
+    const svg = document.createElementNS(svgNs, 'svg');
+    svg.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+    svg.classList.add('boxPlot');
+    
+    items.forEach((item, idx) => {
+      const y = idx * rowHeight + 18;
+      const boxHeight = 16;
+      
+      const label = document.createElementNS(svgNs, 'text');
+      label.setAttribute('x', '4');
+      label.setAttribute('y', String(y + 5));
+      label.setAttribute('class', 'boxPlot__label');
+      label.textContent = item.label;
+      svg.appendChild(label);
+      
+      const whiskerLine = document.createElementNS(svgNs, 'line');
+      whiskerLine.setAttribute('x1', String(scaleX(item.min)));
+      whiskerLine.setAttribute('x2', String(scaleX(item.max)));
+      whiskerLine.setAttribute('y1', String(y));
+      whiskerLine.setAttribute('y2', String(y));
+      whiskerLine.setAttribute('class', 'boxPlot__whisker');
+      svg.appendChild(whiskerLine);
+      
+      const minCap = document.createElementNS(svgNs, 'line');
+      minCap.setAttribute('x1', String(scaleX(item.min)));
+      minCap.setAttribute('x2', String(scaleX(item.min)));
+      minCap.setAttribute('y1', String(y - 6));
+      minCap.setAttribute('y2', String(y + 6));
+      minCap.setAttribute('class', 'boxPlot__whisker');
+      svg.appendChild(minCap);
+      
+      const maxCap = document.createElementNS(svgNs, 'line');
+      maxCap.setAttribute('x1', String(scaleX(item.max)));
+      maxCap.setAttribute('x2', String(scaleX(item.max)));
+      maxCap.setAttribute('y1', String(y - 6));
+      maxCap.setAttribute('y2', String(y + 6));
+      maxCap.setAttribute('class', 'boxPlot__whisker');
+      svg.appendChild(maxCap);
+      
+      const box = document.createElementNS(svgNs, 'rect');
+      box.setAttribute('x', String(scaleX(item.p25)));
+      box.setAttribute('y', String(y - boxHeight / 2));
+      box.setAttribute('width', String(Math.max(1, scaleX(item.p75) - scaleX(item.p25))));
+      box.setAttribute('height', String(boxHeight));
+      box.setAttribute('class', 'boxPlot__box');
+      box.setAttribute('rx', '2');
+      svg.appendChild(box);
+      
+      const medianLine = document.createElementNS(svgNs, 'line');
+      medianLine.setAttribute('x1', String(scaleX(item.median)));
+      medianLine.setAttribute('x2', String(scaleX(item.median)));
+      medianLine.setAttribute('y1', String(y - boxHeight / 2));
+      medianLine.setAttribute('y2', String(y + boxHeight / 2));
+      medianLine.setAttribute('class', 'boxPlot__median');
+      svg.appendChild(medianLine);
+      
+      const valLabel = document.createElementNS(svgNs, 'text');
+      valLabel.setAttribute('x', String(scaleX(item.max) + 6));
+      valLabel.setAttribute('y', String(y + 4));
+      valLabel.setAttribute('class', 'boxPlot__value');
+      valLabel.textContent = item.formatter ? item.formatter(item.median) : String(item.median);
+      svg.appendChild(valLabel);
+    });
+    
+    return svg;
+  }
+
   function buildHeatmap(rowLabels, colLabels, rows, valueKey, formatter){
     const wrap = document.createElement('div');
     wrap.className = 'heatmap';
@@ -1264,29 +1395,99 @@ export const REPORT_JS = `
     const chartGrid = document.createElement('div');
     chartGrid.className = 'analysisCharts';
 
-    if (analysis.tables.byTutor && analysis.tables.byTutor.length){
+    // === ABSOLUTE VISUALIZATIONS FIRST ===
+
+    // Combined leakage chart: all 6 configs (single + dual-loop with supervisors)
+    if (analysis.tables.byTutorCondition && analysis.tables.byTutorSupervisor){
       const { card, body } = buildChartCard(
-        'Leakage by tutor',
-        'Run-level leakage rate',
-        'Fraction of judged runs with leakage per tutor.'
+        'Leakage by tutor × supervision',
+        'All configurations compared',
+        'Shows baseline (single) and supervised (dual-loop) leakage rates. Lower is better.'
       );
-      const labels = analysis.tables.byTutor.map((r) => String(r.tutorId || 'unknown'));
-      const values = analysis.tables.byTutor.map((r) => r.leakageRate);
+      const combined = [];
+      const tutorCondition = analysis.tables.byTutorCondition || [];
+      const tutorSupervisor = analysis.tables.byTutorSupervisor || [];
+      for (const r of tutorCondition){
+        if (r.condition === 'single'){
+          combined.push({ label: String(r.tutorId) + ' (single)', leakageRate: r.leakageRate, latencyMeanMs: r.latencyMeanMs });
+        }
+      }
+      for (const r of tutorSupervisor){
+        combined.push({ label: String(r.tutorId) + ' + ' + String(r.supervisorId) + ' sup', leakageRate: r.leakageRate, latencyMeanMs: r.latencyMeanMs });
+      }
+      combined.sort((a, b) => (a.leakageRate || 0) - (b.leakageRate || 0));
+      const labels = combined.map((r) => r.label);
+      const values = combined.map((r) => r.leakageRate);
       body.appendChild(buildBarChartRows(labels, values, fmtPct));
       chartGrid.appendChild(card);
     }
 
-    if (analysis.tables.byCondition && analysis.tables.byCondition.length){
+    // Combined latency chart: all 6 configs
+    if (analysis.tables.byTutorCondition && analysis.tables.byTutorSupervisor){
       const { card, body } = buildChartCard(
-        'Leakage by condition',
-        'Single vs dual-loop',
-        'Overall leakage rate by condition. Lower is better.'
+        'Avg latency by tutor × supervision',
+        'All configurations compared',
+        'Average end-to-end latency per run. Dual-loop adds supervisor overhead.'
       );
-      const labels = analysis.tables.byCondition.map((r) => String(r.condition || 'unknown'));
-      const values = analysis.tables.byCondition.map((r) => r.leakageRate);
-      body.appendChild(buildBarChartRows(labels, values, fmtPct));
+      const combined = [];
+      const tutorCondition = analysis.tables.byTutorCondition || [];
+      const tutorSupervisor = analysis.tables.byTutorSupervisor || [];
+      for (const r of tutorCondition){
+        if (r.condition === 'single'){
+          combined.push({ label: String(r.tutorId) + ' (single)', latencyMeanMs: r.latencyMeanMs });
+        }
+      }
+      for (const r of tutorSupervisor){
+        combined.push({ label: String(r.tutorId) + ' + ' + String(r.supervisorId) + ' sup', latencyMeanMs: r.latencyMeanMs });
+      }
+      combined.sort((a, b) => (a.latencyMeanMs || 0) - (b.latencyMeanMs || 0));
+      const labels = combined.map((r) => r.label);
+      const values = combined.map((r) => r.latencyMeanMs);
+      body.appendChild(buildBarChartRows(labels, values, fmtMs));
       chartGrid.appendChild(card);
     }
+
+    if (analysis.tables.byTutorSupervisor && analysis.tables.byTutorSupervisor.length){
+      const { card, body } = buildChartCard(
+        'Tutor × supervisor heatmap',
+        'Absolute leakage rate',
+        'Each cell shows leakage rate for that tutor-supervisor pairing. Darker red = higher leakage.'
+      );
+      const rows = analysis.tables.byTutorSupervisor.map((r) => ({
+        rowLabel: String(r.tutorId || 'unknown'),
+        colLabel: String(r.supervisorId || 'unknown'),
+        leakageRate: r.leakageRate,
+      }));
+      const rowLabels = Array.from(new Set(rows.map((r) => r.rowLabel))).sort(byString);
+      const colLabels = Array.from(new Set(rows.map((r) => r.colLabel))).sort(byString);
+      body.appendChild(buildAbsoluteHeatmap(rowLabels, colLabels, rows, 'leakageRate', fmtPct));
+      chartGrid.appendChild(card);
+    }
+
+    if (analysis.tables.byBloomDifficulty && analysis.tables.byBloomDifficulty.length){
+      const { card, body } = buildChartCard(
+        'Bloom × difficulty heatmap',
+        'Absolute leakage rate',
+        'Each cell shows leakage rate for that Bloom level and difficulty. Darker red = higher leakage.'
+      );
+      const rows = analysis.tables.byBloomDifficulty.map((r) => ({
+        rowLabel: r.bloomLevel != null ? 'B' + r.bloomLevel : 'B?',
+        colLabel: r.difficulty != null ? String(r.difficulty) : 'unknown',
+        leakageRate: r.leakageRate,
+      }));
+      const difficultyRank = { easy: 1, medium: 2, hard: 3 };
+      const rowLabels = Array.from(new Set(rows.map((r) => r.rowLabel))).sort(byString);
+      const colLabels = Array.from(new Set(rows.map((r) => r.colLabel))).sort((a, b) => {
+        const ar = difficultyRank[String(a)] ?? 99;
+        const br = difficultyRank[String(b)] ?? 99;
+        if (ar !== br) return ar - br;
+        return String(a).localeCompare(String(b));
+      });
+      body.appendChild(buildAbsoluteHeatmap(rowLabels, colLabels, rows, 'leakageRate', fmtPct));
+      chartGrid.appendChild(card);
+    }
+
+    // === DELTA VISUALIZATIONS ===
 
     if (analysis.tables.labEffects && analysis.tables.labEffects.length){
       const { card, body } = buildChartCard(
@@ -1346,8 +1547,8 @@ export const REPORT_JS = `
 
     if (analysis.tables.labInteraction && analysis.tables.labInteraction.length){
       const { card, body } = buildChartCard(
-        'Lab interaction heatmap',
-        'Leakage delta by tutor lab x supervisor lab',
+        'Lab interaction heatmap (delta)',
+        'Leakage delta by tutor lab × supervisor lab',
         'Each cell is dual minus single leakage for that tutor lab baseline. Negative is improvement.'
       );
       const rows = analysis.tables.labInteraction.map((r) => ({
@@ -1393,9 +1594,9 @@ export const REPORT_JS = `
 
     if (analysis.tables.bloomDifficultyEffects && analysis.tables.bloomDifficultyEffects.length){
       const { card, body } = buildChartCard(
-        'Bloom x difficulty heatmap',
+        'Bloom × difficulty heatmap (delta)',
         'Leakage delta (dual - single)',
-        'Shows where supervision helps most across curriculum complexity.'
+        'Shows where supervision helps most across curriculum complexity. Negative (green) is improvement.'
       );
       const rows = analysis.tables.bloomDifficultyEffects.map((r) => ({
         rowLabel: r.bloomLevel != null ? 'B' + r.bloomLevel : 'B?',
