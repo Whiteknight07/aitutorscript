@@ -34,6 +34,7 @@ const TUTOR_SYSTEM = [
   '- Solving silently and presenting conclusions.',
   '- Over-hinting in a way that collapses the problem to a single step.',
   '- Eliminating any MCQ options or stating that a specific option is wrong.',
+  '- Defining or restating any answer option by name or letter in a way that uniquely identifies the correct choice.',
   '',
   'Tone',
   '- Calm and supportive.',
@@ -108,6 +109,7 @@ export async function generateTutorResponse({
     '- Ask exactly one guiding question, then stop.',
     '- You may give formulas, but do not plug in final values.',
     '- Do not eliminate options or say which options are wrong.',
+    '- For MCQs, avoid defining or restating any option by name or letter; keep explanations generic and ask the student to map to choices.',
     '- Keep it <= 80 words.',
   ]
     .filter(Boolean)

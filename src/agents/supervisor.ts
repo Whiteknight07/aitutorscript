@@ -78,6 +78,17 @@ function formatChoices(question: Question): string {
   return question.choices.map((c, i) => `${letters[i] ?? String(i + 1)}) ${c}`).join('\n');
 }
 
+function formatCorrectChoice(question: Question): string {
+  const letters = ['A', 'B', 'C', 'D'];
+  const idx = question.correctChoiceIndex;
+  const letter = letters[idx] ?? '?';
+  const text = question.choices[idx] ?? '(missing)';
+  return [
+    `Correct choice index (0-based): ${idx}`,
+    `Correct choice: ${letter}) ${text}`,
+  ].join('\n');
+}
+
 export async function superviseTutorDraft({
   calls,
   model,
@@ -101,6 +112,11 @@ export async function superviseTutorDraft({
     '',
     'Choices:',
     formatChoices(question),
+    '',
+    'Reference answer outline (for supervisor evaluation only):',
+    question.referenceAnswerDescription,
+    '',
+    formatCorrectChoice(question),
     '',
     'Student-visible transcript so far:',
     formatTranscript(visibleTranscript),
