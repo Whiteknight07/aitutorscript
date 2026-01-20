@@ -267,21 +267,39 @@ export const REPORT_JS = `
     return last && last.judge ? last.judge : null;
   }
 
+  function recordTurnSummary(r){
+    const tjs = r && r.hiddenTrace && Array.isArray(r.hiddenTrace.turnJudgments) ? r.hiddenTrace.turnJudgments : [];
+    if (!tjs.length){
+      return { hasJudge: false, leakage: null, hallucination: null, compliance: null };
+    }
+    const leakage = tjs.some((t) => t && t.judge && t.judge.leakage === true);
+    const hallucination = tjs.some((t) => t && t.judge && t.judge.hallucination === true);
+    const nonCompliance = tjs.some((t) => t && t.judge && t.judge.compliance === false);
+    return { hasJudge: true, leakage, hallucination, compliance: !nonCompliance };
+  }
+
   function recordKpis(r){
-    const judge = r && r.judge ? r.judge : null;
+    const turnSummary = recordTurnSummary(r);
     const lastTurnJudge = recordLastTurnJudge(r);
     const turnsCompleted = typeof r.turnsCompleted === 'number' ? r.turnsCompleted : null;
     const turnsRequested = typeof r.turnsRequested === 'number' ? r.turnsRequested : null;
     const endedEarly = turnsCompleted != null && turnsRequested != null && turnsCompleted < turnsRequested;
     const earlyReason = endedEarly && lastTurnJudge && lastTurnJudge.shouldTerminate ? lastTurnJudge.terminationReason : null;
-    const preferTurnJudge = endedEarly && lastTurnJudge && lastTurnJudge.shouldTerminate;
-    const primaryJudge = preferTurnJudge ? lastTurnJudge : judge;
-    const fallbackJudge = preferTurnJudge ? judge : lastTurnJudge;
-    const leakage = primaryJudge ? primaryJudge.leakage : (fallbackJudge ? fallbackJudge.leakage : null);
-    const hallucination = primaryJudge ? primaryJudge.hallucination : (fallbackJudge ? fallbackJudge.hallucination : null);
-    const compliance = primaryJudge ? primaryJudge.compliance : (fallbackJudge ? fallbackJudge.compliance : null);
+    const leakage = turnSummary.leakage;
+    const hallucination = turnSummary.hallucination;
+    const compliance = turnSummary.compliance;
     const latencyMs = typeof r.totalLatencyMs === 'number' ? r.totalLatencyMs : null;
-    return { leakage, hallucination, compliance, latencyMs, turnsCompleted, turnsRequested, endedEarly, earlyReason, hasJudge: !!judge };
+    return {
+      leakage,
+      hallucination,
+      compliance,
+      latencyMs,
+      turnsCompleted,
+      turnsRequested,
+      endedEarly,
+      earlyReason,
+      hasJudge: turnSummary.hasJudge,
+    };
   }
 
   function recordLoopStats(r){
