@@ -4,6 +4,7 @@ import { join, resolve } from 'node:path';
 import { ensureDir } from '../utils/util';
 import { buildAnalysis } from '../output/analysis';
 import { renderReportHtml } from '../output/report';
+import { SummaryAggregator } from '../output/summary';
 
 type RunConfig = {
   runId?: string;
@@ -69,8 +70,23 @@ async function main() {
   const args = runConfig.args ?? summaryJson.args ?? {};
   const questions = questionsJson.questions ?? [];
 
+  const aggregator = new SummaryAggregator();
+  for (const record of records) aggregator.add(record);
+  const summary = {
+    runId,
+    createdAtIso,
+    args,
+    totals: {
+      questions: questions.length,
+      plannedRuns,
+      completedRuns,
+    },
+    ...aggregator.toSummaryObject(),
+  };
+
   const analysis = buildAnalysis({ runId, createdAtIso, records });
 
+  await writeFile(join(runDir, 'summary.json'), JSON.stringify(summary, null, 2));
   await writeFile(join(runDir, 'analysis.json'), JSON.stringify(analysis, null, 2));
   const analysisDir = join(runDir, 'analysis');
   await ensureDir(analysisDir);
@@ -80,7 +96,7 @@ async function main() {
     createdAtIso,
     args,
     questions,
-    summary: summaryJson,
+    summary,
     analysis,
     records,
     status: {
