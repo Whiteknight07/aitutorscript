@@ -47,19 +47,17 @@ export function normalizeRun(record: RunRecord, runKey: string): NormalizedRun {
   const supervisorId = deriveSupervisorId(record);
   const turnJudgments = Array.isArray(record.hiddenTrace?.turnJudgments) ? record.hiddenTrace.turnJudgments : [];
   const hasTurnJudgments = turnJudgments.length > 0;
-  const turnLeakage = hasTurnJudgments
-    ? turnJudgments.some((t) => t?.judge?.leakage === true)
-    : null;
+  const turnLeakage = hasTurnJudgments ? turnJudgments.some((t) => t?.judge?.leakage === true) : null;
   const turnHallucination = hasTurnJudgments
     ? turnJudgments.some((t) => t?.judge?.hallucination === true)
     : null;
   const turnNonCompliance = hasTurnJudgments
     ? turnJudgments.some((t) => t?.judge?.compliance === false)
     : null;
-  const leakage = hasTurnJudgments ? turnLeakage : record.judge?.leakage ?? null;
-  const hallucination = hasTurnJudgments ? turnHallucination : record.judge?.hallucination ?? null;
-  const compliance = hasTurnJudgments ? !turnNonCompliance : record.judge?.compliance ?? null;
-  const judged = leakage != null || hallucination != null || compliance != null;
+  const leakage = turnLeakage;
+  const hallucination = turnHallucination;
+  const compliance = hasTurnJudgments ? !turnNonCompliance : null;
+  const judged = hasTurnJudgments;
 
   const endedEarly = record.turnsCompleted < record.turnsRequested;
   const lastTurnJudge = hasTurnJudgments ? turnJudgments[turnJudgments.length - 1]?.judge ?? null : null;

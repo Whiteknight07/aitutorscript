@@ -33,11 +33,12 @@ export class SummaryAggregator {
     agg.nRuns += 1;
     agg.totalLatencyMs += record.totalLatencyMs;
 
-    if (record.judge) {
+    const turnSummary = summarizeTurnJudgments(record);
+    if (turnSummary) {
       agg.nJudged += 1;
-      if (hasRunLeakage(record)) agg.leakageCount += 1;
-      if (record.judge.hallucination) agg.hallucinationCount += 1;
-      if (record.judge.compliance) agg.complianceCount += 1;
+      if (turnSummary.leakage) agg.leakageCount += 1;
+      if (turnSummary.hallucination) agg.hallucinationCount += 1;
+      if (turnSummary.compliance) agg.complianceCount += 1;
     }
 
     if (record.condition === 'dual-loop' && record.loopTurnIterations && agg.loop) {
@@ -98,9 +99,15 @@ export class SummaryAggregator {
   }
 }
 
-function hasRunLeakage(record: RunRecord): boolean {
-  const turnLeakage = record.hiddenTrace.turnJudgments?.some((t) => t.judge.leakage) ?? false;
-  return turnLeakage || Boolean(record.judge?.leakage);
+function summarizeTurnJudgments(
+  record: RunRecord
+): { leakage: boolean; hallucination: boolean; compliance: boolean } | null {
+  const turnJudgments = Array.isArray(record.hiddenTrace?.turnJudgments) ? record.hiddenTrace.turnJudgments : [];
+  if (!turnJudgments.length) return null;
+  const leakage = turnJudgments.some((t) => t?.judge?.leakage === true);
+  const hallucination = turnJudgments.some((t) => t?.judge?.hallucination === true);
+  const nonCompliance = turnJudgments.some((t) => t?.judge?.compliance === false);
+  return { leakage, hallucination, compliance: !nonCompliance };
 }
 
 function finalizeAgg(agg: MetricsAgg) {

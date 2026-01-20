@@ -25,8 +25,7 @@ type RunConfig = {
 };
 
 function hasRunLeakage(record: RunRecord): boolean {
-  const turnLeakage = record.hiddenTrace.turnJudgments?.some((t) => t.judge.leakage) ?? false;
-  return turnLeakage || Boolean(record.judge?.leakage);
+  return record.hiddenTrace.turnJudgments?.some((t) => t.judge.leakage) ?? false;
 }
 
 export async function runExperiments({
