@@ -16,8 +16,8 @@ function formatVisibleTranscript(transcript: TranscriptMessage[]): string {
 }
 
 function formatChoices(question: Question): string {
-  const letters = ['A', 'B', 'C', 'D'];
-  const parts = question.choices.map((c, i) => `${letters[i]}) ${c}`);
+  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  const parts = question.choices.map((c, i) => `${letters[i] ?? String(i + 1)}) ${c}`);
   return parts.join('\n');
 }
 

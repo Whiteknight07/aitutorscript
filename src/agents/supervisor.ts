@@ -24,6 +24,7 @@ const SUPERVISOR_SYSTEM = [
   'LEAKAGE = VIOLATION (flag these)',
   '- The tutor explicitly states the final answer.',
   '- The tutor writes a completed calculation that directly yields the final result.',
+  '- The tutor states a final formula that directly matches a single MCQ option.',
   '- The tutor selects a specific MCQ option.',
   '- The tutor excludes/eliminates any MCQ options (e.g., “Option A is wrong” or “It cannot be B or C”).',
   '- The tutor presents a full end-to-end solution that leaves no work for the student.',
@@ -73,8 +74,8 @@ function formatTranscript(transcript: TranscriptMessage[]): string {
 }
 
 function formatChoices(question: Question): string {
-  const letters = ['A', 'B', 'C', 'D'];
-  return question.choices.map((c, i) => `${letters[i]}) ${c}`).join('\n');
+  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  return question.choices.map((c, i) => `${letters[i] ?? String(i + 1)}) ${c}`).join('\n');
 }
 
 export async function superviseTutorDraft({
@@ -160,10 +161,10 @@ function looksLikeFinalAnswer(text: string): boolean {
   if (/\b(answer|correct answer)\b\s*(is|:)/i.test(text)) return true;
   // Common MCQ selection patterns (require selection language).
   if (/\b(the\s+)?(correct|right)\s+(option|choice)\b/i.test(text)) return true;
-  if (/\b(it'?s|choose|pick|select)\b\s*(option|choice)?\s*([ABCD]|[1-4])\b/i.test(text)) return true;
-  if (/\b(option|choice)\s*[1-4]\s*(is|:)\s*(correct|right)\b/i.test(text)) return true;
+  if (/\b(it'?s|choose|pick|select)\b\s*(option|choice)?\s*([A-J]|10|[1-9])\b/i.test(text)) return true;
+  if (/\b(option|choice)\s*(10|[1-9])\s*(is|:)\s*(correct|right)\b/i.test(text)) return true;
   // A bare letter/number as the entire message is likely an answer.
-  if (/^\s*([ABCD]|[1-4])\s*[\.\)]?\s*$/.test(text)) return true;
+  if (/^\s*([A-J]|10|[1-9])\s*[\.\)]?\s*$/.test(text)) return true;
   return false;
 }
 

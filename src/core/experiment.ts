@@ -82,6 +82,20 @@ export async function runExperiments({
     questions = await generateDataset({ runId, args, datasetCalls });
     // eslint-disable-next-line no-console
     console.log(`✅ Generated ${questions.length} questions`);
+  } else if (args.dataset === 'canterbury') {
+    const baseDir = join(process.cwd(), 'data', 'canterbury');
+    // eslint-disable-next-line no-console
+    console.log(`\n📝 Loading Canterbury questions from ${baseDir}`);
+    questions = await loadCanterburyQuestions({
+      baseDir,
+      limit: args.questionLimit,
+      bloomLevels: args.bloomLevels,
+      difficulties: args.difficulties,
+      courseLevels: args.courseLevels,
+      skillTags: args.skillTags,
+    });
+    // eslint-disable-next-line no-console
+    console.log(`✅ Loaded ${questions.length} Canterbury questions`);
   } else {
     const staticPath = join(process.cwd(), 'data', 'questions.json');
     // eslint-disable-next-line no-console
@@ -116,6 +130,10 @@ export async function runExperiments({
         questionGeneratorModel: args.questionModel,
         bloomLevels: args.bloomLevels,
         difficulties: args.difficulties,
+        dataset: args.dataset,
+        questionLimit: args.questionLimit,
+        courseLevels: args.courseLevels,
+        skillTags: args.skillTags,
         questionsPerCell: args.questionsPerCell,
         calls: datasetCalls,
         questions,
@@ -546,6 +564,252 @@ async function generateDataset({
   }
 
   return questions;
+}
+
+const CANTERBURY_PAGES = [
+  'questions-p1.html',
+  'questions-p2.html',
+  'questions-p3.html',
+  'questions-p4.html',
+  'questions-p5.html',
+  'questions-p6.html',
+  'questions-p7.html',
+];
+
+type CanterburyTagInfo = {
+  bloomLevel: number | null;
+  difficulty: number | null;
+  courseLevel: string | null;
+  skillTag: string | null;
+  topicTag: string | null;
+};
+
+async function loadCanterburyQuestions({
+  baseDir,
+  limit,
+  bloomLevels,
+  difficulties,
+  courseLevels,
+  skillTags,
+}: {
+  baseDir: string;
+  limit: number | null;
+  bloomLevels: number[];
+  difficulties: Array<Question['difficulty']>;
+  courseLevels: string[];
+  skillTags: string[];
+}): Promise<Question[]> {
+  const pages = await Promise.all(
+    CANTERBURY_PAGES.map(async (file) => ({
+      file,
+      html: await readFile(join(baseDir, file), 'utf-8'),
+    }))
+  );
+
+  const questions: Question[] = [];
+  const seenIds = new Set<string>();
+  for (const page of pages) {
+    const blocks = extractQuestionTables(page.html);
+    for (const block of blocks) {
+      if (limit != null && questions.length >= limit) return questions;
+      const fields = parseQuestionFields(block);
+      const candidate = buildCanterburyQuestion(fields, {
+        bloomLevels,
+        difficulties,
+        courseLevels,
+        skillTags,
+      });
+      if (!candidate) continue;
+      if (seenIds.has(candidate.id)) continue;
+      seenIds.add(candidate.id);
+      questions.push(candidate);
+    }
+  }
+
+  return questions;
+}
+
+function extractQuestionTables(html: string): string[] {
+  const tables: string[] = [];
+  const regex = /<table\s+id="displayQuestionTable"[^>]*>([\s\S]*?)<\/table>/gi;
+  let match: RegExpExecArray | null;
+  while ((match = regex.exec(html)) !== null) {
+    tables.push(match[1]);
+  }
+  return tables;
+}
+
+function parseQuestionFields(tableHtml: string): Array<[string, string]> {
+  const rows: Array<[string, string]> = [];
+  const rowRegex = /<tr[^>]*>([\s\S]*?)<\/tr>/gi;
+  let rowMatch: RegExpExecArray | null;
+  while ((rowMatch = rowRegex.exec(tableHtml)) !== null) {
+    const cells = Array.from(rowMatch[1].matchAll(/<td[^>]*>([\s\S]*?)<\/td>/gi)).map((m) => m[1]);
+    if (cells.length >= 2) {
+      const key = stripHtml(cells[0]);
+      rows.push([key, cells[1]]);
+    }
+  }
+  return rows;
+}
+
+function buildCanterburyQuestion(
+  rows: Array<[string, string]>,
+  {
+    bloomLevels,
+    difficulties,
+    courseLevels,
+    skillTags,
+  }: {
+    bloomLevels: number[];
+    difficulties: Array<Question['difficulty']>;
+    courseLevels: string[];
+    skillTags: string[];
+  }
+): Question | null {
+  const fields = new Map<string, string>();
+  for (const [key, value] of rows) {
+    if (!fields.has(key)) fields.set(key, value);
+  }
+
+  const rawId = fields.get('ID');
+  if (!rawId) return null;
+  const idMatch = stripHtml(rawId).match(/\d+/);
+  if (!idMatch) return null;
+  const id = `canterbury-${idMatch[0]}`;
+
+  const questionHtml = fields.get('Question');
+  if (!questionHtml) return null;
+  const problemStatement = normalizeCanterburyHtml(questionHtml);
+
+  const { choices, correctIndex } = extractChoices(fields);
+  if (!choices || choices.length < 2 || correctIndex == null || correctIndex < 0 || correctIndex >= choices.length) {
+    return null;
+  }
+
+  const referenceHtml = fields.get('Explanation');
+  const referenceAnswerDescription = referenceHtml
+    ? normalizeCanterburyHtml(referenceHtml)
+    : 'No explanation provided.';
+
+  const tagsHtml = fields.get('Tags');
+  const tagInfo = parseCanterburyTags(tagsHtml ? stripHtml(tagsHtml) : '');
+  if (!tagInfo) return null;
+
+  if (tagInfo.bloomLevel == null || !bloomLevels.includes(tagInfo.bloomLevel)) return null;
+  const mappedDifficulty = mapCanterburyDifficulty(tagInfo.difficulty);
+  if (!mappedDifficulty || !difficulties.includes(mappedDifficulty)) return null;
+
+  if (courseLevels.length > 0) {
+    if (!tagInfo.courseLevel || !courseLevels.includes(tagInfo.courseLevel)) return null;
+  }
+  if (skillTags.length > 0) {
+    if (!tagInfo.skillTag || !skillTags.includes(tagInfo.skillTag)) return null;
+  }
+
+  return {
+    id,
+    bloomLevel: tagInfo.bloomLevel,
+    difficulty: mappedDifficulty,
+    topicTag: tagInfo.topicTag || tagInfo.courseLevel || 'canterbury',
+    courseLevel: tagInfo.courseLevel ?? undefined,
+    skillTag: tagInfo.skillTag ?? undefined,
+    problemStatement,
+    choices,
+    correctChoiceIndex: correctIndex,
+    referenceAnswerDescription,
+  };
+}
+
+function extractChoices(fields: Map<string, string>): { choices: string[]; correctIndex: number | null } {
+  const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+  const choices: string[] = [];
+  let correctIndex: number | null = null;
+  for (const letter of letters) {
+    const normal = fields.get(letter);
+    const marked = fields.get(`*${letter}*`);
+    const raw = marked ?? normal;
+    if (!raw) continue;
+    const html = normalizeCanterburyHtml(raw);
+    const idx = choices.length;
+    choices.push(html);
+    if (marked != null) correctIndex = idx;
+  }
+  return { choices, correctIndex };
+}
+
+function parseCanterburyTags(tagText: string): CanterburyTagInfo | null {
+  if (!tagText) {
+    return {
+      bloomLevel: null,
+      difficulty: null,
+      courseLevel: null,
+      skillTag: null,
+      topicTag: null,
+    };
+  }
+  const tags = tagText
+    .split(',')
+    .map((t) => t.trim())
+    .filter(Boolean);
+
+  let bloomLevel: number | null = null;
+  let difficulty: number | null = null;
+  let courseLevel: string | null = null;
+  let skillTag: string | null = null;
+  let topicTag: string | null = null;
+
+  for (const tag of tags) {
+    if (tag.startsWith('Bloom-')) {
+      const match = tag.match(/Bloom-(\d+)/);
+      if (match) bloomLevel = Number.parseInt(match[1], 10);
+    }
+    if (tag.startsWith('Difficulty-')) {
+      const match = tag.match(/Difficulty-(\d+)/);
+      if (match) difficulty = Number.parseInt(match[1], 10);
+    }
+    if (tag === 'CS1' || tag === 'CS2') {
+      courseLevel = tag;
+    }
+    if (tag.startsWith('Skill-') || tag.startsWith('SkillWG-')) {
+      if (!skillTag) skillTag = tag;
+    }
+    if (tag.startsWith('TopicWG-') || tag.startsWith('TopicSimon-')) {
+      if (!topicTag) topicTag = tag;
+    }
+  }
+
+  return { bloomLevel, difficulty, courseLevel, skillTag, topicTag };
+}
+
+function mapCanterburyDifficulty(level: number | null): Question['difficulty'] | null {
+  if (level === 1) return 'easy';
+  if (level === 2) return 'medium';
+  if (level === 3) return 'hard';
+  return null;
+}
+
+function stripHtml(html: string): string {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function normalizeCanterburyHtml(html: string): string {
+  const trimmed = html.trim();
+  const sanitized = trimmed
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/src="img\//g, 'src="data/canterbury/img/')
+    .replace(/src='img\//g, "src='data/canterbury/img/")
+    .replace(/\s+>/g, '>')
+    .replace(/\s+\n/g, '\n')
+    .trim();
+  return sanitized;
 }
 
 async function getAiVersion(): Promise<string> {

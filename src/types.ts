@@ -33,9 +33,11 @@ export const QuestionSchema = z.object({
   bloomLevel: z.number().int().min(1).max(3), // 1=Remember, 2=Understand, 3=Apply
   difficulty: DifficultySchema,
   topicTag: z.string().min(1),
+  courseLevel: z.string().min(1).optional(),
+  skillTag: z.string().min(1).optional(),
   problemStatement: z.string().min(10),
-  choices: z.array(z.string().min(1)).length(4),
-  correctChoiceIndex: z.number().int().min(0).max(3),
+  choices: z.array(z.string().min(1)).min(2),
+  correctChoiceIndex: z.number().int().min(0),
   referenceAnswerDescription: z.string().min(10),
 });
 export type Question = z.infer<typeof QuestionSchema>;

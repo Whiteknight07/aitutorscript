@@ -1,0 +1,4961 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Canterbury QuestionBank</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="css/bootstrap.css" type="text/css"/>
+    <link rel="stylesheet" href="css/bootstrap-responsive.css" type="text/css"/>
+    <link rel="stylesheet" href="codemirror/lib/codemirror.css" type="text/css"/>
+    <link rel="stylesheet" href="codemirror/theme/simple.css" type="text/css"/>
+    <link rel="stylesheet" href="css/style.css" type="text/css"/>
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js" type="text/javascript"></script>
+    <script src="codemirror/lib/codemirror.js" type="text/javascript"></script>
+    <script src="js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="js/cm.js" type="text/javascript"></script>
+  </head>
+<body>
+
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="http://www.cs.kent.ac.uk/events/iticse2013/">ITiCSE 2013</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li class="active"><a href="index.html">Canterbury QuestionBank</a></li>
+              <li><a href="http://www.cs.kent.ac.uk/events/iticse2013/workinggroups.html">Working Group:
+      1024 MCQs </a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+<div class="container">
+
+  <h1>Canterbury QuestionBank</h1>
+
+  <div class="pagination">
+  <ul>
+    <li><a href="questions-p1.html">001-100</a></li>
+    <li><a href="questions-p2.html">101-200</a></li>
+    <li class="active"><a href="questions-p3.html">201-300</a></li>
+    <li><a href="questions-p4.html">301-400</a></li>
+    <li><a href="questions-p5.html">401-500</a></li>
+    <li><a href="questions-p6.html">501-600</a></li>
+    <li><a href="questions-p7.html">601-656</a></li>
+  </ul>
+</div>
+
+<div style="padding-top: 15px;">
+<a name="634431"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">634431 [created: 2013-06-18 09:46:22, author: kate (xkate), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>Suppose you are trying to choose between an array and a singly linked list to store the data in your program. Which data structure must be traversed one element at a time to reach a particular point?</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>an array</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*B*</td>
+<td class="middleClear"><p>a linked list</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>both</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>neither</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>In a basic linked list, each element is connected to the one after it. To reach a given element, you must start with the first node, if it's not the one you want, follow the link to the next one, and so forth until you reach the end of the list. (These are called "singly linked lists"; it is also possible to construct a doubly linked list, where each node is connected to the previous *and* the next element.)&nbsp;</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">ATT-Transition-ApplyCSspeak, Contributor_Kate_Sanders, Skill-PureKnowledgeRecall, Difficulty-1-Low, Block-Horizontal-1-Struct_Text, ExternalDomainReferences-1-Low, TopicSimon-Arrays, Block-Vertical-1-Atom, TopicWG-LinkedLists, Bloom-1-Knowledge, Language-none-none-none, LinguisticComplexity-1-Low, CS2, CodeLength-lines-00-to-06_Low, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="634945"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">634945 [created: 2013-06-29 21:41:50, author: patitsas (xelizabeth), avg difficulty: 0.6667]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>Richard has the following struct:</p>
+<p><br><code>struct node{</code></p>
+<pre lang="text/x-c">    int val;
+    struct node *next;
+};
+</pre>
+<p><br>And he creates a node:<br><code>struct node **ptr = &amp;( malloc(sizeof(struct node)) );</code></p>
+<p><span style="font-family: arial,helvetica,sans-serif;">Which of the following will NOT set ptr&rsquo;s associated val to 6?</span></p>
+</td>
+</tr>
+<tr class="success">
+<td class="leftClear">*A*</td>
+<td class="middleClear"><p>(***ptr).val = 6</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>(**ptr).val = 6</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>(*ptr)-&gt;val = 6</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>***ptr is not useful here</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Elizabeth_Patitsas, ATT-Transition-CSspeak_to_Code, Skill-WriteCode_MeansChooseOption, ATT-Type-How, Difficulty-2-Medium, Block-Horizontal-1-Struct_Text, ExternalDomainReferences-1-Low, TopicSimon-Assignment, Block-Vertical-1-Atom, Language-C, TopicSimon-DataTypesAndVariables, Bloom-1-Knowledge, CS2, LinguisticComplexity-2-Medium, TopicWG-Pointers-ButNotReferences, TopicWG-Recs-Structs-HeteroAggs, CodeLength-lines-00-to-06_Low, ConceptualComplexity-2-Medium, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="627766"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">627766 [created: 2013-06-07 09:15:48, author: kate (xkate), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>Consider the following recursive method:</p>
+<pre lang="text/x-java">public int examMethod(int n) {
+   if (n == 1) return 1;
+   else return (n + this.examMethod(n-1));
+}
+</pre>
+<p>&nbsp;</p>
+<p>What value is returned by the call <code>examMethod(16)</code>?</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>1</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>16</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*C*</td>
+<td class="middleClear"><p>136</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>None of the above.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>This method returns the sum of the numbers from 1 to the parameter n (as long as n is greater than or equal to 1).&nbsp;</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Nested-Block-Depth-1, ATT-Transition-ApplyCode, Contributor_Kate_Sanders, Skill-Trace_IncludesExpressions, ATT-Type-How, Difficulty-2-Medium, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, Block-Vertical-2-Block, Bloom-2-Comprehension, Language-Java, LinguisticComplexity-1-Low, CS2, CodeLength-lines-00-to-06_Low, TopicSimon-Recursion, ConceptualComplexity-2-Medium</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="632575"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">632575 [created: 2013-06-19 14:26:05, author: kate (xkate), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>Suppose you place m items in a hash table with an&nbsp;array size of s. What is the correct formula for the load&nbsp;factor?</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>s + m</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>s &#8722; m</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>m &#8722; s</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>s/m</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*E*</td>
+<td class="middleClear"><p>m/s</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>The load factor is the number of elements in the array, divided by the size of the array. It gives you an idea of how full the hashtable is.&nbsp;</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">ATT-Transition-ApplyCSspeak, Contributor_Kate_Sanders, Skill-PureKnowledgeRecall, ATT-Type-How, Difficulty-1-Low, Block-Horizontal-1-Struct_Text, ExternalDomainReferences-1-Low, Block-Vertical-1-Atom, TopicWG-Hashing-HashTables, Bloom-1-Knowledge, Language-none-none-none, LinguisticComplexity-1-Low, CS2, CodeLength-NotApplicable, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="634916"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">634916 [created: 2013-06-29 21:09:25, author: edwards@cs.vt.edu (xstephen), avg difficulty: 1.5000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>The <strong>Fibonacci sequence</strong> is 0, 1, 1, 2, 3, 5, 8, 13 ... Any term (value) of the sequence that follows the first two terms (0 and 1) is equal to the sum of the preceding two terms. Consider the following incomplete method to compute any term of the Fibonacci sequence:</p>
+<pre lang="text/x-java">public static int fibonacci(int term)
+{
+    int fib1 = 0;          // Line 1
+    int fib2 = 1;          // Line 2
+    int fibn = 0;          // Line 3
+
+    if (term == 1)         // Line 4
+    {
+        return fib1;       // Line 5
+    }
+    if (term == 2)         // Line 6
+    {
+        return fib2;       // Line 7
+    }
+
+    for (__________)       // Line 8: loop to the nth term
+    {
+        fibn = __________; // Line 9: compute the next term
+        fib1 = __________; // Line 10: reset the second preceding term
+        fib2 = __________; // Line 11: reset the immediate preceding term
+    }
+    return fibn;           // Line 12: return the computed term
+}
+
+
+<span style="font-family: arial, helvetica, sans-serif;">Choose the best answer to fill in the blank on line 8.
+</span></pre>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><code>int n = 0; n &lt; term; n++</code></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*B*</td>
+<td class="middleClear"><code>int n = 1; n &lt; term; n++</code></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><code>int n = 2; n &lt; term; n++</code></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><code>int n = 3; n &lt; term; n++</code></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><code>int n = 4; n &lt; term; n++</code></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>From the question, it is clear that the terms in the sequence are numbered starting at 1. &nbsp;The two base cases cover terms 1 and 2, and the loop must then repeat (term - 2) times in total. &nbsp;This will be achieved if the initial value on the loop counter is 1.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">ATT-Transition-ApplyCode, Contributor_Stephen_Edwards, Skill-WriteCode_MeansChooseOption, ATT-Type-How, Difficulty-2-Medium, Block-Horizontal-1-Struct_Text, ExternalDomainReferences-1-Low, Block-Vertical-2-Block, Language-Java, Bloom-2-Comprehension, TopicSimon-LoopsSubsumesOperators, CS1, TopicSimon-MethodsFuncsProcs, CodeLength-lines-06-to-24_Medium, ConceptualComplexity-1-Low, Nested-Block-Depth-1</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="633661"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">633661 [created: 2013-06-22 10:31:58, author: jspacco (xjaime), avg difficulty: 0.6667]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>Which of these relationships best exemplify the "IS-A" relationships in object-oriented programming (OOP)?</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>Empire State Building IS-A Building</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*B*</td>
+<td class="middleClear"><p>Cat IS-A Mammal</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear">
+<p>Angry Cat IS-A Cat</p>
+<p>(Note that "Angry Cat" is a specific cat that has become an online internet meme)</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>All of the above</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>None of the above</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear">
+<p>A and C are wrong because the Empire State Building would be best be described as an instance of the category Cuilding, while Angry Cat is an instance of the category Cat.</p>
+<p>B is correct because Cat is a sub-category of Mammal, which best exemplifies the IS-A relations.&nbsp; In OOP, the IS-A relationship is used to denote relationships between classes, which are sort of like categories.</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Jaime_Spacco, ATT-Transition-English_to_CSspeak, ATT-Type-How, Difficulty-1-Low, SkillWG-AnalyzeCode, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-2-Medium, Block-Vertical-3-Relations, Bloom-3-Analysis, Language-none-none-none, LinguisticComplexity-1-Low, CS2, TopicSimon-OOconcepts, CodeLength-NotApplicable, ConceptualComplexity-2-Medium, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="632850"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">632850 [created: 2013-06-20 11:13:17, author: jspacco (xjaime), avg difficulty: 0.5000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>What does this print when x is assigned 1?</p>
+<pre lang="text/x-java">if (x==1) {
+   System.out.println("x is 1");
+} if (x==2) {
+   System.out.println("x is 2");
+} else {
+   System.out.println("not 1 or 2");
+}
+</pre>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>x is 1</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>x is 2</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear">
+<p>x is 1</p>
+<p>x is 2</p>
+</td>
+</tr>
+<tr class="success">
+<td class="leftClear">*D*</td>
+<td class="middleClear">
+<p>x is 1</p>
+<p>not 1 or 2</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear">
+<p>x is 2</p>
+<p>not 1 or 2</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear">
+<p>This code snipped does not have an else-if!&nbsp; It may as well be written like this:</p>
+<pre lang="text/x-java">if (x==1) {
+   System.out.println("x is 1");
+}
+
+if (x==2) {
+   System.out.println("x is 2");
+} else {
+   System.out.println("not 1 or 2");
+}
+</pre>
+<p>&nbsp;</p>
+<p>So when x==1, clearly we get "x is 1" printed, bu since 1 does not equal 2, we also get "not 1 or 2" with the else.</p>
+<p>Be aware of when you are using an if, and when are are using an else-if, because they are quite different!</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">ATT-Transition-ApplyCode, Contributor_Jaime_Spacco, Skill-Trace_IncludesExpressions, ATT-Type-How, Difficulty-1-Low, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, Block-Vertical-2-Block, TopicSimon-DataTypesAndVariables, Language-Java, Bloom-3-Analysis, CS1, LinguisticComplexity-1-Low, CodeLength-lines-00-to-06_Low, ConceptualComplexity-1-Low, Nested-Block-Depth-1</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="634127"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">634127 [created: 2013-06-23 13:04:28, author: patitsas (xelizabeth), avg difficulty: 0.5000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>In C, which of the following will return 1, if s1 = "hi" and s2 = "hi"? Circle all that apply.</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>s1 == s2</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*B*</td>
+<td class="middleClear"><p>strcmp(s1, s2)</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>strlen(s1)</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>s1 == "hi"</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>C is not Python! Only strcmp will do what Python and similar languages would do. (My CS2 students come into C having learnt Python.)</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Elizabeth_Patitsas, ATT-Transition-CSspeak_to_Code, Skill-Trace_IncludesExpressions, ATT-Type-How, Difficulty-2-Medium, Block-Horizontal-1-Struct_Text, ExternalDomainReferences-1-Low, Block-Vertical-1-Atom, Language-C, TopicSimon-DataTypesAndVariables, Bloom-1-Knowledge, LinguisticComplexity-1-Low, CS2, CodeLength-lines-00-to-06_Low, TopicSimon-RelationalOperators, TopicSimon-Strings, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="633291"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">633291 [created: 2013-06-18 07:47:41, author: crjjrc (xchris), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>Inserting a node into a heap is</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>O(1)</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*B*</td>
+<td class="middleClear"><p>O(log N)</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>O(N)</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>O(N log N)</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>O(N<sup>2</sup>)</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>Inserting a node involves putting the new node into the bottom level of the heap and trickling up, possibly to the root level. Since heaps are balanced and the number of levels is log N, the performance is O(log N).</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Chris_Johnson, ATT-Transition-ApplyCSspeak, Skill-PureKnowledgeRecall, ATT-Type-How, Difficulty-1-Low, TopicSimon-AlgorithmComplex-BigO, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, Block-Vertical-2-Block, TopicWG-Heaps, Bloom-3-Analysis, Language-none-none-none, LinguisticComplexity-1-Low, CS2, CodeLength-NotApplicable, ConceptualComplexity-2-Medium, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="630996"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">630996 [created: 2013-06-13 13:02:52, author: kate (xkate), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>Consider the following Java method:</p>
+<pre lang="text/x-java">public void printMenu(){
+   System.out.println("Choose one of the following options:");
+   System.out.println("1) Display account balance");
+   System.out.println("2) Make deposit");
+   System.out.println("3) Make withdrawal");
+   System.out.println("4) Quit");
+} 
+</pre>
+<p>&nbsp;</p>
+<p><span style="font-family: arial, helvetica, sans-serif;">Select the best reason for making this a separate method with a name, instead of including the code in some other method:</span></p>
+</td>
+</tr>
+<tr class="success">
+<td class="leftClear">*A*</td>
+<td class="middleClear"><p>Otherwise, you would have to write the same code more than once.&nbsp;</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>By breaking your program up into logical parts, you make it more readable.&nbsp;</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>By giving this block of code a name, you make your program more readable.&nbsp;</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>It's necessary to keep the calling method under 20 lines long.&nbsp;</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>There are multiple correct answers to this question. A, B, and C are all reasonable answers. D is less good, because while it's a good idea to keep your methods relatively short, it won't always make sense to stick to an arbitrary limit like 20 lines.&nbsp;</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">ATT-Transition-CSspeak_to_Code, Contributor_Kate_Sanders, Skill-DesignProgramWithoutCoding, Difficulty-1-Low, ATT-Type-Why, Block-Horizontal-1-Struct_Text, ExternalDomainReferences-1-Low, Block-Vertical-3-Relations, Language-Java, Bloom-5-Synthesis, LinguisticComplexity-1-Low, CS1, TopicSimon-MethodsFuncsProcs, MultipleAnswers-See-Explanation, TopicSimon-ProgramDesign, CodeLength-lines-06-to-24_Medium, ConceptualComplexity-2-Medium, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="635037"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">635037 [created: 2013-06-29 23:31:20, author: mikeyg (xmikey), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>A given O(n<sup>2</sup>) algorithm takes five seconds to execute on a data set size of 100. &nbsp;Using the same computer and the same algorithm, how many seconds should this algorithm run for when executed on a data set of size 500?</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>25 seconds</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>100 seconds</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>42 seconds</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*D*</td>
+<td class="middleClear"><p>125 seconds</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>None of the above.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>Quadratic algorithms represent an n<sup>2</sup> increase in run time. &nbsp;Hence if the data set size increases by a factor of &nbsp;five, for a quadratic algorithm, the increase in run time becomes a factor of 25. &nbsp;Hence 25 times 5 (base run time) is 125.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">ATT-Transition-ApplyCSspeak, Contributor_Michael_Goldweber, Skill-PureKnowledgeRecall, ATT-Type-How, Difficulty-1-Low, TopicSimon-AlgorithmComplex-BigO, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, Block-Vertical-4-Macro-Structure, Bloom-3-Analysis, Language-none-none-none, CS1, LinguisticComplexity-1-Low, CodeLength-NotApplicable, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="632280"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">632280 [created: 2013-06-18 10:54:37, author: kate (xkate), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>If the StackADT operation <code>push</code> is implemented using a linked list, the big-Oh time complexity of the method is:</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*A*</td>
+<td class="middleClear"><p>O(1)</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>O(log<sub>2</sub>n)</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>O(n)</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>O(n<sup>2</sup>)</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>O(2<sup>n</sup>)</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>The push method adds a new element to a stack. Regardless of the size of the list, the operations needed to add a new element include creating a node to store it in and setting the values of a few pointers, all of which can be done in constant time.&nbsp;</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">ATT-Transition-ApplyCSspeak, Contributor_Kate_Sanders, Skill-PureKnowledgeRecall, ATT-Type-How, Difficulty-1-Low, Block-Horizontal-1-Struct_Text, ExternalDomainReferences-1-Low, TopicSimon-Arrays, Block-Vertical-1-Atom, TopicWG-LinkedLists, Bloom-1-Knowledge, Language-none-none-none, LinguisticComplexity-1-Low, CS2, CodeLength-NotApplicable, ConceptualComplexity-1-Low, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="618622"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">618622 [created: 2013-05-28 21:01:01, author: marzieh (xmarzieh), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>Which line of the following code has a compilation error?</p>
+<p>import java.util.*;</p>
+<p>public class bicycles {</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public static void main(String[] Main) {</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Vector&lt;bike&gt; q = new Vector();</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bike b = new bike();</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; q.add(b);</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>}</p>
+<p>class bike{</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; private int bikePrice;</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; private bike(){</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bikePrice = 0;</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; private bike(int p){</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bikePrice = p;</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>}</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>public static void main(String[] Main)</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>Vector&lt;bike&gt; q = new Vector();</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*C*</td>
+<td class="middleClear"><p>bike b = new bike();</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>private int bikePrice;</p></td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="632844"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">632844 [created: 2013-06-20 10:58:54, author: jspacco (xjaime), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>After the assignments <code>a = True</code> and <code>b = True</code>, what is returned by <code>(not a or b) and (a or not b)</code>?</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*A*</td>
+<td class="middleClear"><p>True</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>False</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>1</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>0</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>an error</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear">
+<p>the not operator has a higher precedence than or, so this expression should be read:</p>
+<p>((not a) or b) and (a or (not b))</p>
+<p>Which is True when a=True and b=False</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">ATT-Transition-ApplyCode, Contributor_Jaime_Spacco, Skill-Trace_IncludesExpressions, ATT-Type-How, Difficulty-1-Low, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, Block-Vertical-1-Atom, TopicSimon-DataTypesAndVariables, Bloom-2-Comprehension, Language-Python, TopicSimon-LogicalOperators, CS1, LinguisticComplexity-1-Low, CodeLength-lines-00-to-06_Low, ConceptualComplexity-1-Low, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="633457"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">633457 [created: 2013-06-21 17:24:32, author: jspacco (xjaime), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>Consider the following code:</p>
+<pre lang="text/x-python">number = int(input("Enter a positive number: "))
+while number &gt; 1:
+   if (number % 2 == 1):
+      number = number * 3 + 1
+   else:
+      number = number/2
+   print number
+   if number == 1:
+      break
+else:
+   print "The end"
+</pre>
+<p>&nbsp;</p>
+<p>What output is produced when the input is '-1'?</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>an error</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*B*</td>
+<td class="middleClear"><p>The end</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>no output is produced</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>-1</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>none of the above</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>if number is not greater than 1, we immediately get to "The end".&nbsp; In Python, while loops are allowed to have an else statement.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Nested-Block-Depth-2-two-nested, ATT-Transition-ApplyCode, Contributor_Jaime_Spacco, Skill-Trace_IncludesExpressions, ATT-Type-How, Difficulty-1-Low, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, TopicSimon-ArithmeticOperators, Block-Vertical-2-Block, TopicSimon-DataTypesAndVariables, Bloom-3-Analysis, Language-Python, CS1, LinguisticComplexity-1-Low, CodeLength-lines-06-to-24_Medium, ConceptualComplexity-1-Low</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="627736"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">627736 [created: 2013-06-07 07:42:13, author: kate (xkate), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>3. Consider the following class definition.</p>
+<pre lang="text/x-java">import java.util.Scanner;
+
+public class SillyClass2 {
+   private int num, totalRed, totalBlack;
+
+   public SillyClass2 () {
+      num = 0;
+      totalRed = 0;
+      totalBlack = 0;
+      this.spinWheel();
+      System.out.print("Black: " + totalBlack);
+      System.out.println(" and red: " + totalRed);
+   }
+
+   public void spinWheel () {
+      Scanner kbd = new Scanner(System.in);
+      System.out.println("Enter 1 or 0, -1 to quit.");
+      num = kbd.nextInt();
+      while (num &gt;= 0) {
+         if (num == 0)
+            totalRed++;
+         else if (num == 1)
+            totalBlack++;
+         else System.out.println("Try again");
+         System.out.println("Enter 1 or 0, -1 to quit).");
+         num = kbd.nextInt();
+      }
+      System.out.println("Thanks for playing.");
+   }
+}
+</pre>
+<p>&nbsp;</p>
+<p>Which of the following sequences of inputs causes every line of code to be executed at least once?</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>0 &nbsp; &nbsp;0 &nbsp; &nbsp;10 &nbsp; &nbsp;-1</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>1 &nbsp; &nbsp;0 &nbsp; &nbsp;1 &nbsp; &nbsp;-1</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>1 &nbsp; &nbsp;1 &nbsp; &nbsp;10 &nbsp; &nbsp;-1</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*D*</td>
+<td class="middleClear"><p>1 &nbsp; &nbsp;0 &nbsp; &nbsp;10 &nbsp; &nbsp;-1</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>1 &nbsp; &nbsp;0 &nbsp; &nbsp;10 &nbsp; &nbsp;0</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>This question tests understanding of a conditional nested inside a loop. Choice A is wrong, because the initial value must be &gt;= 0 for the loop to be executed. Choice E is wrong, because the last value must be -1, or the code never exits the loop and the last line of code is not executed. Choices B and C are wrong, because inside the loop, we need one value that's 0, one value that's 1, and one value that's greater than 1, so that each branch of the conditional will be executed.&nbsp;</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Nested-Block-Depth-2-two-nested, ATT-Transition-ApplyCode, Contributor_Kate_Sanders, Skill-TestProgram, ATT-Type-How, Difficulty-2-Medium, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, Block-Vertical-2-Block, Bloom-2-Comprehension, Language-Java, TopicSimon-LoopsSubsumesOperators, CS1, LinguisticComplexity-1-Low, CodeLength-lines-25-or-more_High, ConceptualComplexity-2-Medium, TopicSimon-SelectionSubsumesOps, TopicSimon-Testing</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="632308"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">632308 [created: 2013-06-18 12:24:34, author: kate (xkate), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>Suppose <code>StackADT</code> is implemented in Java using a linked list. The big-Oh time complexity of the following <code>peek</code> method is:&nbsp;</p>
+<pre lang="text/x-java">public T peek() { 
+   T tmp;
+   if (this.top == null) {
+      tmp = null; 
+   } else {
+      tmp = this.top.getElement(); 
+   } 
+   return tmp; 
+} 
+</pre>
+</td>
+</tr>
+<tr class="success">
+<td class="leftClear">*A*</td>
+<td class="middleClear"><p>O(1)</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>O(log n)</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>O(n)</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>O(n<sup>2</sup>)</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>O(2<sup>n</sup>)</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>The method body is executed in a fixed amount of time, independent of the size of the stack.&nbsp;</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Kate_Sanders, ATT-Transition-Code_to_CSspeak, ATT-Type-How, SkillWG-AnalyzeCode, Difficulty-2-Medium, TopicWG-ADT-Stack-Implementations, Block-Horizontal-1-Struct_Text, TopicSimon-AlgorithmComplex-BigO, ExternalDomainReferences-1-Low, Block-Vertical-2-Block, Language-Java, Bloom-3-Analysis, LinguisticComplexity-1-Low, CS2, CodeLength-lines-06-to-24_Medium, ConceptualComplexity-2-Medium, Nested-Block-Depth-1</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="633569"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">633569 [created: 2013-06-19 14:41:21, author: crjjrc (xchris), avg difficulty: 2.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>You need to store a large amount of data, but you don't know the exact number of elements. The elements must&nbsp;be searched quickly by some key. You want to waste no storage space. The elements to be added are in sorted order. What is the simplest data structure that meets your needs?&nbsp;</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>Ordered array</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>Linked list</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>Hashtable</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>Binary search tree</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*E*</td>
+<td class="middleClear"><p>Self-balancing tree</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>Hashtables provide fast searching, but they may waste storage space. A tree makes better use of memory. Since the keys are in a sorted order, it's likely a binary tree will end up looking like a linked list instead of a well-balanced tree. With a self-balancing tree, we can make sure searching goes faster.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Chris_Johnson, ATT-Transition-ApplyCSspeak, Skill-PureKnowledgeRecall, ATT-Type-How, Difficulty-1-Low, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, TopicWG-ChoosingAppropriateDS, TopicSimon-CollectionsExceptArray, Block-Vertical-4-Macro-Structure, Bloom-1-Knowledge, Language-none-none-none, LinguisticComplexity-1-Low, CS2, CodeLength-NotApplicable, ConceptualComplexity-2-Medium, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="633225"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">633225 [created: 2013-06-12 07:09:07, author: crjjrc (xchris), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>Which one of the following is a limitation of Java's arrays?</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>They can only hold primitive types.</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>They can only hold reference types.</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>Once an element is assigned, that element cannot be modified.</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>Their length must be stored separately.</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*E*</td>
+<td class="middleClear"><p>They cannot change size.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>Arrays hold primitives and references, have a builtin length property, and allow modification of individual elements. They cannot be resized.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Chris_Johnson, ATT-Transition-ApplyCSspeak, Skill-PureKnowledgeRecall, ATT-Type-How, Difficulty-1-Low, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, TopicSimon-Arrays, TopicWG-ChoosingAppropriateDS, Block-Vertical-1-Atom, Bloom-1-Knowledge, Language-Java, CS1, LinguisticComplexity-1-Low, CodeLength-NotApplicable, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="618500"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">618500 [created: 2013-05-28 19:52:56, author: marzieh (xmarzieh), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>What will be printed?</p>
+<p>String name = "John";</p>
+<p>String surname = "Smith";</p>
+<p>name.concat(surname);</p>
+<p>System.out.print(name + " ");</p>
+<p>System.out.println(surname);</p>
+</td>
+</tr>
+<tr class="success">
+<td class="leftClear">*A*</td>
+<td class="middleClear"><p>John Smith</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>John Smith Smith</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>JohnSmith Smith</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>Smith John</p></td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="618498"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">618498 [created: 2013-05-28 19:51:31, author: marzieh (xmarzieh), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>What should be done to change the following code to a correct one?</p>
+<p>public class exam {</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; float mark;</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; public static void main(String[]arg){</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; float aCopyofMark;</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; exam e = new exam();</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; System.out.println( e.mark + aCopyofMark);</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>}</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>Change float mark; to static float mark;</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>Delete exam e = new exam();</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*C*</td>
+<td class="middleClear"><p>Initialize aCopyofMark</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>This is a correct code.</p></td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="633646"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">633646 [created: 2013-06-22 09:38:24, author: jspacco (xjaime), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>Consider the following two simple Java classes:</p>
+<pre lang="text/x-java">public class Base {
+  protected int x;
+}
+
+public class Derived extends Base {
+  protected int y;
+}
+</pre>
+<p>&nbsp;</p>
+<p>Which of the following is/are legal?</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear">
+<p>Base b=new Base();</p>
+<p>Derived d=b;</p>
+</td>
+</tr>
+<tr class="success">
+<td class="leftClear">*B*</td>
+<td class="middleClear">
+<p>Derived d=new Derived();</p>
+<p>Base b=d;</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>Base b=new Derived();</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>Derived d=new Base();</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>All of the above</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear">
+<p>B and C are OK.&nbsp; Remember your Liskov substitution principle:&nbsp; You can swap in a derived class anywhere that you expect a base class, because a derived class has at least as much information as a base class.</p>
+<p>The reverse, however, is not true!&nbsp; A derived class may add many more instance variables that the base class knows nothing about!</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">ATT-Transition-ApplyCode, Contributor_Jaime_Spacco, ATT-Type-How, Difficulty-1-Low, SkillWG-AnalyzeCode, Block-Horizontal-1-Struct_Text, ExternalDomainReferences-1-Low, Block-Vertical-4-Macro-Structure, Language-Java, Bloom-3-Analysis, LinguisticComplexity-1-Low, CS2, TopicSimon-OOconcepts, MultipleAnswers-See-Explanation, CodeLength-lines-06-to-24_Medium, ConceptualComplexity-1-Low, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="632761"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">632761 [created: 2013-06-19 20:58:09, author: ray (ray), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>This question refers to a method "swap", for which part of the code is shown below:</p>
+<p class="MsoNormal"><code>public static void swap(int[] x, int i, int j) {</code></p>
+<p class="MsoNormal">&nbsp;<span style="font-family: Courier; layout-grid-mode: line;">// swaps elements "i" and "j" of array "x".</span></p>
+<p class="MsoNormal"><span style="font-family: Courier; layout-grid-mode: line;"><code>&nbsp;&nbsp;&nbsp; int temp;</code><span style="mso-tab-count: 1;">&nbsp;&nbsp;&nbsp;&nbsp; // temporary storage for swapping</span></span></p>
+<p>&nbsp;<span style="font-family: Courier; layout-grid-mode: line;">&nbsp; </span></p>
+<p class="MsoNormal"><span style="font-family: Courier; layout-grid-mode: line;"><span style="mso-spacerun: yes;">&nbsp;&nbsp;&nbsp; xxx missing code goes here xxx</span></span></p>
+<p class="MsoNormal"><code>} // method swap</code></p>
+<p class="MsoNormal">&nbsp;</p>
+<p class="MsoNormal"><span style="font-family: Courier; layout-grid-mode: line;">The missing code from "swap" is:</span></p>
+</td>
+</tr>
+<tr class="success">
+<td class="leftClear">*A*</td>
+<td class="middleClear"><pre lang="text/x-java">temp = x[i];
+x[i] = x[j];
+x[j] = temp;
+</pre></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><pre lang="text/x-java">temp = x[i];
+x[j] = x[i];
+x[j] = temp;
+</pre></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><pre lang="text/x-java">temp = x[j];
+x[j] = x[i];
+x[j] = temp;
+</pre></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><pre lang="text/x-java">temp = x[j];
+x[i] = x[j];
+x[j] = temp;
+</pre></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><pre lang="text/x-java">temp = x[i];
+x[j] = x[i];
+x[i] = temp;
+</pre></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear">
+<p>Suppose&nbsp; initially x[i]=A, x[j]=B.&nbsp; After swap, we want x[i]=B, and x[j]=A, in both cases it doesn&rsquo;t matter what temp equals, so long as x[i] and x[j] values have been swapped after completion.</p>
+<p>a)</p>
+<p>temp = x[i] = A</p>
+<p>x[i] = x[j] = B</p>
+<p>x[j] = temp = A</p>
+<p>Before: x[i] = A, x[j] = B</p>
+<p>After: x[i] = B, x[j] = A</p>
+<p>Both have been swapped, .&rsquo;. CORRECT</p>
+<p>b)</p>
+<p>temp = x[i] = A</p>
+<p>x[j] = x[i] = A</p>
+<p>x[j] = temp = A</p>
+<p>Before: x[i] = A, x[j] = B</p>
+<p>After: x[i] = A, x[j] = A</p>
+<p>Only x[j] has been swapped, .&rsquo;. INCORRECT</p>
+<p>c)</p>
+<p>temp = x[j] = B</p>
+<p>x[j] = x[i] = A</p>
+<p>x[j] = temp = B</p>
+<p>Before: x[i] = A, x[j] = B</p>
+<p>After: x[i] = A, x[j] = B</p>
+<p>Neither have been swapped, .&rsquo;. INCORRECT</p>
+<p>d)</p>
+<p>temp = x[j] = B</p>
+<p>x[i] = x[j] = B</p>
+<p>x[j] = temp = B</p>
+<p>Before x[i] = A, x[j] = B</p>
+<p>After: x[i] = B, x[j] = B</p>
+<p>Onlu x[i] has been swapped, .&rsquo;. INCORRECT</p>
+<p>e)</p>
+<p>temp = x[i] = A</p>
+<p>x[j] = x[i] = A</p>
+<p>x[i] = temp = A</p>
+<p>Before: x[i] = A, x[j] = B</p>
+<p>After: x[i] = A, x[j] = A</p>
+<p>&nbsp;</p>
+<p class="MsoNormal"><span>Only x[j] has been swapped, .&rsquo;. INCORRECT</span></p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Raymond_Lister, ATT-Transition-English_to_Code, Skill-WriteCode_MeansChooseOption, ATT-Type-How, Difficulty-1-Low, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, TopicSimon-Arrays, TopicSimon-Assignment, Block-Vertical-2-Block, Language-Java, Bloom-4-Application, CS1, LinguisticComplexity-1-Low, TopicSimon-MethodsFuncsProcs, CodeLength-lines-06-to-24_Medium, Neo-Piaget-2-Preoperational, ConceptualComplexity-2-Medium, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="618483"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">618483 [created: 2013-05-28 19:41:09, author: marzieh (xmarzieh), avg difficulty: 2.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>Class B extends class A in which a method called firstMethod existed. The signature of firstMethod is as follow. In class B we are going to override firstMethod. Which declaration of this method in class B is correct?</p>
+<p>protected void firstMethod(int firstVar)</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>private void firstMethod(int firstVar)</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>default void firstMethod(int firstVar)</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*C*</td>
+<td class="middleClear"><p>public void firstMethod(int firstVar)</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>void firstMethod(int firstVar)</p></td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="633579"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">633579 [created: 2013-06-19 15:03:38, author: crjjrc (xchris), avg difficulty: 2.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>You've got a class that holds two ints and that can be compared with other IntPair objects:</p>
+<pre lang="text/x-java">class IntPair {
+  private int a;
+  private int b;
+  
+  public IntPair(int a, int b) {
+    this.a = a;
+    this.b = b;
+  }
+ 
+  public int compareTo(IntPair other) {
+    if (a &lt; other.a) {
+      return -1;
+    } else if (a &gt; other.a) {
+      return 1;
+    } else {
+      if (b == other.b) {
+        return 0;
+      } else if (b &gt; other.b) {
+        return -1;
+      } else {
+        return 1;
+      }
+    }
+  }
+}
+</pre>
+<p>&nbsp;</p>
+<p><span style="font-family: arial, helvetica, sans-serif;">Let's denote new IntPair(5, 7) as [5 7]. You've got a list of IntPairs:</span></p>
+<p><span style="font-family: arial, helvetica, sans-serif;">[5 7], [2 9], [3 2]</span></p>
+<p>You sort them using IntPair.compareTo. What is their sorted order?</p>
+</td>
+</tr>
+<tr class="success">
+<td class="leftClear">*A*</td>
+<td class="middleClear"><p>[2 9], [3 2], [5 7]</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>[5 7], [3 2], [2 9]</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>[3 2], [5 7], [2 9]</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>[2 9], [5 7], [3 2]</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>compareTo orders on IntPair.a first, in ascending fashion. Since all elements have unique a values, we simple sort according to the first element.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Chris_Johnson, Nested-Block-Depth-2-two-nested, ATT-Transition-Code_to_CSspeak, Skill-Trace_IncludesExpressions, ATT-Type-How, Difficulty-1-Low, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, Block-Vertical-2-Block, Language-Java, Bloom-2-Comprehension, LinguisticComplexity-1-Low, CS2, TopicSimon-OOconcepts, CodeLength-NotApplicable, TopicWG-Searching, TopicSimon-RelationalOperators, TopicWG-Sorting-Other, ConceptualComplexity-2-Medium</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="633598"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">633598 [created: 2013-06-22 02:38:41, author: jspacco (xjaime), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>What does the following Java code print?</p>
+<pre lang="text/x-java">int inner=0;
+int outer=0;
+for (int i=0; i&lt;6; i++) {
+   outer++;
+   for (int j=0; j&lt;=3; j++) {
+      inner++;
+   }
+}
+System.out.println("outer "+outer+", inner"+inner);
+</pre>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>outer 6, inner 3</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>outer 7, inner 4</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>outer 6, inner 18</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>outer 7, inner 24</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*E*</td>
+<td class="middleClear"><p>outer 6, inner 24</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>For nested loops, the inner loop runs to completion one time for each iteration of the outer loop.&nbsp; So if the outer loop executes 6 times, that means the inner loop, which normally executes its loop body 4 times, will actually run the loop body 24 times (4 executes times 6 outer executions).&nbsp; I probably could explain that better.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Nested-Block-Depth-2-two-nested, ATT-Transition-ApplyCode, Contributor_Jaime_Spacco, Skill-Trace_IncludesExpressions, ATT-Type-How, Difficulty-1-Low, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, Block-Vertical-2-Block, Language-Java, Bloom-3-Analysis, TopicSimon-LoopsSubsumesOperators, CS1, LinguisticComplexity-1-Low, CodeLength-lines-06-to-24_Medium</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="632790"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">632790 [created: 2013-06-20 08:14:12, author: jspacco (xjaime), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>After the assignments <code>x = 27</code> and <code>y = 12</code>, what is returned by<code> x/y</code>?&nbsp; (Assume Python &lt;= 2.7, not Python3).</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*A*</td>
+<td class="middleClear"><p>2</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>2.25</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>3</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>3.0</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>None of the above</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear">
+<p>This is an integer division question.&nbsp; Python will return 2, since 27/12 is 2, with a remainder.&nbsp; But integer division only cares about the quotient, not the remainder.</p>
+<p>Note that you may get a different answer using Python3 rather than with Python2.x</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">ATT-Transition-ApplyCode, Contributor_Jaime_Spacco, Skill-Trace_IncludesExpressions, ATT-Type-How, Difficulty-1-Low, Block-Horizontal-1-Struct_Text, ExternalDomainReferences-1-Low, TopicSimon-ArithmeticOperators, Block-Vertical-1-Atom, Bloom-2-Comprehension, Language-Python, TopicWG-Numeric-Int-Truncation, CS1, LinguisticComplexity-1-Low, CodeLength-lines-00-to-06_Low, ConceptualComplexity-1-Low, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="632599"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">632599 [created: 2013-06-19 15:27:00, author: kate (xkate), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>Which of the following is not an ADT?</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>List</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>Queue</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*C*</td>
+<td class="middleClear"><p>Hashtable</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>Stack</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear">
+<p>Hashtable is a data structure, not an abstract datatype.</p>
+<p>Note: this question is based on a question by Andrew Luxton-Reilly.</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">ATT-Transition-ApplyCSspeak, Contributor_Kate_Sanders, Skill-PureKnowledgeRecall, ATT-Type-How, Difficulty-1-Low, Block-Horizontal-1-Struct_Text, ExternalDomainReferences-1-Low, Block-Vertical-1-Atom, TopicWG-Hashing-HashTables, Bloom-1-Knowledge, Language-none-none-none, LinguisticComplexity-1-Low, CS2, CodeLength-NotApplicable, ConceptualComplexity-2-Medium, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="618516"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">618516 [created: 2013-05-28 20:00:53, author: marzieh (xmarzieh), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>What kind of variable is <em>label</em>?</p>
+<p>public class Labeller extends JFrame {</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public Labeller () {</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; JLabel label = new JLabel("Field or Variable");</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public static void main (String[] args) {</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new Labeller();</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>}</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>local variable, primitive</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>Instance variable, primitive</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*C*</td>
+<td class="middleClear"><p>local variable, Object Reference</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>Instance variable, Object Reference</p></td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="618485"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">618485 [created: 2013-05-28 19:42:33, author: marzieh (xmarzieh), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>A method called myMethod has been defined in a class with the following signature. Which of these four choices cannot be an overloaded alternative for myMethod?</p>
+<p>public void myMethod (int i, double d)</p>
+</td>
+</tr>
+<tr class="success">
+<td class="leftClear">*A*</td>
+<td class="middleClear"><p>public int myMethod (int i, double d)</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>public void myMethod (double d)</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>public void myMethod (String i , double d)</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>public int myMethod (int i)</p></td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="634921"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">634921 [created: 2013-06-29 21:37:09, author: patitsas (xelizabeth), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>In quicksort, what does partitioning refer to?</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>How the list/array always has three partitions: the area before low, the area between<br>low and high, and the area after high.</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>The process in which the memory allocated for the list/array that you are sorting is<br>partitioned into different parts of memory, to improve memory efficiency.</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>The process in which the list/array is partitioned into two equal halves; the sort proceeds<br>by recursively partitioning until we have partitions of size 2, in which case elements are<br>merged in correct order.</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*D*</td>
+<td class="middleClear"><p>The step where all elements less than a given <em>pivot</em> are placed on the left of the pivot,<br>and all elements larger than the pivot are moved to the right.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>D is how it works.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">ATT-Transition-ApplyCSspeak, Contributor_Elizabeth_Patitsas, ATT-Type-How, Difficulty-1-Low, ExternalDomainReferences-1-Low, Bloom-1-Knowledge, Language-none-none-none, CS2, LinguisticComplexity-2-Medium, CodeLength-NotApplicable, TopicWG-Sorting-NlogN, TopicWG-Sorting-Other, TopicWG-Sorting-Quadratic, ConceptualComplexity-2-Medium</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="632831"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">632831 [created: 2013-06-11 07:07:09, author: crjjrc (xchris), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>Many languages allow negative indexing for arrays: items[-1] for the last item, items[-2] for the second to last, and so on. Java doesn't support this indexing directly, but we can create a class that wraps around an array and converts a negative index into the appropriate positive one:</p>
+<pre lang="text/x-java">class WrappedStringArray {
+  private String[] items;
+
+  ...
+
+  public String get(int i) {
+    if (i &gt;= 0) {
+      return items[i];
+    } else {
+      return TODO;
+    }
+  }
+}
+</pre>
+<p>&nbsp;</p>
+<p><span style="font-family: arial, helvetica, sans-serif;">What expression must we replace TODO with to support negative indexing?</span></p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>(int) Math.abs(i)</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*B*</td>
+<td class="middleClear"><p>items.length + i</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>(int) Math.abs(i + 1)</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>items.length - 1 - i</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>items.length - i</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>We want items[-1] to map to items[items.length - 1], and only the correct answer handles this case.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Chris_Johnson, ATT-Transition-ApplyCode, Skill-WriteCode_MeansChooseOption, ATT-Type-How, Difficulty-1-Low, Block-Horizontal-1-Struct_Text, ExternalDomainReferences-1-Low, TopicSimon-Arrays, Block-Vertical-2-Block, Language-Java, Bloom-2-Comprehension, CS1, LinguisticComplexity-1-Low, CodeLength-lines-06-to-24_Medium, ConceptualComplexity-1-Low, Nested-Block-Depth-1</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="633558"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">633558 [created: 2013-06-19 11:21:35, author: crjjrc (xchris), avg difficulty: 2.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>What happens if you forget to define the <code>equals</code> method for your key class used to insert elements into a hashtable?</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>The elements can be inserted but remain inaccessible.</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>Inserting an element will raise an exception.</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*C*</td>
+<td class="middleClear"><p>Elements can be inserted and retrieved only by using the same key instances used to insert the elements.</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>All elements will map to the same location in the table.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>When a key lookup is performed, we will find the hashtable location and then compare the keys using Object.equals. Object.equals returns true only when the two keys refer to the same object.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Chris_Johnson, ATT-Transition-ApplyCSspeak, Skill-PureKnowledgeRecall, ATT-Type-How, Difficulty-1-Low, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, TopicSimon-CollectionsExceptArray, TopicWG-Hashing-HashTables, Block-Vertical-4-Macro-Structure, Bloom-1-Knowledge, Language-none-none-none, LinguisticComplexity-1-Low, CS2, CodeLength-NotApplicable, ConceptualComplexity-1-Low, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="633559"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">633559 [created: 2013-06-19 11:28:43, author: crjjrc (xchris), avg difficulty: 2.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>You've got two classes, Key and Value, both of which descend from Object. You intend to use these classes to populate a hashtable. Which class needs the hashCode method and which needs the equals method?</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>Key.hashCode, Value.equals</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*B*</td>
+<td class="middleClear"><p>Key.hashCode, Key.equals</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>Value.hashCode,&nbsp;Object.equals</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>Key.hashCode, Object.equals</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>Value.hashCode,&nbsp;Value.equals</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>Only the Key needs these methods. On a search, only the Key will be provided, so that alone must provide the necessary information for finding the corresponding Value. Object's implementation of the equals method is too restrictive, comparing Keys only for identity.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Chris_Johnson, ATT-Transition-ApplyCSspeak, Skill-PureKnowledgeRecall, ATT-Type-How, Difficulty-1-Low, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, Block-Vertical-2-Block, TopicSimon-CollectionsExceptArray, TopicWG-Hashing-HashTables, Bloom-1-Knowledge, Language-none-none-none, LinguisticComplexity-1-Low, CS2, CodeLength-NotApplicable, ConceptualComplexity-2-Medium, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="618547"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">618547 [created: 2013-05-28 20:23:21, author: marzieh (xmarzieh), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>If you are about to evaluate the following code, which following comments would you choose?</p>
+<p>FileReader inputStream = null;</p>
+<p>try {</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; inputStream = new FileReader("in.txt");</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int c;</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while ((c = inputStream.read()) != -1)</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // ... code has been deleted</p>
+<p>}catch (IOException e){</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; System.out.println(e.getLocalizedMessage());</p>
+<p>}</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>Add <em>finally</em> to the above structure.</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*B*</td>
+<td class="middleClear"><p>Make sure you close in.txt.</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>Buffering input streams is a must.</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>All of the above choices must be applied.</p></td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="633563"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">633563 [created: 2013-06-19 13:36:45, author: crjjrc (xchris), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>Double hashing</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>involves hashing the hash code</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>avoids collisions by computing a hash code that's a <code>double</code> instead of an <code>int</code></p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>prevents collisions by keeping two tables</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>produces a second index in [0, table.length)</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*E*</td>
+<td class="middleClear"><p>is less vulnerable to clustering than linear or quadratic probing</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>With double hashing, a second hash function is used to determine the step size for the probing sequence. With linear or quadratic probing, elements that collide also tend to have the same step size, which leads to clustering. A secondary hash breaks up this uniformity.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Chris_Johnson, ATT-Transition-ApplyCSspeak, Skill-PureKnowledgeRecall, ATT-Type-How, Difficulty-1-Low, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, Block-Vertical-2-Block, TopicSimon-CollectionsExceptArray, TopicWG-Hashing-HashTables, Bloom-1-Knowledge, Language-none-none-none, LinguisticComplexity-1-Low, CS2, CodeLength-NotApplicable, ConceptualComplexity-2-Medium, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="632544"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">632544 [created: 2013-06-19 12:21:08, author: xrobert (xrobert), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p><img src="img/13.png" alt="no description"></p>
+<p>The above instance (or Object) diagram represents a <code>Queue</code>. If I invoke wilma.dequeue(),&nbsp; it returns:</p>
+</td>
+</tr>
+<tr class="success">
+<td class="leftClear">*A*</td>
+<td class="middleClear"><p>A blue car</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>A red car</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>A chartreuse car</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>A Node whose _element is a blue car</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>A Node whose _element is a chartreuse car</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>Dequeue removes the least-recently enqueued element from the Queue and returns it.&nbsp; This element is at the "head" end of the Queue.&nbsp; What it returns is specified by the interface, which is independent of implementation, so it is a Car, not a Node. </p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Robert_McCartney</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="632545"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">632545 [created: 2013-06-19 12:22:52, author: kate (xkate), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>The time complexity of selection sort is:</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>O(1)</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>O(n)</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>O(n log n)</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*D*</td>
+<td class="middleClear"><p>O(n<sup>2</sup>)</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>none of the above</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>Selection sort requires n(n-1)/2 comparisons.&nbsp;</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">ATT-Transition-ApplyCSspeak, Contributor_Kate_Sanders, Skill-PureKnowledgeRecall, ATT-Type-How, Difficulty-1-Low, Block-Horizontal-1-Struct_Text, TopicSimon-AlgorithmComplex-BigO, ExternalDomainReferences-1-Low, Block-Vertical-2-Block, Bloom-1-Knowledge, Language-none-none-none, LinguisticComplexity-1-Low, CS2, CodeLength-NotApplicable, TopicWG-Sorting-Quadratic, ConceptualComplexity-2-Medium, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="634914"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">634914 [created: 2013-06-29 21:24:18, author: patitsas (xelizabeth), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>Martina has created an array, arr[50], and she has written the following line of code:<br>*(arr + 20) = 6;<br>Rewrite this line to use the [ ] notation for arrays.</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>arr[21] = 6</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>*arr[20] = 6</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*C*</td>
+<td class="middleClear"><p>arr[20] = 6</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>*arr[21] = 6</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>arr[20] == *(arr + 20)</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Elizabeth_Patitsas, ATT-Transition-CSspeak_to_Code, Skill-WriteCode_MeansChooseOption, ATT-Type-How, Difficulty-1-Low, Block-Horizontal-1-Struct_Text, ExternalDomainReferences-0-WWWWWW, TopicSimon-ArithmeticOperators, TopicSimon-Arrays, Block-Vertical-1-Atom, Language-C, TopicSimon-DataTypesAndVariables, Bloom-1-Knowledge, LinguisticComplexity-1-Low, CS2, TopicWG-Pointers-ButNotReferences, CodeLength-lines-00-to-06_Low, ConceptualComplexity-2-Medium, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="632795"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">632795 [created: 2013-06-20 08:33:13, author: jspacco (xjaime), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>Which statement or statements store 0.8 into the variable <code>d</code> of type <code>double</code>?</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>double d=8/10;</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*B*</td>
+<td class="middleClear"><p>double d=8.0/10.0;</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>double d=8/10.0;</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>double d=8.0/10;</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>None of the above</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>A is wrong because 8/10 is zero.&nbsp; But the B,C,D (8.0/10.0, 8/10.0, 8.0/10) all produce 0.8 because Java will promote any ints to a double in an arithmetic expression so long as there is at least one double in the expression.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">ATT-Transition-ApplyCode, Contributor_Jaime_Spacco, ATT-Type-How, Difficulty-1-Low, Block-Horizontal-1-Struct_Text, ExternalDomainReferences-1-Low, TopicSimon-ArithmeticOperators, Block-Vertical-1-Atom, TopicSimon-DataTypesAndVariables, Language-Java, Bloom-2-Comprehension, CS1, LinguisticComplexity-1-Low, MultipleAnswers-See-Explanation, CodeLength-lines-00-to-06_Low, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="629956"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">629956 [created: 2013-06-11 10:41:09, author: kate (xkate), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>Suppose you have a Java array of ints. The worst-case time complexity of printing out the elements in the list is:</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>O(1)</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>O(log n)</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*C*</td>
+<td class="middleClear"><p>O(n)</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>O(n log n)</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>O(n<sup>2</sup>)</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>If we assume that printing a single value can be done in constant time for some constant k, then printing n values can be done in kn time, which is O(n).</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Kate_Sanders, Skill-AAA-WWWWWWWWWWWWWWWWWWWWWWW, ATT-Transition-DefineCSspeak, ATT-Type-How, Difficulty-2-Medium, Block-Horizontal-1-Struct_Text, TopicSimon-AlgorithmComplex-BigO, ExternalDomainReferences-0-WWWWWW, Block-Vertical-2-Block, Language-Java, Bloom-3-Analysis, LinguisticComplexity-1-Low, CS2, CodeLength-NotApplicable, ConceptualComplexity-2-Medium</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="633242"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">633242 [created: 2013-06-12 23:57:32, author: crjjrc (xchris), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>Suppose you have a binary search tree with no left children. Duplicate keys are not allowed. Which of the following explains how this tree may have ended up this way?</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*A*</td>
+<td class="middleClear"><p>It was filled in ascending order.</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>The root value was the maximum.</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>All keys were identical.</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>The tree is a preorder tree.</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>It was filled in descending order.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>If the least node was inserted first, with each successive node having a greater key than its predecessor, we'd end up with all right children. Adding nodes with identical keys is prohibited by the problem statement, though it would yield a similar tree.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Chris_Johnson, ATT-Transition-ApplyCSspeak, Skill-PureKnowledgeRecall, ATT-Type-Why, Difficulty-2-Medium, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, Block-Vertical-2-Block, TopicSimon-CollectionsExceptArray, Bloom-2-Comprehension, Language-none-none-none, LinguisticComplexity-1-Low, CS2, CodeLength-NotApplicable, ConceptualComplexity-2-Medium, TopicWG-Trees-Other, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="633277"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">633277 [created: 2013-06-21 09:04:05, author: patitsas (xelizabeth), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>Mohamed has a brute force solution for vertex covering that takes one milisecond to test a possible vertex covering. The large graph has 64 nodes, so there are 264<br>possibilities (approx 1.85 * 10<sup>19</sup> ). (There are 1000 ms in a second.) How long will Mohamed&rsquo;s code take to run?</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>about 500,000 days</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>about 500,000 years</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*C*</td>
+<td class="middleClear"><p>about 500,000,000 years</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear">
+<p>((1 / 1000*60*60*24) day ) * 1.85 * 10^19&nbsp; = about 2 * 10^11 days -- so not A.</p>
+<p>2 * 10^11 days is about 5 * 10^8 years.</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">ATT-Transition-ApplyCSspeak, Contributor_Elizabeth_Patitsas, ATT-Type-How, Difficulty-2-Medium, TopicSimon-AlgorithmComplex-BigO, ExternalDomainReferences-2-Medium, Bloom-4-Application, Language-none-none-none, CS2, CodeLength-NotApplicable, CodeLength-lines-00-to-06_Low</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="631936"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">631936 [created: 2013-06-17 11:52:22, author: kate (xkate), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>After the Java assignment statement</p>
+<p>&nbsp; &nbsp;<code>String word = "blank";</code></p>
+<p>which of the following Java code fragments prints</p>
+<p>&nbsp; &nbsp;<code>blink</code></p>
+<p>?</p>
+<p></p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><pre lang="text/x-java">word[2] = "i";
+System.out.println(word);
+</pre></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*B*</td>
+<td class="middleClear">
+<code>word.replaceAll("a","i");</code><p><code>System.out.println(word);</code></p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear">
+<code>word = word.substring(0,1) + "i" + word.substring(3,5);</code><p><code>System.out.println(word);</code></p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>All of (a)&ndash;(c).</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>None of (a)&ndash;(c) .</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>(a) is wrong because the Java syntax word[n] requires the variable word to be an array. (c) is almost right; it just needs to have a 2 instead of the 1 in the first call to substring. Since (a) and (c) are wrong, (d) must be wrong. (b) is correct, so (e) must be wrong.&nbsp;</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">ATT-Transition-ApplyCode, Contributor_Kate_Sanders, Skill-WriteCode_MeansChooseOption, ATT-Type-How, Difficulty-2-Medium, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, Block-Vertical-2-Block, Language-Java, Bloom-5-Synthesis, LinguisticComplexity-1-Low, TopicSimon-MethodsFuncsProcs, CSother, CodeLength-lines-06-to-24_Medium, Nested-Block-Depth-0-no_ifs_loops, TopicSimon-Strings</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="632020"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">632020 [created: 2013-06-17 17:04:53, author: kate (xkate), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>Consider the following possible Java class names:</p>
+<p>&nbsp; &nbsp;<code>General, colonel, Private, Major-General, Strategy&amp;Tactics</code></p>
+<p>When determining which names are valid, which of the following factors is important:</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>Class names start with a capital letter.</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>Class names must not be a Java reserved word.&nbsp;</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>Class names are generally nouns, corresponding to a person, place, thing, or idea.&nbsp;</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>Class names must start with a letter or underscore, followed by zero or more letters, digits, and/or underscores.&nbsp;</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*E*</td>
+<td class="middleClear"><p>All of the above.&nbsp;</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>Choices (b) and (d) are Java syntactic rules; A and C are generally accepted conventions.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Kate_Sanders, ATT-Transition-Code_to_CSspeak, Skill-ExplainCode, Difficulty-1-Low, ATT-Type-Why, Block-Horizontal-1-Struct_Text, ExternalDomainReferences-1-Low, Block-Vertical-1-Atom, TopicSimon-DataTypesAndVariables, Language-Java, Bloom-2-Comprehension, LinguisticComplexity-1-Low, CS1, CodeLength-lines-00-to-06_Low, ConceptualComplexity-1-Low, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="631018"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">631018 [created: 2013-06-13 14:00:06, author: edwards@cs.vt.edu (xstephen), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>In Java, what value will the variable <code>d</code> have after this declaration:</p>
+<code>double d = 18 / 4;</code>
+</td>
+</tr>
+<tr class="success">
+<td class="leftClear">*A*</td>
+<td class="middleClear"><code>4.0</code></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><code>4.5</code></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><code>18.4</code></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>None of these</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>While the variable <code>d</code> is being declared as a <code>double</code>, the initial value provided on the righthand side is actually an <code>int</code> expression, consisting of one integer value divided by another. &nbsp;When the <code>int</code> expression is evaluated, its result is also an <code>int</code> and any fractional part is truncated. &nbsp;The value of <code>18 / 4</code> is <code>4</code> (an <code>int</code>). &nbsp;After this <code>int</code> value is produced, it is then promoted to a <code>double</code> value when initializing the variable <code>d</code>, giving <code>d</code> the initial value <code>4.0</code>.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">ATT-Transition-ApplyCode, Contributor_Stephen_Edwards, Skill-Trace_IncludesExpressions, ATT-Type-How, Difficulty-2-Medium, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, TopicSimon-ArithmeticOperators, TopicSimon-Assignment, Block-Vertical-1-Atom, TopicSimon-DataTypesAndVariables, Language-Java, Bloom-2-Comprehension, LinguisticComplexity-1-Low, CS1, CodeLength-lines-00-to-06_Low, ConceptualComplexity-1-Low, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="633236"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">633236 [created: 2013-06-12 23:18:09, author: crjjrc (xchris), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>This code fails to compile:</p>
+<pre lang="text/x-java">char current = 'a';
+current = current + 1;
+</pre>
+<p>&nbsp;</p>
+<p>Why?</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>We can't add ints and chars.</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*B*</td>
+<td class="middleClear"><p>We're trying to squeeze an int into a char.</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>The character after 'a' is platform-dependent.</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>We're trying to squeeze a String into a char.</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>The assignment is infinitely recursive.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>The char is promoted to an int when an int is added to it. Thus, our right-hand side is an int while our left-hand side is a char. Assigning an int into a char may result in information less, which requires us to sign off on this risky operation with an explicit cast.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Chris_Johnson, Skill-DebugCode, ATT-Transition-Code_to_English, Difficulty-1-Low, ATT-Type-Why, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, Block-Vertical-2-Block, TopicSimon-DataTypesAndVariables, Language-Java, Bloom-2-Comprehension, CS1, LinguisticComplexity-1-Low, CodeLength-lines-00-to-06_Low, ConceptualComplexity-1-Low, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="633274"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">633274 [created: 2013-06-21 08:52:15, author: patitsas (xelizabeth), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>Which problem is not P (assuming P!=NP)?</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*A*</td>
+<td class="middleClear"><p>Integer knapsack</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>Single-source shortest path</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>Minimum spanning tree</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>Sorting</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>Integer knapsack is considered NP-Complete.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">ATT-Transition-ApplyCSspeak, Contributor_Elizabeth_Patitsas, Skill-PureKnowledgeRecall, ATT-Type-How, Difficulty-2-Medium, ExternalDomainReferences-1-Low, Bloom-1-Knowledge, Language-none-none-none, LinguisticComplexity-2-Medium, CSother, CodeLength-NotApplicable</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="634126"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">634126 [created: 2013-06-21 09:12:21, author: patitsas (xelizabeth), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>What will this code output on a 64-bit machine?</p>
+<p><br><code>int vals[10];</code></p>
+<code>printf("%d\n", sizeof(vals + 0));</code>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>4</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*B*</td>
+<td class="middleClear"><p>8</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>40</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>80</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>sizeof(vals + 0) will get the size of the memory address of the first element in vals; a pointer is 8 bytes on the 64-bit machine</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Elizabeth_Patitsas, ATT-Transition-Code_to_CSspeak, Skill-PureKnowledgeRecall, ATT-Type-How, Difficulty-1-Low, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, TopicSimon-Arrays, Block-Vertical-1-Atom, Language-C, TopicSimon-DataTypesAndVariables, Bloom-1-Knowledge, LinguisticComplexity-1-Low, CS2, TopicWG-Pointers-ButNotReferences, TopicWG-Runtime-StorageManagement, CodeLength-lines-00-to-06_Low, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="635005"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">635005 [created: 2013-06-29 22:55:08, author: patitsas (xelizabeth), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>Which algorithm is most arguably a greedy algorithm? (Circle the best answer.)</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>merge sort</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>insertion sort</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*C*</td>
+<td class="middleClear"><p>selection sort</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>bubble sort</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>Selection sort greedily takes the min/max of the array. This is a clicker question to discuss what greedy means; none of the algorithms are really greedy!</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">ATT-Transition-ApplyCSspeak, Contributor_Elizabeth_Patitsas, ATT-Type-How, Difficulty-1-Low, TopicSimon-AlgorithmComplex-BigO, ExternalDomainReferences-1-Low, Language-none-none-none, LinguisticComplexity-1-Low, CS2, CodeLength-NotApplicable, TopicWG-Sorting-NlogN, TopicWG-Sorting-Quadratic, ConceptualComplexity-2-Medium</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="634978"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">634978 [created: 2013-06-19 11:58:19, author: xrobert (xrobert), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p><img src="img/14.png" alt="no description"></p>
+<p>GIven the "standard" set of Stack methods, what would <code>fred.pop()</code> return?</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>A Node whose element is a blue Car</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>A Node whose element is a red Car</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*C*</td>
+<td class="middleClear"><p>A blue Car</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>A red Car</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>A Stack that contains the remaining Car</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>Pop removes the most-recently pushed element from the Stack and returns it.&nbsp;&nbsp; What it returns is specified by the interface, which is independent of implementation.&nbsp; A user should be able to interact with a stack using push, pop, peek, and isEmpty without knowing the implementation details.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">ATT-Transition-ApplyCSspeak, Contributor_Robert_McCartney, Skill-Trace_IncludesExpressions, ATT-Type-How, Difficulty-1-Low, ATT-Type-Why, TopicWG-ADT-Stack-DefInterfaceUse, Language-Java, Bloom-4-Application, CS1, LinguisticComplexity-1-Low, CS2, CodeLength-lines-00-to-06_Low</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="634982"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">634982 [created: 2013-06-19 08:15:25, author: xrobert (xrobert), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p><img src="img/15.png" alt="no description"></p>
+<p>&nbsp;</p>
+<p>The above instance (or Object) diagram represents:</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>A collection of Car and Node objects</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>A Node list</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*C*</td>
+<td class="middleClear"><p>A Stack with a blue Car on top</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>A Stack with a red Car on top</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>None of the above</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>The diagram represents a Stack whose top element is a blue Car.&nbsp;&nbsp; It includes a Node list, and a number of Node and Car objects, but the whole picture represents a Stack.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">ATT-Transition-CSspeak_to_English, Contributor_Robert_McCartney, Difficulty-1-Low, TopicWG-ADT-Stack-Implementations, Bloom-2-Comprehension, Language-none-none-none, CS1, CS2, CodeLength-NotApplicable</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="634989"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">634989 [created: 2013-06-29 22:38:46, author: patitsas (xelizabeth), avg difficulty: 2.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>Anastasiya has written code that loops over an int array named <code>a</code> which is of length N. Fill in the missing parts of the for loop&rsquo;s declaration.</p>
+<p><br><code>int sum = 0;</code></p>
+<pre lang="text/x-c">int *p;
+for(p = a;  ; ) // complete this line
+{
+    sum += *p;
+}
+</pre>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>p &lt; N; p++</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>p; p++</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*C*</td>
+<td class="middleClear"><p>p &lt; a + N; p++</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>p; p = p-&gt;next</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>p-&gt;next; p = p-&gt;next</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>p will not work as the ending condition as you don't know what's at the end of the array; N is not an appropriate ending condition as it needs to be relative from where you started. D and E are wrong as those would be for linked lists.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Elizabeth_Patitsas, ATT-Transition-CSspeak_to_Code, Skill-WriteCode_MeansChooseOption, ATT-Type-How, Difficulty-2-Medium, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, TopicSimon-ArithmeticOperators, TopicSimon-Arrays, Block-Vertical-2-Block, Language-C, Bloom-2-Comprehension, TopicSimon-LoopsSubsumesOperators, LinguisticComplexity-1-Low, CS2, TopicWG-Pointers-ButNotReferences, TopicWG-Recs-Structs-HeteroAggs, CodeLength-lines-00-to-06_Low, ConceptualComplexity-2-Medium, Nested-Block-Depth-1</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="633254"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">633254 [created: 2013-06-18 07:25:23, author: crjjrc (xchris), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>You've got an algorithm that is O(log&nbsp;N). On the first run, you feed it a collection of size M. On the second run, you feed it a collection of size M / 2. Assuming each run has worst-case performance, how many fewer operations does the second run take?</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>0</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*B*</td>
+<td class="middleClear"><p>1</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>2</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>3</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>4</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>The first run takes log M operations. The second run takes log (M/2) = log M - log 2 = log M - 1 operations. The second is just one operation less than the first.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Chris_Johnson, ATT-Transition-ApplyCSspeak, Skill-PureKnowledgeRecall, ATT-Type-How, Difficulty-1-Low, TopicSimon-AlgorithmComplex-BigO, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, Block-Vertical-2-Block, Bloom-4-Application, Language-none-none-none, CS2, CodeLength-NotApplicable, ConceptualComplexity-2-Medium, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="631016"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">631016 [created: 2013-06-13 13:54:32, author: edwards@cs.vt.edu (xstephen), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>In Java, what value will the variable <code>i</code> have after this declaration:</p>
+<code>int i = 2 + 8 % 4;</code>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>0</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*B*</td>
+<td class="middleClear"><p>2</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>4</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>4.0</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>6</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>When evaluating the initialization expression, precedence requires the modulo operator % to be applied first. 8 % 4 produces the value 0, since 8 divided by 4 has a remainder of zero. &nbsp;When zero is then added to 2, the result is 2, which becomes the initial value of the newly declared variable.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">ATT-Transition-ApplyCode, Contributor_Stephen_Edwards, Skill-Trace_IncludesExpressions, ATT-Type-How, Difficulty-1-Low, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, TopicSimon-ArithmeticOperators, Block-Vertical-1-Atom, TopicSimon-DataTypesAndVariables, Language-Java, Bloom-2-Comprehension, LinguisticComplexity-1-Low, CS1, CodeLength-lines-00-to-06_Low, ConceptualComplexity-1-Low, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="634997"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">634997 [created: 2013-06-29 22:43:05, author: jspacco (xjaime), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>Assume M and N are positive integers. What does the following code print?</p>
+<pre lang="text/x-java">int sum=0;
+for (int j=0; j&lt;M; j++) {
+  for (int i=0; i&lt;N; i++) {
+    if (N%2==0) {
+      sum += 1;
+    }
+  }
+}
+System.out.println(sum);
+</pre>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>M</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>M<sup>N</sup></p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>M*N</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*D*</td>
+<td class="middleClear"><p>M*N/2</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>M*(N/2+1)</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>The outer loop executes M times, while the inner loop executes N/2 times (i.e. if N is 6, the loop executes 3 times because there are 3 even numbers (0,2,4) between 0 and 5).</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Nested-Block-Depth-3-three-nested, ATT-Transition-ApplyCode, Contributor_Jaime_Spacco, Skill-Trace_IncludesExpressions, ATT-Type-How, Difficulty-1-Low, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, Block-Vertical-2-Block, Language-Java, Bloom-3-Analysis, TopicSimon-LoopsSubsumesOperators, CS1, LinguisticComplexity-1-Low, CodeLength-lines-00-to-06_Low, ConceptualComplexity-1-Low</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="631537"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">631537 [created: 2013-05-28 19:59:06, author: marzieh (xmarzieh), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>Which definition is not right?</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>ArrayList&lt;Character&gt; charArray = new ArrayList&lt;Character&gt;();</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>ArrayList&lt;Object&gt; objectArray = new ArrayList&lt;Object&gt;();</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>ArrayList&lt;Integer&gt; intArray = new ArrayList&lt;Integer&gt;(10);</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*D*</td>
+<td class="middleClear"><p>ArrayList&lt;double&gt; doubleArray = new ArrayList&lt;double&gt;(10);</p></td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="630955"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">630955 [created: 2013-06-13 12:12:29, author: kate (xkate), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>Which of the following choices would best be modeled by a class, followed by a subclass of that class?</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>CountryInAfrica, Botswana</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>Botswana, CountryInAfrica</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>CountryInAfrica, Country</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*D*</td>
+<td class="middleClear"><p>Country, CountryInAfrica</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>Botswana, SouthAfrica</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>Choices A and B are wrong, because one of the items listed is a concrete item that would be better modeled by an object. Choice E is wrong because both items listed are concrete. Choices C and D both list a class and a subclass, but only in Choice D does the class come first, followed by the subclass.&nbsp;</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">ATT-Transition-ApplyCSspeak, Contributor_Kate_Sanders, Skill-DesignProgramWithoutCoding, ATT-Type-How, Difficulty-2-Medium, Block-Horizontal-3-Funct_ProgGoal, ExternalDomainReferences-2-Medium, Block-Vertical-3-Relations, Bloom-5-Synthesis, Language-none-none-none, CS1, LinguisticComplexity-2-Medium, TopicSimon-OOconcepts, CodeLength-NotApplicable, TopicSimon-ProgramDesign, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="630938"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">630938 [created: 2013-06-13 11:51:35, author: xrobert (xrobert), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>In Java, the actual type of a parameter or variable&rsquo;s value can be any concrete class that is</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>a. the same as the declared type, or any subclass of the declared type (if the declared type is a class) </p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>b. any subclass of a class that <code>implements</code> the declared type (if the declared type is an interface) </p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>c. any class that <code>implements</code> the declared type (if the declared type is an interface) </p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*D*</td>
+<td class="middleClear"><p>d. All of the above </p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>e. A and C above, but not B</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>The declared type must be the same or more abstract than the actual type, so the actual type must be below the declared type in the class hierarchy (if both are classes), or below some class that <span style="font-family: courier new,courier,monospace;">implements</span> the declared type in the class hierarchy if the declared type is an interface.</p></td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="631873"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">631873 [created: 2013-06-17 07:07:20, author: kate (xkate), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>Given the code:</p>
+<pre lang="text/x-java">if (x &gt;= 0)
+   System.out.println("1");
+else if (x &lt; 20)
+   System.out.println("2");
+else
+   System.out.println("3");
+System.out.println("4");
+</pre>
+<p>&nbsp;</p>
+<p>for what integer values of <code>x</code> will <code>2</code> be among the values printed?&nbsp;</p>
+</td>
+</tr>
+<tr class="success">
+<td class="leftClear">*A*</td>
+<td class="middleClear"><p>x &lt; 0</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>x &gt;= 0</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>x &lt; 20</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>All values of x</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>None of the above</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>The if-else clause will be executed only when the if-clause is false. So for all int values less than 0, 2 will be printed.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">ATT-Transition-ApplyCode, Contributor_Kate_Sanders, Skill-Trace_IncludesExpressions, ATT-Type-How, Difficulty-1-Low, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, Block-Vertical-2-Block, Language-Java, Bloom-2-Comprehension, LinguisticComplexity-1-Low, CS1, CodeLength-lines-06-to-24_Medium, TopicSimon-SelectionSubsumesOps, Nested-Block-Depth-1</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="632081"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">632081 [created: 2013-06-16 16:35:37, author: tclear (xtony), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>What will the display look like after these lines of code, with [ ] representing a space?</p>
+<p>float fData = 3.6239;</p>
+<p>printf("%3.1f \n", fData);</p>
+</td>
+</tr>
+<tr class="success">
+<td class="leftClear">*A*</td>
+<td class="middleClear"><p>3.6</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>3.62</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>3.624</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>[ ] 3.62</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>[ ] [ ] 3.6</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>The printf function follows the pattern printf("format" [, list of_ fields]).&nbsp; Within the "format" element the field specifiers have the following format [% [-] [+] [width [.precision]] data_type], where the square brackets indicate that the element is optional. &nbsp; In this case %f represents a floating point element, and 3.1&nbsp; the required precision of 1 decimal place.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Tony_Clear, Skill-Trace_IncludesExpressions, Difficulty-1-Low, Block-Horizontal-1-Struct_Text, Block-Vertical-1-Atom, Language-C, Bloom-2-Comprehension, TopicSimon-IO, CS1, TopicSimon-Params-SubsumesMethods, CodeLength-lines-00-to-06_Low</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="632087"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">632087 [created: 2013-06-16 15:53:17, author: tclear (xtony), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>What will be output by this loop?</p>
+<p>for(n = 1, m = 5; n &lt;= 5; n++, m--)</p>
+<p>printf("%d %d\n", n, m);</p>
+</td>
+</tr>
+<tr class="success">
+<td class="leftClear">*A*</td>
+<td class="middleClear">
+<p>1 5</p>
+<p>2 4</p>
+<p>3 3</p>
+<p>4 2</p>
+<p>5 1</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear">
+<p>1 4</p>
+<p>2 3</p>
+<p>3 2</p>
+<p>4 1</p>
+<p>5 0</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear">
+<p>&nbsp;5 1</p>
+<p>4 2</p>
+<p>3 3</p>
+<p>2 4</p>
+<p>1 5</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear">
+<p>1 5</p>
+<p>2 4</p>
+<p>3 3</p>
+<p>4 2</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear">
+<p>1 4</p>
+<p>2 3</p>
+<p>3 2</p>
+<p>4 1</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>The loop increments the value of n and decrements the value of m on each iteration printing the value of each variable, until n reaches the terminal value of 5</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Tony_Clear, Skill-Trace_IncludesExpressions, Difficulty-2-Medium, Block-Horizontal-2-Struct_Control, Block-Vertical-2-Block, Language-C, Bloom-2-Comprehension, TopicSimon-IO, TopicSimon-LoopsSubsumesOperators, CS1, TopicSimon-Params-SubsumesMethods</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="632114"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">632114 [created: 2013-06-17 20:55:29, author: marzieh (xmarzieh), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>What would be the performance of a method called addAfter(p), in which p is a position of a node or an index of an array, if the data structure is implemented by an array or linked list structure respectively?</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear">
+<p>&nbsp;O(1), O(1)</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>O(1), O(n)</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*C*</td>
+<td class="middleClear"><p>O(n), O(1)</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>O(n), O(n)</p></td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="634935"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">634935 [created: 2013-06-19 17:47:28, author: xrobert (xrobert), avg difficulty: 2.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<pre lang="text/x-java">public class RecursiveMath
+   ...
+   public int fib (int a) {
+      if (a == 1)
+         return 1;
+      else
+         return fib(a-1) + fib(a-2);
+   }
+...
+}
+</pre>
+<p>&nbsp;</p>
+<p>Given the above definition, what is the result of executing the following?</p>
+<pre lang="text/x-java">RecursiveMath bill = new RecursiveMath();
+int x = bill.fib(-1);
+</pre>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>x is set to -1</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>x is set to undefined</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*C*</td>
+<td class="middleClear"><p>The code does not terminate</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>The code cannot be executed, because it won't compile</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>None of the above</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>The problem:&nbsp; When we invoke fib(-1),&nbsp; a gets bound to -1; since that is not equal to 1, we call fib(-2) and fib(-3), and so on.&nbsp; We keep making recursive calls, and the parameter will never be equal to 1 since we are getting further away from 1 with each call.&nbsp; So it will not terminate.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Nested-Block-Depth-2-two-nested, ATT-Transition-Code_to_English, Skill-ExplainCode, Contributor_Robert_McCartney, ATT-Type-How, Difficulty-1-Low, Language-Java, CS1, LinguisticComplexity-1-Low, TopicSimon-Recursion, ConceptualComplexity-2-Medium</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="634951"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">634951 [created: 2013-06-19 14:26:38, author: crjjrc (xchris), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>You don't know exactly how much data you need to store, but there's not much of it. You'd like to not allocate any memory that won't be used. You do not need to be able to search the collection quickly. What is the simplest data structure that best suits for your needs?</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>Unordered array</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>Ordered array</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*C*</td>
+<td class="middleClear"><p>Linked list</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>Hashtable</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>Binary search tree</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>Since arrays must be allocated before they are used, we tend to overallocate to make sure we have sufficient capacity. This wastes space. If we're not exactly sure of how much storage we need and without a need for fast searching, a linked list is a good choice.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Chris_Johnson, ATT-Transition-ApplyCSspeak, Skill-PureKnowledgeRecall, ATT-Type-How, Difficulty-1-Low, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, TopicWG-ChoosingAppropriateDS, TopicSimon-CollectionsExceptArray, Block-Vertical-4-Macro-Structure, Bloom-1-Knowledge, Language-none-none-none, LinguisticComplexity-1-Low, CS2, CodeLength-NotApplicable, ConceptualComplexity-2-Medium, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="618972"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">618972 [created: 2013-05-29 04:50:56, author: marzieh (xmarzieh), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>Which of the choices will produce the same result as the following statement?</p>
+<p>if ( mark == 'A' &amp;&amp; GPA &gt; 3.5)</p>
+<p>&nbsp;&nbsp;&nbsp; System.out.println("First Class");</p>
+<p>else</p>
+<p>&nbsp;&nbsp;&nbsp; System.out.println("Not First Class");</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear">
+<p>if ( mark != 'A' &amp;&amp; GPA &lt;= 3.5)</p>
+<p>&nbsp;&nbsp;&nbsp; System.out.println("First Class");</p>
+<p>else</p>
+<p>&nbsp;&nbsp;&nbsp; System.out.println("Not First Class");</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear">
+<p>if ( mark != 'A' || GPA &lt;= 3.5)</p>
+<p>&nbsp;&nbsp;&nbsp; System.out.println("First Class");</p>
+<p>else</p>
+<p>&nbsp;&nbsp;&nbsp; System.out.println("Not First Class");</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear">
+<p>if ( mark == 'A' || GPA &gt; 3.5)</p>
+<p>&nbsp;&nbsp;&nbsp; System.out.println("First Class");</p>
+<p>else</p>
+<p>&nbsp;&nbsp;&nbsp; System.out.println("Not First Class");</p>
+</td>
+</tr>
+<tr class="success">
+<td class="leftClear">*D*</td>
+<td class="middleClear">
+<p>if ( mark != 'A' || GPA &lt;= 3.5)</p>
+<p>&nbsp;&nbsp;&nbsp; System.out.println("Not First Class");</p>
+<p>else</p>
+<p>&nbsp;&nbsp;&nbsp; System.out.println("First Class");</p>
+</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="618968"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">618968 [created: 2013-05-29 04:44:15, author: marzieh (xmarzieh), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>Which one of the following assignments will be resulted in 1.0?</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>double x = 6.0/4.0;</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>double y = (int)6.0/4.0;</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*C*</td>
+<td class="middleClear"><p>double z = (int)(6.0/4.0);</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>double t = 6.0/(int)4.0;</p></td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="618663"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">618663 [created: 2013-05-28 21:22:07, author: marzieh (xmarzieh), avg difficulty: 2.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>If class test is going to listen to an event, which statement, if added to the following code, cannot be a solution for event handling?</p>
+<p>public class test implements ActionListener{</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; JButton okButton;</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; public static void main(String [] args){</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SimpleGui_V2 firstGui = new SimpleGui_V2();</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; firstGui.draw();</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; public void draw(){</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; JFrame rootFrame = new JFrame();</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; okButton = new JButton("OK");</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // missing code</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rootFrame.add(okButton);</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; public void actionPerformed (ActionEvent event){</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (okButton.getText().compareToIgnoreCase("ok")== 0)</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; okButton.setText("clicked");</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; okButton.setText("OK");</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>}</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>okButton.addActionListener(new test());</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>okButton.addActionListener(this);</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*C*</td>
+<td class="middleClear"><p>okButton.addActionListener(new ActionListener());</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear">
+<p>okButton.addActionListener(new ActionListener(){</p>
+<p>&nbsp;&nbsp;&nbsp; public void actionPerformed (ActionEvent event){</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (okButton.getText().compareToIgnoreCase("ok")== 0)</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; okButton.setText("clicked");</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; okButton.setText("OK");</p>
+<p>}});</p>
+</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="618661"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">618661 [created: 2013-05-28 21:19:54, author: marzieh (xmarzieh), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>A compiler error existed in this code. Why is that happening?</p>
+<p>public class test {</p>
+<p>&nbsp;&nbsp;&nbsp; final int testCount1;</p>
+<p>&nbsp;&nbsp;&nbsp; final static int testCount2;</p>
+<p>&nbsp;&nbsp;&nbsp; static int testCount3;</p>
+<p>&nbsp;&nbsp;&nbsp; int testCount4;</p>
+<p>}</p>
+</td>
+</tr>
+<tr class="success">
+<td class="leftClear">*A*</td>
+<td class="middleClear"><p>testCount1 and testCount2 have not been initialized.</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>testCount2 and testCount3 have not been initialized.</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>testCount3 and testCount4 have not been initialized.</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>None of the instance variables have been initialized.</p></td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="618658"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">618658 [created: 2013-05-28 21:18:57, author: marzieh (xmarzieh), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>A compiler error existed in this code. Why is that happening?</p>
+<p>public class test {</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; final int testCount;</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int classCount;</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public int getCount(){</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return testCount+classCount;</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>}</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>testCount and classCount have not been initialized.</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*B*</td>
+<td class="middleClear"><p>testCount has not been initialized.</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>classCount has not been initialized.</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>testCount and classCount cannot be added in return statement.</p></td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="632134"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">632134 [created: 2013-06-17 22:02:22, author: tclear (xtony), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>consider the section of code below:</p>
+<p>int a = 3, b = 4, c = 5;</p>
+<p>x = a * b &lt;= c</p>
+<p>What will x be after executing this code?</p>
+</td>
+</tr>
+<tr class="success">
+<td class="leftClear">*A*</td>
+<td class="middleClear"><p>0 </p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>1</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>3 </p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>12</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>17</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>Due to the precedence of operators here, first a and b are multiplied and then the total [12] is compared with c [5].&nbsp; If the logical comparison evaluates to true x assumes the value 1,&nbsp; otherwise (as in this case) , it evaluates to false and x assumes the value 0. </p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Tony_Clear, Skill-Trace_IncludesExpressions, Difficulty-1-Low, Block-Horizontal-1-Struct_Text, TopicSimon-ArithmeticOperators, TopicSimon-Assignment, Block-Vertical-2-Block, Language-C, Bloom-2-Comprehension, TopicSimon-LogicalOperators, CS1, CodeLength-lines-00-to-06_Low</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="618643"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">618643 [created: 2013-05-28 21:11:37, author: marzieh (xmarzieh), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>What would be the output?</p>
+<p>Vector&lt;Object&gt; vect_1 = new Vector&lt;Object&gt;();</p>
+<p>Vector&lt;Integer&gt; vect_2 = new Vector&lt;Integer&gt;();</p>
+<p>vect_1.addElement(1);</p>
+<p>vect_1.addElement(2);</p>
+<p>vect_2.addElement(3);</p>
+<p>vect_2.addElement(4);</p>
+<p>vect_1.addElement(vect_2);</p>
+<p>System.out.print(vect_1.toString());</p>
+<p>System.out.print(vect_1);</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>This is a compiler Error. A vector of type Integer cannot be added to a vector of type Object.</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>[1, 2, [3, 4]][]</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>[1, 2, 3, 4][]</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*D*</td>
+<td class="middleClear"><p>[1, 2, [3, 4]][1, 2, [3, 4]]</p></td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="632179"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">632179 [created: 2013-06-18 00:28:09, author: tclear (xtony), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>How many times will the printf statement be executed in this piece of code?</p>
+<p>In each case assume the definition</p>
+<p>int i = 0;</p>
+<p>WARNING There are some very nasty traps in some of the code here. LOOK AT IT ALL VERY CAREFULLY!</p>
+<p>while (i &lt; 20)</p>
+<p>{</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; if ( i = 2 )</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; printf("Count me!");</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; i++;</p>
+<p>}</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>0 </p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>1 </p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>19 </p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>&nbsp;20 </p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*E*</td>
+<td class="middleClear"><p>an infinite number</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>The program fails the test of equality on the first pass through as i=0, so falls through the if statement without incrementing the index.&nbsp; This triggers the while loop again (which&nbsp;again fails the equality test&nbsp; as the index remains at 0) and the program loops in an endless cycle.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Skill-DebugCode, Contributor_Tony_Clear, Difficulty-3-High, Language-C, Bloom-2-Comprehension, TopicSimon-LoopsSubsumesOperators, CS1, CodeLength-lines-06-to-24_Medium</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="632182"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">632182 [created: 2013-06-18 00:41:00, author: tclear (xtony), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>How many times will the printf statement be executed in this piece of code?</p>
+<p>In each case assume the definition</p>
+<p>int i = 0;</p>
+<p>WARNING There are some very nasty traps in some of the code here. LOOK AT IT ALL VERY CAREFULLY!</p>
+<p>for(i = 0; i &lt;= 3; i++)</p>
+<p>{</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; switch ( i )</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; {</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case 0: puts("Case 0");</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case 1: puts("Case 1");</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; case 2: puts("Case 2");</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; default: printf("Count me!");</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p>}</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>0 </p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>&nbsp;1 </p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>&nbsp;2 </p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*D*</td>
+<td class="middleClear"><p>&nbsp;3 </p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>an infinite number</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>The code iterates until the index reaches 3 (a total of four times) but on the first iteration the case statement bresk before executing the printf function.&nbsp; On subsequent iterations the printf fucntion is executed, twice by matching the index values and once by default.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Tony_Clear, Skill-Trace_IncludesExpressions, Difficulty-2-Medium, Block-Horizontal-2-Struct_Control, Block-Vertical-2-Block, Language-C, Bloom-2-Comprehension, TopicSimon-LoopsSubsumesOperators, CS1, CodeLength-lines-06-to-24_Medium, TopicSimon-SelectionSubsumesOps</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="633219"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">633219 [created: 2013-06-12 05:54:40, author: crjjrc (xchris), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>This sorting algorithm starts by finding the smallest value in the entire array. Then it finds the second smallest value, which is the smallest value among the remaining elements. Then it finds the third smallest value, the fourth, and so on.</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*A*</td>
+<td class="middleClear"><p>selection sort</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>insertion sort</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>bubble sort</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>quick sort</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>merge sort</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>This procedure describes the steps of the selection sort, which repeatedly selects outs the ith smallest element.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Chris_Johnson, ATT-Transition-English_to_CSspeak, Skill-PureKnowledgeRecall, ATT-Type-How, Difficulty-1-Low, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, TopicSimon-CollectionsExceptArray, Block-Vertical-4-Macro-Structure, Bloom-1-Knowledge, Language-none-none-none, LinguisticComplexity-1-Low, CS2, CodeLength-NotApplicable, TopicWG-Sorting-Other, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="633377"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">633377 [created: 2013-06-19 07:37:54, author: crjjrc (xchris), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>You see the expression <code>n = 128</code> in some code that successfully compiles. What type can <code>n</code> not be?</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>int</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>char</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*C*</td>
+<td class="middleClear"><p>byte</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>float</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>double</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>Bytes only hold values in [-128, 127].</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Chris_Johnson, ATT-Transition-CSspeak_to_Code, Skill-Trace_IncludesExpressions, ATT-Type-How, Difficulty-1-Low, Block-Horizontal-1-Struct_Text, ExternalDomainReferences-1-Low, Block-Vertical-1-Atom, TopicSimon-DataTypesAndVariables, Bloom-1-Knowledge, Language-Java, CS1, LinguisticComplexity-1-Low, CodeLength-lines-00-to-06_Low, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="618979"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">618979 [created: 2013-05-29 05:00:47, author: marzieh (xmarzieh), avg difficulty: 2.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>Which one of the codes bellow will NOT compute the summation of 10 consecutive even numbers starting from zero?</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear">
+<p>sum = 0;</p>
+<p>for (int i = 0; i &lt;20 ; i = i+2){</p>
+<p>&nbsp;&nbsp;&nbsp; sum+=i;</p>
+<p>}</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear">
+<p>sum = 0;</p>
+<p>for (int i = 0; i &lt;10 ; i++){</p>
+<p>&nbsp;&nbsp;&nbsp; sum+=i*2;</p>
+<p>}</p>
+</td>
+</tr>
+<tr class="success">
+<td class="leftClear">*C*</td>
+<td class="middleClear">
+<p>sum = 0;</p>
+<p>for (int i = 0; i &lt;10 ; i= i+2){</p>
+<p>&nbsp;&nbsp;&nbsp; sum+=i;</p>
+<p>}</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear">
+<p>sum = 0;</p>
+<p>for (int i = 0; i &lt;20 ; i++){</p>
+<p>&nbsp;&nbsp;&nbsp; sum+=i/2;</p>
+<p>}</p>
+</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="632088"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">632088 [created: 2013-06-17 20:28:34, author: marzieh (xmarzieh), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>What will be printed by this code?</p>
+<p>public static void main(String [] args){</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; int [] number = {1, 2, 3};</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; changeNumber (number);</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (int i=0; i&lt;number.length; i++)</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; System.out.print(number[i] + " ");</p>
+<p>}</p>
+<p>public static void changeNumber(int [] number){</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (int i=0; i&lt;number.length; i++)</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; number[i] *=2 ;</p>
+<p>}</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>1 2 3</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*B*</td>
+<td class="middleClear"><p>2 4 6</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>2 2 2</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>0 0 0</p></td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="627740"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">627740 [created: 2013-06-07 08:21:18, author: kate (xkate), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>The following method <code>isSorted</code> should return<code> true</code> if the array <code>x</code> is sorted in ascending order. Otherwise, the method should return <code>false</code>:</p>
+<p><code>public boolean isSorted (int[] x)</code><code>{</code></p>
+<pre lang="text/x-java">   //missing code goes here
+}
+
+<span style="font-family: arial, helvetica, sans-serif;">Which of the following is the missing code from the method isSorted?
+</span></pre>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><pre lang="text/x-java">boolean b = true;
+for (int i=0; i&lt;x.length-1; i++) {
+   if (x[i] &gt; x[i+1])
+      b = false;
+   else
+      b = true;
+}
+return b;
+</pre></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*B*</td>
+<td class="middleClear"><pre lang="text/x-java">for (int i=0; i&lt;x.length-1; i++) {
+   if (x[i] &gt; x[i+1])
+      return false;
+}
+return true;
+</pre></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><pre lang="text/x-java">boolean b = false;
+for (int i=0; i&lt;x.length-1; i++) {
+   if (x[i] &gt; x[i+1])
+      b = false;
+}
+return b;
+</pre></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear">
+<code>boolean b = false;</code><p><code>for (int i=0; i&lt;x.length-1; i++)</code><code>{</code></p>
+<pre lang="text/x-java">   if (x[i] &gt; x[i+1])
+      b = true;
+}
+</pre>
+<p><code>return b;</code></p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear">
+<p><code>for (int i=0; i&lt;x.length-1; i++)</code><code>{</code></p>
+<pre lang="text/x-java">   if (x[i] &gt; x[i+1])
+      return true;
+}
+return false;
+</pre>
+</td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear">
+<p>This code should check each pair of consecutive values in the array and return false (that is, the array is not sorted) if it finds a single pair where the first value is greater than the second.</p>
+<p>Choice A is wrong because its answer depends only on the relationship of the last two values it checks. Choice C is wrong because it always returns <code>false</code>. Choices D and E are wrong &nbsp;because they return <code>false</code> when the array *is* sorted and<code> true</code> when it isn't.&nbsp;</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Nested-Block-Depth-2-two-nested, ATT-Transition-ApplyCode, Contributor_Kate_Sanders, ATT-Type-How, Skill-WriteCode_MeansChooseOption, Difficulty-2-Medium, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, TopicSimon-Arrays, Block-Vertical-3-Relations, Bloom-2-Comprehension, Language-Java, TopicSimon-LoopsSubsumesOperators, CS1, LinguisticComplexity-1-Low, CodeLength-lines-25-or-more_High, ConceptualComplexity-2-Medium, TopicSimon-SelectionSubsumesOps</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="627747"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">627747 [created: 2013-06-07 08:47:28, author: kate (xkate), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>For the purposes of this question, two code fragments are considered to be&nbsp;equivalent if, when they are run using the same input, they always produce the same output. Which line could be removed from the following code fragment so that the resulting code fragment is equivalent to the original one?</p>
+<pre lang="text/x-java">1.  Scanner kbd = new Scanner(System.in);
+2.  int x, product;
+3.  x = -1;
+4.  product = 1;
+5.  x = kbd.nextInt();
+6.  while (x &gt;= 0) {
+7.    if (x &gt; 0) {
+8.       product *= x;
+9.    }
+10.   x = kbd.nextInt();
+11. }
+12. System.out.println(product);
+</pre>
+</td>
+</tr>
+<tr class="success">
+<td class="leftClear">*A*</td>
+<td class="middleClear"><p>Line 3</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>Line 4</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>Line 5</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>Line 8</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>Line 10</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>Line 3 can be removed because x is initialized again in line 5, before it is ever used.&nbsp;</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Nested-Block-Depth-2-two-nested, ATT-Transition-ApplyCode, Contributor_Kate_Sanders, Skill-ModifyCode, ATT-Type-How, Difficulty-2-Medium, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, TopicSimon-Assignment, Block-Vertical-2-Block, Bloom-2-Comprehension, Language-Java, TopicSimon-LoopsSubsumesOperators, CS1, LinguisticComplexity-1-Low, CodeLength-lines-06-to-24_Medium, ConceptualComplexity-2-Medium, TopicSimon-SelectionSubsumesOps</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="618982"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">618982 [created: 2013-05-29 05:05:50, author: marzieh (xmarzieh), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>What will be outputted?</p>
+<p>char initial = 'a';</p>
+<p>switch (initial){</p>
+<p>case 'a':</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; System.out.print("a");</p>
+<p>case 'A':</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; System.out.print("A");</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;</p>
+<p>case 'b':</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; System.out.print("B");</p>
+<p>default:</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; System.out.print("C");</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;</p>
+<p>}</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>a</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*B*</td>
+<td class="middleClear"><p>aA</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>aAB</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>aABC</p></td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="634146"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">634146 [created: 2013-06-24 10:10:06, author: patitsas (xelizabeth), avg difficulty: 1.7500]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>Depth-first traversal is kind of like selection sort, in the same way that breadth-first traversal is like what sorting algorithm?</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>Radix sort</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>Bubblesort</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>Heapsort</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>Quicksort</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*E*</td>
+<td class="middleClear"><p>Insertion sort</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>Insertion sort is breadth-first-like as you keep increasing the "breadth" of the array that is sorted.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">ATT-Transition-ApplyCSspeak, Contributor_Elizabeth_Patitsas, ATT-Type-How, Difficulty-3-High, ExternalDomainReferences-1-Low, TopicWG-Graphs, Bloom-5-Synthesis, Language-none-none-none, CS2, LinguisticComplexity-2-Medium, CodeLength-NotApplicable, TopicWG-Sorting-NlogN, TopicWG-Sorting-Other, TopicWG-Sorting-Quadratic, ConceptualComplexity-2-Medium</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="633872"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">633872 [created: 2013-06-23 12:26:40, author: patitsas (xelizabeth), avg difficulty: 0.6667]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>Thomas has the following program that he is running on a 64-bit machine:</p>
+<p><br><code>#include&lt;stdlib.h&gt;</code></p>
+<pre lang="text/x-c">int main()
+{
+    int x = rand();
+    int y = rand();
+}
+</pre>
+<p>&nbsp;</p>
+<p>What is <strong>not</strong> true about y?</p>
+</td>
+</tr>
+<tr class="success">
+<td class="leftClear">*A*</td>
+<td class="middleClear"><p>y is less than RAND_MAX</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>y is four bytes in size</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>y is stored in the same stack frame as x</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>y&rsquo;s value cannot be deduced from x&rsquo;s</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>y &lt;= RAND_MAX, not y &lt; RAND_MAX. As rand has not been seeded, and is pseudorandomly generated, y can theoretically be deduced from x.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">ATT-Transition-ApplyCSspeak, Contributor_Elizabeth_Patitsas, Skill-PureKnowledgeRecall, ATT-Type-How, Difficulty-2-Medium, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, Block-Vertical-1-Atom, Language-C, TopicSimon-DataTypesAndVariables, Bloom-2-Comprehension, TopicSimon-Lifetime, CS2, LinguisticComplexity-2-Medium, TopicWG-Runtime-StorageManagement, CodeLength-lines-00-to-06_Low, Nested-Block-Depth-0-no_ifs_loops, TopicSimon-Testing</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="617887"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">617887 [created: 2013-05-27 22:25:43, author: quintincutts (xquintin), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>Consider the following output consisting of a block of stars, with no spaces between each star, and no blank lines in between the lines of stars:</p>
+<p>&nbsp; &nbsp;*****</p>
+<p>&nbsp; &nbsp;*****</p>
+<p>&nbsp; &nbsp;*****</p>
+<p>&nbsp; &nbsp;*****</p>
+<p>Considering a plan for a program to print out this shape, which of the following would be your&nbsp;<strong>main</strong>&nbsp;control structure?</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>sequence</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>selection</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*C*</td>
+<td class="middleClear"><p>repetition</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>or something else</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear">
+<p>Analysing the output, we have four rows of five stars, exactly on top of one another. &nbsp;Textual output (in almost any language) is row by row, moving downwards - meaning that if we &nbsp;print something out on one line, and then print something on the next line, we cannot go&nbsp;<strong>back</strong> up to the previous line and print out some more.</p>
+<p>&nbsp;</p>
+<p>Thinking this way, we can create this output by writing out each line, one at a time. &nbsp;Every line is the same, and there are four lines in total. &nbsp;This, then, can be written as a repetition:<strong><br></strong></p>
+<p>&nbsp;</p>
+<p>&nbsp; &nbsp; &nbsp; repeat four times:</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; write out one line of stars</p>
+<p>&nbsp;</p>
+<p>If you picked "sequence", maybe you were thinking of:</p>
+<p>&nbsp;</p>
+<p>&nbsp; &nbsp; &nbsp; write out one line of stars</p>
+<p>&nbsp; &nbsp; &nbsp; write out one line of stars</p>
+<p>&nbsp; &nbsp; &nbsp; write out one line of stars</p>
+<p>&nbsp; &nbsp; &nbsp; write out one line of stars</p>
+<p>&nbsp;</p>
+<p>This is a correct answer, but not as elegant as the solution using repetition. &nbsp;If you had 100 lines to write out, would you want to enter them all? &nbsp;And if you made a mistake in the line, you'd need to edit it in 100 places... ugh!</p>
+</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="630978"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">630978 [created: 2013-06-13 12:49:13, author: edwards@cs.vt.edu (xstephen), avg difficulty: 0.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>Which of the following recommendations for testing software is good advice?</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>Limit your test cases to one assertion, since each test should check only one expected outcome.</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>Save your testing until after the solution is completely written, so you can concentrate solely on testing without distractions.</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>Test a program with all possible values of input data.</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*D*</td>
+<td class="middleClear"><p>Test each piece of your solution as you build it, so you will find errors as quickly as possible.</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>Longer tests that focus on combinations of multiple features are preferable, because they test your code more strenuously.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>Incrementally testing your code as you write it helps you find errors more quickly, and ensures that new work builds on previous work you have already confirmed works. &nbsp;The other four choices here represent less effective or impractical advice.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">ATT-Transition-English_to_English, Contributor_Stephen_Edwards, Skill-TestProgram, ATT-Type-How, Difficulty-1-Low, Block-Horizontal-3-Funct_ProgGoal, ExternalDomainReferences-1-Low, Block-Vertical-4-Macro-Structure, Bloom-2-Comprehension, Language-none-none-none, CS1, LinguisticComplexity-1-Low, CodeLength-NotApplicable, ConceptualComplexity-1-Low, TopicSimon-Testing</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="632602"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">632602 [created: 2013-06-19 15:34:47, author: kate (xkate), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>Which of the following is not an abstract datatype?</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>List</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>Queue</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>Hashtable</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>Array</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*E*</td>
+<td class="middleClear"><p>Both C and D</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear">
+<p>Hashtables and arrays are data structures, not abstract datatypes.&nbsp;</p>
+<p>Note: This question was written by A. Luxton-Reilly. K. Sanders entered and tagged the question and added choice E, after A. Luxton-Reilly had to withdraw from the WG due to illness.</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">ATT-Transition-ApplyCSspeak, Contributor_Kate_Sanders, TopicWG-ADT-List-DefInterfaceUse, Skill-PureKnowledgeRecall, TopicWG-ADT-Queue-DefInterfaceUse, ATT-Type-How, Difficulty-1-Low, Block-Horizontal-1-Struct_Text, ExternalDomainReferences-1-Low, TopicSimon-Arrays, Block-Vertical-2-Block, TopicWG-Hashing-HashTables, Bloom-1-Knowledge, Language-none-none-none, LinguisticComplexity-1-Low, CS2, CodeLength-NotApplicable, ConceptualComplexity-1-Low, Nested-Block-Depth-0-no_ifs_loops, Contributor_Andrew_Luxton-Reilly</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="634970"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">634970 [created: 2013-06-27 03:59:21, author: mikeyg (xmikey), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>What algorithm does <em>mystery&nbsp;</em>implement, when a list of values is passed in as its argument?</p>
+<p>def mystery (listOfVals):<br>&nbsp; &nbsp; current = 1<br>&nbsp; &nbsp; while (current &lt; len(listOfVals)):<br>&nbsp; &nbsp; &nbsp; &nbsp; pivot = listOfVals[current]<br>&nbsp; &nbsp; &nbsp; &nbsp; underExam = current - 1<br>&nbsp; &nbsp; &nbsp; &nbsp; while ((underExam &gt;= 0) and (listOfVals[underExam] &gt; pivot)):<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; listOfVals[underExam+1] = listOfVals[underExam]<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; underExam = underExam - 1<br>&nbsp; &nbsp; &nbsp; &nbsp; listOfVals[underExam+1] = pivot<br>&nbsp; &nbsp; &nbsp; &nbsp; current = current + 1<br>&nbsp; &nbsp; return (listOfVals)</p>
+</td>
+</tr>
+<tr class="success">
+<td class="leftClear">*A*</td>
+<td class="middleClear"><p>Insertion Sort</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>Quicksort</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>Selection Sort</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>List Reverser</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>Bubble Sort</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>This is a classic implementation of Insertion Sort. &nbsp;Each item in the list is repeatedly <em>inserted</em> into its correct spot in the portion of the list already sorted.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Nested-Block-Depth-2-two-nested, ATT-Transition-Code_to_CSspeak, Contributor_Michael_Goldweber, ATT-Type-How, SkillWG-AnalyzeCode, Difficulty-3-High, ExternalDomainReferences-1-Low, Block-Horizontal-3-Funct_ProgGoal, TopicSimon-Arrays, Block-Vertical-4-Macro-Structure, Bloom-3-Analysis, Language-Python, CS1, LinguisticComplexity-1-Low, CodeLength-lines-06-to-24_Medium, TopicWG-Sorting-Quadratic</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="633288"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">633288 [created: 2013-06-18 07:39:13, author: crjjrc (xchris), avg difficulty: 1.5000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>What operation contributes the log N to heap sort's O(N log N) complexity?</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>Trickling up only</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>Trickling down only</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*C*</td>
+<td class="middleClear"><p>Both trickling up and trickling down</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>Searching the array</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>Splitting the array in half</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>The heapsort involves inserting all elements and removing all elements. Inserting requires a trickle up and removing requires a trickle down.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Chris_Johnson, ATT-Transition-ApplyCSspeak, Skill-PureKnowledgeRecall, ATT-Type-How, Difficulty-1-Low, TopicSimon-AlgorithmComplex-BigO, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, Block-Vertical-2-Block, Bloom-3-Analysis, Language-none-none-none, LinguisticComplexity-1-Low, CS2, CodeLength-NotApplicable, TopicWG-Sorting-NlogN, ConceptualComplexity-2-Medium, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="632878"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">632878 [created: 2013-06-11 07:22:11, author: crjjrc (xchris), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>We say indexing is fast if it's done in O(1) time, searching is fast if done in O(lg N) time, and inserting and deleting are fast if done in O(1) time.&nbsp;Compared to other data structures, sorted arrays offer:</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>slow indexing, slow search, slow insertions and deletions.</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*B*</td>
+<td class="middleClear"><p>fast indexing, fast search, slow insertions and deletions.</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>fast indexing, slow search, slow insertions and deletions.</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>slow indexing, slow search, fast insertions and deletions.</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>slow indexing, fast search, fast insertions and deletions.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>Sorted arrays can be indexed in constant time (which is fast), searched in O(lg N) time (which is fast), and restructured in O(N) time (which is not as good as O(1) time).</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Chris_Johnson, ATT-Transition-ApplyCSspeak, ATT-Type-How, SkillWG-AnalyzeCode, Difficulty-2-Medium, TopicSimon-AlgorithmComplex-BigO, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, TopicSimon-Arrays, TopicWG-ChoosingAppropriateDS, Block-Vertical-4-Macro-Structure, Bloom-3-Analysis, Language-none-none-none, LinguisticComplexity-1-Low, CS2, CodeLength-NotApplicable, ConceptualComplexity-2-Medium, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="633662"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">633662 [created: 2013-06-22 10:40:40, author: jspacco (xjaime), avg difficulty: 0.5000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>True or False:</p>
+<p>Public methods and public variables are the only part of your class that clients can access and use.</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>True</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*B*</td>
+<td class="middleClear"><p>False</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>Clients can also inherit protected variables.&nbsp; If you are writing code that will be used by clients, you need to think carefully about whether you want clients to extend your classes, and if so, how.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">ATT-Transition-ApplyCSspeak, Contributor_Jaime_Spacco, ATT-Type-How, Difficulty-1-Low, SkillWG-AnalyzeCode, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, Block-Vertical-3-Relations, Bloom-3-Analysis, Language-none-none-none, LinguisticComplexity-1-Low, CS2, TopicSimon-OOconcepts, CodeLength-NotApplicable, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="634139"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">634139 [created: 2013-06-24 09:50:21, author: patitsas (xelizabeth), avg difficulty: 2.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>Jack has the code below. What will it print out?</p>
+<p><br><code>int array[] = { 45, 67, 89, 22, 13 };</code></p>
+<pre lang="text/x-c">int *array_ptr = &amp;array[1];
+printf("%d, ", array_ptr[1]);
+printf("%d, ", *(array_ptr++));
+printf("%d, ", *array_ptr++);
+printf("%d\n", *array_ptr);
+</pre>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>67, 67, 67, 89</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>67, 45, 67, 89</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*C*</td>
+<td class="middleClear"><p>89, 67, 89, 22</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>89, 89, 89, 67</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>67, 89, 22, 22</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>The array pointer starts at the second element; the incrementing is done post-evaluation.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Elizabeth_Patitsas, ATT-Transition-Code_to_CSspeak, Skill-Trace_IncludesExpressions, ATT-Type-How, Difficulty-3-High, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, TopicSimon-ArithmeticOperators, TopicSimon-Arrays, Block-Vertical-2-Block, Language-C, Bloom-3-Analysis, TopicSimon-IO, LinguisticComplexity-1-Low, CS2, TopicWG-Pointers-ButNotReferences, CodeLength-lines-00-to-06_Low, ConceptualComplexity-3-High, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="633258"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">633258 [created: 2013-06-18 07:11:11, author: crjjrc (xchris), avg difficulty: 0.5000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>Which of the following is <strong>not</strong> a reason why wall clock time is a poor measure of an algorithm's performance?</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>It's dependent on processor speed.</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>Other programs may interrupt the one being measured.</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>The input cases may not capture the worst case running time.</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*D*</td>
+<td class="middleClear"><p>Different platforms measure wall clock time differently.</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>Subsequent runs may read data from cache instead of disk.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>Wall clock time is a measure of real elapsed time between two events, which is no different from one computer to the next.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Chris_Johnson, ATT-Transition-ApplyCSspeak, Skill-PureKnowledgeRecall, Difficulty-1-Low, ATT-Type-Why, TopicSimon-AlgorithmComplex-BigO, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, Block-Vertical-4-Macro-Structure, Bloom-2-Comprehension, Language-none-none-none, LinguisticComplexity-1-Low, CS2, CodeLength-NotApplicable, ConceptualComplexity-1-Low, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="629925"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">629925 [created: 2013-06-11 05:01:21, author: kate (xkate), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>Choose the answer that best describes how to compute the value of the following Java arithmetic expression:<br>&nbsp; &nbsp; &nbsp;4 * 3 + 6 / 4</p>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>Evaluate the operations from left to right: * then + then /.</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>Evaluate * and / first (from left to right), and then evaluate +.</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>Round the answer to 6/4 towards 0.&nbsp;</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>A and C.</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*E*</td>
+<td class="middleClear"><p>B and C.&nbsp;</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>In Java, multiplication and division have higher precedence than addition, and division is closed under ints.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Kate_Sanders, Skill-Trace_IncludesExpressions, ATT-Type-Why, Difficulty-1-Low, Block-Horizontal-2-Struct_Control, TopicSimon-ArithmeticOperators, Block-Vertical-1-Atom, Language-Java, Bloom-4-Application, CS1, LinguisticComplexity-1-Low, CodeLength-lines-00-to-06_Low, ConceptualComplexity-2-Medium, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="631540"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">631540 [created: 2013-06-15 19:16:00, author: marzieh (xmarzieh), avg difficulty: 2.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>How many times will F be called if n = 5, ignoring F(5) itself?</p>
+<p>public static long F(int n) {</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (n == 0)return 0;</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (n == 1) return 1;</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return F(n-1) + F(n-2);</p>
+<p>}</p>
+</td>
+</tr>
+<tr class="success">
+<td class="leftClear">*A*</td>
+<td class="middleClear"><p>15</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>12</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>7</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>5</p></td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="633238"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">633238 [created: 2013-06-12 23:28:50, author: crjjrc (xchris), avg difficulty: 2.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>Compared to a sorted linked list, a balanced binary search tree offers</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>slower searching and faster insertion</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>slower searching and slower insertion</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>the same performance for searching and insertion</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>faster searching and slower insertion</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*E*</td>
+<td class="middleClear"><p>faster searching and faster insertion</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>Insertion is O(n) for a sorted linked list, as we must traverse the list to find the correct insertion point. Searching is O(n) since we only have sequential access; the binary search does not work for linked lists. Balanced BSTs can be traversed in O(lg N) time, making it faster for both operations.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Chris_Johnson, ATT-Transition-CSspeak_to_English, Skill-PureKnowledgeRecall, ATT-Type-How, Difficulty-1-Low, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, TopicSimon-CollectionsExceptArray, Block-Vertical-3-Relations, TopicWG-LinkedLists, Bloom-3-Analysis, Language-none-none-none, LinguisticComplexity-1-Low, CS2, CodeLength-NotApplicable, ConceptualComplexity-2-Medium, TopicWG-Trees-Other, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="633576"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">633576 [created: 2013-06-19 15:16:02, author: crjjrc (xchris), avg difficulty: 2.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>You need to sort an array but have no extra memory to spare. Which algorithm do you avoid?</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>bubble sort</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*B*</td>
+<td class="middleClear"><p>merge sort</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>quick sort</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>heap sort</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>insertion sort</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>Merge sort requires a secondary array to merge into.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Chris_Johnson, ATT-Transition-ApplyCSspeak, Skill-PureKnowledgeRecall, ATT-Type-How, Difficulty-1-Low, TopicSimon-AlgorithmComplex-BigO, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, TopicSimon-Arrays, Block-Vertical-3-Relations, Bloom-3-Analysis, Language-none-none-none, LinguisticComplexity-1-Low, CS2, CodeLength-NotApplicable, TopicWG-Sorting-Other, ConceptualComplexity-2-Medium, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="633571"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">633571 [created: 2013-06-19 15:45:44, author: crjjrc (xchris), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>Which of the following is true of a Java interface?</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>Instance variables are allowed, but they must be public.</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*B*</td>
+<td class="middleClear"><p>Private methods may not be declared.</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>Static and final constants may not defined.</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>Methods may have implementations provided they are marked <code>final</code>.</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>All methods must be explicitly declared <code>abstract</code>.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>All methods in an interface are public, even if you leave off the access modifier.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Chris_Johnson, ATT-Transition-ApplyCSspeak, Skill-PureKnowledgeRecall, ATT-Type-How, Difficulty-1-Low, Block-Horizontal-1-Struct_Text, ExternalDomainReferences-1-Low, Block-Vertical-4-Macro-Structure, TopicWG-JavaInterface, Bloom-1-Knowledge, Language-Java, LinguisticComplexity-1-Low, CS2, TopicSimon-OOconcepts, CodeLength-NotApplicable, ConceptualComplexity-2-Medium, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="634129"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">634129 [created: 2013-06-24 07:56:34, author: patitsas (xelizabeth), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear">
+<p>After calling the following function, what will the values of n and m be? Assume that before<br>calling the function, n = 2 and m = 5.</p>
+<p><br><code>void example(int *n, int *m)<br>{<br>&nbsp;&nbsp; *n++;<br>&nbsp;&nbsp; *m += 5;<br>}</code></p>
+<pre lang="text/x-c">
+void main()
+{
+   int n = 2;
+   int m = 5;
+   example(&amp;n, &amp;m);
+   printf("n = %d and m = %d", n, m);
+}
+</pre>
+</td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>n = 2 and m = 5</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>n = 3 and m = 5</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*C*</td>
+<td class="middleClear"><p>n = 2 and m = 10</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>n = 3 and m = 10</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>Due to order of operations, the ++ will not change n.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Elizabeth_Patitsas, ATT-Transition-Code_to_CSspeak, Skill-Trace_IncludesExpressions, ATT-Type-How, Difficulty-3-High, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, TopicSimon-ArithmeticOperators, Block-Vertical-2-Block, Language-C, TopicSimon-DataTypesAndVariables, Bloom-2-Comprehension, LinguisticComplexity-1-Low, CS2, TopicWG-Pointers-ButNotReferences, CodeLength-lines-06-to-24_Medium, TopicSimon-Scope-Visibility, ConceptualComplexity-2-Medium, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="630653"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">630653 [created: 2013-06-12 23:32:40, author: crjjrc (xchris), avg difficulty: 2.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>Finding the maximum value in a complete and&nbsp;balanced binary search tree is</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>O(1)</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*B*</td>
+<td class="middleClear"><p>O(log N)</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>O(N)</p></td>
+</tr>
+<tr>
+<td class="leftClear">D</td>
+<td class="middleClear"><p>O(N<sup>2</sup>)</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>O(N log N)</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>The maximum is the root's right-most descendent, which can be reached in log N steps.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Chris_Johnson</td>
+</tr>
+</tbody></table>
+</div>
+<div style="padding-top: 15px;">
+<a name="633568"></a><table id="displayQuestionTable" class="table table-bordered table-condensed table-striped"><tbody>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td class="leftClear">ID</td>
+<td class="middleClear">633568 [created: 2013-06-19 14:36:17, author: crjjrc (xchris), avg difficulty: 1.0000]</td>
+</tr>
+<tr>
+<td class="leftClear">Question</td>
+<td class="middleClear"><p>You need to store a large amount of data that can be searched quickly by some key, but you don't know exactly how many elements you'll need to store. You want to waste no storage space. The elements to be added are in random order. What is the simplest data structure that meets your needs?</p></td>
+</tr>
+<tr>
+<td class="leftClear">A</td>
+<td class="middleClear"><p>Ordered array</p></td>
+</tr>
+<tr>
+<td class="leftClear">B</td>
+<td class="middleClear"><p>Linked list</p></td>
+</tr>
+<tr>
+<td class="leftClear">C</td>
+<td class="middleClear"><p>Hashtable</p></td>
+</tr>
+<tr class="success">
+<td class="leftClear">*D*</td>
+<td class="middleClear"><p>Binary search tree</p></td>
+</tr>
+<tr>
+<td class="leftClear">E</td>
+<td class="middleClear"><p>Self-balancing tree</p></td>
+</tr>
+<tr>
+<td class="leftClear">Explanation</td>
+<td class="middleClear"><p>Hashtables provide fast searching, but they may waste storage space. A tree makes better use of memory. Since the keys are in a random order, it's likely a binary tree will end up balanced just through the insertion price.</p></td>
+</tr>
+<tr>
+<td class="leftClear">Tags</td>
+<td class="middleClear">Contributor_Chris_Johnson, ATT-Transition-ApplyCSspeak, Skill-PureKnowledgeRecall, ATT-Type-How, Difficulty-1-Low, Block-Horizontal-2-Struct_Control, ExternalDomainReferences-1-Low, TopicWG-ChoosingAppropriateDS, TopicSimon-CollectionsExceptArray, Block-Vertical-4-Macro-Structure, Bloom-1-Knowledge, Language-none-none-none, LinguisticComplexity-1-Low, CS2, CodeLength-NotApplicable, ConceptualComplexity-2-Medium, Nested-Block-Depth-0-no_ifs_loops</td>
+</tr>
+</tbody></table>
+</div>
+
+  <div class="pagination">
+  <ul>
+    <li><a href="questions-p1.html">001-100</a></li>
+    <li><a href="questions-p2.html">101-200</a></li>
+    <li class="active"><a href="questions-p3.html">201-300</a></li>
+    <li><a href="questions-p4.html">301-400</a></li>
+    <li><a href="questions-p5.html">401-500</a></li>
+    <li><a href="questions-p6.html">501-600</a></li>
+    <li><a href="questions-p7.html">601-656</a></li>
+  </ul>
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -5,6 +5,10 @@ export type CliArgs = {
   questionsPerCell: number;
   bloomLevels: number[];
   difficulties: Difficulty[];
+  dataset: 'default' | 'canterbury';
+  questionLimit: number | null;
+  courseLevels: string[];
+  skillTags: string[];
   turns: number;
   maxIters: number;
   maxRuns: number | null;
@@ -72,6 +76,18 @@ export function parseArgs(argv: string[]): CliArgs {
       ? 1
       : 1;
 
+  const datasetRaw = raw['dataset'] ? String(raw['dataset']) : 'default';
+  if (datasetRaw !== 'default' && datasetRaw !== 'canterbury') {
+    throw new Error(`Invalid dataset: "${datasetRaw}". Use "default" or "canterbury".`);
+  }
+  const dataset = datasetRaw as 'default' | 'canterbury';
+
+  const questionLimit = raw['questionLimit']
+    ? parseIntFlag(String(raw['questionLimit']), 'questionLimit')
+    : dataset === 'canterbury'
+      ? 100
+      : null;
+
   const turns = raw['turns']
     ? parseIntFlag(String(raw['turns']), 'turns')
     : smoke
@@ -122,6 +138,9 @@ export function parseArgs(argv: string[]): CliArgs {
         : ['easy', 'medium', 'hard'];
   const difficulties = difficultiesRaw.map((d) => DifficultySchema.parse(d));
 
+  const courseLevels = raw['courseLevels'] != null ? parseListFlag(String(raw['courseLevels'])) : [];
+  const skillTags = raw['skillTags'] != null ? parseListFlag(String(raw['skillTags'])) : [];
+
   // Use centralized config for pairing defaults (legacy support)
   const defaultPairings: PairingId[] = smoke
     ? ['gemini-gemini']
@@ -146,6 +165,10 @@ export function parseArgs(argv: string[]): CliArgs {
     questionsPerCell,
     bloomLevels,
     difficulties,
+    dataset,
+    questionLimit,
+    courseLevels,
+    skillTags,
     turns,
     maxIters,
     maxRuns,
@@ -175,11 +198,15 @@ Usage:
   pnpm harness [flags]
 
 Flags:
+  --dataset NAME           Question source: default, canterbury (default: default)
+  --questionLimit N        Max questions to load (default: 100 for canterbury)
   --dynamic                Generate questions dynamically (default: use static data/questions.json)
   --questionsPerCell N     Questions per Bloom x Difficulty cell (default 1, only with --dynamic)
   --bloomLevels 1,2,3      Bloom's taxonomy levels (default 1,2,3; smoke=1)
                            1=Remember, 2=Understand, 3=Apply
   --difficulties LIST      easy,medium,hard (default all; smoke=easy)
+  --courseLevels LIST      Filter tags (e.g., CS1,CS2) for Canterbury dataset
+  --skillTags LIST         Filter tags (e.g., Skill-PureKnowledgeRecall) for Canterbury dataset
   --turns N                Turns per conversation (default 6; smoke=2)
   --maxIters N             Max tutor revision loops (default 5)
   --maxRuns N              Stop after N completed runs (default unlimited)
@@ -200,6 +227,7 @@ Flags:
 
 Question Source:
   By default, questions are loaded from data/questions.json (36 static questions).
+  Use --dataset canterbury to load data/canterbury/questions-p*.html.
   Use --dynamic to generate questions at runtime instead.
   To regenerate static questions: pnpm generate-questions
 

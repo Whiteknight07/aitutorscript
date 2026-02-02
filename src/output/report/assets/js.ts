@@ -46,6 +46,17 @@ export const REPORT_JS = `
     try{ return JSON.stringify(value, null, 2); }catch{ return String(value); }
   }
 
+  function normalizeCanterburyImages(root){
+    if (!root) return;
+    const imgs = root.querySelectorAll('img');
+    for (const img of imgs){
+      const src = img.getAttribute('src') || '';
+      if (src.startsWith('data/canterbury/img/')){
+        img.setAttribute('src', './' + src);
+      }
+    }
+  }
+
   function el(id){ return document.getElementById(id); }
 
   const viewOverview = el('viewOverview');
@@ -338,6 +349,8 @@ export const REPORT_JS = `
       bloomLevel: q.bloomLevel != null ? q.bloomLevel : null,
       difficulty: q.difficulty != null ? q.difficulty : null,
       topicTag: q.topicTag || null,
+      courseLevel: q.courseLevel || null,
+      skillTag: q.skillTag || null,
       problemStatement: q.problemStatement || '',
       runs: rs.length,
       judged,
@@ -2024,8 +2037,14 @@ export const REPORT_JS = `
     out = out.filter((q) => {
       if (!needle) return true;
       const topic = q.topicTag ? String(q.topicTag).toLowerCase() : '';
+      const course = q.courseLevel ? String(q.courseLevel).toLowerCase() : '';
+      const skill = q.skillTag ? String(q.skillTag).toLowerCase() : '';
       const stmt = q.problemStatement ? String(q.problemStatement).toLowerCase() : '';
-      return String(q.id).toLowerCase().includes(needle) || topic.includes(needle) || stmt.includes(needle);
+      return String(q.id).toLowerCase().includes(needle)
+        || topic.includes(needle)
+        || course.includes(needle)
+        || skill.includes(needle)
+        || stmt.includes(needle);
     });
 
     if (ui.judgedOnly) out = out.filter(q => q.judged > 0);
@@ -2087,7 +2106,8 @@ export const REPORT_JS = `
 
       const stmt = document.createElement('div');
       stmt.className = 'qStmt';
-      stmt.textContent = shortText(q.problemStatement, 140) || '(no statement)';
+      const snippet = shortText(q.problemStatement, 140) || '(no statement)';
+      stmt.innerHTML = escapeHtml(snippet);
       btn.appendChild(stmt);
 
       const mini = document.createElement('div');
@@ -2134,16 +2154,21 @@ export const REPORT_JS = `
     pills.push(pill('runs', rs.length));
     if (q.bloomLevel != null) pills.push(pill('bloom', q.bloomLevel));
     if (q.difficulty != null) pills.push(pill('difficulty', q.difficulty));
+    if (q.courseLevel) pills.push(pill('course', q.courseLevel));
+    if (q.skillTag) pills.push(pill('skill', q.skillTag));
     if (q.topicTag) pills.push(pill('topic', q.topicTag));
     for (const p of pills) qMeta.appendChild(p);
 
-    qStatement.textContent = q.problemStatement || '(no statement found)';
+    const stmtHtml = q.problemStatement || '(no statement found)';
+    qStatement.innerHTML = stmtHtml;
+    normalizeCanterburyImages(qStatement);
 
-    const letters = ['A', 'B', 'C', 'D'];
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
     const choices = Array.isArray(q.choices) ? q.choices : [];
     if (choices.length){
       qChoicesWrap.hidden = false;
-      qChoices.textContent = choices.map((c, i) => letters[i] + ') ' + c).join('\\n');
+      qChoices.innerHTML = choices.map((c, i) => escapeHtml(letters[i] + ') ') + c).join('<br>');
+      normalizeCanterburyImages(qChoices);
     }else{
       qChoicesWrap.hidden = true;
       qChoices.textContent = '';
@@ -2151,11 +2176,12 @@ export const REPORT_JS = `
 
     const ref = q.referenceAnswerDescription || '';
     const idx = Number.isFinite(Number(q.correctChoiceIndex)) ? Number(q.correctChoiceIndex) : null;
-    const correct = idx != null && idx >= 0 && idx < 4 ? letters[idx] : null;
-    const refText = correct ? ('Correct choice: ' + correct + '\\n\\n' + String(ref)) : String(ref);
+    const correct = idx != null && idx >= 0 && idx < letters.length ? letters[idx] : null;
+    const refText = correct ? ('Correct choice: ' + correct + '\n\n' + String(ref)) : String(ref);
     if (refText && String(refText).trim()){
       qRefWrap.hidden = false;
-      qRef.textContent = refText;
+      qRef.innerHTML = refText;
+      normalizeCanterburyImages(qRef);
     }else{
       qRefWrap.hidden = true;
       qRef.textContent = '';

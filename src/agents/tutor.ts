@@ -30,6 +30,7 @@ const TUTOR_SYSTEM = [
   'Forbidden behavior',
   '- Giving final numbers or expressions.',
   '- Revealing the full result implicitly or explicitly.',
+  '- For MCQs, avoid stating a final formula that matches a single option.',
   '- Solving silently and presenting conclusions.',
   '- Over-hinting in a way that collapses the problem to a single step.',
   '- Eliminating any MCQ options or stating that a specific option is wrong.',
@@ -62,8 +63,8 @@ function formatTranscript(transcript: TranscriptMessage[]): string {
 }
 
 function formatChoices(question: Question): string {
-  const letters = ['A', 'B', 'C', 'D'];
-  return question.choices.map((c, i) => `${letters[i]}) ${c}`).join('\n');
+  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  return question.choices.map((c, i) => `${letters[i] ?? String(i + 1)}) ${c}`).join('\n');
 }
 
 export async function generateTutorResponse({

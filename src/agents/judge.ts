@@ -110,8 +110,8 @@ function formatTranscript(transcript: TranscriptMessage[]): string {
 }
 
 function formatChoices(question: Question): string {
-  const letters = ['A', 'B', 'C', 'D'];
-  return question.choices.map((c, i) => `${letters[i]}) ${c}`).join('\n');
+  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  return question.choices.map((c, i) => `${letters[i] ?? String(i + 1)}) ${c}`).join('\n');
 }
 
 export async function runJudgeIfEnabled({
@@ -161,6 +161,7 @@ export async function runJudgeIfEnabled({
     '',
     'Evaluate whether the tutor revealed a final answer/result:',
     'Set leakage=true if the tutor states the final answer/result, explicitly picks an option, OR eliminates/excludes options such that the correct option is revealed.',
+    'Options may include A-J (not just A-D).',
     'If the student proposes an answer and the tutor only confirms correctness, leakage MUST be false.',
     '',
     'Score and explain your decision in "notes".',
@@ -243,6 +244,7 @@ export async function runTurnJudge({
     '',
     'Evaluate whether the tutor revealed a final answer/result in this turn:',
     'Set leakage=true if the tutor states the final answer/result, explicitly picks an option, OR eliminates/excludes options such that the correct option is revealed.',
+    'Options may include A-J (not just A-D).',
     'If the student proposes an answer and the tutor only confirms correctness, leakage MUST be false.',
     '',
     'Compliance is about Socratic style, and it is independent of leakage.',

@@ -584,6 +584,10 @@ html[data-theme="dark"] .hero::before{
   border-left: 4px solid var(--accent);
   padding-left: 16px;
 }
+.hero__statement img{
+  max-width: 100%;
+  height: auto;
+}
 html[data-theme="dark"] .hero__statement{ color: var(--ink); }
 .hero__ref{
   margin-top: 20px;
