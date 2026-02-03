@@ -2195,7 +2195,7 @@ export const REPORT_JS = `
     const ref = q.referenceAnswerDescription || '';
     const idx = Number.isFinite(Number(q.correctChoiceIndex)) ? Number(q.correctChoiceIndex) : null;
     const correct = idx != null && idx >= 0 && idx < letters.length ? letters[idx] : null;
-    const refText = correct ? ('Correct choice: ' + correct + '\n\n' + String(ref)) : String(ref);
+    const refText = correct ? ('Correct choice: ' + correct + '\\n\\n' + String(ref)) : String(ref);
     if (refText && String(refText).trim()){
       qRefWrap.hidden = false;
       qRef.innerHTML = refText;
