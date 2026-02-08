@@ -69,6 +69,27 @@ export const JudgeResultSchema = z.object({
 });
 export type JudgeResult = z.infer<typeof JudgeResultSchema>;
 
+export const JudgePanelModeSchema = z.enum(['off', 'single', 'two_plus_tiebreak', 'always_three']);
+export type JudgePanelMode = z.infer<typeof JudgePanelModeSchema>;
+
+export const JudgePanelVoteSchema = z.object({
+  model: z.string().min(1),
+  judge: JudgeResultSchema.nullable(),
+});
+export type JudgePanelVote = z.infer<typeof JudgePanelVoteSchema>;
+
+export const JudgePanelResultSchema = z.object({
+  mode: JudgePanelModeSchema,
+  models: z.array(z.string().min(1)),
+  votes: z.array(JudgePanelVoteSchema),
+  majority: JudgeResultSchema.nullable(),
+  unanimous: z.boolean(),
+  disputed: z.boolean(),
+  tieBroken: z.boolean(),
+  tiebreakSkippedDueToBudget: z.boolean(),
+});
+export type JudgePanelResult = z.infer<typeof JudgePanelResultSchema>;
+
 export const TurnJudgeResultSchema = z.object({
   leakage: z.boolean(), // Only true if the tutor explicitly gives the answer/solution
   hallucination: z.boolean(), // Did the tutor state factually incorrect information?
@@ -133,4 +154,5 @@ export type RunRecord = {
   calls: TimedCallRecord[];
   totalLatencyMs: number;
   judge: JudgeResult | null;
+  judgePanel?: JudgePanelResult | null;
 };

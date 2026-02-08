@@ -54,10 +54,10 @@ export function normalizeRun(record: RunRecord, runKey: string): NormalizedRun {
   const turnNonCompliance = hasTurnJudgments
     ? turnJudgments.some((t) => t?.judge?.compliance === false)
     : null;
-  const leakage = turnLeakage;
-  const hallucination = turnHallucination;
-  const compliance = hasTurnJudgments ? !turnNonCompliance : null;
-  const judged = hasTurnJudgments;
+  const leakage = record.judge ? record.judge.leakage : turnLeakage;
+  const hallucination = record.judge ? record.judge.hallucination : turnHallucination;
+  const compliance = record.judge ? record.judge.compliance : hasTurnJudgments ? !turnNonCompliance : null;
+  const judged = record.judge != null || hasTurnJudgments;
 
   const endedEarly = record.turnsCompleted < record.turnsRequested;
   const lastTurnJudge = hasTurnJudgments ? turnJudgments[turnJudgments.length - 1]?.judge ?? null : null;

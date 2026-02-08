@@ -11,7 +11,8 @@ import { generateQuestionsBatch } from '../agents/question-gen';
 import { getTutorModel, getSupervisorModel, type TutorId, type SupervisorId } from '../config';
 import { createJsonlWriter, ensureDir, nowIso } from '../utils/util';
 import type { Question, RunRecord, TimedCallRecord } from '../types';
-import { runJudgeIfEnabled, runTurnJudge } from '../agents/judge';
+import { runTurnJudge } from '../agents/judge';
+import { runJudgePanelIfEnabled } from '../agents/judge-panel';
 import { SummaryAggregator } from '../output/summary';
 import { buildAnalysis } from '../output/analysis';
 import { renderReportHtml } from '../output/report';
@@ -25,6 +26,7 @@ type RunConfig = {
 };
 
 function hasRunLeakage(record: RunRecord): boolean {
+  if (record.judge) return record.judge.leakage;
   return record.hiddenTrace.turnJudgments?.some((t) => t.judge.leakage) ?? false;
 }
 
@@ -55,6 +57,10 @@ export async function runExperiments({
   console.log(`          student=${args.studentModel.split('/').pop()}`);
   // eslint-disable-next-line no-console
   console.log(`          judge=${args.enableJudge ? args.judgeModel.split('/').pop() : '(disabled)'}`);
+  // eslint-disable-next-line no-console
+  console.log(
+    `          panel=${args.enableJudge ? args.judgePanelMode : '(disabled)'} models=[${args.judgePanelModels.map((m) => m.split('/').pop()).join(', ')}]`
+  );
   // eslint-disable-next-line no-console
   console.log(`⚡ Parallel: ${args.parallel} concurrent runs`);
   
@@ -185,9 +191,11 @@ export async function runExperiments({
 
   // Thread-safe counters and state
   const stateMutex = new Mutex();
+  const disputeBudgetMutex = new Mutex();
   let completedRuns = 0;
   let leakageCount = 0;
   let complianceCount = 0;
+  let disputeTieBreaksUsed = 0;
   const allStart = Date.now();
 
   // Create beautiful progress bar
@@ -260,14 +268,26 @@ export async function runExperiments({
             : undefined,
       });
 
-      const judge = await runJudgeIfEnabled({
+      const judgePanel = await runJudgePanelIfEnabled({
         enabled: args.enableJudge,
+        mode: args.judgePanelMode,
+        panelModels: args.judgePanelModels,
+        fallbackModel: args.judgeModel,
         calls,
-        model: args.judgeModel,
         question,
         transcriptVisible: conversation.transcriptVisible,
         studentTurns: conversation.hiddenTrace.studentTurns,
+        consumeDisputeBudget: async () =>
+          disputeBudgetMutex.runExclusive(() => {
+            if (args.judgePanelMaxDisputes == null) return { allowed: true };
+            if (disputeTieBreaksUsed >= args.judgePanelMaxDisputes) {
+              return { allowed: false, reason: 'max_disputes_reached' };
+            }
+            disputeTieBreaksUsed += 1;
+            return { allowed: true };
+          }),
       });
+      const judge = judgePanel?.majority ?? null;
 
       const totalLatencyMs = Date.now() - t0;
 
@@ -303,6 +323,7 @@ export async function runExperiments({
         calls,
         totalLatencyMs,
         judge,
+        judgePanel,
       };
 
       // Thread-safe state updates
@@ -386,6 +407,12 @@ export async function runExperiments({
     console.log(`   Leakage rate: ${completedRuns > 0 ? ((leakageCount / completedRuns) * 100).toFixed(1) : 0}% (${leakageCount}/${completedRuns})`);
     // eslint-disable-next-line no-console
     console.log(`   Compliance rate: ${completedRuns > 0 ? ((complianceCount / completedRuns) * 100).toFixed(1) : 0}% (${complianceCount}/${completedRuns})`);
+    if (args.enableJudge && args.judgePanelMode === 'two_plus_tiebreak') {
+      // eslint-disable-next-line no-console
+      console.log(
+        `   Panel tie-breaks used: ${disputeTieBreaksUsed}${args.judgePanelMaxDisputes != null ? `/${args.judgePanelMaxDisputes}` : ''}`
+      );
+    }
     // eslint-disable-next-line no-console
     console.log(`\n⏱️  Timing:`);
     // eslint-disable-next-line no-console
