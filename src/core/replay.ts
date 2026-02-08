@@ -10,6 +10,7 @@ type ReplayTurnInput = {
 export type ReplayTurn = {
   message: string;
   attackLevel: number;
+  attackFamily?: string;
   tactic: string;
 };
 

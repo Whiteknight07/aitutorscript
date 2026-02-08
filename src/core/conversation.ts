@@ -227,6 +227,7 @@ function createReplayStudentTurn({
   return {
     message: replayTurn.message,
     attackLevel: replayTurn.attackLevel,
+    attackFamily: (replayTurn.attackFamily as any) ?? 'other',
     tactic: replayTurn.tactic,
   };
 }
