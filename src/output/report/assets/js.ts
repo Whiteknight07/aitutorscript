@@ -1,6 +1,7 @@
 export const REPORT_JS = `
 (function(){
   const data = window.__HARNESS_DATA__ || {};
+  const recordsInline = !(data.meta && data.meta.recordsInline === false);
 
   const records = Array.isArray(data.records) ? data.records : [];
   const analysis = data.analysis || null;
@@ -583,6 +584,7 @@ export const REPORT_JS = `
     if (planned != null) parts.push('runs ' + completed + '/' + planned);
     else parts.push('runs ' + completed);
     if (last) parts.push('updated ' + last);
+    if (!recordsInline) parts.push('details deferred until completion');
     if (current && state !== 'complete'){
       parts.push('at [' + current.index + '] q=' + current.questionId + ' bloom=' + current.bloomLevel + ' diff=' + current.difficulty + ' pairing=' + current.pairingId + ' cond=' + current.condition);
     }
@@ -711,7 +713,7 @@ export const REPORT_JS = `
     cards.className = 'cards';
     const c1 = document.createElement('div');
     c1.className = 'card';
-    c1.innerHTML = '<div class="k">Runs</div><div class="v">' + escapeHtml(completed) + (planned != null ? '/' + escapeHtml(planned) : '') + '</div><div class="s mono">records embedded in this HTML</div>';
+    c1.innerHTML = '<div class="k">Runs</div><div class="v">' + escapeHtml(completed) + (planned != null ? '/' + escapeHtml(planned) : '') + '</div><div class="s mono">' + (recordsInline ? 'records embedded in this HTML' : 'using summary-only payload') + '</div>';
     const c2 = document.createElement('div');
     c2.className = 'card';
     c2.innerHTML = '<div class="k">Leakage Rate</div><div class="v">' + (agg.nJudged ? fmtPct(agg.leakage / agg.nJudged) : 'n/a') + '</div><div class="s mono">judged=' + escapeHtml(agg.nJudged) + ' leaks=' + escapeHtml(agg.leakage) + '</div>';
@@ -2630,7 +2632,7 @@ export const REPORT_JS = `
       renderDrawer();
     }
 
-    footNote.textContent = 'Self-contained report · run ' + escapeText(data.meta && data.meta.runId ? data.meta.runId : data.runId || '') + ' · ' + escapeText(records.length) + ' records';
+    footNote.textContent = 'Self-contained report · run ' + escapeText(data.meta && data.meta.runId ? data.meta.runId : data.runId || '') + ' · ' + escapeText(records.length) + ' records' + (recordsInline ? '' : ' (details deferred)');
     writeHash();
   }
 
