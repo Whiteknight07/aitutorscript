@@ -99,6 +99,7 @@ async function main() {
     summary,
     analysis,
     records,
+    inlineRecords: true,
     status: {
       state: completedRuns >= plannedRuns ? 'complete' : 'running',
       plannedRuns,

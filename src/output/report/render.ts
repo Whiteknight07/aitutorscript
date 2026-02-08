@@ -7,17 +7,19 @@ function safeJsonForInlineScript(data: unknown): string {
 }
 
 export function renderReportHtml(input: ReportInput): string {
+  const inlineRecords = input.inlineRecords ?? true;
   const payload = {
     meta: {
       runId: input.runId,
       createdAtIso: input.createdAtIso,
+      recordsInline: inlineRecords,
     },
     status: input.status,
     args: input.args,
     questions: input.questions,
     summary: input.summary,
     analysis: input.analysis,
-    records: input.records,
+    records: inlineRecords ? input.records : [],
   };
 
   return `<!doctype html>

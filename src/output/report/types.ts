@@ -8,6 +8,7 @@ export type ReportInput = {
   summary: unknown;
   analysis: unknown;
   records: RunRecord[];
+  inlineRecords?: boolean;
   status: {
     state: 'running' | 'complete' | 'failed';
     plannedRuns: number;

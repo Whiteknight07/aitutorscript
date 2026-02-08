@@ -189,6 +189,10 @@ export async function runExperiments({
   let leakageCount = 0;
   let complianceCount = 0;
   const allStart = Date.now();
+  let runsSinceCheckpoint = 0;
+  let lastCheckpointAtMs = Date.now();
+  const checkpointEveryRuns = args.checkpointEveryRuns;
+  const checkpointEveryMs = args.checkpointEverySeconds * 1000;
 
   // Create beautiful progress bar
   const progressBar = new cliProgress.SingleBar({
@@ -218,7 +222,10 @@ export async function runExperiments({
     state: 'running',
     current: null,
     error: null,
+    includeFullRecords: false,
   });
+  lastCheckpointAtMs = Date.now();
+  runsSinceCheckpoint = 0;
 
   // Create concurrency limiter
   const limit = pLimit(args.parallel);
@@ -312,6 +319,7 @@ export async function runExperiments({
         aggregator.add(record);
         recordsForReport.push(record);
         completedRuns++;
+        runsSinceCheckpoint++;
         
         if (hasRunLeakage(record)) leakageCount++;
         if (judge?.compliance) complianceCount++;
@@ -322,29 +330,41 @@ export async function runExperiments({
           compliant: complianceCount,
         });
 
-        // Write partial outputs after each run
-        await writePartialOutputs({
-          runOutDir,
-          runId,
-          createdAtIso,
-          args,
-          questions,
-          aggregator,
-          records: recordsForReport,
-          plannedRuns,
-          completedRuns,
-          state: completedRuns >= plannedRuns ? 'complete' : 'running',
-          current: {
-            index: runIdx + 1,
-            questionId: question.id,
-            bloomLevel: question.bloomLevel,
-            difficulty: question.difficulty,
-            tutorId,
-            supervisorId,
-            condition,
-          },
-          error: null,
-        });
+        if (
+          shouldWriteRunningCheckpoint({
+            runsSinceCheckpoint,
+            checkpointEveryRuns,
+            nowMs: Date.now(),
+            lastCheckpointAtMs,
+            checkpointEveryMs,
+          })
+        ) {
+          await writePartialOutputs({
+            runOutDir,
+            runId,
+            createdAtIso,
+            args,
+            questions,
+            aggregator,
+            records: recordsForReport,
+            plannedRuns,
+            completedRuns,
+            state: 'running',
+            current: {
+              index: runIdx + 1,
+              questionId: question.id,
+              bloomLevel: question.bloomLevel,
+              difficulty: question.difficulty,
+              tutorId,
+              supervisorId,
+              condition,
+            },
+            error: null,
+            includeFullRecords: false,
+          });
+          runsSinceCheckpoint = 0;
+          lastCheckpointAtMs = Date.now();
+        }
       } finally {
         release();
       }
@@ -422,6 +442,7 @@ export async function runExperiments({
       state: 'complete',
       current: null,
       error: null,
+      includeFullRecords: true,
     });
 
   } catch (err: any) {
@@ -443,6 +464,7 @@ export async function runExperiments({
         message: String(err?.message ?? err),
         stack: err?.stack,
       },
+      includeFullRecords: true,
     });
     throw err;
   } finally {
@@ -458,6 +480,23 @@ function formatDuration(ms: number): string {
   return `${mins}m ${secs}s`;
 }
 
+function shouldWriteRunningCheckpoint({
+  runsSinceCheckpoint,
+  checkpointEveryRuns,
+  nowMs,
+  lastCheckpointAtMs,
+  checkpointEveryMs,
+}: {
+  runsSinceCheckpoint: number;
+  checkpointEveryRuns: number;
+  nowMs: number;
+  lastCheckpointAtMs: number;
+  checkpointEveryMs: number;
+}): boolean {
+  if (runsSinceCheckpoint >= checkpointEveryRuns) return true;
+  return nowMs - lastCheckpointAtMs >= checkpointEveryMs;
+}
+
 async function writePartialOutputs({
   runOutDir,
   runId,
@@ -471,6 +510,7 @@ async function writePartialOutputs({
   state,
   current,
   error,
+  includeFullRecords,
 }: {
   runOutDir: string;
   runId: string;
@@ -484,6 +524,7 @@ async function writePartialOutputs({
   state: 'running' | 'complete' | 'failed';
   current: { index: number; questionId: string; bloomLevel: number; difficulty: string; tutorId: string; supervisorId: string | null; condition: string } | null;
   error: { message: string; stack?: string } | null;
+  includeFullRecords: boolean;
 }) {
   const summaryObject = {
     runId,
@@ -519,6 +560,7 @@ async function writePartialOutputs({
       summary: summaryObject,
       analysis,
       records,
+      inlineRecords: includeFullRecords,
       status: {
         state,
         plannedRuns,

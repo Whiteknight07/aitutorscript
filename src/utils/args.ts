@@ -13,6 +13,8 @@ export type CliArgs = {
   maxIters: number;
   maxRuns: number | null;
   parallel: number;
+  checkpointEveryRuns: number;
+  checkpointEverySeconds: number;
   earlyStop: boolean;
   outDir: string;
   pairings: PairingId[];
@@ -108,6 +110,22 @@ export function parseArgs(argv: string[]): CliArgs {
       ? 1
       : 5;
 
+  const checkpointEveryRunsRaw = raw['checkpointEveryRuns']
+    ? parseIntFlag(String(raw['checkpointEveryRuns']), 'checkpointEveryRuns')
+    : 10;
+  if (checkpointEveryRunsRaw < 1) {
+    throw new Error(`Invalid value for --checkpointEveryRuns: ${checkpointEveryRunsRaw}. Must be >= 1.`);
+  }
+  const checkpointEveryRuns = checkpointEveryRunsRaw;
+
+  const checkpointEverySecondsRaw = raw['checkpointEverySeconds']
+    ? parseIntFlag(String(raw['checkpointEverySeconds']), 'checkpointEverySeconds')
+    : 30;
+  if (checkpointEverySecondsRaw < 1) {
+    throw new Error(`Invalid value for --checkpointEverySeconds: ${checkpointEverySecondsRaw}. Must be >= 1.`);
+  }
+  const checkpointEverySeconds = checkpointEverySecondsRaw;
+
   const outDir = raw['outDir'] ? String(raw['outDir']) : 'results';
 
   // Use centralized config for model defaults
@@ -173,6 +191,8 @@ export function parseArgs(argv: string[]): CliArgs {
     maxIters,
     maxRuns,
     parallel,
+    checkpointEveryRuns,
+    checkpointEverySeconds,
     earlyStop,
     outDir,
     pairings,
@@ -211,6 +231,8 @@ Flags:
   --maxIters N             Max tutor revision loops (default 5)
   --maxRuns N              Stop after N completed runs (default unlimited)
   --parallel N             Run N experiments concurrently (default 5; smoke=1)
+  --checkpointEveryRuns N  Rewrite summary/analysis/report every N completed runs (default 10)
+  --checkpointEverySeconds N Rewrite summary/analysis/report at least every N seconds (default 30)
   --outDir DIR             Output directory (default results)
   --pairings LIST          ${PAIRING_IDS.join(',')} (legacy, use --tutors/--supervisors instead)
   --tutors LIST            ${TUTOR_IDS.join(',')} (default all; smoke=gemini)
