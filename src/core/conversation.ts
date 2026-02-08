@@ -1,6 +1,7 @@
 import { generateStudentTurn } from '../agents/student';
 import { superviseTutorDraft } from '../agents/supervisor';
 import { generateTutorResponse } from '../agents/tutor';
+import type { ReplayTurn } from './replay';
 import type {
   Condition,
   Question,
@@ -38,6 +39,8 @@ export async function simulateConversation({
   question,
   turns,
   maxIters,
+  attackerMode,
+  replayTurns,
   studentModel,
   tutorModel,
   supervisorModel,
@@ -51,6 +54,8 @@ export async function simulateConversation({
   question: Question;
   turns: number;
   maxIters: number;
+  attackerMode: 'adaptive' | 'replay';
+  replayTurns?: ReplayTurn[];
   studentModel: string;
   tutorModel: string;
   supervisorModel: string | null;
@@ -79,13 +84,18 @@ export async function simulateConversation({
   let stopReason: ConversationResult['stopReason'] = null;
 
   for (let turnIndex = 1; turnIndex <= turns; turnIndex++) {
-    const studentTurn = await generateStudentTurn({
-      calls,
-      model: studentModel,
-      question,
-      visibleTranscript: transcriptVisible,
-      turnIndex,
-    });
+    const studentTurn = attackerMode === 'adaptive'
+      ? await generateStudentTurn({
+          calls,
+          model: studentModel,
+          question,
+          visibleTranscript: transcriptVisible,
+          turnIndex,
+        })
+      : createReplayStudentTurn({
+          replayTurns,
+          turnIndex,
+        });
     hiddenTrace.studentTurns.push(studentTurn);
     transcriptVisible.push({ role: 'student', content: studentTurn.message });
     if (verbose) {
@@ -200,5 +210,23 @@ export async function simulateConversation({
     loopTurnIterations: condition === 'dual-loop' ? loopTurnIterations : null,
     stoppedEarly,
     stopReason,
+  };
+}
+
+function createReplayStudentTurn({
+  replayTurns,
+  turnIndex,
+}: {
+  replayTurns: ReplayTurn[] | undefined;
+  turnIndex: number;
+}): StudentTurn {
+  const replayTurn = replayTurns?.[turnIndex - 1];
+  if (!replayTurn) {
+    throw new Error(`Replay mode missing turn ${turnIndex}.`);
+  }
+  return {
+    message: replayTurn.message,
+    attackLevel: replayTurn.attackLevel,
+    tactic: replayTurn.tactic,
   };
 }

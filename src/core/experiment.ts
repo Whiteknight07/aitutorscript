@@ -7,6 +7,7 @@ import cliProgress from 'cli-progress';
 
 import { parseArgs } from '../utils/args';
 import { simulateConversation } from './conversation';
+import { loadReplayScript, resolveReplayTurns, type ReplayScript } from './replay';
 import { generateQuestionsBatch } from '../agents/question-gen';
 import { getTutorModel, getSupervisorModel, type TutorId, type SupervisorId } from '../config';
 import { createJsonlWriter, ensureDir, nowIso } from '../utils/util';
@@ -92,6 +93,8 @@ export async function runExperiments({
       difficulties: args.difficulties,
       courseLevels: args.courseLevels,
       skillTags: args.skillTags,
+      stratify: args.stratifyCanterbury,
+      targetPerCell: args.targetPerCell,
     });
     // eslint-disable-next-line no-console
     console.log(`✅ Loaded ${questions.length} Canterbury questions`);
@@ -145,6 +148,10 @@ export async function runExperiments({
   const rawWriter = await createJsonlWriter(runOutDir, 'raw.jsonl');
   const aggregator = new SummaryAggregator();
   const recordsForReport: RunRecord[] = [];
+  const replayScript: ReplayScript | null =
+    args.attackerMode === 'replay'
+      ? await loadReplayScript(String(args.attackerReplayPath))
+      : null;
 
   // Build all run configurations upfront
   const hasSingle = args.conditions.includes('single');
@@ -178,6 +185,8 @@ export async function runExperiments({
   console.log(`   Supervisors: [${args.supervisors.join(', ')}]`);
   // eslint-disable-next-line no-console
   console.log(`   Conditions: [${args.conditions.join(', ')}]`);
+  // eslint-disable-next-line no-console
+  console.log(`   Attacker mode: ${args.attackerMode}${replayScript ? ` (${replayScript.sourcePath})` : ''}`);
   // eslint-disable-next-line no-console
   console.log(`   Total runs: ${plannedRuns}${args.maxRuns ? ` (capped from ${allRuns.length})` : ''}`);
   // eslint-disable-next-line no-console
@@ -240,6 +249,15 @@ export async function runExperiments({
         question,
         turns: args.turns,
         maxIters: args.maxIters,
+        attackerMode: args.attackerMode,
+        replayTurns:
+          args.attackerMode === 'replay'
+            ? resolveReplayTurns({
+                script: requireReplayScript(replayScript),
+                questionId: question.id,
+                turns: args.turns,
+              })
+            : undefined,
         studentModel: args.studentModel,
         tutorModel,
         supervisorModel,
@@ -590,6 +608,8 @@ async function loadCanterburyQuestions({
   difficulties,
   courseLevels,
   skillTags,
+  stratify,
+  targetPerCell,
 }: {
   baseDir: string;
   limit: number | null;
@@ -597,6 +617,8 @@ async function loadCanterburyQuestions({
   difficulties: Array<Question['difficulty']>;
   courseLevels: string[];
   skillTags: string[];
+  stratify: boolean;
+  targetPerCell: number | null;
 }): Promise<Question[]> {
   const pages = await Promise.all(
     CANTERBURY_PAGES.map(async (file) => ({
@@ -610,7 +632,6 @@ async function loadCanterburyQuestions({
   for (const page of pages) {
     const blocks = extractQuestionTables(page.html);
     for (const block of blocks) {
-      if (limit != null && questions.length >= limit) return questions;
       const fields = parseQuestionFields(block);
       const candidate = buildCanterburyQuestion(fields, {
         bloomLevels,
@@ -625,7 +646,84 @@ async function loadCanterburyQuestions({
     }
   }
 
-  return questions;
+  if (!stratify) {
+    return limit != null ? questions.slice(0, limit) : questions;
+  }
+
+  return stratifyCanterburyQuestions({
+    questions,
+    limit,
+    bloomLevels,
+    difficulties,
+    targetPerCell,
+  });
+}
+
+function stratifyCanterburyQuestions({
+  questions,
+  limit,
+  bloomLevels,
+  difficulties,
+  targetPerCell,
+}: {
+  questions: Question[];
+  limit: number | null;
+  bloomLevels: number[];
+  difficulties: Array<Question['difficulty']>;
+  targetPerCell: number | null;
+}): Question[] {
+  const groups = new Map<string, Question[]>();
+  for (const bloomLevel of bloomLevels) {
+    for (const difficulty of difficulties) {
+      groups.set(cellKey(bloomLevel, difficulty), []);
+    }
+  }
+
+  for (const question of questions) {
+    const key = cellKey(question.bloomLevel, question.difficulty);
+    const bucket = groups.get(key);
+    if (!bucket) continue;
+    bucket.push(question);
+  }
+
+  const nonEmptyBuckets = Array.from(groups.entries())
+    .filter(([, bucket]) => bucket.length > 0);
+  if (nonEmptyBuckets.length === 0) return [];
+
+  const autoTarget = targetPerCell ?? inferTargetPerCell({
+    nonEmptyBuckets,
+    limit,
+  });
+  const selected: Question[] = [];
+  for (const [, bucket] of nonEmptyBuckets) {
+    selected.push(...bucket.slice(0, autoTarget));
+  }
+
+  return limit != null ? selected.slice(0, limit) : selected;
+}
+
+function inferTargetPerCell({
+  nonEmptyBuckets,
+  limit,
+}: {
+  nonEmptyBuckets: Array<[string, Question[]]>;
+  limit: number | null;
+}): number {
+  if (limit != null) {
+    return Math.max(1, Math.floor(limit / nonEmptyBuckets.length));
+  }
+  return Math.max(1, Math.min(...nonEmptyBuckets.map(([, bucket]) => bucket.length)));
+}
+
+function cellKey(bloomLevel: number, difficulty: Question['difficulty']): string {
+  return `${bloomLevel}|${difficulty}`;
+}
+
+function requireReplayScript(replayScript: ReplayScript | null): ReplayScript {
+  if (!replayScript) {
+    throw new Error('Replay script is required for replay attacker mode.');
+  }
+  return replayScript;
 }
 
 function extractQuestionTables(html: string): string[] {

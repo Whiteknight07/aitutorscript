@@ -7,8 +7,12 @@ export type CliArgs = {
   difficulties: Difficulty[];
   dataset: 'default' | 'canterbury';
   questionLimit: number | null;
+  stratifyCanterbury: boolean;
+  targetPerCell: number | null;
   courseLevels: string[];
   skillTags: string[];
+  attackerMode: 'adaptive' | 'replay';
+  attackerReplayPath: string | null;
   turns: number;
   maxIters: number;
   maxRuns: number | null;
@@ -41,6 +45,15 @@ function parseListFlag(value: string | undefined): string[] {
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean);
+}
+
+function parseBooleanFlag(value: string | boolean | undefined, defaultValue: boolean): boolean {
+  if (value == null) return defaultValue;
+  if (value === true) return true;
+  const normalized = String(value).trim().toLowerCase();
+  if (normalized === 'true' || normalized === '1' || normalized === 'yes' || normalized === 'on') return true;
+  if (normalized === 'false' || normalized === '0' || normalized === 'no' || normalized === 'off') return false;
+  throw new Error(`Invalid boolean value: ${value}`);
 }
 
 export function parseArgs(argv: string[]): CliArgs {
@@ -87,6 +100,25 @@ export function parseArgs(argv: string[]): CliArgs {
     : dataset === 'canterbury'
       ? 100
       : null;
+  const stratifyCanterbury = raw['noStratifyCanterbury'] === true
+    ? false
+    : parseBooleanFlag(raw['stratifyCanterbury'], true);
+  const targetPerCell = raw['targetPerCell'] != null
+    ? parseIntFlag(String(raw['targetPerCell']), 'targetPerCell')
+    : null;
+  if (targetPerCell != null && targetPerCell < 1) {
+    throw new Error(`Invalid value for --targetPerCell: ${targetPerCell}. Must be >= 1.`);
+  }
+
+  const attackerModeRaw = raw['attackerMode'] != null ? String(raw['attackerMode']) : 'adaptive';
+  if (attackerModeRaw !== 'adaptive' && attackerModeRaw !== 'replay') {
+    throw new Error(`Invalid attacker mode: "${attackerModeRaw}". Use "adaptive" or "replay".`);
+  }
+  const attackerMode = attackerModeRaw as 'adaptive' | 'replay';
+  const attackerReplayPath = raw['attackerReplayPath'] != null ? String(raw['attackerReplayPath']) : null;
+  if (attackerMode === 'replay' && !attackerReplayPath) {
+    throw new Error('--attackerReplayPath is required when --attackerMode replay.');
+  }
 
   const turns = raw['turns']
     ? parseIntFlag(String(raw['turns']), 'turns')
@@ -167,8 +199,12 @@ export function parseArgs(argv: string[]): CliArgs {
     difficulties,
     dataset,
     questionLimit,
+    stratifyCanterbury,
+    targetPerCell,
     courseLevels,
     skillTags,
+    attackerMode,
+    attackerReplayPath,
     turns,
     maxIters,
     maxRuns,
@@ -200,6 +236,9 @@ Usage:
 Flags:
   --dataset NAME           Question source: default, canterbury (default: default)
   --questionLimit N        Max questions to load (default: 100 for canterbury)
+  --stratifyCanterbury     Balance Canterbury sampling by Bloom x difficulty (default: true)
+  --noStratifyCanterbury   Disable Canterbury stratified sampling
+  --targetPerCell N        Target questions per Bloom x difficulty cell for Canterbury
   --dynamic                Generate questions dynamically (default: use static data/questions.json)
   --questionsPerCell N     Questions per Bloom x Difficulty cell (default 1, only with --dynamic)
   --bloomLevels 1,2,3      Bloom's taxonomy levels (default 1,2,3; smoke=1)
@@ -218,6 +257,8 @@ Flags:
   --conditions LIST        single,dual-loop (default all; smoke=single)
   --questionModel ID       Model for question generation (default from config.ts)
   --studentModel ID        Model for student attacker (default from config.ts)
+  --attackerMode MODE      adaptive,replay (default adaptive)
+  --attackerReplayPath P   Replay script path (required when --attackerMode replay)
   --judgeModel ID          Model for judge pass (default from config.ts)
   --noJudge                Disable judge pass
   --noEarlyStop            Disable early stopping (otherwise stops when judge detects leakage or attacker goal success)
