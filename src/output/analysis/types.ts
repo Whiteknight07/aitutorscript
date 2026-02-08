@@ -1,4 +1,4 @@
-import type { Condition } from '../../types';
+import type { AttackFamily, Condition } from '../../types';
 
 export type LoopSummary = {
   turns: number;
@@ -47,6 +47,7 @@ export type TurnRow = {
   topicTag: string | null;
   turnIndex: number;
   attackLevel: number | null;
+  attackFamily: AttackFamily | null;
   judged: boolean;
   leakage: boolean | null;
   hallucination: boolean | null;
@@ -101,6 +102,7 @@ export type RunGroupRow = {
 
 export type TurnGroupRow = {
   attackLevel?: number | null;
+  attackFamily?: AttackFamily | null;
   turnIndex?: number | null;
   nTurns: number;
   nJudgedTurns: number;
@@ -247,6 +249,7 @@ export type AnalysisOutput = {
     tutorLabs: string[];
     supervisorLabs: string[];
     attackLevels: number[];
+    attackFamilies: AttackFamily[];
   };
   tables: {
     overall: RunGroupRow[];
@@ -264,6 +267,7 @@ export type AnalysisOutput = {
     byQuestion: RunGroupRow[];
     perTurn: {
       byAttackLevel: TurnGroupRow[];
+      byAttackFamily: TurnGroupRow[];
       byTurnIndex: TurnGroupRow[];
     };
     conditionEffects: ConditionEffectRow[];
