@@ -71,12 +71,20 @@ export type RunGroupRow = {
   nJudgedRuns: number;
   leakageCount: number;
   leakageRate: number | null;
+  leakageCiLow: number | null;
+  leakageCiHigh: number | null;
   hallucinationCount: number;
   hallucinationRate: number | null;
+  hallucinationCiLow: number | null;
+  hallucinationCiHigh: number | null;
   complianceCount: number;
   complianceRate: number | null;
+  complianceCiLow: number | null;
+  complianceCiHigh: number | null;
   earlyStopCount: number;
   earlyStopRate: number | null;
+  earlyStopCiLow: number | null;
+  earlyStopCiHigh: number | null;
   earlyStopLeakageCount: number;
   earlyStopOtherCount: number;
   latencyCount: number;
@@ -108,12 +116,20 @@ export type TurnGroupRow = {
   nJudgedTurns: number;
   leakageCount: number;
   leakageRate: number | null;
+  leakageCiLow: number | null;
+  leakageCiHigh: number | null;
   hallucinationCount: number;
   hallucinationRate: number | null;
+  hallucinationCiLow: number | null;
+  hallucinationCiHigh: number | null;
   complianceCount: number;
   complianceRate: number | null;
+  complianceCiLow: number | null;
+  complianceCiHigh: number | null;
   terminationCount: number;
   terminationRate: number | null;
+  terminationCiLow: number | null;
+  terminationCiHigh: number | null;
 };
 
 export type ConditionEffectRow = {
@@ -123,17 +139,41 @@ export type ConditionEffectRow = {
   nSingleJudgedRuns: number;
   nDualJudgedRuns: number;
   leakageSingleRate: number | null;
+  leakageSingleCiLow: number | null;
+  leakageSingleCiHigh: number | null;
   leakageDualRate: number | null;
+  leakageDualCiLow: number | null;
+  leakageDualCiHigh: number | null;
   leakageDelta: number | null;
+  leakageDeltaCiLow: number | null;
+  leakageDeltaCiHigh: number | null;
   hallucinationSingleRate: number | null;
+  hallucinationSingleCiLow: number | null;
+  hallucinationSingleCiHigh: number | null;
   hallucinationDualRate: number | null;
+  hallucinationDualCiLow: number | null;
+  hallucinationDualCiHigh: number | null;
   hallucinationDelta: number | null;
+  hallucinationDeltaCiLow: number | null;
+  hallucinationDeltaCiHigh: number | null;
   complianceSingleRate: number | null;
+  complianceSingleCiLow: number | null;
+  complianceSingleCiHigh: number | null;
   complianceDualRate: number | null;
+  complianceDualCiLow: number | null;
+  complianceDualCiHigh: number | null;
   complianceDelta: number | null;
+  complianceDeltaCiLow: number | null;
+  complianceDeltaCiHigh: number | null;
   earlyStopSingleRate: number | null;
+  earlyStopSingleCiLow: number | null;
+  earlyStopSingleCiHigh: number | null;
   earlyStopDualRate: number | null;
+  earlyStopDualCiLow: number | null;
+  earlyStopDualCiHigh: number | null;
   earlyStopDelta: number | null;
+  earlyStopDeltaCiLow: number | null;
+  earlyStopDeltaCiHigh: number | null;
 };
 
 export type LabInteractionRow = {
@@ -144,11 +184,23 @@ export type LabInteractionRow = {
   nSingleJudgedRuns: number;
   nDualJudgedRuns: number;
   leakageSingleRate: number | null;
+  leakageSingleCiLow: number | null;
+  leakageSingleCiHigh: number | null;
   leakageDualRate: number | null;
+  leakageDualCiLow: number | null;
+  leakageDualCiHigh: number | null;
   leakageDelta: number | null;
+  leakageDeltaCiLow: number | null;
+  leakageDeltaCiHigh: number | null;
   complianceSingleRate: number | null;
+  complianceSingleCiLow: number | null;
+  complianceSingleCiHigh: number | null;
   complianceDualRate: number | null;
+  complianceDualCiLow: number | null;
+  complianceDualCiHigh: number | null;
   complianceDelta: number | null;
+  complianceDeltaCiLow: number | null;
+  complianceDeltaCiHigh: number | null;
 };
 
 export type TutorPairTypeEffectRow = {
@@ -159,11 +211,23 @@ export type TutorPairTypeEffectRow = {
   nSingleJudgedRuns: number;
   nDualJudgedRuns: number;
   leakageSingleRate: number | null;
+  leakageSingleCiLow: number | null;
+  leakageSingleCiHigh: number | null;
   leakageDualRate: number | null;
+  leakageDualCiLow: number | null;
+  leakageDualCiHigh: number | null;
   leakageDelta: number | null;
+  leakageDeltaCiLow: number | null;
+  leakageDeltaCiHigh: number | null;
   complianceSingleRate: number | null;
+  complianceSingleCiLow: number | null;
+  complianceSingleCiHigh: number | null;
   complianceDualRate: number | null;
+  complianceDualCiLow: number | null;
+  complianceDualCiHigh: number | null;
   complianceDelta: number | null;
+  complianceDeltaCiLow: number | null;
+  complianceDeltaCiHigh: number | null;
 };
 
 export type BloomDifficultyEffectRow = {
@@ -174,14 +238,32 @@ export type BloomDifficultyEffectRow = {
   nSingleJudgedRuns: number;
   nDualJudgedRuns: number;
   leakageSingleRate: number | null;
+  leakageSingleCiLow: number | null;
+  leakageSingleCiHigh: number | null;
   leakageDualRate: number | null;
+  leakageDualCiLow: number | null;
+  leakageDualCiHigh: number | null;
   leakageDelta: number | null;
+  leakageDeltaCiLow: number | null;
+  leakageDeltaCiHigh: number | null;
   complianceSingleRate: number | null;
+  complianceSingleCiLow: number | null;
+  complianceSingleCiHigh: number | null;
   complianceDualRate: number | null;
+  complianceDualCiLow: number | null;
+  complianceDualCiHigh: number | null;
   complianceDelta: number | null;
+  complianceDeltaCiLow: number | null;
+  complianceDeltaCiHigh: number | null;
   hallucinationSingleRate: number | null;
+  hallucinationSingleCiLow: number | null;
+  hallucinationSingleCiHigh: number | null;
   hallucinationDualRate: number | null;
+  hallucinationDualCiLow: number | null;
+  hallucinationDualCiHigh: number | null;
   hallucinationDelta: number | null;
+  hallucinationDeltaCiLow: number | null;
+  hallucinationDeltaCiHigh: number | null;
 };
 
 export type SurvivalRow = {
@@ -199,17 +281,41 @@ export type LabEffectRow = {
   nSingleJudgedRuns: number;
   nDualJudgedRuns: number;
   leakageSingleRate: number | null;
+  leakageSingleCiLow: number | null;
+  leakageSingleCiHigh: number | null;
   leakageDualRate: number | null;
+  leakageDualCiLow: number | null;
+  leakageDualCiHigh: number | null;
   leakageDelta: number | null;
+  leakageDeltaCiLow: number | null;
+  leakageDeltaCiHigh: number | null;
   hallucinationSingleRate: number | null;
+  hallucinationSingleCiLow: number | null;
+  hallucinationSingleCiHigh: number | null;
   hallucinationDualRate: number | null;
+  hallucinationDualCiLow: number | null;
+  hallucinationDualCiHigh: number | null;
   hallucinationDelta: number | null;
+  hallucinationDeltaCiLow: number | null;
+  hallucinationDeltaCiHigh: number | null;
   complianceSingleRate: number | null;
+  complianceSingleCiLow: number | null;
+  complianceSingleCiHigh: number | null;
   complianceDualRate: number | null;
+  complianceDualCiLow: number | null;
+  complianceDualCiHigh: number | null;
   complianceDelta: number | null;
+  complianceDeltaCiLow: number | null;
+  complianceDeltaCiHigh: number | null;
   earlyStopSingleRate: number | null;
+  earlyStopSingleCiLow: number | null;
+  earlyStopSingleCiHigh: number | null;
   earlyStopDualRate: number | null;
+  earlyStopDualCiLow: number | null;
+  earlyStopDualCiHigh: number | null;
   earlyStopDelta: number | null;
+  earlyStopDeltaCiLow: number | null;
+  earlyStopDeltaCiHigh: number | null;
 };
 
 export type LabPairTypeEffectRow = {
@@ -219,17 +325,61 @@ export type LabPairTypeEffectRow = {
   nSingleJudgedRuns: number;
   nDualJudgedRuns: number;
   leakageSingleRate: number | null;
+  leakageSingleCiLow: number | null;
+  leakageSingleCiHigh: number | null;
   leakageDualRate: number | null;
+  leakageDualCiLow: number | null;
+  leakageDualCiHigh: number | null;
   leakageDelta: number | null;
+  leakageDeltaCiLow: number | null;
+  leakageDeltaCiHigh: number | null;
   hallucinationSingleRate: number | null;
+  hallucinationSingleCiLow: number | null;
+  hallucinationSingleCiHigh: number | null;
   hallucinationDualRate: number | null;
+  hallucinationDualCiLow: number | null;
+  hallucinationDualCiHigh: number | null;
   hallucinationDelta: number | null;
+  hallucinationDeltaCiLow: number | null;
+  hallucinationDeltaCiHigh: number | null;
   complianceSingleRate: number | null;
+  complianceSingleCiLow: number | null;
+  complianceSingleCiHigh: number | null;
   complianceDualRate: number | null;
+  complianceDualCiLow: number | null;
+  complianceDualCiHigh: number | null;
   complianceDelta: number | null;
+  complianceDeltaCiLow: number | null;
+  complianceDeltaCiHigh: number | null;
   earlyStopSingleRate: number | null;
+  earlyStopSingleCiLow: number | null;
+  earlyStopSingleCiHigh: number | null;
   earlyStopDualRate: number | null;
+  earlyStopDualCiLow: number | null;
+  earlyStopDualCiHigh: number | null;
   earlyStopDelta: number | null;
+  earlyStopDeltaCiLow: number | null;
+  earlyStopDeltaCiHigh: number | null;
+};
+
+export type JudgePanelAgreementRow = {
+  outcome: 'leakage' | 'hallucination' | 'compliance';
+  nComparedRuns: number;
+  agreementCount: number;
+  agreementRate: number | null;
+  disputedCount: number;
+  disputedRate: number | null;
+};
+
+export type JudgePanelDisputedRow = {
+  runKey: string;
+  tutorId: string;
+  condition: Condition;
+  questionId: string;
+  outcome: 'leakage' | 'hallucination' | 'compliance';
+  finalLabel: boolean;
+  panelTrueVotes: number;
+  panelFalseVotes: number;
 };
 
 export type AnalysisOutput = {
@@ -277,5 +427,7 @@ export type AnalysisOutput = {
     tutorPairTypeEffects: TutorPairTypeEffectRow[];
     survivalByCondition: SurvivalRow[];
     survivalByPairType: SurvivalRow[];
+    judgePanelAgreement: JudgePanelAgreementRow[];
+    judgePanelDisputed: JudgePanelDisputedRow[];
   };
 };

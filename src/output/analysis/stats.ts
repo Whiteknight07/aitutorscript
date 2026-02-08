@@ -14,6 +14,14 @@ export type RateStats = {
   count: number;
   total: number;
   rate: number | null;
+  ciLow: number | null;
+  ciHigh: number | null;
+};
+
+export type DeltaRateStats = {
+  delta: number | null;
+  ciLow: number | null;
+  ciHigh: number | null;
 };
 
 export function quantile(sorted: number[], q: number): number | null {
@@ -50,11 +58,56 @@ export function descriptiveStats(values: number[]): DescriptiveStats {
 
 export function buildRateStats(count: number, total: number): RateStats {
   if (!total) {
-    return { count, total, rate: null };
+    return { count, total, rate: null, ciLow: null, ciHigh: null };
   }
+  const ci = wilsonInterval(count, total);
   return {
     count,
     total,
-    rate: total ? count / total : null,
+    rate: count / total,
+    ciLow: ci?.low ?? null,
+    ciHigh: ci?.high ?? null,
+  };
+}
+
+export function wilsonInterval(
+  count: number,
+  total: number,
+  z = 1.959963984540054
+): { low: number; high: number } | null {
+  if (!total) return null;
+  const n = total;
+  const p = count / n;
+  const z2 = z ** 2;
+  const denominator = 1 + z2 / n;
+  const center = (p + z2 / (2 * n)) / denominator;
+  const margin = (z / denominator) * Math.sqrt((p * (1 - p) + z2 / (4 * n)) / n);
+  return {
+    low: Math.max(0, center - margin),
+    high: Math.min(1, center + margin),
+  };
+}
+
+export function buildRateDeltaStats(
+  baselineCount: number,
+  baselineTotal: number,
+  compareCount: number,
+  compareTotal: number
+): DeltaRateStats {
+  const baseline = buildRateStats(baselineCount, baselineTotal);
+  const compare = buildRateStats(compareCount, compareTotal);
+  if (baseline.rate == null || compare.rate == null) {
+    return {
+      delta: null,
+      ciLow: null,
+      ciHigh: null,
+    };
+  }
+  return {
+    delta: compare.rate - baseline.rate,
+    ciLow:
+      compare.ciLow != null && baseline.ciHigh != null ? compare.ciLow - baseline.ciHigh : null,
+    ciHigh:
+      compare.ciHigh != null && baseline.ciLow != null ? compare.ciHigh - baseline.ciLow : null,
   };
 }
