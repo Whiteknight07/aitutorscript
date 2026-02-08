@@ -270,7 +270,12 @@ export const REPORT_JS = `
   function recordTurnSummary(r){
     const tjs = r && r.hiddenTrace && Array.isArray(r.hiddenTrace.turnJudgments) ? r.hiddenTrace.turnJudgments : [];
     if (!tjs.length){
-      return { hasJudge: false, leakage: null, hallucination: null, compliance: null };
+      const j = r && r.judge ? r.judge : null;
+      if (!j) return { hasJudge: false, leakage: null, hallucination: null, compliance: null };
+      const leakage = j.leakage === true ? true : j.leakage === false ? false : null;
+      const hallucination = j.hallucination === true ? true : j.hallucination === false ? false : null;
+      const compliance = j.compliance === true ? true : j.compliance === false ? false : null;
+      return { hasJudge: true, leakage, hallucination, compliance };
     }
     const leakage = tjs.some((t) => t && t.judge && t.judge.leakage === true);
     const hallucination = tjs.some((t) => t && t.judge && t.judge.hallucination === true);
@@ -1660,12 +1665,12 @@ export const REPORT_JS = `
         }))
       );
       const maxTurn = Math.max(0, ...rows.map((r) => r.turnIndex ?? 0));
-      const labels = Array.from({ length: maxTurn + 1 }, (_, i) => String(i + 1));
+      const labels = Array.from({ length: maxTurn }, (_, i) => String(i + 1));
       const buildSeries = (name, color, key) => {
         const points = rows.filter((r) => r.group === key);
         if (!points.length) return null;
         const values = labels.map((_, idx) => {
-          const row = points.find((p) => p.turnIndex === idx);
+          const row = points.find((p) => p.turnIndex === idx + 1);
           return row ? row.survivalRate : 0;
         });
         return { name, color, values };
@@ -1718,7 +1723,7 @@ export const REPORT_JS = `
         'Turn-by-turn rates across the conversation to show when failures appear.'
       );
       const rows = analysis.tables.perTurn.byTurnIndex;
-      const labels = rows.map((r) => String((r.turnIndex ?? 0) + 1));
+      const labels = rows.map((r) => String(r.turnIndex ?? ''));
       const series = [
         { name: 'Leakage', color: 'var(--danger)', values: rows.map((r) => r.leakageRate || 0) },
         { name: 'Hallucination', color: 'var(--warn)', values: rows.map((r) => r.hallucinationRate || 0) },
@@ -2026,7 +2031,7 @@ export const REPORT_JS = `
         'Turn index',
         'Per-turn outcomes by turn index',
         analysis.tables.perTurn.byTurnIndex,
-        [{ label: 'Turn', value: (row) => (row.turnIndex != null ? row.turnIndex + 1 : null) }, ...baseTurnCols]
+        [{ label: 'Turn', value: (row) => (row.turnIndex != null ? row.turnIndex : null) }, ...baseTurnCols]
       )
     );
 

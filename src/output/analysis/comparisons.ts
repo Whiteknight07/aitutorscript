@@ -8,6 +8,7 @@ import type {
   TutorPairTypeEffectRow,
   TurnRow,
 } from './types';
+import { buildRateDeltaStats, buildRateStats, type RateStats } from './stats';
 import { difficultyOrder, uniqueSorted } from './utils';
 
 function judgedRows(rows: NormalizedRun[]): NormalizedRun[] {
@@ -15,28 +16,31 @@ function judgedRows(rows: NormalizedRun[]): NormalizedRun[] {
 }
 
 function judgedCount(rows: NormalizedRun[]): number {
-  return rows.filter((r) => r.judged).length;
+  return judgedRows(rows).length;
 }
 
-function rateFromJudged(rows: NormalizedRun[], predicate: (row: NormalizedRun) => boolean): number | null {
-  const judged = judgedRows(rows);
-  if (!judged.length) return null;
-  return judged.filter(predicate).length / judged.length;
+function rateFromRows(
+  rows: NormalizedRun[],
+  predicate: (row: NormalizedRun) => boolean,
+  judgedOnly = true
+): RateStats {
+  const scoped = judgedOnly ? judgedRows(rows) : rows;
+  const count = scoped.filter(predicate).length;
+  return buildRateStats(count, scoped.length);
 }
 
-function earlyRate(rows: NormalizedRun[]): number | null {
-  if (!rows.length) return null;
-  return rows.filter((r) => r.endedEarly).length / rows.length;
+function deltaFromRateStats(baseline: RateStats, compare: RateStats) {
+  return buildRateDeltaStats(baseline.count, baseline.total, compare.count, compare.total);
 }
 
 export function buildLabEffects(runs: NormalizedRun[]): LabEffectRow[] {
   const singleRuns = runs.filter((r) => r.condition === 'single');
   const dualRuns = runs.filter((r) => r.condition === 'dual-loop' && r.supervisorLab);
 
-  const singleLeakageRate = rateFromJudged(singleRuns, (r) => r.leakage === true);
-  const singleHallucRate = rateFromJudged(singleRuns, (r) => r.hallucination === true);
-  const singleCompRate = rateFromJudged(singleRuns, (r) => r.compliance === true);
-  const singleEarlyRate = earlyRate(singleRuns);
+  const singleLeak = rateFromRows(singleRuns, (r) => r.leakage === true);
+  const singleHalluc = rateFromRows(singleRuns, (r) => r.hallucination === true);
+  const singleComp = rateFromRows(singleRuns, (r) => r.compliance === true);
+  const singleEarly = rateFromRows(singleRuns, (r) => r.endedEarly, false);
 
   const dualByLab = new Map<string, NormalizedRun[]>();
   const supervisorsByLab = new Map<string, Set<string>>();
@@ -50,10 +54,15 @@ export function buildLabEffects(runs: NormalizedRun[]): LabEffectRow[] {
 
   const rows: LabEffectRow[] = [];
   for (const [lab, labDualRuns] of dualByLab.entries()) {
-    const dualLeakageRate = rateFromJudged(labDualRuns, (r) => r.leakage === true);
-    const dualHallucRate = rateFromJudged(labDualRuns, (r) => r.hallucination === true);
-    const dualCompRate = rateFromJudged(labDualRuns, (r) => r.compliance === true);
-    const dualEarlyRate = earlyRate(labDualRuns);
+    const dualLeak = rateFromRows(labDualRuns, (r) => r.leakage === true);
+    const dualHalluc = rateFromRows(labDualRuns, (r) => r.hallucination === true);
+    const dualComp = rateFromRows(labDualRuns, (r) => r.compliance === true);
+    const dualEarly = rateFromRows(labDualRuns, (r) => r.endedEarly, false);
+
+    const leakDelta = deltaFromRateStats(singleLeak, dualLeak);
+    const hallucDelta = deltaFromRateStats(singleHalluc, dualHalluc);
+    const compDelta = deltaFromRateStats(singleComp, dualComp);
+    const earlyDelta = deltaFromRateStats(singleEarly, dualEarly);
 
     rows.push({
       lab,
@@ -62,20 +71,42 @@ export function buildLabEffects(runs: NormalizedRun[]): LabEffectRow[] {
       nDualRuns: labDualRuns.length,
       nSingleJudgedRuns: judgedCount(singleRuns),
       nDualJudgedRuns: judgedCount(labDualRuns),
-      leakageSingleRate: singleLeakageRate,
-      leakageDualRate: dualLeakageRate,
-      leakageDelta:
-        singleLeakageRate != null && dualLeakageRate != null ? dualLeakageRate - singleLeakageRate : null,
-      hallucinationSingleRate: singleHallucRate,
-      hallucinationDualRate: dualHallucRate,
-      hallucinationDelta:
-        singleHallucRate != null && dualHallucRate != null ? dualHallucRate - singleHallucRate : null,
-      complianceSingleRate: singleCompRate,
-      complianceDualRate: dualCompRate,
-      complianceDelta: singleCompRate != null && dualCompRate != null ? dualCompRate - singleCompRate : null,
-      earlyStopSingleRate: singleEarlyRate,
-      earlyStopDualRate: dualEarlyRate,
-      earlyStopDelta: singleEarlyRate != null && dualEarlyRate != null ? dualEarlyRate - singleEarlyRate : null,
+      leakageSingleRate: singleLeak.rate,
+      leakageSingleCiLow: singleLeak.ciLow,
+      leakageSingleCiHigh: singleLeak.ciHigh,
+      leakageDualRate: dualLeak.rate,
+      leakageDualCiLow: dualLeak.ciLow,
+      leakageDualCiHigh: dualLeak.ciHigh,
+      leakageDelta: leakDelta.delta,
+      leakageDeltaCiLow: leakDelta.ciLow,
+      leakageDeltaCiHigh: leakDelta.ciHigh,
+      hallucinationSingleRate: singleHalluc.rate,
+      hallucinationSingleCiLow: singleHalluc.ciLow,
+      hallucinationSingleCiHigh: singleHalluc.ciHigh,
+      hallucinationDualRate: dualHalluc.rate,
+      hallucinationDualCiLow: dualHalluc.ciLow,
+      hallucinationDualCiHigh: dualHalluc.ciHigh,
+      hallucinationDelta: hallucDelta.delta,
+      hallucinationDeltaCiLow: hallucDelta.ciLow,
+      hallucinationDeltaCiHigh: hallucDelta.ciHigh,
+      complianceSingleRate: singleComp.rate,
+      complianceSingleCiLow: singleComp.ciLow,
+      complianceSingleCiHigh: singleComp.ciHigh,
+      complianceDualRate: dualComp.rate,
+      complianceDualCiLow: dualComp.ciLow,
+      complianceDualCiHigh: dualComp.ciHigh,
+      complianceDelta: compDelta.delta,
+      complianceDeltaCiLow: compDelta.ciLow,
+      complianceDeltaCiHigh: compDelta.ciHigh,
+      earlyStopSingleRate: singleEarly.rate,
+      earlyStopSingleCiLow: singleEarly.ciLow,
+      earlyStopSingleCiHigh: singleEarly.ciHigh,
+      earlyStopDualRate: dualEarly.rate,
+      earlyStopDualCiLow: dualEarly.ciLow,
+      earlyStopDualCiHigh: dualEarly.ciHigh,
+      earlyStopDelta: earlyDelta.delta,
+      earlyStopDeltaCiLow: earlyDelta.ciLow,
+      earlyStopDeltaCiHigh: earlyDelta.ciHigh,
     });
   }
 
@@ -85,10 +116,10 @@ export function buildLabEffects(runs: NormalizedRun[]): LabEffectRow[] {
 export function buildLabPairTypeEffects(runs: NormalizedRun[]): LabPairTypeEffectRow[] {
   const singleRuns = runs.filter((r) => r.condition === 'single');
   const dualRuns = runs.filter((r) => r.condition === 'dual-loop' && r.labPairType);
-  const singleLeakageRate = rateFromJudged(singleRuns, (r) => r.leakage === true);
-  const singleHallucRate = rateFromJudged(singleRuns, (r) => r.hallucination === true);
-  const singleCompRate = rateFromJudged(singleRuns, (r) => r.compliance === true);
-  const singleEarlyRate = earlyRate(singleRuns);
+  const singleLeak = rateFromRows(singleRuns, (r) => r.leakage === true);
+  const singleHalluc = rateFromRows(singleRuns, (r) => r.hallucination === true);
+  const singleComp = rateFromRows(singleRuns, (r) => r.compliance === true);
+  const singleEarly = rateFromRows(singleRuns, (r) => r.endedEarly, false);
 
   const pairTypes = uniqueSorted(
     dualRuns.map((r) => r.labPairType).filter(Boolean) as Array<'same-lab' | 'cross-lab'>
@@ -97,10 +128,15 @@ export function buildLabPairTypeEffects(runs: NormalizedRun[]): LabPairTypeEffec
   const rows: LabPairTypeEffectRow[] = [];
   for (const pairType of pairTypes) {
     const dualForType = dualRuns.filter((r) => r.labPairType === pairType);
-    const dualLeakageRate = rateFromJudged(dualForType, (r) => r.leakage === true);
-    const dualHallucRate = rateFromJudged(dualForType, (r) => r.hallucination === true);
-    const dualCompRate = rateFromJudged(dualForType, (r) => r.compliance === true);
-    const dualEarlyRate = earlyRate(dualForType);
+    const dualLeak = rateFromRows(dualForType, (r) => r.leakage === true);
+    const dualHalluc = rateFromRows(dualForType, (r) => r.hallucination === true);
+    const dualComp = rateFromRows(dualForType, (r) => r.compliance === true);
+    const dualEarly = rateFromRows(dualForType, (r) => r.endedEarly, false);
+
+    const leakDelta = deltaFromRateStats(singleLeak, dualLeak);
+    const hallucDelta = deltaFromRateStats(singleHalluc, dualHalluc);
+    const compDelta = deltaFromRateStats(singleComp, dualComp);
+    const earlyDelta = deltaFromRateStats(singleEarly, dualEarly);
 
     rows.push({
       pairType: pairType as 'same-lab' | 'cross-lab',
@@ -108,20 +144,42 @@ export function buildLabPairTypeEffects(runs: NormalizedRun[]): LabPairTypeEffec
       nDualRuns: dualForType.length,
       nSingleJudgedRuns: judgedCount(singleRuns),
       nDualJudgedRuns: judgedCount(dualForType),
-      leakageSingleRate: singleLeakageRate,
-      leakageDualRate: dualLeakageRate,
-      leakageDelta:
-        singleLeakageRate != null && dualLeakageRate != null ? dualLeakageRate - singleLeakageRate : null,
-      hallucinationSingleRate: singleHallucRate,
-      hallucinationDualRate: dualHallucRate,
-      hallucinationDelta:
-        singleHallucRate != null && dualHallucRate != null ? dualHallucRate - singleHallucRate : null,
-      complianceSingleRate: singleCompRate,
-      complianceDualRate: dualCompRate,
-      complianceDelta: singleCompRate != null && dualCompRate != null ? dualCompRate - singleCompRate : null,
-      earlyStopSingleRate: singleEarlyRate,
-      earlyStopDualRate: dualEarlyRate,
-      earlyStopDelta: singleEarlyRate != null && dualEarlyRate != null ? dualEarlyRate - singleEarlyRate : null,
+      leakageSingleRate: singleLeak.rate,
+      leakageSingleCiLow: singleLeak.ciLow,
+      leakageSingleCiHigh: singleLeak.ciHigh,
+      leakageDualRate: dualLeak.rate,
+      leakageDualCiLow: dualLeak.ciLow,
+      leakageDualCiHigh: dualLeak.ciHigh,
+      leakageDelta: leakDelta.delta,
+      leakageDeltaCiLow: leakDelta.ciLow,
+      leakageDeltaCiHigh: leakDelta.ciHigh,
+      hallucinationSingleRate: singleHalluc.rate,
+      hallucinationSingleCiLow: singleHalluc.ciLow,
+      hallucinationSingleCiHigh: singleHalluc.ciHigh,
+      hallucinationDualRate: dualHalluc.rate,
+      hallucinationDualCiLow: dualHalluc.ciLow,
+      hallucinationDualCiHigh: dualHalluc.ciHigh,
+      hallucinationDelta: hallucDelta.delta,
+      hallucinationDeltaCiLow: hallucDelta.ciLow,
+      hallucinationDeltaCiHigh: hallucDelta.ciHigh,
+      complianceSingleRate: singleComp.rate,
+      complianceSingleCiLow: singleComp.ciLow,
+      complianceSingleCiHigh: singleComp.ciHigh,
+      complianceDualRate: dualComp.rate,
+      complianceDualCiLow: dualComp.ciLow,
+      complianceDualCiHigh: dualComp.ciHigh,
+      complianceDelta: compDelta.delta,
+      complianceDeltaCiLow: compDelta.ciLow,
+      complianceDeltaCiHigh: compDelta.ciHigh,
+      earlyStopSingleRate: singleEarly.rate,
+      earlyStopSingleCiLow: singleEarly.ciLow,
+      earlyStopSingleCiHigh: singleEarly.ciHigh,
+      earlyStopDualRate: dualEarly.rate,
+      earlyStopDualCiLow: dualEarly.ciLow,
+      earlyStopDualCiHigh: dualEarly.ciHigh,
+      earlyStopDelta: earlyDelta.delta,
+      earlyStopDeltaCiLow: earlyDelta.ciLow,
+      earlyStopDeltaCiHigh: earlyDelta.ciHigh,
     });
   }
 
@@ -150,10 +208,13 @@ export function buildLabInteraction(runs: NormalizedRun[]): LabInteractionRow[] 
   for (const [key, dualGroup] of pairMap.entries()) {
     const [tutorLab, supervisorLab] = key.split('::');
     const baseline = baselineByTutorLab.get(tutorLab) ?? [];
-    const singleLeakageRate = rateFromJudged(baseline, (r) => r.leakage === true);
-    const singleCompRate = rateFromJudged(baseline, (r) => r.compliance === true);
-    const dualLeakageRate = rateFromJudged(dualGroup, (r) => r.leakage === true);
-    const dualCompRate = rateFromJudged(dualGroup, (r) => r.compliance === true);
+    const singleLeak = rateFromRows(baseline, (r) => r.leakage === true);
+    const singleComp = rateFromRows(baseline, (r) => r.compliance === true);
+    const dualLeak = rateFromRows(dualGroup, (r) => r.leakage === true);
+    const dualComp = rateFromRows(dualGroup, (r) => r.compliance === true);
+
+    const leakDelta = deltaFromRateStats(singleLeak, dualLeak);
+    const compDelta = deltaFromRateStats(singleComp, dualComp);
 
     rows.push({
       tutorLab,
@@ -162,13 +223,24 @@ export function buildLabInteraction(runs: NormalizedRun[]): LabInteractionRow[] 
       nDualRuns: dualGroup.length,
       nSingleJudgedRuns: judgedCount(baseline),
       nDualJudgedRuns: judgedCount(dualGroup),
-      leakageSingleRate: singleLeakageRate,
-      leakageDualRate: dualLeakageRate,
-      leakageDelta:
-        singleLeakageRate != null && dualLeakageRate != null ? dualLeakageRate - singleLeakageRate : null,
-      complianceSingleRate: singleCompRate,
-      complianceDualRate: dualCompRate,
-      complianceDelta: singleCompRate != null && dualCompRate != null ? dualCompRate - singleCompRate : null,
+      leakageSingleRate: singleLeak.rate,
+      leakageSingleCiLow: singleLeak.ciLow,
+      leakageSingleCiHigh: singleLeak.ciHigh,
+      leakageDualRate: dualLeak.rate,
+      leakageDualCiLow: dualLeak.ciLow,
+      leakageDualCiHigh: dualLeak.ciHigh,
+      leakageDelta: leakDelta.delta,
+      leakageDeltaCiLow: leakDelta.ciLow,
+      leakageDeltaCiHigh: leakDelta.ciHigh,
+      complianceSingleRate: singleComp.rate,
+      complianceSingleCiLow: singleComp.ciLow,
+      complianceSingleCiHigh: singleComp.ciHigh,
+      complianceDualRate: dualComp.rate,
+      complianceDualCiLow: dualComp.ciLow,
+      complianceDualCiHigh: dualComp.ciHigh,
+      complianceDelta: compDelta.delta,
+      complianceDeltaCiLow: compDelta.ciLow,
+      complianceDeltaCiHigh: compDelta.ciHigh,
     });
   }
 
@@ -187,16 +259,19 @@ export function buildTutorPairTypeEffects(runs: NormalizedRun[]): TutorPairTypeE
     const singleRuns = tutorRuns.filter((r) => r.condition === 'single');
     const dualRuns = tutorRuns.filter((r) => r.condition === 'dual-loop' && r.labPairType);
 
-    const singleLeakageRate = rateFromJudged(singleRuns, (r) => r.leakage === true);
-    const singleCompRate = rateFromJudged(singleRuns, (r) => r.compliance === true);
+    const singleLeak = rateFromRows(singleRuns, (r) => r.leakage === true);
+    const singleComp = rateFromRows(singleRuns, (r) => r.compliance === true);
 
     const pairTypes = uniqueSorted(
       dualRuns.map((r) => r.labPairType).filter(Boolean) as Array<'same-lab' | 'cross-lab'>
     );
     for (const pairType of pairTypes) {
       const dualForType = dualRuns.filter((r) => r.labPairType === pairType);
-      const dualLeakageRate = rateFromJudged(dualForType, (r) => r.leakage === true);
-      const dualCompRate = rateFromJudged(dualForType, (r) => r.compliance === true);
+      const dualLeak = rateFromRows(dualForType, (r) => r.leakage === true);
+      const dualComp = rateFromRows(dualForType, (r) => r.compliance === true);
+
+      const leakDelta = deltaFromRateStats(singleLeak, dualLeak);
+      const compDelta = deltaFromRateStats(singleComp, dualComp);
 
       rows.push({
         tutorId,
@@ -205,13 +280,24 @@ export function buildTutorPairTypeEffects(runs: NormalizedRun[]): TutorPairTypeE
         nDualRuns: dualForType.length,
         nSingleJudgedRuns: judgedCount(singleRuns),
         nDualJudgedRuns: judgedCount(dualForType),
-        leakageSingleRate: singleLeakageRate,
-        leakageDualRate: dualLeakageRate,
-        leakageDelta:
-          singleLeakageRate != null && dualLeakageRate != null ? dualLeakageRate - singleLeakageRate : null,
-        complianceSingleRate: singleCompRate,
-        complianceDualRate: dualCompRate,
-        complianceDelta: singleCompRate != null && dualCompRate != null ? dualCompRate - singleCompRate : null,
+        leakageSingleRate: singleLeak.rate,
+        leakageSingleCiLow: singleLeak.ciLow,
+        leakageSingleCiHigh: singleLeak.ciHigh,
+        leakageDualRate: dualLeak.rate,
+        leakageDualCiLow: dualLeak.ciLow,
+        leakageDualCiHigh: dualLeak.ciHigh,
+        leakageDelta: leakDelta.delta,
+        leakageDeltaCiLow: leakDelta.ciLow,
+        leakageDeltaCiHigh: leakDelta.ciHigh,
+        complianceSingleRate: singleComp.rate,
+        complianceSingleCiLow: singleComp.ciLow,
+        complianceSingleCiHigh: singleComp.ciHigh,
+        complianceDualRate: dualComp.rate,
+        complianceDualCiLow: dualComp.ciLow,
+        complianceDualCiHigh: dualComp.ciHigh,
+        complianceDelta: compDelta.delta,
+        complianceDeltaCiLow: compDelta.ciLow,
+        complianceDeltaCiHigh: compDelta.ciHigh,
       });
     }
   }
@@ -238,12 +324,16 @@ export function buildBloomDifficultyEffects(runs: NormalizedRun[]): BloomDifficu
     const singleGroup = singleRuns.filter((r) => r.bloomLevel === bloomLevel && r.difficulty === difficulty);
     const dualGroup = dualRuns.filter((r) => r.bloomLevel === bloomLevel && r.difficulty === difficulty);
 
-    const singleLeakageRate = rateFromJudged(singleGroup, (r) => r.leakage === true);
-    const dualLeakageRate = rateFromJudged(dualGroup, (r) => r.leakage === true);
-    const singleCompRate = rateFromJudged(singleGroup, (r) => r.compliance === true);
-    const dualCompRate = rateFromJudged(dualGroup, (r) => r.compliance === true);
-    const singleHallucRate = rateFromJudged(singleGroup, (r) => r.hallucination === true);
-    const dualHallucRate = rateFromJudged(dualGroup, (r) => r.hallucination === true);
+    const singleLeak = rateFromRows(singleGroup, (r) => r.leakage === true);
+    const dualLeak = rateFromRows(dualGroup, (r) => r.leakage === true);
+    const singleComp = rateFromRows(singleGroup, (r) => r.compliance === true);
+    const dualComp = rateFromRows(dualGroup, (r) => r.compliance === true);
+    const singleHalluc = rateFromRows(singleGroup, (r) => r.hallucination === true);
+    const dualHalluc = rateFromRows(dualGroup, (r) => r.hallucination === true);
+
+    const leakDelta = deltaFromRateStats(singleLeak, dualLeak);
+    const compDelta = deltaFromRateStats(singleComp, dualComp);
+    const hallucDelta = deltaFromRateStats(singleHalluc, dualHalluc);
 
     rows.push({
       bloomLevel,
@@ -252,17 +342,33 @@ export function buildBloomDifficultyEffects(runs: NormalizedRun[]): BloomDifficu
       nDualRuns: dualGroup.length,
       nSingleJudgedRuns: judgedCount(singleGroup),
       nDualJudgedRuns: judgedCount(dualGroup),
-      leakageSingleRate: singleLeakageRate,
-      leakageDualRate: dualLeakageRate,
-      leakageDelta:
-        singleLeakageRate != null && dualLeakageRate != null ? dualLeakageRate - singleLeakageRate : null,
-      complianceSingleRate: singleCompRate,
-      complianceDualRate: dualCompRate,
-      complianceDelta: singleCompRate != null && dualCompRate != null ? dualCompRate - singleCompRate : null,
-      hallucinationSingleRate: singleHallucRate,
-      hallucinationDualRate: dualHallucRate,
-      hallucinationDelta:
-        singleHallucRate != null && dualHallucRate != null ? dualHallucRate - singleHallucRate : null,
+      leakageSingleRate: singleLeak.rate,
+      leakageSingleCiLow: singleLeak.ciLow,
+      leakageSingleCiHigh: singleLeak.ciHigh,
+      leakageDualRate: dualLeak.rate,
+      leakageDualCiLow: dualLeak.ciLow,
+      leakageDualCiHigh: dualLeak.ciHigh,
+      leakageDelta: leakDelta.delta,
+      leakageDeltaCiLow: leakDelta.ciLow,
+      leakageDeltaCiHigh: leakDelta.ciHigh,
+      complianceSingleRate: singleComp.rate,
+      complianceSingleCiLow: singleComp.ciLow,
+      complianceSingleCiHigh: singleComp.ciHigh,
+      complianceDualRate: dualComp.rate,
+      complianceDualCiLow: dualComp.ciLow,
+      complianceDualCiHigh: dualComp.ciHigh,
+      complianceDelta: compDelta.delta,
+      complianceDeltaCiLow: compDelta.ciLow,
+      complianceDeltaCiHigh: compDelta.ciHigh,
+      hallucinationSingleRate: singleHalluc.rate,
+      hallucinationSingleCiLow: singleHalluc.ciLow,
+      hallucinationSingleCiHigh: singleHalluc.ciHigh,
+      hallucinationDualRate: dualHalluc.rate,
+      hallucinationDualCiLow: dualHalluc.ciLow,
+      hallucinationDualCiHigh: dualHalluc.ciHigh,
+      hallucinationDelta: hallucDelta.delta,
+      hallucinationDeltaCiLow: hallucDelta.ciLow,
+      hallucinationDeltaCiHigh: hallucDelta.ciHigh,
     });
   }
 
@@ -277,7 +383,7 @@ function buildFirstLeakByRun(turnRows: TurnRow[]): Map<string, { firstLeak: numb
   const map = new Map<string, { firstLeak: number | null; maxTurn: number }>();
   for (const row of turnRows) {
     if (!row.judged) continue;
-    const current = map.get(row.runKey) ?? { firstLeak: null, maxTurn: -1 };
+    const current = map.get(row.runKey) ?? { firstLeak: null, maxTurn: 0 };
     if (row.turnIndex > current.maxTurn) current.maxTurn = row.turnIndex;
     if (row.leakage === true) {
       if (current.firstLeak == null || row.turnIndex < current.firstLeak) current.firstLeak = row.turnIndex;
@@ -304,14 +410,14 @@ function buildSurvivalRows(
 
   const rows: SurvivalRow[] = [];
   for (const [label, runIds] of grouped.entries()) {
-    let maxTurn = -1;
+    let maxTurn = 0;
     for (const runId of runIds) {
       const row = leakByRun.get(runId);
       if (!row) continue;
       if (row.maxTurn > maxTurn) maxTurn = row.maxTurn;
     }
     const totalRuns = runIds.length;
-    for (let t = 0; t <= maxTurn; t += 1) {
+    for (let t = 1; t <= maxTurn; t += 1) {
       let survivors = 0;
       for (const runId of runIds) {
         const row = leakByRun.get(runId);

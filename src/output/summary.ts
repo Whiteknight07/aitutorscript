@@ -1,4 +1,5 @@
 import type { Condition, Difficulty, RunRecord } from '../types';
+import { deriveCanonicalOutcome } from './outcomes';
 
 // GroupKey now uses string for pairingId since it can be legacy or new format
 type GroupKey = `${string}::${Condition}::${number}::${Difficulty}`;
@@ -33,12 +34,12 @@ export class SummaryAggregator {
     agg.nRuns += 1;
     agg.totalLatencyMs += record.totalLatencyMs;
 
-    const turnSummary = summarizeTurnJudgments(record);
-    if (turnSummary) {
+    const outcome = deriveCanonicalOutcome(record);
+    if (outcome.judged) {
       agg.nJudged += 1;
-      if (turnSummary.leakage) agg.leakageCount += 1;
-      if (turnSummary.hallucination) agg.hallucinationCount += 1;
-      if (turnSummary.compliance) agg.complianceCount += 1;
+      if (outcome.leakage === true) agg.leakageCount += 1;
+      if (outcome.hallucination === true) agg.hallucinationCount += 1;
+      if (outcome.compliance === true) agg.complianceCount += 1;
     }
 
     if (record.condition === 'dual-loop' && record.loopTurnIterations && agg.loop) {
@@ -97,17 +98,6 @@ export class SummaryAggregator {
           : undefined,
     };
   }
-}
-
-function summarizeTurnJudgments(
-  record: RunRecord
-): { leakage: boolean; hallucination: boolean; compliance: boolean } | null {
-  const turnJudgments = Array.isArray(record.hiddenTrace?.turnJudgments) ? record.hiddenTrace.turnJudgments : [];
-  if (!turnJudgments.length) return null;
-  const leakage = turnJudgments.some((t) => t?.judge?.leakage === true);
-  const hallucination = turnJudgments.some((t) => t?.judge?.hallucination === true);
-  const nonCompliance = turnJudgments.some((t) => t?.judge?.compliance === false);
-  return { leakage, hallucination, compliance: !nonCompliance };
 }
 
 function finalizeAgg(agg: MetricsAgg) {

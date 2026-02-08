@@ -1,5 +1,5 @@
 import type { ConditionEffectRow, NormalizedRun, RunGroupRow, TurnGroupRow, TurnRow } from './types';
-import { buildRateStats, descriptiveStats } from './stats';
+import { buildRateDeltaStats, buildRateStats, descriptiveStats } from './stats';
 import { uniqueSorted } from './utils';
 
 export function buildRunGroupRow(rows: NormalizedRun[]): RunGroupRow {
@@ -47,12 +47,20 @@ export function buildRunGroupRow(rows: NormalizedRun[]): RunGroupRow {
     nJudgedRuns,
     leakageCount,
     leakageRate: leakageStats.rate,
+    leakageCiLow: leakageStats.ciLow,
+    leakageCiHigh: leakageStats.ciHigh,
     hallucinationCount,
     hallucinationRate: hallucinationStats.rate,
+    hallucinationCiLow: hallucinationStats.ciLow,
+    hallucinationCiHigh: hallucinationStats.ciHigh,
     complianceCount,
     complianceRate: complianceStats.rate,
+    complianceCiLow: complianceStats.ciLow,
+    complianceCiHigh: complianceStats.ciHigh,
     earlyStopCount,
     earlyStopRate: earlyStopStats.rate,
+    earlyStopCiLow: earlyStopStats.ciLow,
+    earlyStopCiHigh: earlyStopStats.ciHigh,
     earlyStopLeakageCount,
     earlyStopOtherCount,
     latencyCount: latencyStats.n,
@@ -95,12 +103,20 @@ export function buildTurnGroupRow(rows: TurnRow[]): TurnGroupRow {
     nJudgedTurns,
     leakageCount,
     leakageRate: leakageStats.rate,
+    leakageCiLow: leakageStats.ciLow,
+    leakageCiHigh: leakageStats.ciHigh,
     hallucinationCount,
     hallucinationRate: hallucinationStats.rate,
+    hallucinationCiLow: hallucinationStats.ciLow,
+    hallucinationCiHigh: hallucinationStats.ciHigh,
     complianceCount,
     complianceRate: complianceStats.rate,
+    complianceCiLow: complianceStats.ciLow,
+    complianceCiHigh: complianceStats.ciHigh,
     terminationCount,
     terminationRate: terminationStats.rate,
+    terminationCiLow: terminationStats.ciLow,
+    terminationCiHigh: terminationStats.ciHigh,
   };
 }
 
@@ -129,37 +145,75 @@ export function buildConditionEffects(
     const singleEarly = single.map((r) => r.endedEarly);
     const dualEarly = dual.map((r) => r.endedEarly);
 
+    const singleLeakCount = singleLeak.filter(Boolean).length;
+    const dualLeakCount = dualLeak.filter(Boolean).length;
+    const singleHallucCount = singleHalluc.filter(Boolean).length;
+    const dualHallucCount = dualHalluc.filter(Boolean).length;
+    const singleCompCount = singleComp.filter(Boolean).length;
+    const dualCompCount = dualComp.filter(Boolean).length;
+    const singleEarlyCount = singleEarly.filter(Boolean).length;
+    const dualEarlyCount = dualEarly.filter(Boolean).length;
+
+    const leakSingleStats = buildRateStats(singleLeakCount, singleJudged.length);
+    const leakDualStats = buildRateStats(dualLeakCount, dualJudged.length);
+    const leakDeltaStats = buildRateDeltaStats(singleLeakCount, singleJudged.length, dualLeakCount, dualJudged.length);
+    const hallucSingleStats = buildRateStats(singleHallucCount, singleJudged.length);
+    const hallucDualStats = buildRateStats(dualHallucCount, dualJudged.length);
+    const hallucDeltaStats = buildRateDeltaStats(
+      singleHallucCount,
+      singleJudged.length,
+      dualHallucCount,
+      dualJudged.length
+    );
+    const compSingleStats = buildRateStats(singleCompCount, singleJudged.length);
+    const compDualStats = buildRateStats(dualCompCount, dualJudged.length);
+    const compDeltaStats = buildRateDeltaStats(singleCompCount, singleJudged.length, dualCompCount, dualJudged.length);
+    const earlySingleStats = buildRateStats(singleEarlyCount, single.length);
+    const earlyDualStats = buildRateStats(dualEarlyCount, dual.length);
+    const earlyDeltaStats = buildRateDeltaStats(singleEarlyCount, single.length, dualEarlyCount, dual.length);
+
     rows.push({
       tutorId,
       nSingleRuns: single.length,
       nDualRuns: dual.length,
       nSingleJudgedRuns: singleJudged.length,
       nDualJudgedRuns: dualJudged.length,
-      leakageSingleRate: singleJudged.length ? singleLeak.filter(Boolean).length / singleJudged.length : null,
-      leakageDualRate: dualJudged.length ? dualLeak.filter(Boolean).length / dualJudged.length : null,
-      leakageDelta:
-        singleJudged.length && dualJudged.length
-          ? dualLeak.filter(Boolean).length / dualJudged.length - singleLeak.filter(Boolean).length / singleJudged.length
-          : null,
-      hallucinationSingleRate: singleJudged.length ? singleHalluc.filter(Boolean).length / singleJudged.length : null,
-      hallucinationDualRate: dualJudged.length ? dualHalluc.filter(Boolean).length / dualJudged.length : null,
-      hallucinationDelta:
-        singleJudged.length && dualJudged.length
-          ? dualHalluc.filter(Boolean).length / dualJudged.length -
-            singleHalluc.filter(Boolean).length / singleJudged.length
-          : null,
-      complianceSingleRate: singleJudged.length ? singleComp.filter(Boolean).length / singleJudged.length : null,
-      complianceDualRate: dualJudged.length ? dualComp.filter(Boolean).length / dualJudged.length : null,
-      complianceDelta:
-        singleJudged.length && dualJudged.length
-          ? dualComp.filter(Boolean).length / dualJudged.length - singleComp.filter(Boolean).length / singleJudged.length
-          : null,
-      earlyStopSingleRate: single.length ? singleEarly.filter(Boolean).length / single.length : null,
-      earlyStopDualRate: dual.length ? dualEarly.filter(Boolean).length / dual.length : null,
-      earlyStopDelta:
-        single.length && dual.length
-          ? dualEarly.filter(Boolean).length / dual.length - singleEarly.filter(Boolean).length / single.length
-          : null,
+      leakageSingleRate: leakSingleStats.rate,
+      leakageSingleCiLow: leakSingleStats.ciLow,
+      leakageSingleCiHigh: leakSingleStats.ciHigh,
+      leakageDualRate: leakDualStats.rate,
+      leakageDualCiLow: leakDualStats.ciLow,
+      leakageDualCiHigh: leakDualStats.ciHigh,
+      leakageDelta: leakDeltaStats.delta,
+      leakageDeltaCiLow: leakDeltaStats.ciLow,
+      leakageDeltaCiHigh: leakDeltaStats.ciHigh,
+      hallucinationSingleRate: hallucSingleStats.rate,
+      hallucinationSingleCiLow: hallucSingleStats.ciLow,
+      hallucinationSingleCiHigh: hallucSingleStats.ciHigh,
+      hallucinationDualRate: hallucDualStats.rate,
+      hallucinationDualCiLow: hallucDualStats.ciLow,
+      hallucinationDualCiHigh: hallucDualStats.ciHigh,
+      hallucinationDelta: hallucDeltaStats.delta,
+      hallucinationDeltaCiLow: hallucDeltaStats.ciLow,
+      hallucinationDeltaCiHigh: hallucDeltaStats.ciHigh,
+      complianceSingleRate: compSingleStats.rate,
+      complianceSingleCiLow: compSingleStats.ciLow,
+      complianceSingleCiHigh: compSingleStats.ciHigh,
+      complianceDualRate: compDualStats.rate,
+      complianceDualCiLow: compDualStats.ciLow,
+      complianceDualCiHigh: compDualStats.ciHigh,
+      complianceDelta: compDeltaStats.delta,
+      complianceDeltaCiLow: compDeltaStats.ciLow,
+      complianceDeltaCiHigh: compDeltaStats.ciHigh,
+      earlyStopSingleRate: earlySingleStats.rate,
+      earlyStopSingleCiLow: earlySingleStats.ciLow,
+      earlyStopSingleCiHigh: earlySingleStats.ciHigh,
+      earlyStopDualRate: earlyDualStats.rate,
+      earlyStopDualCiLow: earlyDualStats.ciLow,
+      earlyStopDualCiHigh: earlyDualStats.ciHigh,
+      earlyStopDelta: earlyDeltaStats.delta,
+      earlyStopDeltaCiLow: earlyDeltaStats.ciLow,
+      earlyStopDeltaCiHigh: earlyDeltaStats.ciHigh,
     });
   }
 

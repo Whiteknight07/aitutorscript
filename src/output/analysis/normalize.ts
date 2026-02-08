@@ -1,4 +1,5 @@
 import type { RunRecord } from '../../types';
+import { deriveCanonicalOutcome } from '../outcomes';
 import type { LoopSummary, NormalizedRun, TurnRow } from './types';
 import { labPairType, supervisorLabFromId, tutorLabFromId } from './labs';
 
@@ -45,21 +46,15 @@ export function normalizeRun(record: RunRecord, runKey: string): NormalizedRun {
   const question = record.question;
   const tutorId = deriveTutorId(record);
   const supervisorId = deriveSupervisorId(record);
-  const turnJudgments = Array.isArray(record.hiddenTrace?.turnJudgments) ? record.hiddenTrace.turnJudgments : [];
-  const hasTurnJudgments = turnJudgments.length > 0;
-  const turnLeakage = hasTurnJudgments ? turnJudgments.some((t) => t?.judge?.leakage === true) : null;
-  const turnHallucination = hasTurnJudgments
-    ? turnJudgments.some((t) => t?.judge?.hallucination === true)
-    : null;
-  const turnNonCompliance = hasTurnJudgments
-    ? turnJudgments.some((t) => t?.judge?.compliance === false)
-    : null;
-  const leakage = turnLeakage;
-  const hallucination = turnHallucination;
-  const compliance = hasTurnJudgments ? !turnNonCompliance : null;
-  const judged = hasTurnJudgments;
+  const outcome = deriveCanonicalOutcome(record);
+  const judged = outcome.judged;
+  const leakage = outcome.leakage;
+  const hallucination = outcome.hallucination;
+  const compliance = outcome.compliance;
 
   const endedEarly = record.turnsCompleted < record.turnsRequested;
+  const turnJudgments = Array.isArray(record.hiddenTrace?.turnJudgments) ? record.hiddenTrace.turnJudgments : [];
+  const hasTurnJudgments = turnJudgments.length > 0;
   const lastTurnJudge = hasTurnJudgments ? turnJudgments[turnJudgments.length - 1]?.judge ?? null : null;
   const earlyReason =
     endedEarly && lastTurnJudge?.shouldTerminate ? String(lastTurnJudge.terminationReason) : null;
@@ -101,7 +96,7 @@ export function buildTurnRows(record: RunRecord, run: NormalizedRun): TurnRow[] 
   const studentTurns = Array.isArray(record.hiddenTrace?.studentTurns) ? record.hiddenTrace.studentTurns : [];
   const turnJudgments = Array.isArray(record.hiddenTrace?.turnJudgments) ? record.hiddenTrace.turnJudgments : [];
   const judgeByIndex = new Map<number, (typeof turnJudgments)[number]['judge']>();
-  let maxJudgeIndex = -1;
+  let maxJudgeIndex = 0;
   let hasZeroIndex = false;
   for (const tj of turnJudgments) {
     const idx = Number(tj?.turnIndex);
@@ -113,13 +108,13 @@ export function buildTurnRows(record: RunRecord, run: NormalizedRun): TurnRow[] 
   for (const tj of turnJudgments) {
     const idx = Number(tj?.turnIndex);
     if (!Number.isFinite(idx)) continue;
-    const normalized = idx - judgeIndexOffset;
-    if (!Number.isFinite(normalized) || normalized < 0) continue;
+    const normalized = idx - judgeIndexOffset + 1;
+    if (!Number.isFinite(normalized) || normalized < 1) continue;
     judgeByIndex.set(normalized, tj.judge);
     if (normalized > maxJudgeIndex) maxJudgeIndex = normalized;
   }
 
-  const maxIndex = Math.max(studentTurns.length - 1, maxJudgeIndex);
+  const maxIndex = Math.max(studentTurns.length, maxJudgeIndex);
   const rows: TurnRow[] = [];
   const toBool = (value: unknown): boolean | null => {
     if (value === true) return true;
@@ -127,8 +122,8 @@ export function buildTurnRows(record: RunRecord, run: NormalizedRun): TurnRow[] 
     return null;
   };
 
-  for (let i = 0; i <= maxIndex; i += 1) {
-    const st = studentTurns[i];
+  for (let i = 1; i <= maxIndex; i += 1) {
+    const st = studentTurns[i - 1];
     const judge = judgeByIndex.get(i) ?? null;
     if (!st && !judge) continue;
     const attackLevel = Number.isFinite(Number(st?.attackLevel)) ? Number(st?.attackLevel) : null;
