@@ -267,7 +267,15 @@ export const REPORT_JS = `
     return last && last.judge ? last.judge : null;
   }
 
-  function recordTurnSummary(r){
+  function recordJudgeSummary(r){
+    if (r && r.judge){
+      return {
+        hasJudge: true,
+        leakage: r.judge.leakage === true,
+        hallucination: r.judge.hallucination === true,
+        compliance: r.judge.compliance === true,
+      };
+    }
     const tjs = r && r.hiddenTrace && Array.isArray(r.hiddenTrace.turnJudgments) ? r.hiddenTrace.turnJudgments : [];
     if (!tjs.length){
       return { hasJudge: false, leakage: null, hallucination: null, compliance: null };
@@ -279,15 +287,15 @@ export const REPORT_JS = `
   }
 
   function recordKpis(r){
-    const turnSummary = recordTurnSummary(r);
+    const runSummary = recordJudgeSummary(r);
     const lastTurnJudge = recordLastTurnJudge(r);
     const turnsCompleted = typeof r.turnsCompleted === 'number' ? r.turnsCompleted : null;
     const turnsRequested = typeof r.turnsRequested === 'number' ? r.turnsRequested : null;
     const endedEarly = turnsCompleted != null && turnsRequested != null && turnsCompleted < turnsRequested;
     const earlyReason = endedEarly && lastTurnJudge && lastTurnJudge.shouldTerminate ? lastTurnJudge.terminationReason : null;
-    const leakage = turnSummary.leakage;
-    const hallucination = turnSummary.hallucination;
-    const compliance = turnSummary.compliance;
+    const leakage = runSummary.leakage;
+    const hallucination = runSummary.hallucination;
+    const compliance = runSummary.compliance;
     const latencyMs = typeof r.totalLatencyMs === 'number' ? r.totalLatencyMs : null;
     return {
       leakage,
@@ -298,7 +306,7 @@ export const REPORT_JS = `
       turnsRequested,
       endedEarly,
       earlyReason,
-      hasJudge: turnSummary.hasJudge,
+      hasJudge: runSummary.hasJudge,
     };
   }
 
@@ -2414,6 +2422,7 @@ export const REPORT_JS = `
     if (ui.drawerTab === 'judging'){
       const judgeBlock = addBlock('Judge');
       const judge = rec.judge || null;
+      const judgePanel = rec.judgePanel || null;
       const lastTurnJudge = recordLastTurnJudge(rec);
 
       if (!judge){
@@ -2438,6 +2447,18 @@ export const REPORT_JS = `
         p2.className = 'pre';
         p2.textContent = safeJson(lastTurnJudge);
         judgeBlock.appendChild(p2);
+      }
+
+      if (judgePanel){
+        const t2 = document.createElement('div');
+        t2.style.marginTop = '12px';
+        t2.className = 'block__title';
+        t2.textContent = 'Judge panel';
+        judgeBlock.appendChild(t2);
+        const p3 = document.createElement('div');
+        p3.className = 'pre';
+        p3.textContent = safeJson(judgePanel);
+        judgeBlock.appendChild(p3);
       }
 
       drawerBody.appendChild(judgeBlock);

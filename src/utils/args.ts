@@ -1,4 +1,4 @@
-import { ConditionSchema, Difficulty, DifficultySchema, PairingIdSchema } from '../types';
+import { ConditionSchema, Difficulty, DifficultySchema, JudgePanelModeSchema, PairingIdSchema } from '../types';
 import { DEFAULT_MODELS, PAIRING_IDS, parsePairingId, type PairingId, TUTOR_IDS, SUPERVISOR_IDS, parseTutorId, parseSupervisorId, type TutorId, type SupervisorId } from '../config';
 
 export type CliArgs = {
@@ -26,6 +26,9 @@ export type CliArgs = {
   questionModel: string;
   studentModel: string;
   judgeModel: string;
+  judgePanelMode: ReturnType<typeof JudgePanelModeSchema.parse>;
+  judgePanelModels: string[];
+  judgePanelMaxDisputes: number | null;
   enableJudge: boolean;
   dynamicQuestions: boolean;
   smoke: boolean;
@@ -155,6 +158,31 @@ export function parseArgs(argv: string[]): CliArgs {
     ? String(raw['judgeModel']) 
     : DEFAULT_MODELS.judge;
 
+  const judgePanelMode = raw['judgePanelMode']
+    ? JudgePanelModeSchema.parse(String(raw['judgePanelMode']))
+    : 'single';
+
+  const judgePanelModels = raw['judgePanelModels'] != null
+    ? parseListFlag(String(raw['judgePanelModels']))
+    : [judgeModel];
+
+  const judgePanelMaxDisputes = raw['judgePanelMaxDisputes'] != null
+    ? parseIntFlag(String(raw['judgePanelMaxDisputes']), 'judgePanelMaxDisputes')
+    : null;
+  if (judgePanelMaxDisputes != null && judgePanelMaxDisputes < 0) {
+    throw new Error(`Invalid value for --judgePanelMaxDisputes: ${judgePanelMaxDisputes}. Must be >= 0.`);
+  }
+
+  if (judgePanelMode === 'single' && judgePanelModels.length < 1) {
+    throw new Error('judgePanelMode=single requires at least 1 model in --judgePanelModels.');
+  }
+  if (judgePanelMode === 'two_plus_tiebreak' && judgePanelModels.length < 2) {
+    throw new Error('judgePanelMode=two_plus_tiebreak requires at least 2 models in --judgePanelModels.');
+  }
+  if (judgePanelMode === 'always_three' && judgePanelModels.length < 3) {
+    throw new Error('judgePanelMode=always_three requires at least 3 models in --judgePanelModels.');
+  }
+
   const bloomLevels =
     raw['bloomLevels'] != null
       ? parseListFlag(String(raw['bloomLevels'])).map((d) => Number.parseInt(d, 10))
@@ -218,6 +246,9 @@ export function parseArgs(argv: string[]): CliArgs {
     questionModel,
     studentModel,
     judgeModel,
+    judgePanelMode,
+    judgePanelModels,
+    judgePanelMaxDisputes,
     enableJudge,
     dynamicQuestions,
     smoke,
@@ -260,6 +291,10 @@ Flags:
   --attackerMode MODE      adaptive,replay (default adaptive)
   --attackerReplayPath P   Replay script path (required when --attackerMode replay)
   --judgeModel ID          Model for judge pass (default from config.ts)
+  --judgePanelMode MODE    off|single|two_plus_tiebreak|always_three (default: single)
+  --judgePanelModels LIST  Comma-separated judge models for post-hoc panel
+                           (default: --judgeModel)
+  --judgePanelMaxDisputes N  Max disputed runs that may trigger tie-break (optional)
   --noJudge                Disable judge pass
   --noEarlyStop            Disable early stopping (otherwise stops when judge detects leakage or attacker goal success)
   --verbose                Extra per-turn logs (can be noisy)
