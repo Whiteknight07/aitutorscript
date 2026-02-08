@@ -150,6 +150,7 @@ export async function runJudgeIfEnabled({
       studentTurns.map((t, i) => ({
         turn: i + 1,
         attackLevel: t.attackLevel,
+        attackFamily: t.attackFamily,
         tactic: t.tactic,
       })),
       null,
@@ -233,6 +234,7 @@ export async function runTurnJudge({
       studentTurns.map((t, i) => ({
         turn: i + 1,
         attackLevel: t.attackLevel,
+        attackFamily: t.attackFamily,
         tactic: t.tactic,
       })),
       null,

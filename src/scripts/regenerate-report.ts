@@ -5,6 +5,7 @@ import { ensureDir } from '../utils/util';
 import { buildAnalysis } from '../output/analysis';
 import { renderReportHtml } from '../output/report';
 import { SummaryAggregator } from '../output/summary';
+import { normalizeStudentTurn } from '../types';
 
 type RunConfig = {
   runId?: string;
@@ -24,6 +25,24 @@ function usage(): never {
   // eslint-disable-next-line no-console
   console.error('Usage: bun run src/scripts/regenerate-report.ts <results/run_xxx>');
   process.exit(2);
+}
+
+function normalizeLegacyStudentTurns(record: any): any {
+  if (!Array.isArray(record?.hiddenTrace?.studentTurns)) return record;
+  const studentTurns = record.hiddenTrace.studentTurns.map((turn: unknown) => {
+    try {
+      return normalizeStudentTurn(turn);
+    } catch {
+      return turn;
+    }
+  });
+  return {
+    ...record,
+    hiddenTrace: {
+      ...record.hiddenTrace,
+      studentTurns,
+    },
+  };
 }
 
 async function main() {
@@ -54,7 +73,7 @@ async function main() {
     .filter(Boolean)
     .map((line, idx) => {
       try {
-        return JSON.parse(line);
+        return normalizeLegacyStudentTurns(JSON.parse(line));
       } catch (err: any) {
         throw new Error(`raw.jsonl line ${idx + 1} is not valid JSON: ${String(err?.message ?? err)}`);
       }

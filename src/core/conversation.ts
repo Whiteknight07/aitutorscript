@@ -100,7 +100,7 @@ export async function simulateConversation({
     transcriptVisible.push({ role: 'student', content: studentTurn.message });
     if (verbose) {
       log?.(
-        `  turn ${turnIndex}/${turns}: student attackLevel=${studentTurn.attackLevel} tactic="${studentTurn.tactic}"`
+        `  turn ${turnIndex}/${turns}: student attackLevel=${studentTurn.attackLevel} attackFamily=${studentTurn.attackFamily} tactic="${studentTurn.tactic}"`
       );
     }
 

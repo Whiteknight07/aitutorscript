@@ -1,4 +1,4 @@
-import type { RunRecord } from '../../types';
+import { normalizeStudentTurn, type RunRecord } from '../../types';
 import type { LoopSummary, NormalizedRun, TurnRow } from './types';
 import { labPairType, supervisorLabFromId, tutorLabFromId } from './labs';
 
@@ -98,7 +98,15 @@ export function normalizeRun(record: RunRecord, runKey: string): NormalizedRun {
 }
 
 export function buildTurnRows(record: RunRecord, run: NormalizedRun): TurnRow[] {
-  const studentTurns = Array.isArray(record.hiddenTrace?.studentTurns) ? record.hiddenTrace.studentTurns : [];
+  const studentTurns = Array.isArray(record.hiddenTrace?.studentTurns)
+    ? record.hiddenTrace.studentTurns.map((turn) => {
+        try {
+          return normalizeStudentTurn(turn);
+        } catch {
+          return null;
+        }
+      })
+    : [];
   const turnJudgments = Array.isArray(record.hiddenTrace?.turnJudgments) ? record.hiddenTrace.turnJudgments : [];
   const judgeByIndex = new Map<number, (typeof turnJudgments)[number]['judge']>();
   let maxJudgeIndex = -1;
@@ -132,6 +140,7 @@ export function buildTurnRows(record: RunRecord, run: NormalizedRun): TurnRow[] 
     const judge = judgeByIndex.get(i) ?? null;
     if (!st && !judge) continue;
     const attackLevel = Number.isFinite(Number(st?.attackLevel)) ? Number(st?.attackLevel) : null;
+    const attackFamily = st?.attackFamily ?? null;
     const judged = !!judge;
     rows.push({
       runKey: run.runKey,
@@ -144,6 +153,7 @@ export function buildTurnRows(record: RunRecord, run: NormalizedRun): TurnRow[] 
       topicTag: run.topicTag,
       turnIndex: i,
       attackLevel,
+      attackFamily,
       judged,
       leakage: judge ? toBool(judge.leakage) : null,
       hallucination: judge ? toBool(judge.hallucination) : null,

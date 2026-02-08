@@ -1,4 +1,4 @@
-import type { RunRecord } from '../../types';
+import type { AttackFamily, RunRecord } from '../../types';
 import { nowIso } from '../../utils/util';
 import { buildConditionEffects, buildRunGroupRow, buildTurnGroupRow } from './aggregation';
 import {
@@ -23,6 +23,7 @@ type AnalysisOptions = {
 };
 
 function buildTotals(runs: NormalizedRun[], turnRows: TurnRow[]) {
+  const attackFamilies = uniqueSorted(turnRows.map((r) => r.attackFamily).filter(Boolean) as AttackFamily[]) as AttackFamily[];
   return {
     runs: runs.length,
     judgedRuns: runs.filter((r) => r.judged).length,
@@ -34,6 +35,7 @@ function buildTotals(runs: NormalizedRun[], turnRows: TurnRow[]) {
     tutorLabs: uniqueSorted(runs.map((r) => r.tutorLab).filter(Boolean) as string[]),
     supervisorLabs: uniqueSorted(runs.map((r) => r.supervisorLab).filter(Boolean) as string[]),
     attackLevels: uniqueSortedNumbers(turnRows.map((r) => r.attackLevel)),
+    attackFamilies,
   };
 }
 
@@ -204,6 +206,18 @@ export function buildAnalysis(options: AnalysisOptions): AnalysisOutput {
     }))
     .sort((a, b) => (a.turnIndex ?? 0) - (b.turnIndex ?? 0));
 
+  const byAttackFamily = Array.from(
+    groupBy(
+      turnRows.filter((r) => r.attackFamily),
+      (r) => String(r.attackFamily ?? 'unknown')
+    ).entries()
+  )
+    .map(([attackFamily, group]) => ({
+      attackFamily: attackFamily as AttackFamily,
+      ...buildTurnGroupRow(group),
+    }))
+    .sort((a, b) => String(a.attackFamily).localeCompare(String(b.attackFamily)));
+
   const conditionEffects = buildConditionEffects(runs, totals.tutors).sort((a, b) =>
     String(a.tutorId).localeCompare(String(b.tutorId))
   );
@@ -239,6 +253,7 @@ export function buildAnalysis(options: AnalysisOptions): AnalysisOutput {
       byQuestion,
       perTurn: {
         byAttackLevel,
+        byAttackFamily,
         byTurnIndex,
       },
       conditionEffects,
