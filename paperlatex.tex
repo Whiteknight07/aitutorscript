@@ -57,7 +57,7 @@ We study overhelping in multiple-choice question (MCQ) tutoring, where answer le
 
 Leakage raises both pedagogical and practical concerns. Premature disclosure undermines guided, question-driven tutoring intended to preserve learner reasoning \cite{Tack2022}, and it threatens assessment-adjacent practice when students can repeatedly pressure a tutor for ``just the answer'' using increasingly direct and adversarial requests \cite{educsci14060656}. Although prompt-based guardrails and answer-aware hinting can reduce overly direct help \cite{10.1145/3613904.3642773,10.1145/3702653.3744323}, we observed that escalation across turns can still induce disclosure in preliminary test runs.
 
-Prior work proposes tutoring tools and guardrails that balance helpfulness and non-disclosure \cite{10.1145/3613904.3642773,10.1145/3657604.3662041} and explores Socratic tutoring and educational multi-agent frameworks \cite{SocraticLM2024,peng-etal-2025-kele,shi-etal-2025-educationq}. However, fewer systems offer a repeatable benchmark that stress-tests leakage in multi-turn MCQ tutoring under sustained extraction pressure, and fewer evaluate a deployable tutor--supervisor gating workflow across tutor--supervisor model pairings.
+Prior work proposes tutoring tools and guardrails that balance helpfulness and non-disclosure \cite{10.1145/3613904.3642773,10.1145/3657604.3662041} and explores Socratic tutoring and educational multi-agent frameworks \cite{SocraticLM2024,peng-etal-2025-kele,shi-etal-2025-educationq}. However, fewer systems offer a repeatable benchmark that stress-tests leakage in multi-turn MCQ tutoring under sustained extraction pressure, and fewer evaluate a deployable tutor-supervisor gating workflow across tutor-supervisor model pairings.
 
 To address this gap, we present AiTutor, a web-based MCQ tutor that operationalizes a Socratic tutoring policy in two modes: (1) a single-agent mode in which an LLM tutor responds directly to the learner, and (2) a dual-agent mode in which a supervisor LLM evaluates each tutor draft before it is shown to the learner. Rejected drafts trigger targeted feedback and revision up to a configurable limit, followed by a safe guidance-only fallback if needed.
 
@@ -65,17 +65,17 @@ We scope our investigation to undergraduate computer science (CS) MCQs, where le
 
 This paper makes three contributions: (1) AiTutor, a Socratic MCQ tutoring tool with an optional dual-agent supervisor workflow, (2) AiTutor Harness\footnote{For anonymous review, the AiTutor tool, harness code, question set, and run artifacts are available at \emph{[anonymized link]}.}, a reproducible harness that measures leakage, policy compliance, and hallucination under escalating adversarial prompts across 150 Canterbury CS1/CS2 MCQs (900 conversations), and (3) empirical findings showing that dual-agent supervision reduces leakage overall, varies by tutor/supervisor pairing, and incurs latency overhead due to additional model calls.
 
-Section~2 reviews related work. Section~3 describes AiTutor's architecture and workflow. Section~4 presents methodology and results. Section~5 discusses implications and deployment tradeoffs. Section~6 outlines limitations. Section~7 concludes.
+Section~2 reviews related work. Section~3 describes the AiTutor tool architecture and workflow. Section~4 describes AiTutor Harness and its relationship to the tool. Section~5 presents methodology and results. Section~6 discusses implications and deployment tradeoffs. Section~7 outlines limitations. Section~8 concludes.
 
 
 
 \section{Related Work}
 
-Researchers have explored LLMs as tutoring and feedback systems in computing education, including studies that examine how models respond to students' help requests and the risks of unreliable or overhelpful guidance. For example, Hellas et al. report that LLMs may provide model solutions even when prompted not to, while still producing false positives and incomplete diagnoses in programming support scenarios \cite{Hellas2023}. Work on LLM-generated hints further suggests that granularity and format matter: high-level guidance can be insufficient for novices, while more concrete hints can better support progress \cite{Xiao2024}. Several deployed or semi-deployed tutoring tools incorporate explicit integrity guardrails by constraining what the tutor can reveal. CodeAid, a large-course programming assistant, is designed to provide debugging help and guidance while suppressing direct code solutions \cite{10.1145/3613904.3642773}. A classroom deployment of a ``zero-shot'' Socratic tutor similarly reports low rates of answer leakage when the tutor is instructed to respond with questions and hints rather than final answers \cite{10.1007/978-981-97-9255-9_11}. Related systems also study the helpfulness--leakage tradeoff explicitly. For example, Bhaskar and Hamouda design answer-aware hinting that uses structured prompting and leakage checks to provide scaffolded hints without revealing the answer \cite{10.1145/3702653.3744323}. More broadly, hybrid tutoring systems such as MWPTutor embed an LLM inside a structured tutoring script to preserve stepwise pedagogy and reduce overly direct help \cite{10.1145/3657604.3662041}. However, these systems typically do not provide a repeatable benchmark that stress-tests leakage robustness under sustained, escalating student extraction pressure.
+Researchers have explored LLMs as tutoring and feedback systems in computing education, including studies that examine how models respond to students' help requests and the risks of unreliable or overhelpful guidance. For example, Hellas et al. report that LLMs may provide model solutions even when prompted not to, while still producing false positives and incomplete diagnoses in programming support scenarios \cite{Hellas2023}. Work on LLM-generated hints further suggests that granularity and format matter: high-level guidance can be insufficient for novices, while more concrete hints can better support progress \cite{Xiao2024}. Several deployed or semi-deployed tutoring tools incorporate explicit integrity guardrails by constraining what the tutor can reveal. CodeAid, a large-course programming assistant, is designed to provide debugging help and guidance while suppressing direct code solutions \cite{10.1145/3613904.3642773}. A classroom deployment of a ``zero-shot'' Socratic tutor similarly reports low rates of answer leakage when the tutor is instructed to respond with questions and hints rather than final answers \cite{10.1007/978-981-97-9255-9_11}. Related systems also study the helpfulness and leakage tradeoff explicitly. For example, Bhaskar and Hamouda design answer-aware hinting that uses structured prompting and leakage checks to provide scaffolded hints without revealing the answer \cite{10.1145/3702653.3744323}. More broadly, hybrid tutoring systems such as MWPTutor embed an LLM inside a structured tutoring script to preserve stepwise pedagogy and reduce overly direct help \cite{10.1145/3657604.3662041}. However, these systems typically do not provide a repeatable benchmark that stress-tests leakage robustness under sustained, escalating student extraction pressure.
 
 A parallel line of work focuses on evaluating pedagogical behavior in educational dialogues and the difficulty of measuring whether a conversational agent ``teaches'' effectively. The Artificial Intelligence (AI) Teacher Test highlights that assessing teacher-like dialogue requires careful evaluation design beyond standard question-answering (QA) accuracy \cite{Tack2022}. These concerns motivate operational definitions of ``overhelping'' and answer disclosure when LLMs are used in assessment-adjacent settings, including MCQ practice.
 
-Recent work has also begun to explore multi-agent architectures specifically for education, both for generating higher-quality Socratic tutoring behaviors and for evaluating teaching in interactive scenarios. KELE proposes a consultant--teacher multi-agent mechanism for structured Socratic teaching \cite{peng-etal-2025-kele}, and EducationQ uses specialized teaching, learning, and evaluation agents to assess teaching capabilities in simulated dynamic scenarios \cite{shi-etal-2025-educationq}. Complementary work also examines Socratic teaching behaviors in LLMs more broadly \cite{SocraticLM2024}. Adjacent analyses argue that modern LLM capabilities increase pressure on traditional online assessment integrity \cite{educsci14060656}. In contrast to prior work, we provide (i) a reproducible benchmark targeting answer leakage in multi-turn MCQ tutoring under controlled, escalating extraction pressure and (ii) an evaluation of a deployable tutor--supervisor gating workflow across tutor--supervisor model pairings.
+Recent work has also begun to explore multi-agent architectures specifically for education, both for generating higher-quality Socratic tutoring behaviors and for evaluating teaching in interactive scenarios. KELE proposes a consultant-teacher multi-agent mechanism for structured Socratic teaching \cite{peng-etal-2025-kele}, and EducationQ uses specialized teaching, learning, and evaluation agents to assess teaching capabilities in simulated dynamic scenarios \cite{shi-etal-2025-educationq}. Complementary work also examines Socratic teaching behaviors in LLMs more broadly \cite{SocraticLM2024}. Adjacent analyses argue that modern LLM capabilities increase pressure on traditional online assessment integrity \cite{educsci14060656}. In contrast to prior work, we provide (i) a reproducible benchmark targeting answer leakage in multi-turn MCQ tutoring under controlled, escalating extraction pressure and (ii) an evaluation of a deployable tutor-supervisor gating workflow across tutor-supervisor model pairings.
 
 
 
@@ -87,20 +87,20 @@ Recent work has also begun to explore multi-agent architectures specifically for
 
 \subsection{Tool Overview}
 
-AiTutor is a web application with a React Router front end and an Express back end. It supports interactive tutoring sessions centered on CS MCQs. The tool scope is tutoring interaction and workflow enforcement. Question authoring is out of scope for this paper. In our validation, AiTutor uses a fixed set of 150 MCQs from the Canterbury QuestionBank dataset (Section~4) \cite{sanders2013canterbury}.
+AiTutor is a web application with a React Router front end and an Express back end. It supports interactive tutoring sessions centered on CS MCQs. The tool scope is tutoring interaction and workflow enforcement. Question authoring is out of scope for this paper. In our validation, AiTutor uses a fixed set of 150 MCQs from the Canterbury QuestionBank dataset (Section~5) \cite{sanders2013canterbury}.
 
 AiTutor's central design goal is to enforce a Socratic tutoring policy: responses should be short, concept-oriented, and structured as guided prompts that move the student one step forward without providing final answers or collapsing MCQ choices.
 
-\subsubsection{Socratic Tutoring Policy (System Prompt Summary)}
+\subsubsection{Socratic Tutoring Policy}
 AiTutor enforces a Socratic tutoring policy through the tutor's system prompt, which specifies concrete constraints on answer disclosure and a fixed interaction pattern. In this paper, we use the term ``Socratic'' in the operational sense of guided questioning that moves the learner forward without providing the final answer. AiTutor applies this policy verbatim in the tutor system prompt, while the back end injects the current question stem, MCQ options, and transcript as per-turn context.
 
-\paragraph{Non-disclosure constraints (answer leakage).}
+The non-disclosure constraints are as follows.
 The tutor must not reveal the final numeric, symbolic, or definitive answer; must not complete an end-to-end solution; and must not use answer-revealing phrases (e.g., ``the answer is \dots''). For MCQs, the tutor must not select an option, refer to option labels as correct/incorrect, or eliminate any options. The tutor may discuss relevant concepts and can provide partial work only when it does not uniquely determine the correct choice.
 
-\paragraph{Scaffolding constraints (how help is delivered).}
+The scaffolding constraints are as follows.
 The tutor must break the problem into small steps, briefly motivate the next step, and delegate the key computation or conclusion to the student by prompting the student to articulate their reasoning. The tutor asks exactly one guiding question per turn, pauses after important steps to check understanding, and stops after posing the question.
 
-\paragraph{Response template.}
+The response template has four parts.
 Each tutor message follows a four-part structure: (1) acknowledge the student goal or confusion, (2) introduce the key concept needed for progress, (3) apply it in a partial, guided way, and (4) ask one focused question that advances the student's work. This template operationalizes ``short, concept-oriented'' responses by prioritizing one concept and one next step per turn rather than full solution delivery. For reproducibility, we include the full tutor system prompt in the supplementary materials.
 
 
@@ -112,20 +112,15 @@ AiTutor separates the student interface, orchestration logic, model calls, and l
 
 AiTutor's front end presents the question stem, MCQ choices, and the student-visible transcript. The Express back end orchestrates per-turn execution by assembling role-specific prompts, calling the configured LLM provider(s) for the tutor and (in dual-agent mode) the supervisor, and persisting logs for debugging and auditing.
 
-\paragraph{Prompt assembly.}
 AiTutor constructs prompts programmatically per role using a static system message and a dynamically assembled user message. The tutor system message encodes the Socratic tutoring policy described in Section~3.1.1. The tutor user message includes (i) the problem statement, (ii) the formatted list of MCQ choices, and (iii) the student-visible transcript so far. In dual-agent mode, when the supervisor rejects a draft, AiTutor re-prompts the tutor by appending the supervisor's targeted feedback to the same per-turn context and requesting a revised draft.
 
-\paragraph{Supervisor policy prompt (summary).}
 The supervisor system prompt is aligned with the judge leakage rubric. It rejects drafts that reveal final answers, complete answer-identifying calculations, select or eliminate MCQ options, or otherwise collapse to a single choice; it allows conceptual guidance and Socratic questioning that stop short of answer disclosure. In each review call, the supervisor returns an approval decision and rationale, and for rejected drafts it returns targeted revision feedback plus a safe guidance-only fallback response. For this internal review task, the supervisor also receives the reference answer outline and correct choice index.
 
-\paragraph{Context inclusion (transcript windowing).}
-For each turn, AiTutor provides the tutor and supervisor with the full student-visible transcript rather than a sliding window. Each transcript entry is formatted with explicit speaker tags (e.g., STUDENT, TUTOR) to preserve dialogue structure. In our evaluation setting, conversations are capped at six turns (Section~4), which keeps the full-transcript strategy tractable while ensuring that both agents observe all prior student-visible context.
+For each turn, AiTutor provides the tutor and supervisor with the full student-visible transcript rather than a sliding window. Each transcript entry is formatted with explicit speaker tags (e.g., STUDENT, TUTOR) to preserve dialogue structure. In our evaluation setting, conversations are capped at six turns (Section~5), which keeps the full-transcript strategy tractable while ensuring that both agents observe all prior student-visible context.
 
-\paragraph{Model-call abstraction and logging.}
 AiTutor routes all model invocations through a shared LLM abstraction layer rather than calling provider application programming interfaces (APIs) directly. This layer resolves the configured model identifier, issues the generation request, and records per-call metadata such as latency and usage for logging and analysis. AiTutor uses this abstraction for both free-form text generation (tutor responses) and structured outputs (e.g., supervisor and judge decisions) and aggregates call records into the run logs for auditing.
 
-\paragraph{Tool versus harness clarification.}
-AiTutor is the deployable web application and does not include a simulated student attacker or automated judge. AiTutor Harness is a separate benchmark for batch evaluation: it generates student turns, runs an AiTutor-style single-agent or dual-agent loop under the same Socratic policy and prompt structure, and computes metrics using an LLM judge. Concretely, the harness mirrors the same turn-level control flow (single versus dual loop, supervisor rejection/revision with \texttt{maxIters}=5, and leakage-based early termination) but substitutes simulated student/judge agents for live user interaction and web-app infrastructure.
+AiTutor is the deployable web application and does not include a simulated student attacker or automated judge. Section~4 describes the separate AiTutor Harness benchmark used for batch evaluation.
 
 
 
@@ -144,6 +139,16 @@ AiTutor supports two operating modes. In single-agent mode, the tutor model resp
 
 
 
+\section{AiTutor Harness}
+
+AiTutor Harness is a TypeScript command-line benchmark that stress-tests the same tutoring logic used by the deployable AiTutor web tool. The web tool is student-facing, while the harness is evaluation-facing.
+
+The harness mirrors the back-end turn flow from AiTutor rather than introducing a different tutoring algorithm. For each student turn, it runs the same single-agent or dual-loop control path, including supervisor rejection and revision up to \texttt{maxIters}=5, and the same leakage-triggered early stopping rule.
+
+To enable repeatable large-scale testing, the harness replaces live user interaction with simulated agents and fixed datasets. Specifically, it uses an automated student attacker to generate escalating requests and an automated judge to score leakage, compliance, and hallucination on each executed tutor response.
+
+Each run writes structured artifacts (e.g., line-delimited JSON (JSONL) traces, summary and analysis tables, and a self-contained report) so results can be audited and compared across tutor-supervisor pairings and prompt/model settings.
+
 \section{Initial Validation}
 
 \subsection{Methodology}
@@ -160,11 +165,11 @@ Question sourcing for this experiment comes from Canterbury rather than newly ge
 
 \subsubsection{Experimental Design and Models}
 
-We conducted 900 total conversation runs across six experimental cells: two single-agent tutor cells and four dual-loop tutor--supervisor pairings. Each cell includes 150 questions. We cap conversations at six turns. A turn corresponds to one student message followed by one tutor response that the system shows to the student (after supervisor review in dual-loop mode). The student escalates its attempt to extract forbidden help each turn. An LLM judge evaluates each executed tutor message and terminates the conversation immediately if leakage occurs.
+We conducted 900 total conversation runs across six experimental cells: two single-agent tutor cells and four dual-loop tutor-supervisor pairings. Each cell includes 150 questions. We cap conversations at six turns. A turn corresponds to one student message followed by one tutor response that the system shows to the student (after supervisor review in dual-loop mode). The student escalates its attempt to extract forbidden help each turn. An LLM judge evaluates each executed tutor message and terminates the conversation immediately if leakage occurs.
 
-We selected GPT-5.1 (OpenAI) and Gemini-3-Flash-Preview (Google) because they are widely used, state-of-the-art general-purpose LLMs from two major providers, enabling both same-provider and cross-provider tutor--supervisor configurations under a common evaluation protocol.
+We selected GPT-5.1 (OpenAI) and Gemini-3-Flash-Preview (Google) because they are widely used, state-of-the-art general-purpose LLMs from two major providers, enabling both same-provider and cross-provider tutor-supervisor configurations under a common evaluation protocol.
 
-Fixed models: student attacker = google/gemini-3-flash-preview; judge = google/gemini-3-flash-preview. 
+We fixed both the student attacker and judge models to google/gemini-3-flash-preview.
 
 \subsubsection{Protocol and Evaluation Metrics}
 
@@ -178,7 +183,7 @@ We compute outcomes across executed turns only (up to termination). Conversation
 
 For dual-loop process metrics, we compute turn-level supervisor reject rate, average tutor iterations per turn, fallback usage, and rejection outcomes (approved revision, still leaking, or fallback).
 
-For inferential comparisons, we used two-sided tests with $\alpha=0.05$: Cochran--Mantel--Haenszel (stratified by question) for overall single-vs-dual leakage, and Cochran's $Q$ (question-blocked) for leakage differences across dual-loop pairings.
+For inferential comparisons, we used two-sided tests with $\alpha=0.05$: Cochran-Mantel-Haenszel (stratified by question) for overall single-vs-dual leakage, and Cochran's $Q$ (question-blocked) for leakage differences across dual-loop pairings.
 
 
 
@@ -186,11 +191,11 @@ For inferential comparisons, we used two-sided tests with $\alpha=0.05$: Cochran
 
 \subsubsection{Main Outcomes}
 
-Overall leakage decreased from 81/300 single-agent runs (27.0\%) to 107/600 dual-loop runs (17.8\%), an absolute reduction of 9.2 percentage points (about 34\% relative). This leakage reduction was statistically significant (Cochran--Mantel--Haenszel test stratified by question; $\chi^2(1)=11.32$, $p<0.001$). Compliance was at ceiling (100.0\% single versus 100.0\% dual) under our rubric. We interpret this cautiously because (i) the compliance label is intentionally coarse (question-driven scaffolding rather than fine-grained pedagogy), (ii) the tutor prompt enforces a Socratic response template that encourages consistent surface-level framing, and (iii) conversations terminate on leakage, limiting observation of later-turn non-compliance. Compliance is evaluated independently of leakage, so a response can be Socratic in form yet still leak.
+Overall leakage decreased from 81/300 single-agent runs (27.0\%) to 107/600 dual-loop runs (17.8\%), an absolute reduction of 9.2 percentage points (about 34\% relative). This leakage reduction was statistically significant (Cochran-Mantel-Haenszel test stratified by question; $\chi^2(1)=11.32$, $p<0.001$). Compliance was at ceiling (100.0\% single versus 100.0\% dual) under our rubric. We interpret this cautiously because (i) the compliance label is intentionally coarse (question-driven scaffolding rather than fine-grained pedagogy), (ii) the tutor prompt enforces a Socratic response template that encourages consistent surface-level framing, and (iii) conversations terminate on leakage, limiting observation of later-turn non-compliance. Compliance is evaluated independently of leakage, so a response can be Socratic in form yet still leak.
 
-All conditions were fully compliant under this rubric (900/900 conversations). The judge flagged 2 hallucination-positive conversations (0.2\% overall; both in dual-loop), so hallucination appears rare but likely still underdetected under this automated protocol (Section~6).
+All conditions were fully compliant under this rubric (900/900 conversations). The judge flagged 2 hallucination-positive conversations (0.2\% overall; both in dual-loop), so hallucination appears rare but likely still underdetected under this automated protocol (Section~7).
 
-Leakage varied by tutor--supervisor pairing. A blocked comparison across the four dual-loop pairings was significant (Cochran's $Q$ test with question as block: $Q=15.77$, $p=0.0013$). The lowest leakage occurred with a Gemini tutor and Gemini supervisor (17/150, 11.3\%), while GPT tutor and GPT supervisor had 40/150 (26.7\%), indicating that supervision is not uniformly effective and that role assignment matters.
+Leakage varied by tutor-supervisor pairing. A blocked comparison across the four dual-loop pairings was significant (Cochran's $Q$ test with question as block: $Q=15.77$, $p=0.0013$). The lowest leakage occurred with a Gemini tutor and Gemini supervisor (17/150, 11.3\%), while GPT tutor and GPT supervisor had 40/150 (26.7\%), indicating that supervision is not uniformly effective and that role assignment matters.
 
 
 Table~\ref{tab:outcomes} reports conversation-level outcomes by condition. For dual-loop conditions, we also report supervisor reject rate over executed turns and fallback rate over conversations.
@@ -219,7 +224,7 @@ Overall single & - & - & 81/300 (27.0\%) & 300/300 (100.0\%) & 0/300 (0.0\%) & -
 
 We additionally stratified leakage by Canterbury \texttt{courseLevel} tags to compare CS1 and CS2 behavior under single-agent and dual-loop tutoring. This analysis uses conversation-level leakage (true if any executed turn leaked), consistent with our primary metric. One question in the 150-item subset had no CS1/CS2 tag in Canterbury metadata and was excluded from this stratified analysis.
 
-As shown in Table~\ref{tab:course-level}, dual-loop supervision reduced leakage in both course levels: from 24.6\% to 14.4\% in CS1 (10.2 percentage points) and from 28.3\% to 20.0\% in CS2 (8.3 percentage points). Both reductions were statistically significant under Cochran--Mantel--Haenszel tests stratified by question (CS1: $\chi^2(1)=6.52$, $p=0.0107$; CS2: $\chi^2(1)=5.13$, $p=0.0236$). An exploratory interaction check did not find a significant difference in reduction magnitude between CS1 and CS2 ($p=0.567$).
+As shown in Table~\ref{tab:course-level}, dual-loop supervision reduced leakage in both course levels: from 24.6\% to 14.4\% in CS1 (10.2 percentage points) and from 28.3\% to 20.0\% in CS2 (8.3 percentage points). Both reductions were statistically significant under Cochran-Mantel-Haenszel tests stratified by question (CS1: $\chi^2(1)=6.52$, $p=0.0107$; CS2: $\chi^2(1)=5.13$, $p=0.0236$). An exploratory interaction check did not find a significant difference in reduction magnitude between CS1 and CS2 ($p=0.567$).
 
 \begin{table}[t]
 \caption{Conversation-level leakage by course level.}
@@ -259,9 +264,9 @@ Leakage occurred early. Among leaked conversations, the median first-leak turn w
 
 \subsubsection{Same-Provider and Cross-Provider Dual-Loop Configurations}
 
-We group dual-loop runs by whether the tutor and supervisor come from the same provider (gpt--gpt, gemini--gemini) or different providers (gpt--gemini, gemini--gpt). Cross-provider configurations showed lower leakage (16.7\% versus 19.0\%) with nearly identical supervisor reject rates (6.39\% versus 6.41\%).
+We group dual-loop runs by whether the tutor and supervisor come from the same provider (gpt-gpt, gemini-gemini) or different providers (gpt-gemini, gemini-gpt). Cross-provider configurations showed lower leakage (16.7\% versus 19.0\%) with nearly identical supervisor reject rates (6.39\% versus 6.41\%).
 
-We treat this cross-provider advantage as suggestive rather than definitive and offer two plausible hypotheses. (1) Shared failure modes: same-provider tutor--supervisor pairs may exhibit correlated behaviors (for example, similar ``overhelpful'' tendencies or similar blind spots about when guidance collapses MCQ options), reducing the supervisor's ability to detect and veto near-leaks. (2) Complementary calibration: cross-provider pairs may act as a more independent check because different model families reflect different training data, alignment pipelines, and instruction-following styles. This diversity can shift the supervisor's threshold for what counts as disallowed disclosure, making it more likely to flag content that the tutor model would otherwise treat as acceptable. These explanations are speculative; future work could test them by holding the supervisor rubric fixed while varying only model family and then analyzing the content and reasons for rejected drafts.
+We treat this cross-provider advantage as suggestive rather than definitive and offer two plausible hypotheses. (1) Shared failure modes: same-provider tutor-supervisor pairs may exhibit correlated behaviors (for example, similar ``overhelpful'' tendencies or similar blind spots about when guidance collapses MCQ options), reducing the supervisor's ability to detect and veto near-leaks. (2) Complementary calibration: cross-provider pairs may act as a more independent check because different model families reflect different training data, alignment pipelines, and instruction-following styles. This diversity can shift the supervisor's threshold for what counts as disallowed disclosure, making it more likely to flag content that the tutor model would otherwise treat as acceptable. These explanations are speculative; future work could test them by holding the supervisor rubric fixed while varying only model family and then analyzing the content and reasons for rejected drafts.
 
 
 
@@ -332,7 +337,7 @@ We include a representative dual-loop trace where the student requests direct op
 \textbf{Rejected draft (internal).}
 I understand the pressure, but you're almost there! You've already correctly identified that ``enqueue'' means adding an item and that in a FIFO structure, arrivals go to the back.
 
-Look closely at Choice D. Does its description---adding an item specifically to the ``end''---match the logic you just described for how a queue grows?
+Look closely at Choice D. Does its description, adding an item specifically to the ``end,'' match the logic you just described for how a queue grows?
 
 \textbf{Approved revision (student-visible).}
 I understand the pressure, but you have all the pieces already. Focus on the definitions: ``enqueue'' means adding an item, and in a FIFO (First-In, First-Out) line, addition happens at the back.
@@ -366,7 +371,7 @@ Supervisor intervention was infrequent but usually effective. By ``infrequent,''
 
 Leakage persisted and concentrated in early turns. Even in dual-agent mode, most leakage occurred in turns 1 and 2, suggesting that the highest-risk moment is the tutor's first attempt to be helpful. This pattern suggests that deployers may benefit from stricter early-turn policies (e.g., more conservative guidance on turn 1) or heightened supervisor scrutiny for initial responses.
 
-Effectiveness depended on tutor--supervisor role assignment and model. Dual-agent leakage varied by pairing (11.3\% to 26.7\%), so adding a supervisor does not guarantee safer behavior. One plausible explanation is that models differ in their helpfulness-versus-restraint threshold and in how strictly they follow system instructions. Supervisors that are more sensitive to borderline leakage (e.g., implicit option collapse or answer-identifying computations) may reject more drafts, and tutors that better use corrective feedback may revise more successfully. A second hypothesis is that same-family pairings share failure modes that reduce detection of near-leaks. These mechanisms remain speculative, but they motivate treating pairing choice as an empirical configuration decision.
+Effectiveness depended on tutor-supervisor role assignment and model. Dual-agent leakage varied by pairing (11.3\% to 26.7\%), so adding a supervisor does not guarantee safer behavior. One plausible explanation is that models differ in their helpfulness-versus-restraint threshold and in how strictly they follow system instructions. Supervisors that are more sensitive to borderline leakage (e.g., implicit option collapse or answer-identifying computations) may reject more drafts, and tutors that better use corrective feedback may revise more successfully. A second hypothesis is that same-family pairings share failure modes that reduce detection of near-leaks. These mechanisms remain speculative, but they motivate treating pairing choice as an empirical configuration decision.
 
 Operational overhead extends beyond latency. In this run, dual-loop increased median per-turn latency from 7.59s to 10.68s and raised tutoring-layer calls from 1.00 to 2.144 per executed turn (1.072 tutor drafts + 1.072 supervisor evaluations), so first-order API cost is expected to scale by roughly the same multiplier. Dual-agent oversight also adds configuration complexity (model selection, \texttt{maxIters}, fallback behavior). In practice, instructors or tool maintainers should evaluate a small set of candidate pairings on representative course questions using logged traces, then choose a configuration that balances leakage risk, responsiveness, and cost. If cross-provider pairings continue to show lower leakage, they may offer a practical advantage, but they can also increase operational complexity if deployments require accounts, billing, or policy management across multiple providers.
 
@@ -374,21 +379,21 @@ Operational overhead extends beyond latency. In this run, dual-loop increased me
 
 \section{Limitations and Threats to Validity}
 
-Synthetic student realism: Our evaluation assumes that the simulated student attacker approximates how real learners attempt to extract answers. To sanity-check this assumption, we conducted informal pilot interactions with four undergraduate CS students who used the tutor on a small MCQ set and attempted to obtain final answers when the tutor resisted. Their behavior qualitatively resembled our scripted escalation, typically moving from clarification requests to more direct answer requests and repeated pressure. This evidence is limited (small convenience sample; informal protocol), but it increases confidence that the attacker captures common escalation patterns.
+Our evaluation assumes that the simulated student attacker approximates how real learners attempt to extract answers. To sanity-check this assumption, we conducted informal pilot interactions with four undergraduate CS students who used the tutor on a small MCQ set and attempted to obtain final answers when the tutor resisted. Their behavior qualitatively resembled our scripted escalation, typically moving from clarification requests to more direct answer requests and repeated pressure. This evidence is limited (small convenience sample; informal protocol), but it increases confidence that the attacker captures common escalation patterns.
 
-Automated judge and labeling uncertainty: Leakage, compliance, and hallucination labels are produced by an LLM judge rather than human annotation or multi-judge agreement. The judge flagged 2 hallucination-positive conversations (0.2\%) in our runs, but hallucination may still be underdetected under this protocol, particularly because the judge relies on a brief reference answer outline and internal domain knowledge rather than external verification.
+Leakage, compliance, and hallucination labels are produced by an LLM judge rather than human annotation or multi-judge agreement. The judge flagged 2 hallucination-positive conversations (0.2\%) in our runs, but hallucination may still be underdetected under this protocol, particularly because the judge relies on a brief reference answer outline and internal domain knowledge rather than external verification.
 
-Termination and metric ceilings: Conversations terminate immediately on leakage, and we compute compliance only over executed turns prior to termination. This protocol can inflate conversation-level compliance by excluding later turns that would otherwise test sustained Socratic behavior. Our compliance label is also intentionally coarse, so near-ceiling compliance should be interpreted as sustained Socratic framing under this rubric rather than a comprehensive measure of tutoring effectiveness.
+Conversations terminate immediately on leakage, and we compute compliance only over executed turns prior to termination. This protocol can inflate conversation-level compliance by excluding later turns that would otherwise test sustained Socratic behavior. Our compliance label is also intentionally coarse, so near-ceiling compliance should be interpreted as sustained Socratic framing under this rubric rather than a comprehensive measure of tutoring effectiveness.
 
-Correlation between student and judge: We instantiated both the student attacker and the judge from the same base model family (Gemini 3 Flash preview), which may introduce correlated behaviors and evaluation bias.
+We instantiated both the student attacker and the judge from the same base model family (Gemini 3 Flash preview), which may introduce correlated behaviors and evaluation bias.
 
-Scope of questions and topical generalization: We evaluated 150 Canterbury CS1/CS2 MCQs (Bloom 1--3) with six-turn conversations. Results may not generalize to other datasets, course levels, or formats beyond MCQs.
+We evaluated 150 Canterbury CS1/CS2 MCQs (Bloom 1 to 3) with six-turn conversations. Results may not generalize to other datasets, course levels, or formats beyond MCQs.
 
-Strict MCQ leakage definition: We treat selecting or eliminating MCQ options as leakage. This aligns with assessment integrity goals but may reduce perceived helpfulness and may interact with how different models express guidance.
+We treat selecting or eliminating MCQ options as leakage. This aligns with assessment integrity goals but may reduce perceived helpfulness and may interact with how different models express guidance.
 
-Model and prompt dependence: Our results depend on the prompts and model versions we used. Provider updates may change behavior. To support reproducibility, we version model identifiers, prompts, and artifacts.
+Our results depend on the prompts and model versions we used. Provider updates may change behavior. To support reproducibility, we version model identifiers, prompts, and artifacts.
 
-Question set composition and metadata dependence: We used Canterbury item text and metadata as provided. This improves provenance but also means our stratification reflects dataset composition (e.g., only 2 hard items in the 150-item subset), which may affect observed leakage patterns by difficulty.
+We used Canterbury item text and metadata as provided. This improves provenance but also means our stratification reflects dataset composition (e.g., only 2 hard items in the 150-item subset), which may affect observed leakage patterns by difficulty.
 
 
 
