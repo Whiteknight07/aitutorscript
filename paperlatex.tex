@@ -195,14 +195,13 @@ For inferential comparisons, we used two-sided tests with $\alpha=0.05$: Cochran
 
 \subsubsection{Main Outcomes}
 
+Table~\ref{tab:outcomes} summarizes the primary conversation-level outcomes by condition. The table reports leakage, compliance, and hallucination for all conditions; for dual-loop conditions it additionally reports supervisor reject rate (over executed turns) and fallback rate (over conversations).
+
 Overall leakage decreased from 81/300 single-agent runs (27.0\%) to 107/600 dual-loop runs (17.8\%), an absolute reduction of 9.2 percentage points (about 34\% relative). This leakage reduction was statistically significant (Cochran-Mantel-Haenszel test stratified by question; $\chi^2(1)=11.32$, $p<0.001$). Compliance was at ceiling (100.0\% single versus 100.0\% dual) under our rubric.
 
 All conditions were fully compliant under this rubric (900/900 conversations). The judge flagged 2 hallucination-positive conversations (0.2\% overall; both in dual-loop), so hallucination appears rare but likely still underdetected under this automated protocol (Section~7).
 
 Leakage varied by tutor-supervisor pairing. A blocked comparison across the four dual-loop pairings was significant (Cochran's $Q$ test with question as block: $Q=15.77$, $p=0.0013$). The lowest leakage occurred with a Gemini tutor and Gemini supervisor (17/150, 11.3\%), while GPT tutor and GPT supervisor had 40/150 (26.7\%).
-
-
-Table~\ref{tab:outcomes} reports conversation-level outcomes by condition. For dual-loop conditions, we also report supervisor reject rate over executed turns and fallback rate over conversations.
 
 \begin{table*}
 \caption{Conversation-level outcomes by condition.}
@@ -371,11 +370,13 @@ Supervisor intervention was infrequent but usually effective. By ``infrequent,''
 
 Compliance was at ceiling in both conditions (100.0\% single and 100.0\% dual), but this should be interpreted cautiously. The compliance label is intentionally coarse, the tutor prompt enforces a strong Socratic template, and conversations terminate on leakage, which limits observation of later turns where non-compliance could appear.
 
+Table~\ref{tab:outcomes} also shows a large single-agent tutor effect: GPT single-agent leakage was 40.0\% (60/150), while Gemini single-agent leakage was 14.0\% (21/150). This 26-point gap is larger than the overall single-to-dual reduction (9.2 points), indicating that base tutor model selection can have a first-order impact on leakage risk.
+
 \subsection{Failure modes, pairing sensitivity, and practical deployment trade-offs}
 
 Leakage persisted and concentrated in early turns. Even in dual-agent mode, most leakage occurred in turns 1 and 2, suggesting that the highest-risk moment is the tutor's first attempt to be helpful. This pattern suggests that deployers may benefit from stricter early-turn policies (e.g., more conservative guidance on turn 1) or heightened supervisor scrutiny for initial responses.
 
-Effectiveness depended on tutor-supervisor role assignment and model. Dual-agent leakage varied by pairing (11.3\% to 26.7\%), so adding a supervisor does not guarantee safer behavior. One plausible explanation is that models differ in their helpfulness-versus-restraint threshold and in how strictly they follow system instructions. Supervisors that are more sensitive to borderline leakage (e.g., implicit option collapse or answer-identifying computations) may reject more drafts, and tutors that better use corrective feedback may revise more successfully. A second hypothesis is that same-family pairings share failure modes that reduce detection of near-leaks. These mechanisms remain speculative, but they motivate treating pairing choice as an empirical configuration decision.
+Effectiveness depended on tutor-supervisor role assignment and model. Dual-agent leakage varied by pairing (11.3\% to 26.7\%), so adding a supervisor does not guarantee safer behavior. Table~\ref{tab:process} supports this pattern at the process level: GPT-GPT had the highest reject rate (10.27\%) and the highest rejected-turn leak count (7), while Gemini-Gemini had the lowest reject rate (3.05\%) and zero rejected-turn leaks. Together with Table~\ref{tab:outcomes}, these numbers show that pairing differences are not only end outcomes but also differences in how often supervision intervenes and how often revisions remain safe.
 
 Operational overhead extends beyond latency. In this run, dual-loop increased median per-turn latency from 7.59s to 10.68s and raised tutoring-layer calls from 1.00 to 2.144 per executed turn (1.072 tutor drafts + 1.072 supervisor evaluations), so first-order API cost is expected to scale by roughly the same multiplier. Dual-agent oversight also adds configuration complexity (model selection, \texttt{maxIters}, fallback behavior). In practice, instructors or tool maintainers should evaluate a small set of candidate pairings on representative course questions using logged traces, then choose a configuration that balances leakage risk, responsiveness, and cost. If cross-provider pairings continue to show lower leakage, they may offer a practical advantage, but they can also increase operational complexity if deployments require accounts, billing, or policy management across multiple providers.
 
