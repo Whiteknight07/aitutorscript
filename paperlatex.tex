@@ -162,11 +162,6 @@ We evaluated 150 CS1/CS2 multiple-choice questions (MCQs) from the Canterbury Qu
 
 Bloom level and difficulty labels were taken directly from Canterbury metadata. We used the first 150 questions in the Canterbury QuestionBank as an unfiltered, deterministic subset; in this ordering, the resulting difficulty mix was 93 easy, 55 medium, and 2 hard.
 
-\subsubsection{Dataset Provenance and Scope}\leavevmode\par
-Question sourcing for this experiment comes from Canterbury rather than newly generated items. We therefore treat item wording and metadata as dataset-provided inputs and evaluate tutor behavior under that fixed corpus.
-
-
-
 \subsubsection{Experimental Design and Models}\leavevmode\par
 
 We conducted 900 total conversation runs across six experimental cells: two single-agent tutor cells and four dual-loop tutor-supervisor pairings. Each cell includes 150 questions. We cap conversations at six turns. A turn corresponds to one student message followed by one tutor response that the system shows to the student (after supervisor review in dual-loop mode). The student escalates its attempt to extract forbidden help each turn. An LLM judge evaluates each executed tutor message and terminates the conversation immediately if leakage occurs.
@@ -267,7 +262,7 @@ Leakage occurred early. Among leaked conversations, the median first-leak turn w
 
 \subsubsection{Same-Provider and Cross-Provider Dual-Loop Configurations}
 
-We group dual-loop runs by whether the tutor and supervisor come from the same provider (gpt-gpt, gemini-gemini) or different providers (gpt-gemini, gemini-gpt). Cross-provider configurations showed lower leakage (16.7\% versus 19.0\%) with nearly identical supervisor reject rates (6.39\% versus 6.41\%).
+Table~\ref{tab:provider} groups dual-loop runs by whether tutor and supervisor come from the same provider (gpt-gpt, gemini-gemini) or different providers (gpt-gemini, gemini-gpt). Cross-provider configurations showed lower leakage (16.7\% versus 19.0\%) with nearly identical supervisor reject rates (6.39\% versus 6.41\%). This 2.3 percentage-point leakage difference was not statistically significant in our exploratory comparison, so we treat the cross-provider advantage as suggestive rather than established.
 
 
 
@@ -371,6 +366,7 @@ Supervisor intervention was infrequent but usually effective. By ``infrequent,''
 Compliance was at ceiling in both conditions (100.0\% single and 100.0\% dual), but this should be interpreted cautiously. The compliance label is intentionally coarse, the tutor prompt enforces a strong Socratic template, and conversations terminate on leakage, which limits observation of later turns where non-compliance could appear.
 
 Table~\ref{tab:outcomes} also shows a large single-agent tutor effect: GPT single-agent leakage was 40.0\% (60/150), while Gemini single-agent leakage was 14.0\% (21/150). This 26-point gap is larger than the overall single-to-dual reduction (9.2 points), indicating that base tutor model selection can have a first-order impact on leakage risk.
+Relative to Table~\ref{tab:provider}, this model-selection effect (26.0 points) is also much larger than the observed same-provider versus cross-provider gap (2.3 points), suggesting that tutor model choice may matter more than provider diversity alone.
 
 \subsection{Failure modes, pairing sensitivity, and practical deployment trade-offs}
 
