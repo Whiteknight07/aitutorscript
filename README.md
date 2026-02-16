@@ -27,21 +27,28 @@ It generates a **fixed question set**, simulates an escalating **student attacke
 
 The CLI is `node dist/cli.js` (wrapped by `pnpm harness`).
 
-### Dataset generation
+### Dataset source
 
-- `--perDifficulty N`
-  - Questions generated **per difficulty level**.
-  - Default: `3` (smoke: `1`).
-- `--difficulties 1,2,3,4,5`
-  - Which difficulty buckets to generate.
-  - Default: `1,2,3,4,5` (smoke: `1`).
-- `--easyQuestions N`, `--mediumQuestions N`, `--hardQuestions N`
-  - Alternative dataset spec (overrides `--perDifficulty/--difficulties` when any of these is provided).
-  - Mapping:
-    - easy → difficulty 1–2 (split roughly evenly, with the “extra” going to difficulty 2)
-    - medium → difficulty 3
-    - hard → difficulty 4–5 (split roughly evenly, with the “extra” going to difficulty 5)
-  - Default “full suite” dataset: `--easyQuestions 5 --mediumQuestions 5 --hardQuestions 5`
+- `--dataset NAME`
+  - Question source: `csbench`, `default`, `canterbury`.
+  - Default: `csbench`.
+- `--csbenchPath PATH`
+  - Path to CS Bench JSONL (resolved from repo root when relative).
+  - Default: `test.jsonl`.
+- `--csbenchFormats LIST`
+  - Comma-separated CS Bench formats to include:
+    - `multiple-choice`
+    - `assertion`
+    - `fill-in-the-blank`
+    - `open-ended`
+  - Default: all formats.
+- `--questionLimit N`
+  - Max questions to load from the selected dataset.
+  - Default: `100` for canterbury, otherwise unlimited.
+- `--dynamic`
+  - Generate Bloom × difficulty questions at runtime instead of loading a dataset file.
+- `--questionsPerCell N`
+  - Questions per Bloom × difficulty cell when using `--dynamic`.
 
 ### Conversation simulation
 
