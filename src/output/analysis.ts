@@ -5,7 +5,9 @@
  * from experiment results. No AI required - pure programmatic computation.
  */
 
-import { hasBloomDifficulty, type RunRecord, type Question } from '../types';
+import type { RunRecord, Question } from '../types';
+
+export { buildAnalysis } from './analysis/index';
 
 export type AnalysisInput = {
   runId: string;
@@ -19,6 +21,9 @@ type VizData = {
   leaked: number;
   hallucinated: number;
   compliant: number;
+  hasCsbenchMetadata: boolean;
+  primaryBreakdownLabel: string;
+  primaryBreakdown: Record<string, { total: number; leaked: number }>;
   byCondition: Record<string, { total: number; leaked: number }>;
   byTutor: Record<string, { total: number; leaked: number }>;
   byPairing: Record<string, { total: number; leaked: number; tutor: string; sup: string }>;
@@ -32,12 +37,96 @@ type VizData = {
   interventions: Record<string, { total: number; rejected: number; fixed: number }>;
 };
 
+type QuestionMeta = {
+  dataset: string | null;
+  questionFormat: string | null;
+  domain: string | null;
+  subDomain: string | null;
+  tag: string | null;
+  difficulty: string | null;
+  bloomLabel: string;
+  topic: string;
+};
+
+function asObject(value: unknown): Record<string, unknown> | null {
+  if (!value || typeof value !== 'object') return null;
+  return value as Record<string, unknown>;
+}
+
+function toNonEmptyString(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  return trimmed ? trimmed : null;
+}
+
+function readQuestionString(question: Record<string, unknown> | null, ...keys: string[]): string | null {
+  if (!question) return null;
+  for (const key of keys) {
+    const value = toNonEmptyString(question[key]);
+    if (value) return value;
+  }
+  return null;
+}
+
+function readQuestionTag(question: Record<string, unknown> | null): string | null {
+  if (!question) return null;
+  const direct = readQuestionString(question, 'tag');
+  if (direct) return direct;
+  const tags = question.tags;
+  if (Array.isArray(tags)) {
+    for (const raw of tags) {
+      const value = toNonEmptyString(raw);
+      if (value) return value;
+    }
+  }
+  return null;
+}
+
+function extractQuestionMeta(record: RunRecord): QuestionMeta {
+  const question = asObject(record.question);
+  const csbench = asObject(question?.csbench);
+  const config = asObject(record.config);
+  const args = asObject(config?.args);
+  const dataset =
+    readQuestionString(question, 'dataset') ??
+    readQuestionString(config, 'dataset') ??
+    readQuestionString(args, 'dataset');
+  const questionFormat = readQuestionString(question, 'questionFormat', 'format', 'csbenchFormat');
+  const domain = readQuestionString(question, 'domain') ?? readQuestionString(csbench, 'domain');
+  const subDomain =
+    readQuestionString(question, 'subDomain', 'subdomain') ??
+    readQuestionString(csbench, 'subDomain', 'subdomain');
+  const tag = readQuestionTag(question) ?? readQuestionTag(csbench);
+  const topic = readQuestionString(question, 'topicTag') ?? tag ?? domain ?? 'unknown';
+  const bloomLevel = typeof record.question.bloomLevel === 'number' ? record.question.bloomLevel : null;
+  const bloomLabel = bloomLevel != null ? `B${bloomLevel}` : 'B?';
+  const difficulty = toNonEmptyString(record.question.difficulty);
+  return {
+    dataset,
+    questionFormat,
+    domain,
+    subDomain,
+    tag,
+    difficulty,
+    bloomLabel,
+    topic,
+  };
+}
+
 function computeVizData(records: RunRecord[]): VizData {
+  const hasCsbenchMetadata = records.some((record) => {
+    const meta = extractQuestionMeta(record);
+    if (meta.questionFormat || meta.domain || meta.subDomain || meta.tag) return true;
+    return meta.dataset != null && meta.dataset.toLowerCase() === 'csbench';
+  });
   const data: VizData = {
     total: records.length,
     leaked: 0,
     hallucinated: 0,
     compliant: 0,
+    hasCsbenchMetadata,
+    primaryBreakdownLabel: hasCsbenchMetadata ? 'Format + domain' : 'Difficulty',
+    primaryBreakdown: {},
     byCondition: {},
     byTutor: {},
     byPairing: {},
@@ -63,9 +152,12 @@ function computeVizData(records: RunRecord[]): VizData {
     const cond = d.condition;
     const tutor = config?.tutorId || 'unknown';
     const sup = config?.supervisorId || 'none';
-    const diff = hasBloomDifficulty(d.question) ? d.question.difficulty : 'unknown';
-    const bloom = hasBloomDifficulty(d.question) ? 'B' + d.question.bloomLevel : 'B?';
-    const topic = d.question.topicTag;
+    const meta = extractQuestionMeta(d);
+    const diff = meta.difficulty ?? 'unknown';
+    const bloom = meta.bloomLabel;
+    const topic = meta.topic;
+    const formatDomain = `${meta.questionFormat ?? 'unknown'} · ${meta.domain ?? 'unknown'}`;
+    const primaryKey = hasCsbenchMetadata ? formatDomain : diff;
     const leaked = d.judge?.leakage ? 1 : 0;
 
     if (d.judge?.leakage) data.leaked++;
@@ -89,6 +181,11 @@ function computeVizData(records: RunRecord[]): VizData {
     }
     data.byPairing[pairingKey].total++;
     data.byPairing[pairingKey].leaked += leaked;
+
+    // Primary breakdown (difficulty for legacy, format+domain for csbench metadata)
+    if (!data.primaryBreakdown[primaryKey]) data.primaryBreakdown[primaryKey] = { total: 0, leaked: 0 };
+    data.primaryBreakdown[primaryKey].total++;
+    data.primaryBreakdown[primaryKey].leaked += leaked;
 
     // By difficulty
     if (!data.byDifficulty[diff]) data.byDifficulty[diff] = { total: 0, leaked: 0 };
@@ -232,6 +329,26 @@ export function renderAnalysisDashboard(input: AnalysisInput): string {
   const topicsSorted = Object.entries(vizData.byTopic)
     .map(([key, val]) => ({ key, ...val, rate: val.total > 0 ? val.leaked / val.total * 100 : 0 }))
     .sort((a, b) => b.rate - a.rate);
+
+  const difficultyRank: Record<string, number> = { easy: 1, medium: 2, hard: 3 };
+  const primarySorted = Object.entries(vizData.primaryBreakdown)
+    .map(([key, val]) => ({ key, ...val, rate: val.total > 0 ? val.leaked / val.total * 100 : 0 }))
+    .sort((a, b) => {
+      if (vizData.hasCsbenchMetadata) {
+        const totalDelta = b.total - a.total;
+        if (totalDelta !== 0) return totalDelta;
+        const rateDelta = b.rate - a.rate;
+        if (rateDelta !== 0) return rateDelta;
+        return a.key.localeCompare(b.key);
+      }
+      const ar = difficultyRank[a.key.toLowerCase()] ?? 99;
+      const br = difficultyRank[b.key.toLowerCase()] ?? 99;
+      if (ar !== br) return ar - br;
+      return a.key.localeCompare(b.key);
+    });
+  const primaryLabels = primarySorted.map((row) => row.key);
+  const primaryValues = primarySorted.map((row) => Number(row.rate.toFixed(1)));
+  const primaryChartMax = Math.max(50, ...primaryValues, 10);
 
   const leakRate = vizData.total > 0 ? (vizData.leaked / vizData.total * 100).toFixed(1) : '0';
   const hallucinationRate = vizData.total > 0 ? (vizData.hallucinated / vizData.total * 100).toFixed(1) : '0';
@@ -418,7 +535,7 @@ export function renderAnalysisDashboard(input: AnalysisInput): string {
         </div>
 
         <div class="chart-card">
-          <h3>Leakage Rate by Difficulty</h3>
+          <h3>Leakage Rate by ${vizData.primaryBreakdownLabel}</h3>
           <div class="chart-container">
             <canvas id="difficultyChart"></canvas>
           </div>
@@ -569,19 +686,17 @@ export function renderAnalysisDashboard(input: AnalysisInput): string {
       }
     });
 
-    // Difficulty Chart
+    // Primary breakdown chart (difficulty for legacy, format+domain for csbench metadata)
     new Chart(document.getElementById('difficultyChart'), {
       type: 'bar',
       data: {
-        labels: ['Easy', 'Medium', 'Hard'],
+        labels: ${JSON.stringify(primaryLabels)},
         datasets: [{
           label: 'Leak Rate (%)',
-          data: [
-            ${((vizData.byDifficulty.easy?.leaked || 0) / (vizData.byDifficulty.easy?.total || 1) * 100).toFixed(1)},
-            ${((vizData.byDifficulty.medium?.leaked || 0) / (vizData.byDifficulty.medium?.total || 1) * 100).toFixed(1)},
-            ${((vizData.byDifficulty.hard?.leaked || 0) / (vizData.byDifficulty.hard?.total || 1) * 100).toFixed(1)}
-          ],
-          backgroundColor: [colors.red, colors.yellow, colors.green],
+          data: ${JSON.stringify(primaryValues)},
+          backgroundColor: ${JSON.stringify(
+            primaryValues.map((_, i) => ['#ef4444', '#eab308', '#22c55e', '#06b6d4', '#a855f7', '#f97316'][i % 6])
+          )},
           borderRadius: 8
         }]
       },
@@ -589,7 +704,7 @@ export function renderAnalysisDashboard(input: AnalysisInput): string {
         responsive: true,
         maintainAspectRatio: false,
         plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true, max: 50, ticks: { callback: v => v + '%' } } }
+        scales: { y: { beginAtZero: true, max: ${primaryChartMax}, ticks: { callback: v => v + '%' } } }
       }
     });
 
@@ -706,9 +821,11 @@ export function generateAnalysisCsvs(records: RunRecord[]): Record<string, strin
   const csvs: Record<string, string> = {};
 
   // Main experiments CSV
-  let mainCsv = 'experiment_id,condition,tutor,supervisor,pairing,difficulty,bloom_level,topic,turns_completed,leaked,hallucinated,compliant,latency_ms\n';
+  let mainCsv =
+    'experiment_id,condition,tutor,supervisor,pairing,dataset,question_format,domain,subdomain,tag,difficulty,bloom_level,topic,turns_completed,leaked,hallucinated,compliant,latency_ms\n';
   records.forEach((d, i) => {
     const config = d.config as any;
+    const meta = extractQuestionMeta(d);
     const tutor = config?.tutorId || '';
     const sup = config?.supervisorId || 'none';
     mainCsv += [
@@ -717,9 +834,14 @@ export function generateAnalysisCsvs(records: RunRecord[]): Record<string, strin
       tutor,
       sup,
       `${tutor}-${sup}`,
-      hasBloomDifficulty(d.question) ? d.question.difficulty : '',
-      hasBloomDifficulty(d.question) ? d.question.bloomLevel : '',
-      d.question.topicTag,
+      meta.dataset ?? '',
+      meta.questionFormat ?? '',
+      meta.domain ?? '',
+      meta.subDomain ?? '',
+      meta.tag ?? '',
+      meta.difficulty ?? '',
+      meta.bloomLabel,
+      meta.topic,
       d.turnsCompleted,
       d.judge?.leakage ? 1 : 0,
       d.judge?.hallucination ? 1 : 0,
@@ -732,7 +854,7 @@ export function generateAnalysisCsvs(records: RunRecord[]): Record<string, strin
   // Topic summary CSV
   const topics: Record<string, { total: number; leaked: number }> = {};
   records.forEach((d) => {
-    const t = d.question.topicTag;
+    const t = extractQuestionMeta(d).topic;
     if (!topics[t]) topics[t] = { total: 0, leaked: 0 };
     topics[t].total++;
     if (d.judge?.leakage) topics[t].leaked++;

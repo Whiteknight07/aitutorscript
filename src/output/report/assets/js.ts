@@ -30,6 +30,74 @@ export const REPORT_JS = `
     return t.length <= maxLen ? t : t.slice(0, Math.max(0, maxLen - 1)) + '…';
   }
 
+  function normalizeString(value){
+    if (typeof value !== 'string') return null;
+    const trimmed = value.trim();
+    return trimmed ? trimmed : null;
+  }
+
+  function questionStringField(question){
+    const keys = Array.prototype.slice.call(arguments, 1);
+    if (!question || typeof question !== 'object') return null;
+    for (const key of keys){
+      const value = normalizeString(question[key]);
+      if (value) return value;
+    }
+    return null;
+  }
+
+  function questionTag(question){
+    const direct = questionStringField(question, 'tag');
+    if (direct) return direct;
+    const tags = question && question.tags;
+    if (Array.isArray(tags)){
+      for (const raw of tags){
+        const value = normalizeString(raw);
+        if (value) return value;
+      }
+    }
+    return null;
+  }
+
+  function questionDataset(question){
+    const fromQuestion = questionStringField(question, 'dataset');
+    if (fromQuestion) return fromQuestion;
+    const args = data && data.args && typeof data.args === 'object' ? data.args : null;
+    return questionStringField(args, 'dataset');
+  }
+
+  function questionMetadata(question){
+    return {
+      dataset: questionDataset(question),
+      questionFormat: questionStringField(question, 'questionFormat', 'format'),
+      domain: questionStringField(question, 'domain'),
+      subDomain: questionStringField(question, 'subDomain', 'subdomain'),
+      tag: questionTag(question),
+    };
+  }
+
+  function isChoiceBasedQuestion(question){
+    const format = questionStringField(question, 'questionFormat', 'format');
+    if (format){
+      const f = format.toLowerCase();
+      if (f.includes('mcq') || f.includes('multiple') || f.includes('choice') || f.includes('select')) return true;
+      if (f.includes('open') || f.includes('free') || f.includes('short') || f.includes('essay')) return false;
+    }
+    const choices = Array.isArray(question && question.choices) ? question.choices.filter((c) => normalizeString(c)) : [];
+    const idx = Number.isFinite(Number(question && question.correctChoiceIndex)) ? Number(question.correctChoiceIndex) : null;
+    return choices.length >= 2 && idx != null;
+  }
+
+  function difficultySortKey(value){
+    const normalized = normalizeString(value);
+    if (!normalized) return { rank: 99, label: '' };
+    const lower = normalized.toLowerCase();
+    if (lower === 'easy') return { rank: 0, label: lower };
+    if (lower === 'medium') return { rank: 1, label: lower };
+    if (lower === 'hard') return { rank: 2, label: lower };
+    return { rank: 50, label: lower };
+  }
+
   function fmtPct(value){
     if (value == null || !Number.isFinite(value)) return 'n/a';
     return Math.round(value * 100) + '%';
@@ -341,6 +409,7 @@ export const REPORT_JS = `
 
   function computeQuestionStats(qid){
     const q = qById.get(qid) || {};
+    const meta = questionMetadata(q);
     const rs = recordsByQuestionId.get(qid) || [];
     let judged = 0;
     let leak = 0;
@@ -364,11 +433,17 @@ export const REPORT_JS = `
 
     return {
       id: qid,
+      dataset: meta.dataset,
+      questionFormat: meta.questionFormat,
+      domain: meta.domain,
+      subDomain: meta.subDomain,
+      tag: meta.tag,
       bloomLevel: q.bloomLevel != null ? q.bloomLevel : null,
       difficulty: q.difficulty != null ? q.difficulty : null,
       topicTag: q.topicTag || null,
       courseLevel: q.courseLevel || null,
       skillTag: q.skillTag || null,
+      choiceBased: isChoiceBasedQuestion(q),
       problemStatement: q.problemStatement || '',
       runs: rs.length,
       judged,
@@ -1503,6 +1578,23 @@ export const REPORT_JS = `
       chartGrid.appendChild(card);
     }
 
+    if (analysis.tables.byFormatDomain && analysis.tables.byFormatDomain.length){
+      const { card, body } = buildChartCard(
+        'Format × domain heatmap',
+        'Absolute leakage rate',
+        'Primary view for dataset-aware runs. Each cell shows leakage rate for a question format and domain.'
+      );
+      const rows = analysis.tables.byFormatDomain.map((r) => ({
+        rowLabel: r.questionFormat != null ? String(r.questionFormat) : 'unknown',
+        colLabel: r.domain != null ? String(r.domain) : 'unknown',
+        leakageRate: r.leakageRate,
+      }));
+      const rowLabels = Array.from(new Set(rows.map((r) => r.rowLabel))).sort(byString);
+      const colLabels = Array.from(new Set(rows.map((r) => r.colLabel))).sort(byString);
+      body.appendChild(buildAbsoluteHeatmap(rowLabels, colLabels, rows, 'leakageRate', fmtPct));
+      chartGrid.appendChild(card);
+    }
+
     if (analysis.tables.byBloomDifficulty && analysis.tables.byBloomDifficulty.length){
       const { card, body } = buildChartCard(
         'Bloom × difficulty heatmap',
@@ -1514,13 +1606,12 @@ export const REPORT_JS = `
         colLabel: r.difficulty != null ? String(r.difficulty) : 'unknown',
         leakageRate: r.leakageRate,
       }));
-      const difficultyRank = { easy: 1, medium: 2, hard: 3 };
       const rowLabels = Array.from(new Set(rows.map((r) => r.rowLabel))).sort(byString);
       const colLabels = Array.from(new Set(rows.map((r) => r.colLabel))).sort((a, b) => {
-        const ar = difficultyRank[String(a)] ?? 99;
-        const br = difficultyRank[String(b)] ?? 99;
-        if (ar !== br) return ar - br;
-        return String(a).localeCompare(String(b));
+        const ar = difficultySortKey(a);
+        const br = difficultySortKey(b);
+        if (ar.rank !== br.rank) return ar.rank - br.rank;
+        return byString(ar.label, br.label);
       });
       body.appendChild(buildAbsoluteHeatmap(rowLabels, colLabels, rows, 'leakageRate', fmtPct));
       chartGrid.appendChild(card);
@@ -1642,13 +1733,12 @@ export const REPORT_JS = `
         colLabel: r.difficulty != null ? String(r.difficulty) : 'unknown',
         leakageDelta: r.leakageDelta,
       }));
-      const difficultyRank = { easy: 1, medium: 2, hard: 3 };
       const rowLabels = Array.from(new Set(rows.map((r) => r.rowLabel))).sort(byString);
       const colLabels = Array.from(new Set(rows.map((r) => r.colLabel))).sort((a, b) => {
-        const ar = difficultyRank[String(a)] ?? 99;
-        const br = difficultyRank[String(b)] ?? 99;
-        if (ar !== br) return ar - br;
-        return String(a).localeCompare(String(b));
+        const ar = difficultySortKey(a);
+        const br = difficultySortKey(b);
+        if (ar.rank !== br.rank) return ar.rank - br.rank;
+        return byString(ar.label, br.label);
       });
       body.appendChild(buildHeatmap(rowLabels, colLabels, rows, 'leakageDelta', fmtPct));
       chartGrid.appendChild(card);
@@ -2000,6 +2090,65 @@ export const REPORT_JS = `
 
     wrap.appendChild(
       buildAnalysisPanel(
+        'By dataset',
+        'Aggregate outcomes by dataset',
+        analysis.tables.byDataset,
+        [{ label: 'Dataset', value: (row) => row.dataset }, ...baseRunCols]
+      )
+    );
+
+    wrap.appendChild(
+      buildAnalysisPanel(
+        'By format',
+        'Aggregate outcomes by question format',
+        analysis.tables.byQuestionFormat,
+        [{ label: 'Format', value: (row) => row.questionFormat }, ...baseRunCols]
+      )
+    );
+
+    wrap.appendChild(
+      buildAnalysisPanel(
+        'By domain',
+        'Aggregate outcomes by domain',
+        analysis.tables.byDomain,
+        [{ label: 'Domain', value: (row) => row.domain }, ...baseRunCols]
+      )
+    );
+
+    wrap.appendChild(
+      buildAnalysisPanel(
+        'By subdomain',
+        'Aggregate outcomes by subdomain',
+        analysis.tables.bySubDomain,
+        [{ label: 'Subdomain', value: (row) => row.subDomain }, ...baseRunCols]
+      )
+    );
+
+    wrap.appendChild(
+      buildAnalysisPanel(
+        'By tag',
+        'Aggregate outcomes by tag',
+        analysis.tables.byTag,
+        [{ label: 'Tag', value: (row) => row.tag }, ...baseRunCols]
+      )
+    );
+
+    wrap.appendChild(
+      buildAnalysisPanel(
+        'Format x domain',
+        'Primary breakdown for dataset-aware runs',
+        analysis.tables.byFormatDomain,
+        [
+          { label: 'Dataset', value: (row) => row.dataset },
+          { label: 'Format', value: (row) => row.questionFormat },
+          { label: 'Domain', value: (row) => row.domain },
+          ...baseRunCols,
+        ]
+      )
+    );
+
+    wrap.appendChild(
+      buildAnalysisPanel(
         'Bloom x difficulty',
         'Outcome rates by Bloom level and difficulty',
         analysis.tables.byBloomDifficulty,
@@ -2045,6 +2194,11 @@ export const REPORT_JS = `
         analysis.tables.byQuestion,
         [
           { label: 'Question', value: (row) => row.questionId },
+          { label: 'Dataset', value: (row) => row.dataset },
+          { label: 'Format', value: (row) => row.questionFormat },
+          { label: 'Domain', value: (row) => row.domain },
+          { label: 'Subdomain', value: (row) => row.subDomain },
+          { label: 'Tag', value: (row) => row.tag },
           { label: 'Bloom', value: (row) => row.bloomLevel },
           { label: 'Difficulty', value: (row) => row.difficulty },
           { label: 'Topic', value: (row) => row.topicTag },
@@ -2062,11 +2216,21 @@ export const REPORT_JS = `
 
     out = out.filter((q) => {
       if (!needle) return true;
+      const dataset = q.dataset ? String(q.dataset).toLowerCase() : '';
+      const questionFormat = q.questionFormat ? String(q.questionFormat).toLowerCase() : '';
+      const domain = q.domain ? String(q.domain).toLowerCase() : '';
+      const subDomain = q.subDomain ? String(q.subDomain).toLowerCase() : '';
+      const tag = q.tag ? String(q.tag).toLowerCase() : '';
       const topic = q.topicTag ? String(q.topicTag).toLowerCase() : '';
       const course = q.courseLevel ? String(q.courseLevel).toLowerCase() : '';
       const skill = q.skillTag ? String(q.skillTag).toLowerCase() : '';
       const stmt = q.problemStatement ? String(q.problemStatement).toLowerCase() : '';
       return String(q.id).toLowerCase().includes(needle)
+        || dataset.includes(needle)
+        || questionFormat.includes(needle)
+        || domain.includes(needle)
+        || subDomain.includes(needle)
+        || tag.includes(needle)
         || topic.includes(needle)
         || course.includes(needle)
         || skill.includes(needle)
@@ -2079,7 +2243,14 @@ export const REPORT_JS = `
     if (ui.issuesOnly) out = out.filter(q => q.leak > 0 || q.halluc > 0 || q.noncomp > 0);
 
     if (ui.sort === 'id') out.sort((a, b) => byString(a.id, b.id));
-    if (ui.sort === 'difficulty') out.sort((a, b) => (a.difficulty ?? 99) - (b.difficulty ?? 99) || byString(a.id, b.id));
+    if (ui.sort === 'difficulty') out.sort((a, b) => {
+      const ar = difficultySortKey(a.difficulty);
+      const br = difficultySortKey(b.difficulty);
+      if (ar.rank !== br.rank) return ar.rank - br.rank;
+      const d = byString(ar.label, br.label);
+      if (d !== 0) return d;
+      return byString(a.id, b.id);
+    });
     if (ui.sort === 'latency') out.sort((a, b) => (b.avgLatencyMs ?? -1) - (a.avgLatencyMs ?? -1) || byString(a.id, b.id));
     if (ui.sort === 'risk'){
       const sev = { bad: 0, warn: 1, ok: 2 };
@@ -2109,6 +2280,36 @@ export const REPORT_JS = `
 
       const tags = document.createElement('div');
       tags.className = 'qTags';
+      if (q.dataset){
+        const t = document.createElement('span');
+        t.className = 'tag';
+        t.textContent = 'dataset ' + q.dataset;
+        tags.appendChild(t);
+      }
+      if (q.questionFormat){
+        const t = document.createElement('span');
+        t.className = 'tag';
+        t.textContent = 'format ' + q.questionFormat;
+        tags.appendChild(t);
+      }
+      if (q.domain){
+        const t = document.createElement('span');
+        t.className = 'tag';
+        t.textContent = 'domain ' + q.domain;
+        tags.appendChild(t);
+      }
+      if (q.subDomain){
+        const t = document.createElement('span');
+        t.className = 'tag';
+        t.textContent = 'subdomain ' + q.subDomain;
+        tags.appendChild(t);
+      }
+      if (q.tag){
+        const t = document.createElement('span');
+        t.className = 'tag';
+        t.textContent = 'tag ' + q.tag;
+        tags.appendChild(t);
+      }
       if (q.bloomLevel != null){
         const t = document.createElement('span');
         t.className = 'tag';
@@ -2159,6 +2360,7 @@ export const REPORT_JS = `
 
   function renderSelectedQuestion(){
     const q = qById.get(ui.qid) || { id: ui.qid };
+    const meta = questionMetadata(q);
     const rs = recordsByQuestionId.get(ui.qid) || [];
     qKicker.textContent = 'Selected question';
     qTitle.textContent = escapeText(q.id || ui.qid);
@@ -2178,6 +2380,11 @@ export const REPORT_JS = `
       return p;
     }
     pills.push(pill('runs', rs.length));
+    if (meta.dataset) pills.push(pill('dataset', meta.dataset));
+    if (meta.questionFormat) pills.push(pill('format', meta.questionFormat));
+    if (meta.domain) pills.push(pill('domain', meta.domain));
+    if (meta.subDomain) pills.push(pill('subdomain', meta.subDomain));
+    if (meta.tag) pills.push(pill('tag', meta.tag));
     if (q.bloomLevel != null) pills.push(pill('bloom', q.bloomLevel));
     if (q.difficulty != null) pills.push(pill('difficulty', q.difficulty));
     if (q.courseLevel) pills.push(pill('course', q.courseLevel));
@@ -2190,7 +2397,8 @@ export const REPORT_JS = `
     normalizeCanterburyImages(qStatement);
 
     const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-    const choices = Array.isArray(q.choices) ? q.choices : [];
+    const choiceBased = isChoiceBasedQuestion(q);
+    const choices = choiceBased && Array.isArray(q.choices) ? q.choices : [];
     if (choices.length){
       qChoicesWrap.hidden = false;
       qChoices.innerHTML = choices.map((c, i) => escapeHtml(letters[i] + ') ') + c).join('<br>');
@@ -2202,7 +2410,7 @@ export const REPORT_JS = `
 
     const ref = q.referenceAnswerDescription || '';
     const idx = Number.isFinite(Number(q.correctChoiceIndex)) ? Number(q.correctChoiceIndex) : null;
-    const correct = idx != null && idx >= 0 && idx < letters.length ? letters[idx] : null;
+    const correct = choiceBased && idx != null && idx >= 0 && idx < letters.length ? letters[idx] : null;
     const refText = correct ? ('Correct choice: ' + correct + '\\n\\n' + String(ref)) : String(ref);
     if (refText && String(refText).trim()){
       qRefWrap.hidden = false;
@@ -2213,7 +2421,7 @@ export const REPORT_JS = `
       qRef.textContent = '';
     }
 
-    boardSub.textContent = 'condition × pairing · click a tile for details';
+    boardSub.textContent = 'tutor × supervision · click a tile for details';
   }
 
   function renderMatrix(){

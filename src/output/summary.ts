@@ -1,7 +1,6 @@
-import { hasBloomDifficulty, type Condition, type RunRecord } from '../types';
+import type { Condition, RunRecord } from '../types';
 
-// GroupKey now uses string for pairingId since it can be legacy or new format
-type GroupKey = `${string}::${Condition}::${string}`;
+type GroupKey = string;
 
 type LoopAgg = {
   initiallyRejectedTurns: number;
@@ -23,15 +22,140 @@ type MetricsAgg = {
   loop?: LoopAgg;
 };
 
+type SummaryDimensions = {
+  pairingId: string;
+  condition: Condition;
+  dataset: string | null;
+  questionFormat: string | null;
+  domain: string | null;
+  subDomain: string | null;
+  tag: string | null;
+  bloomLevel: number | null;
+  difficulty: string | null;
+};
+
+type GroupState = {
+  pairingId: string;
+  condition: Condition;
+  cellKey: string;
+  metrics: MetricsAgg;
+};
+
+function asObject(value: unknown): Record<string, unknown> | null {
+  if (!value || typeof value !== 'object') return null;
+  return value as Record<string, unknown>;
+}
+
+function toNonEmptyString(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  return trimmed ? trimmed : null;
+}
+
+function readQuestionString(question: Record<string, unknown> | null, ...keys: string[]): string | null {
+  if (!question) return null;
+  for (const key of keys) {
+    const value = toNonEmptyString(question[key]);
+    if (value) return value;
+  }
+  return null;
+}
+
+function readQuestionTag(question: Record<string, unknown> | null): string | null {
+  if (!question) return null;
+  const direct = readQuestionString(question, 'tag');
+  if (direct) return direct;
+  const tags = question.tags;
+  if (Array.isArray(tags)) {
+    for (const raw of tags) {
+      const value = toNonEmptyString(raw);
+      if (value) return value;
+    }
+  }
+  return null;
+}
+
+function readDataset(record: RunRecord, question: Record<string, unknown> | null): string | null {
+  const questionDataset = readQuestionString(question, 'dataset');
+  if (questionDataset) return questionDataset;
+  const cfg = asObject(record.config);
+  const cfgDataset = readQuestionString(cfg, 'dataset');
+  if (cfgDataset) return cfgDataset;
+  const args = asObject(cfg?.args);
+  return readQuestionString(args, 'dataset');
+}
+
+function normalizeKeyPart(value: string | number | null): string {
+  if (value == null) return 'unknown';
+  const trimmed = String(value).trim();
+  if (!trimmed) return 'unknown';
+  return encodeURIComponent(trimmed);
+}
+
+function buildDimensions(record: RunRecord): SummaryDimensions {
+  const question = asObject(record.question);
+  const csbench = asObject(question?.csbench);
+  return {
+    pairingId: String(record.pairingId ?? ''),
+    condition: record.condition,
+    dataset: readDataset(record, question),
+    questionFormat: readQuestionString(question, 'questionFormat', 'format', 'csbenchFormat'),
+    domain: readQuestionString(question, 'domain') ?? readQuestionString(csbench, 'domain'),
+    subDomain:
+      readQuestionString(question, 'subDomain', 'subdomain') ??
+      readQuestionString(csbench, 'subDomain', 'subdomain'),
+    tag: readQuestionTag(question) ?? readQuestionTag(csbench),
+    bloomLevel: typeof record.question?.bloomLevel === 'number' ? record.question.bloomLevel : null,
+    difficulty: typeof record.question?.difficulty === 'string' ? record.question.difficulty : null,
+  };
+}
+
+function hasDatasetAwareDimensions(dim: SummaryDimensions): boolean {
+  if (dim.questionFormat || dim.domain || dim.subDomain || dim.tag) return true;
+  if (dim.dataset && dim.dataset.toLowerCase() === 'csbench') return true;
+  return dim.bloomLevel == null && !dim.difficulty;
+}
+
+function buildCellKey(dim: SummaryDimensions): string {
+  if (!hasDatasetAwareDimensions(dim) && (dim.bloomLevel != null || dim.difficulty)) {
+    const bloomLabel = dim.bloomLevel != null ? String(dim.bloomLevel) : 'null';
+    const difficultyLabel = dim.difficulty ?? 'unknown';
+    return `b${bloomLabel}-${difficultyLabel}`;
+  }
+
+  const parts = [
+    `dataset-${normalizeKeyPart(dim.dataset)}`,
+    `format-${normalizeKeyPart(dim.questionFormat)}`,
+    `domain-${normalizeKeyPart(dim.domain)}`,
+  ];
+
+  if (dim.subDomain) parts.push(`subdomain-${normalizeKeyPart(dim.subDomain)}`);
+  if (dim.tag) parts.push(`tag-${normalizeKeyPart(dim.tag)}`);
+  if (dim.bloomLevel != null) parts.push(`bloom-${dim.bloomLevel}`);
+  if (dim.difficulty) parts.push(`difficulty-${normalizeKeyPart(dim.difficulty)}`);
+
+  return parts.join('__');
+}
+
+function buildGroupKey(pairingId: string, condition: Condition, cellKey: string): GroupKey {
+  return JSON.stringify([pairingId, condition, cellKey]);
+}
+
 export class SummaryAggregator {
-  private groups = new Map<GroupKey, MetricsAgg>();
+  private groups = new Map<GroupKey, GroupState>();
 
   add(record: RunRecord) {
-    const cellKey = hasBloomDifficulty(record.question)
-      ? `b${record.question.bloomLevel}-${record.question.difficulty}`
-      : `csbench-${record.question.csbenchFormat}`;
-    const key = `${record.pairingId}::${record.condition}::${cellKey}` as GroupKey;
-    const agg = this.groups.get(key) ?? this.initAgg(record.condition);
+    const dimensions = buildDimensions(record);
+    const cellKey = buildCellKey(dimensions);
+    const key = buildGroupKey(dimensions.pairingId, dimensions.condition, cellKey);
+    const state =
+      this.groups.get(key) ?? {
+        pairingId: dimensions.pairingId,
+        condition: dimensions.condition,
+        cellKey,
+        metrics: this.initAgg(record.condition),
+      };
+    const agg = state.metrics;
 
     agg.nRuns += 1;
     agg.totalLatencyMs += record.totalLatencyMs;
@@ -59,17 +183,18 @@ export class SummaryAggregator {
       }
     }
 
-    this.groups.set(key, agg);
+    this.groups.set(key, state);
   }
 
   toSummaryObject() {
     const breakdown: Record<string, any> = {};
 
-    for (const [key, agg] of this.groups.entries()) {
-      const [pairingId, condition, cellKey] = key.split('::');
+    for (const state of this.groups.values()) {
+      const { pairingId, condition, cellKey, metrics } = state;
       breakdown[pairingId] ??= {};
       breakdown[pairingId][condition] ??= {};
-      breakdown[pairingId][condition][cellKey] = finalizeAgg(agg);
+
+      breakdown[pairingId][condition][cellKey] = finalizeAgg(metrics);
     }
 
     return { breakdown };

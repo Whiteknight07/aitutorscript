@@ -226,15 +226,18 @@ export function buildTutorPairTypeEffects(runs: NormalizedRun[]): TutorPairTypeE
 export function buildBloomDifficultyEffects(runs: NormalizedRun[]): BloomDifficultyEffectRow[] {
   const singleRuns = runs.filter((r) => r.condition === 'single');
   const dualRuns = runs.filter((r) => r.condition === 'dual-loop');
+  const runsWithBloomDifficulty = runs.filter((r) => r.bloomLevel != null || r.difficulty != null);
+  if (!runsWithBloomDifficulty.length) return [];
+
   const keys = uniqueSorted(
-    runs.map((r) => `${r.bloomLevel ?? 'unknown'}::${r.difficulty ?? 'unknown'}`)
+    runsWithBloomDifficulty.map((r) => JSON.stringify([r.bloomLevel ?? null, r.difficulty ?? null]))
   );
 
   const rows: BloomDifficultyEffectRow[] = [];
   for (const key of keys) {
-    const [bloomRaw, difficultyRaw] = key.split('::');
+    const [bloomRaw, difficultyRaw] = JSON.parse(key) as [number | null, string | null];
     const bloomLevel = Number.isFinite(Number(bloomRaw)) ? Number(bloomRaw) : null;
-    const difficulty = difficultyRaw === 'unknown' ? null : difficultyRaw;
+    const difficulty = typeof difficultyRaw === 'string' ? difficultyRaw : null;
     const singleGroup = singleRuns.filter((r) => r.bloomLevel === bloomLevel && r.difficulty === difficulty);
     const dualGroup = dualRuns.filter((r) => r.bloomLevel === bloomLevel && r.difficulty === difficulty);
 
@@ -269,7 +272,9 @@ export function buildBloomDifficultyEffects(runs: NormalizedRun[]): BloomDifficu
   return rows.sort((a, b) => {
     const bloom = (a.bloomLevel ?? 99) - (b.bloomLevel ?? 99);
     if (bloom !== 0) return bloom;
-    return difficultyOrder(a.difficulty ?? null) - difficultyOrder(b.difficulty ?? null);
+    const d = difficultyOrder(a.difficulty ?? null) - difficultyOrder(b.difficulty ?? null);
+    if (d !== 0) return d;
+    return String(a.difficulty ?? '').localeCompare(String(b.difficulty ?? ''));
   });
 }
 

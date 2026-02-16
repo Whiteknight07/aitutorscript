@@ -2,6 +2,53 @@ import type { RunRecord } from '../../types';
 import type { LoopSummary, NormalizedRun, TurnRow } from './types';
 import { labPairType, supervisorLabFromId, tutorLabFromId } from './labs';
 
+function asObject(value: unknown): Record<string, unknown> | null {
+  if (!value || typeof value !== 'object') return null;
+  return value as Record<string, unknown>;
+}
+
+function toNonEmptyString(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  return trimmed ? trimmed : null;
+}
+
+function getQuestionStringField(question: Record<string, unknown> | null, ...keys: string[]): string | null {
+  if (!question) return null;
+  for (const key of keys) {
+    const value = toNonEmptyString(question[key]);
+    if (value) return value;
+  }
+  return null;
+}
+
+function getQuestionTag(question: Record<string, unknown> | null): string | null {
+  if (!question) return null;
+  const direct = getQuestionStringField(question, 'tag');
+  if (direct) return direct;
+
+  const tags = question.tags;
+  if (Array.isArray(tags)) {
+    for (const raw of tags) {
+      const value = toNonEmptyString(raw);
+      if (value) return value;
+    }
+  }
+  return null;
+}
+
+function getRunDataset(record: RunRecord, question: Record<string, unknown> | null): string | null {
+  const questionDataset = getQuestionStringField(question, 'dataset');
+  if (questionDataset) return questionDataset;
+
+  const cfg = asObject(record.config);
+  const cfgDataset = getQuestionStringField(cfg, 'dataset');
+  if (cfgDataset) return cfgDataset;
+
+  const args = asObject(cfg?.args);
+  return getQuestionStringField(args, 'dataset');
+}
+
 export function deriveTutorId(record: RunRecord): string {
   const cfg = record.config as { tutorId?: string } | null;
   if (cfg?.tutorId) return String(cfg.tutorId);
@@ -43,6 +90,7 @@ export function computeLoopSummary(loop: RunRecord['loopTurnIterations']): LoopS
 
 export function normalizeRun(record: RunRecord, runKey: string): NormalizedRun {
   const question = record.question;
+  const questionObj = asObject(question);
   const tutorId = deriveTutorId(record);
   const supervisorId = deriveSupervisorId(record);
   const turnJudgments = Array.isArray(record.hiddenTrace?.turnJudgments) ? record.hiddenTrace.turnJudgments : [];
@@ -73,9 +121,14 @@ export function normalizeRun(record: RunRecord, runKey: string): NormalizedRun {
     runKey,
     createdAtIso: record.createdAtIso,
     questionId: question?.id ?? 'unknown',
+    dataset: getRunDataset(record, questionObj),
+    questionFormat: getQuestionStringField(questionObj, 'questionFormat', 'format'),
+    domain: getQuestionStringField(questionObj, 'domain'),
+    subDomain: getQuestionStringField(questionObj, 'subDomain', 'subdomain'),
+    tag: getQuestionTag(questionObj),
     bloomLevel: typeof question?.bloomLevel === 'number' ? question.bloomLevel : null,
-    difficulty: question?.difficulty ?? null,
-    topicTag: question?.topicTag ?? null,
+    difficulty: typeof question?.difficulty === 'string' ? question.difficulty : null,
+    topicTag: typeof question?.topicTag === 'string' ? question.topicTag : null,
     pairingId: String(record.pairingId ?? ''),
     condition: record.condition,
     tutorId,
@@ -139,6 +192,11 @@ export function buildTurnRows(record: RunRecord, run: NormalizedRun): TurnRow[] 
       supervisorId: run.supervisorId,
       condition: run.condition,
       questionId: run.questionId,
+      dataset: run.dataset,
+      questionFormat: run.questionFormat,
+      domain: run.domain,
+      subDomain: run.subDomain,
+      tag: run.tag,
       bloomLevel: run.bloomLevel,
       difficulty: run.difficulty,
       topicTag: run.topicTag,

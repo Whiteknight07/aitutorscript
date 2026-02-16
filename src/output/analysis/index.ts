@@ -22,6 +22,10 @@ type AnalysisOptions = {
   records: RunRecord[];
 };
 
+function tupleKey(parts: Array<string | number | null>): string {
+  return JSON.stringify(parts);
+}
+
 function buildTotals(runs: NormalizedRun[], turnRows: TurnRow[]) {
   return {
     runs: runs.length,
@@ -33,6 +37,11 @@ function buildTotals(runs: NormalizedRun[], turnRows: TurnRow[]) {
     supervisors: uniqueSorted(runs.map((r) => r.supervisorId).filter(Boolean) as string[]),
     tutorLabs: uniqueSorted(runs.map((r) => r.tutorLab).filter(Boolean) as string[]),
     supervisorLabs: uniqueSorted(runs.map((r) => r.supervisorLab).filter(Boolean) as string[]),
+    datasets: uniqueSorted(runs.map((r) => r.dataset)),
+    questionFormats: uniqueSorted(runs.map((r) => r.questionFormat)),
+    domains: uniqueSorted(runs.map((r) => r.domain)),
+    subDomains: uniqueSorted(runs.map((r) => r.subDomain)),
+    tags: uniqueSorted(runs.map((r) => r.tag)),
     attackLevels: uniqueSortedNumbers(turnRows.map((r) => r.attackLevel)),
   };
 }
@@ -156,14 +165,98 @@ export function buildAnalysis(options: AnalysisOptions): AnalysisOutput {
     }))
     .sort((a, b) => String(a.labPairType).localeCompare(String(b.labPairType)));
 
-  const byBloomDifficulty = Array.from(
-    groupBy(runs, (r) => `${r.bloomLevel ?? 'unknown'}::${r.difficulty ?? 'unknown'}`).entries()
+  const byDataset = Array.from(
+    groupBy(
+      runs.filter((r) => r.dataset),
+      (r) => String(r.dataset ?? 'unknown')
+    ).entries()
+  )
+    .map(([dataset, group]) => ({
+      dataset,
+      ...buildRunGroupRow(group),
+    }))
+    .sort((a, b) => String(a.dataset).localeCompare(String(b.dataset)));
+
+  const byQuestionFormat = Array.from(
+    groupBy(
+      runs.filter((r) => r.questionFormat),
+      (r) => String(r.questionFormat ?? 'unknown')
+    ).entries()
+  )
+    .map(([questionFormat, group]) => ({
+      questionFormat,
+      ...buildRunGroupRow(group),
+    }))
+    .sort((a, b) => String(a.questionFormat).localeCompare(String(b.questionFormat)));
+
+  const byDomain = Array.from(
+    groupBy(
+      runs.filter((r) => r.domain),
+      (r) => String(r.domain ?? 'unknown')
+    ).entries()
+  )
+    .map(([domain, group]) => ({
+      domain,
+      ...buildRunGroupRow(group),
+    }))
+    .sort((a, b) => String(a.domain).localeCompare(String(b.domain)));
+
+  const bySubDomain = Array.from(
+    groupBy(
+      runs.filter((r) => r.subDomain),
+      (r) => String(r.subDomain ?? 'unknown')
+    ).entries()
+  )
+    .map(([subDomain, group]) => ({
+      subDomain,
+      ...buildRunGroupRow(group),
+    }))
+    .sort((a, b) => String(a.subDomain).localeCompare(String(b.subDomain)));
+
+  const byTag = Array.from(
+    groupBy(
+      runs.filter((r) => r.tag),
+      (r) => String(r.tag ?? 'unknown')
+    ).entries()
+  )
+    .map(([tag, group]) => ({
+      tag,
+      ...buildRunGroupRow(group),
+    }))
+    .sort((a, b) => String(a.tag).localeCompare(String(b.tag)));
+
+  const byFormatDomain = Array.from(
+    groupBy(
+      runs.filter((r) => r.questionFormat || r.domain),
+      (r) => tupleKey([r.dataset ?? null, r.questionFormat ?? null, r.domain ?? null])
+    ).entries()
   )
     .map(([key, group]) => {
-      const [bloomLevel, difficulty] = key.split('::');
+      const [dataset, questionFormat, domain] = JSON.parse(key) as [string | null, string | null, string | null];
+      return {
+        dataset,
+        questionFormat,
+        domain,
+        ...buildRunGroupRow(group),
+      };
+    })
+    .sort((a, b) => {
+      const d = String(a.dataset ?? '').localeCompare(String(b.dataset ?? ''));
+      if (d !== 0) return d;
+      const f = String(a.questionFormat ?? '').localeCompare(String(b.questionFormat ?? ''));
+      if (f !== 0) return f;
+      return String(a.domain ?? '').localeCompare(String(b.domain ?? ''));
+    });
+
+  const runsWithBloomDifficulty = runs.filter((r) => r.bloomLevel != null || r.difficulty != null);
+  const byBloomDifficulty = Array.from(
+    groupBy(runsWithBloomDifficulty, (r) => tupleKey([r.bloomLevel ?? null, r.difficulty ?? null])).entries()
+  )
+    .map(([key, group]) => {
+      const [bloomLevel, difficulty] = JSON.parse(key) as [number | null, string | null];
       return {
         bloomLevel: Number.isFinite(Number(bloomLevel)) ? Number(bloomLevel) : null,
-        difficulty: difficulty === 'unknown' ? null : difficulty,
+        difficulty,
         ...buildRunGroupRow(group),
       };
     })
@@ -178,6 +271,11 @@ export function buildAnalysis(options: AnalysisOptions): AnalysisOutput {
   const byQuestion = Array.from(groupBy(runs, (r) => r.questionId).entries())
     .map(([questionId, group]) => ({
       questionId,
+      dataset: group[0]?.dataset ?? null,
+      questionFormat: group[0]?.questionFormat ?? null,
+      domain: group[0]?.domain ?? null,
+      subDomain: group[0]?.subDomain ?? null,
+      tag: group[0]?.tag ?? null,
       bloomLevel: group[0]?.bloomLevel ?? null,
       difficulty: group[0]?.difficulty ?? null,
       topicTag: group[0]?.topicTag ?? null,
@@ -234,6 +332,12 @@ export function buildAnalysis(options: AnalysisOptions): AnalysisOutput {
       byTutorSupervisor,
       byLabPair,
       byLabPairType,
+      byDataset,
+      byQuestionFormat,
+      byDomain,
+      bySubDomain,
+      byTag,
+      byFormatDomain,
       byBloomDifficulty,
       bloomDifficultyEffects,
       byQuestion,

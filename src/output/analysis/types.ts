@@ -13,6 +13,11 @@ export type NormalizedRun = {
   runKey: string;
   createdAtIso: string;
   questionId: string;
+  dataset: string | null;
+  questionFormat: string | null;
+  domain: string | null;
+  subDomain: string | null;
+  tag: string | null;
   bloomLevel: number | null;
   difficulty: string | null;
   topicTag: string | null;
@@ -42,6 +47,11 @@ export type TurnRow = {
   supervisorId: string | null;
   condition: Condition;
   questionId: string;
+  dataset: string | null;
+  questionFormat: string | null;
+  domain: string | null;
+  subDomain: string | null;
+  tag: string | null;
   bloomLevel: number | null;
   difficulty: string | null;
   topicTag: string | null;
@@ -62,6 +72,11 @@ export type RunGroupRow = {
   supervisorLab?: string | null;
   labPairType?: string | null;
   condition?: string | null;
+  dataset?: string | null;
+  questionFormat?: string | null;
+  domain?: string | null;
+  subDomain?: string | null;
+  tag?: string | null;
   bloomLevel?: number | null;
   difficulty?: string | null;
   topicTag?: string | null;
@@ -246,6 +261,11 @@ export type AnalysisOutput = {
     supervisors: string[];
     tutorLabs: string[];
     supervisorLabs: string[];
+    datasets: string[];
+    questionFormats: string[];
+    domains: string[];
+    subDomains: string[];
+    tags: string[];
     attackLevels: number[];
   };
   tables: {
@@ -259,6 +279,12 @@ export type AnalysisOutput = {
     byTutorSupervisor: RunGroupRow[];
     byLabPair: RunGroupRow[];
     byLabPairType: RunGroupRow[];
+    byDataset: RunGroupRow[];
+    byQuestionFormat: RunGroupRow[];
+    byDomain: RunGroupRow[];
+    bySubDomain: RunGroupRow[];
+    byTag: RunGroupRow[];
+    byFormatDomain: RunGroupRow[];
     byBloomDifficulty: RunGroupRow[];
     bloomDifficultyEffects: BloomDifficultyEffectRow[];
     byQuestion: RunGroupRow[];
