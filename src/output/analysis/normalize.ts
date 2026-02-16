@@ -91,6 +91,7 @@ export function computeLoopSummary(loop: RunRecord['loopTurnIterations']): LoopS
 export function normalizeRun(record: RunRecord, runKey: string): NormalizedRun {
   const question = record.question;
   const questionObj = asObject(question);
+  const csbenchObj = asObject(questionObj?.csbench);
   const tutorId = deriveTutorId(record);
   const supervisorId = deriveSupervisorId(record);
   const turnJudgments = Array.isArray(record.hiddenTrace?.turnJudgments) ? record.hiddenTrace.turnJudgments : [];
@@ -122,10 +123,12 @@ export function normalizeRun(record: RunRecord, runKey: string): NormalizedRun {
     createdAtIso: record.createdAtIso,
     questionId: question?.id ?? 'unknown',
     dataset: getRunDataset(record, questionObj),
-    questionFormat: getQuestionStringField(questionObj, 'questionFormat', 'format'),
-    domain: getQuestionStringField(questionObj, 'domain'),
-    subDomain: getQuestionStringField(questionObj, 'subDomain', 'subdomain'),
-    tag: getQuestionTag(questionObj),
+    questionFormat: getQuestionStringField(questionObj, 'questionFormat', 'format', 'csbenchFormat'),
+    domain: getQuestionStringField(questionObj, 'domain') ?? getQuestionStringField(csbenchObj, 'domain'),
+    subDomain:
+      getQuestionStringField(questionObj, 'subDomain', 'subdomain') ??
+      getQuestionStringField(csbenchObj, 'subDomain', 'subdomain'),
+    tag: getQuestionTag(questionObj) ?? getQuestionTag(csbenchObj),
     bloomLevel: typeof question?.bloomLevel === 'number' ? question.bloomLevel : null,
     difficulty: typeof question?.difficulty === 'string' ? question.difficulty : null,
     topicTag: typeof question?.topicTag === 'string' ? question.topicTag : null,

@@ -45,6 +45,9 @@ const QuestionBaseSchema = z.object({
   topicTag: z.string().min(1),
   courseLevel: z.string().min(1).optional(),
   skillTag: z.string().min(1).optional(),
+  domain: z.string().min(1).optional(),
+  subDomain: z.string().min(1).optional(),
+  tag: z.string().min(1).optional(),
   questionFormat: QuestionFormatSchema.optional(),
   problemStatement: z.string().min(10),
   // Optional fields used by format-aware leakage heuristics.
