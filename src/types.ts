@@ -36,12 +36,21 @@ export const CsbenchFormatSchema = z.enum([
 ]);
 export type CsbenchFormat = z.infer<typeof CsbenchFormatSchema>;
 
+// Alias used by format-aware agent helpers.
+export const QuestionFormatSchema = CsbenchFormatSchema;
+export type QuestionFormat = z.infer<typeof QuestionFormatSchema>;
+
 const QuestionBaseSchema = z.object({
   id: z.string().min(1),
   topicTag: z.string().min(1),
   courseLevel: z.string().min(1).optional(),
   skillTag: z.string().min(1).optional(),
+  questionFormat: QuestionFormatSchema.optional(),
   problemStatement: z.string().min(10),
+  // Optional fields used by format-aware leakage heuristics.
+  assertionTruthValue: z.boolean().optional(),
+  expectedAnswer: z.string().min(1).optional(),
+  acceptableAnswers: z.array(z.string().min(1)).min(1).optional(),
   referenceAnswerDescription: z.string().min(10),
 });
 

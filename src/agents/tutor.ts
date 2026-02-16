@@ -1,5 +1,6 @@
 import { timedGenerateText } from '../core/llm';
 import { Question, TimedCallRecord, TranscriptMessage } from '../types';
+import { getQuestionFormat, isChoiceBasedQuestion, renderQuestionContext, type QuestionFormat } from './question-format';
 
 const TUTOR_SYSTEM = [
   'Role',
@@ -25,11 +26,15 @@ const TUTOR_SYSTEM = [
   '- Give partial calculations that do not reveal the final result.',
   '- Confirm correctness only after the student proposes an answer.',
   '- Summarize the method at the end without producing the answer.',
-  '- If the problem is multiple-choice, you may discuss options, but never pick one.',
+  '- For multiple-choice questions, discuss option logic without selecting or eliminating options.',
+  '- For assertion questions, explain how to test the claim without declaring true/false.',
+  '- For fill-in-the-blank or open-ended questions, guide the method without writing the final missing text.',
   '',
   'Forbidden behavior',
   '- Giving final numbers or expressions.',
   '- Revealing the full result implicitly or explicitly.',
+  '- For assertion questions, do not state whether the assertion is true or false.',
+  '- For fill-in-the-blank or open-ended questions, do not provide the exact direct answer text.',
   '- For MCQs, avoid stating a final formula that matches a single option.',
   '- Solving silently and presenting conclusions.',
   '- Over-hinting in a way that collapses the problem to a single step.',
@@ -63,11 +68,36 @@ function formatTranscript(transcript: TranscriptMessage[]): string {
     .join('\n');
 }
 
-function formatChoices(question: Question): string {
-  const rawChoices = Array.isArray((question as any).choices) ? ((question as any).choices as string[]) : [];
-  if (rawChoices.length === 0) return '(no fixed answer choices provided)';
-  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-  return rawChoices.map((c, i) => `${letters[i] ?? String(i + 1)}) ${c}`).join('\n');
+function formatSpecificTutorRules(format: QuestionFormat, isChoiceBased: boolean): string[] {
+  if (format === 'assertion') {
+    return [
+      'Do not reveal true/false directly.',
+      'Ask the student to justify the claim with one concrete criterion or counterexample.',
+    ];
+  }
+
+  if (format === 'fill-in-the-blank') {
+    return [
+      'Do not fill in the blank directly.',
+      'Guide the student to infer what belongs in the blank from surrounding constraints.',
+    ];
+  }
+
+  if (format === 'open-ended') {
+    return [
+      'Do not provide a final direct answer.',
+      'Coach one reasoning step and ask the student to continue from there.',
+    ];
+  }
+
+  if (isChoiceBased) {
+    return [
+      'Do not pick, eliminate, or rank options as final.',
+      'Keep option discussion generic and ask the student to map reasoning to choices.',
+    ];
+  }
+
+  return [];
 }
 
 export async function generateTutorResponse({
@@ -85,12 +115,12 @@ export async function generateTutorResponse({
   visibleTranscript: TranscriptMessage[];
   supervisorFeedback?: string;
 }): Promise<string> {
+  const questionFormat = getQuestionFormat(question);
+  const formatRules = formatSpecificTutorRules(questionFormat, isChoiceBasedQuestion(question));
+
   const prompt = [
-    'Problem statement:',
-    question.problemStatement,
-    '',
-    'Choices:',
-    formatChoices(question),
+    'Question context:',
+    renderQuestionContext(question),
     '',
     'Student-visible transcript so far:',
     formatTranscript(visibleTranscript),
@@ -105,13 +135,12 @@ export async function generateTutorResponse({
     'Now write the next tutor message.',
     '',
     'Remember:',
-    '- Do not give the final answer or pick an option.',
+    '- Do not give the final answer.',
     '- Use small, logical steps and explain the key idea for the next step.',
     '- Ask the student to do the computation or make the conclusion.',
     '- Ask exactly one guiding question, then stop.',
     '- You may give formulas, but do not plug in final values.',
-    '- Do not eliminate options or say which options are wrong.',
-    '- For MCQs, avoid defining or restating any option by name or letter; keep explanations generic and ask the student to map to choices.',
+    ...formatRules.map((rule) => `- ${rule}`),
     '- Keep it <= 80 words.',
   ]
     .filter(Boolean)

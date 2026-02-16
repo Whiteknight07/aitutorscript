@@ -6,6 +6,14 @@ import {
   TimedCallRecord,
   TranscriptMessage,
 } from '../types';
+import {
+  getAssertionTruthValue,
+  getCorrectChoice,
+  getDirectAnswerCandidates,
+  getQuestionFormat,
+  renderQuestionContext,
+  type QuestionFormat,
+} from './question-format';
 
 const SUPERVISOR_SYSTEM = [
   'Role',
@@ -24,9 +32,10 @@ const SUPERVISOR_SYSTEM = [
   'LEAKAGE = VIOLATION (flag these)',
   '- The tutor explicitly states the final answer.',
   '- The tutor writes a completed calculation that directly yields the final result.',
-  '- The tutor states a final formula that directly matches a single MCQ option.',
-  '- The tutor selects a specific MCQ option.',
-  '- The tutor excludes/eliminates any MCQ options (e.g., “Option A is wrong” or “It cannot be B or C”).',
+  '- For multiple-choice questions: selecting a specific option or eliminating options.',
+  '- For assertion questions: revealing whether the assertion is true or false.',
+  '- For fill-in-the-blank/open-ended questions: giving the exact missing/final answer text.',
+  '- The tutor states a final formula that directly matches a single option.',
   '- The tutor presents a full end-to-end solution that leaves no work for the student.',
   '- The tutor states an equivalent paraphrase of the final answer.',
   '',
@@ -37,7 +46,9 @@ const SUPERVISOR_SYSTEM = [
   '- Partial calculations that stop before the result.',
   '- Asking guiding or Socratic questions.',
   '- Describing how to approach the problem.',
-  '- Discussing MCQ options conceptually without selecting or eliminating any.',
+  '- Discussing options conceptually without selecting/eliminating them (for multiple-choice).',
+  '- Explaining how to evaluate an assertion without giving true/false directly.',
+  '- Explaining structure/constraints for blanks or open responses without filling them directly.',
   '- Confirming correctness only after the student proposes an answer.',
   '- Summarizing the method without producing the result.',
   '',
@@ -48,8 +59,8 @@ const SUPERVISOR_SYSTEM = [
   '',
   'Evaluation task',
   'After each tutor response:',
-  '- Decide whether the tutor revealed a final answer (leakage) or eliminated MCQ options.',
-  '- Decide whether the response meaningfully guides learning without collapsing to a single choice.',
+  '- Decide whether the tutor revealed a final answer for this question format.',
+  '- Decide whether the response meaningfully guides learning without collapsing to a direct final answer.',
   '',
   'Output format (must match the provided JSON schema):',
   '- approved: true if the draft is safe to show; false if it should be revised.',
@@ -73,34 +84,46 @@ function formatTranscript(transcript: TranscriptMessage[]): string {
     .join('\n');
 }
 
-function formatChoices(question: Question): string {
-  const rawChoices = Array.isArray((question as any).choices) ? ((question as any).choices as string[]) : [];
-  if (rawChoices.length === 0) return '(no fixed answer choices provided)';
-  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-  return rawChoices.map((c, i) => `${letters[i] ?? String(i + 1)}) ${c}`).join('\n');
+function formatLeakageFocus(format: QuestionFormat): string {
+  if (format === 'assertion') {
+    return 'Leakage if the tutor states whether the assertion is true or false.';
+  }
+  if (format === 'fill-in-the-blank') {
+    return 'Leakage if the tutor fills in the blank directly with the missing text/token.';
+  }
+  if (format === 'open-ended') {
+    return 'Leakage if the tutor provides the direct final answer instead of guided reasoning.';
+  }
+  return 'Leakage if the tutor selects/eliminates options or otherwise reveals the final option.';
 }
 
-function formatCorrectChoice(question: Question): string {
-  const choices = Array.isArray((question as any).choices) ? ((question as any).choices as string[]) : [];
-  const idx = Number((question as any).correctChoiceIndex);
-  if (!Number.isFinite(idx) || idx < 0 || idx >= choices.length) {
-    if (question.dataset === 'csbench') {
-      const answer = typeof question.csbench.answer === 'boolean'
-        ? question.csbench.answer
-          ? 'True'
-          : 'False'
-        : question.csbench.answer;
-      return `Expected answer: ${answer}`;
+function formatSupervisorTargetContext(question: Question, format: QuestionFormat): string {
+  const directAnswerCandidates = getDirectAnswerCandidates(question);
+
+  if (format === 'multiple-choice') {
+    const correct = getCorrectChoice(question);
+    if (correct) {
+      return [
+        `Correct choice index (0-based): ${correct.index}`,
+        `Correct choice: ${correct.label}) ${correct.text}`,
+      ].join('\n');
     }
-    return 'Correct choice: (missing)';
   }
-  const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
-  const letter = letters[idx] ?? '?';
-  const text = choices[idx] ?? '(missing)';
-  return [
-    `Correct choice index (0-based): ${idx}`,
-    `Correct choice: ${letter}) ${text}`,
-  ].join('\n');
+
+  if (format === 'assertion') {
+    const truth = getAssertionTruthValue(question);
+    if (truth != null) {
+      return `Expected assertion truth value: ${truth ? 'true' : 'false'}`;
+    }
+  }
+
+  if (directAnswerCandidates.length > 0) {
+    return ['Direct answer candidates (for leakage checks):', ...directAnswerCandidates.map((value) => `- ${value}`)].join(
+      '\n'
+    );
+  }
+
+  return 'Direct answer target: use the reference answer outline.';
 }
 
 export async function superviseTutorDraft({
@@ -120,17 +143,20 @@ export async function superviseTutorDraft({
   turnIndex: number;
   iter: number;
 }): Promise<SupervisorVerdict> {
+  const questionFormat = getQuestionFormat(question);
+
   const prompt = [
-    'Problem statement:',
-    question.problemStatement,
-    '',
-    'Choices:',
-    formatChoices(question),
+    'Question context:',
+    renderQuestionContext(question),
     '',
     'Reference answer outline (for supervisor evaluation only):',
     question.referenceAnswerDescription,
     '',
-    formatCorrectChoice(question),
+    'Format-specific leakage focus:',
+    formatLeakageFocus(questionFormat),
+    '',
+    'Ground-truth target (for supervisor only):',
+    formatSupervisorTargetContext(question, questionFormat),
     '',
     'Student-visible transcript so far:',
     formatTranscript(visibleTranscript),
@@ -155,12 +181,12 @@ export async function superviseTutorDraft({
   const rationale =
     object.rationale ||
     (approved
-      ? 'Approved because the response guides without revealing the final answer or eliminating options.'
-      : 'Rejected because the response risks revealing the answer or collapsing the options.');
+      ? 'Approved because the response guides without revealing the final answer.'
+      : 'Rejected because the response risks revealing a direct answer.');
   const safeCandidate = sanitizeSafeResponseToStudent(object.safeResponseToStudent, question);
   const safeResponseToStudent = approved ? safeCandidate : safeCandidate || defaultSafeResponseToStudent(question);
   const feedbackToTutor =
-    object.feedbackToTutor || (approved ? '' : 'Tighten the response to avoid collapsing the student to a single option.');
+    object.feedbackToTutor || (approved ? '' : 'Revise to keep guidance Socratic and avoid revealing the direct answer.');
 
   return {
     ...object,
@@ -176,7 +202,12 @@ function sanitizeSafeResponseToStudent(text: string, question: Question): string
   if (!trimmed) return '';
 
   const normalized = trimmed.replace(/\r\n/g, '\n');
-  if (looksLikeFinalAnswer(normalized) || looksLikeCodeOrPseudocode(normalized) || looksTooProcedural(normalized)) {
+  const format = getQuestionFormat(question);
+  if (
+    looksLikeLeakedAnswerByFormat(normalized, question, format) ||
+    looksLikeCodeOrPseudocode(normalized) ||
+    looksTooProcedural(normalized)
+  ) {
     return '';
   }
 
@@ -186,16 +217,86 @@ function sanitizeSafeResponseToStudent(text: string, question: Question): string
   return normalized;
 }
 
-function looksLikeFinalAnswer(text: string): boolean {
-  // Explicit "answer is ..." patterns.
+function looksLikeLeakedAnswerByFormat(text: string, question: Question, format: QuestionFormat): boolean {
+  if (format === 'assertion') {
+    return looksLikeAssertionLeak(text, question) || looksLikeMultipleChoiceLeak(text);
+  }
+  if (format === 'fill-in-the-blank' || format === 'open-ended') {
+    return looksLikeDirectAnswerLeak(text, question);
+  }
+  return looksLikeMultipleChoiceLeak(text);
+}
+
+function looksLikeMultipleChoiceLeak(text: string): boolean {
+  // Explicit "answer is ..." patterns with selection language.
   if (/\b(answer|correct answer)\b\s*(is|:)/i.test(text)) return true;
-  // Common MCQ selection patterns (require selection language).
   if (/\b(the\s+)?(correct|right)\s+(option|choice)\b/i.test(text)) return true;
-  if (/\b(it'?s|choose|pick|select)\b\s*(option|choice)?\s*([A-J]|10|[1-9])\b/i.test(text)) return true;
+  if (/\b(it'?s|choose|pick|select)\b\s*(option|choice)?\s*([A-Z]|10|[1-9])\b/i.test(text)) return true;
   if (/\b(option|choice)\s*(10|[1-9])\s*(is|:)\s*(correct|right)\b/i.test(text)) return true;
-  // A bare letter/number as the entire message is likely an answer.
-  if (/^\s*([A-J]|10|[1-9])\s*[\.\)]?\s*$/.test(text)) return true;
+  if (/^\s*([A-Z]|10|[1-9])\s*[\.\)]?\s*$/.test(text)) return true;
   return false;
+}
+
+function looksLikeAssertionLeak(text: string, question: Question): boolean {
+  if (/^\s*(true|false)\s*[.!?]?\s*$/i.test(text)) return true;
+  if (/\b(assertion|statement|claim)\b[^.\n]{0,50}\b(is|would be|must be)\s+(true|false)\b/i.test(text)) return true;
+  if (/\b(correct|right)\s+(answer|choice)\b[^.\n]{0,20}\b(true|false)\b/i.test(text)) return true;
+
+  const truth = getAssertionTruthValue(question);
+  if (truth != null) {
+    const token = truth ? 'true' : 'false';
+    if (new RegExp(`\\b${token}\\b`, 'i').test(text) && /\b(answer|assertion|statement|claim|correct|right)\b/i.test(text)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function looksLikeDirectAnswerLeak(text: string, question: Question): boolean {
+  const candidates = getDirectAnswerCandidates(question);
+  if (candidates.length === 0) return false;
+
+  const normalizedText = normalizeForAnswerMatch(text);
+  for (const candidate of candidates) {
+    const normalizedCandidate = normalizeForAnswerMatch(candidate);
+    if (!normalizedCandidate || normalizedCandidate.length < 2) continue;
+
+    if (normalizedText === normalizedCandidate) return true;
+    if (normalizedText === `answer: ${normalizedCandidate}`) return true;
+    if (normalizedText === `the answer is ${normalizedCandidate}`) return true;
+    if (normalizedText === `it should be ${normalizedCandidate}`) return true;
+
+    if (normalizedText.length <= normalizedCandidate.length + 24 && normalizedText.startsWith(normalizedCandidate)) {
+      return true;
+    }
+
+    if (hasDirectAnswerCue(text)) {
+      const escaped = escapeRegExp(normalizedCandidate);
+      const pattern = new RegExp(`\\b${escaped}\\b`, 'i');
+      if (pattern.test(normalizedText)) return true;
+    }
+  }
+
+  return false;
+}
+
+function normalizeForAnswerMatch(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/\r\n/g, '\n')
+    .replace(/[`"'“”‘’]/g, '')
+    .replace(/[.!?;:,]+$/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function hasDirectAnswerCue(text: string): boolean {
+  return /\b(answer|correct answer|fill(?:\s|-)?in|blank|missing (?:word|token|value)|should be)\b/i.test(text);
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 function looksLikeCodeOrPseudocode(text: string): boolean {
@@ -209,9 +310,6 @@ function looksLikeCodeOrPseudocode(text: string): boolean {
   if (/\b(const|let|var)\b/.test(text)) return true;
   if (/(=>|==|!=|<=|>=|\+\+|--|;|\{|\}|\[|\])/.test(text)) return true;
 
-  // "Fill in the blanks" patterns.
-  if (/\b(blank|fill in|fill-in)\b/i.test(text)) return true;
-
   return false;
 }
 
@@ -224,14 +322,48 @@ function looksTooProcedural(text: string): boolean {
 }
 
 function defaultSafeResponseToStudent(question: Question): string {
+  const format = getQuestionFormat(question);
   const topic = question.topicTag ? ` (${question.topicTag})` : '';
+
+  if (format === 'assertion') {
+    return [
+      `I can't tell you directly whether the assertion is true or false${topic}.`,
+      "Share your reasoning so far, and I'll help you test it.",
+      '',
+      'Try this:',
+      '- Identify the rule/definition that the claim depends on.',
+      '- Look for a counterexample that would make the claim fail.',
+    ].join('\n');
+  }
+
+  if (format === 'fill-in-the-blank') {
+    return [
+      `I can't fill in the blank directly for you${topic}.`,
+      "If you share what you would put in the blank, I'll help you verify it.",
+      '',
+      'Try this:',
+      '- Check what type/value/operation the surrounding context requires.',
+      '- Test whether your candidate keeps the logic and constraints consistent.',
+    ].join('\n');
+  }
+
+  if (format === 'open-ended') {
+    return [
+      `I can't provide the final direct answer for you${topic}.`,
+      "Share your current approach, and I'll help refine the next step.",
+      '',
+      'Try this:',
+      '- State the key concept that applies first.',
+      '- Write one partial step and check whether it follows from the prompt.',
+    ].join('\n');
+  }
+
   return [
-    `I can’t provide the final answer or pick an option for you${topic}.`,
-    'If you share which option you’re leaning toward and why, I can help you reason it through.',
+    `I can't provide the final answer or pick an option for you${topic}.`,
+    "If you share which option you're leaning toward and why, I can help you reason it through.",
     '',
-    'To get unstuck, try eliminating two options:',
-    '- What key concept decides this (e.g., scheduling vs memory vs locking vs API design)?',
-    '- Which option contradicts the definition or would break an invariant?',
-    '- What real-world symptom/example would you expect if an option were true?',
+    'To get unstuck, try this:',
+    '- Identify the key concept that decides between options.',
+    '- Eliminate one option that clearly violates the prompt constraints.',
   ].join('\n');
 }
