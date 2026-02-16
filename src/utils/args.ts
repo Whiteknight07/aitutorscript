@@ -1,14 +1,16 @@
-import { ConditionSchema, Difficulty, DifficultySchema, PairingIdSchema } from '../types';
+import { ConditionSchema, CsbenchFormat, CsbenchFormatSchema, Difficulty, DifficultySchema } from '../types';
 import { DEFAULT_MODELS, PAIRING_IDS, parsePairingId, type PairingId, TUTOR_IDS, SUPERVISOR_IDS, parseTutorId, parseSupervisorId, type TutorId, type SupervisorId } from '../config';
 
 export type CliArgs = {
   questionsPerCell: number;
   bloomLevels: number[];
   difficulties: Difficulty[];
-  dataset: 'default' | 'canterbury';
+  dataset: 'default' | 'canterbury' | 'csbench';
   questionLimit: number | null;
   courseLevels: string[];
   skillTags: string[];
+  csbenchPath: string;
+  csbenchFormats: CsbenchFormat[];
   turns: number;
   maxIters: number;
   maxRuns: number | null;
@@ -76,17 +78,26 @@ export function parseArgs(argv: string[]): CliArgs {
       ? 1
       : 1;
 
-  const datasetRaw = raw['dataset'] ? String(raw['dataset']) : 'default';
-  if (datasetRaw !== 'default' && datasetRaw !== 'canterbury') {
-    throw new Error(`Invalid dataset: "${datasetRaw}". Use "default" or "canterbury".`);
+  const datasetRaw = raw['dataset'] ? String(raw['dataset']) : 'csbench';
+  if (datasetRaw !== 'default' && datasetRaw !== 'canterbury' && datasetRaw !== 'csbench') {
+    throw new Error(`Invalid dataset: "${datasetRaw}". Use "default", "canterbury", or "csbench".`);
   }
-  const dataset = datasetRaw as 'default' | 'canterbury';
+  const dataset = datasetRaw as 'default' | 'canterbury' | 'csbench';
 
   const questionLimit = raw['questionLimit']
     ? parseIntFlag(String(raw['questionLimit']), 'questionLimit')
     : dataset === 'canterbury'
       ? 100
       : null;
+
+  const csbenchPath = raw['csbenchPath'] ? String(raw['csbenchPath']) : 'test.jsonl';
+  const csbenchFormatsRaw =
+    raw['csbenchFormats'] != null
+      ? parseListFlag(String(raw['csbenchFormats']))
+      : ['multiple-choice', 'assertion', 'fill-in-the-blank', 'open-ended'];
+  const csbenchFormats = csbenchFormatsRaw.map((format) =>
+    CsbenchFormatSchema.parse(format.toLowerCase())
+  );
 
   const turns = raw['turns']
     ? parseIntFlag(String(raw['turns']), 'turns')
@@ -169,6 +180,8 @@ export function parseArgs(argv: string[]): CliArgs {
     questionLimit,
     courseLevels,
     skillTags,
+    csbenchPath,
+    csbenchFormats,
     turns,
     maxIters,
     maxRuns,
@@ -198,7 +211,9 @@ Usage:
   pnpm harness [flags]
 
 Flags:
-  --dataset NAME           Question source: default, canterbury (default: default)
+  --dataset NAME           Question source: csbench, default, canterbury (default: csbench)
+  --csbenchPath PATH       Path to CS Bench JSONL (default: test.jsonl)
+  --csbenchFormats LIST    multiple-choice,assertion,fill-in-the-blank,open-ended (default all)
   --questionLimit N        Max questions to load (default: 100 for canterbury)
   --dynamic                Generate questions dynamically (default: use static data/questions.json)
   --questionsPerCell N     Questions per Bloom x Difficulty cell (default 1, only with --dynamic)
@@ -226,7 +241,10 @@ Flags:
   --help                   Show help
 
 Question Source:
-  By default, questions are loaded from data/questions.json (36 static questions).
+  By default, questions are loaded from test.jsonl at the repo root (CS Bench JSONL).
+  Use --csbenchPath to point to a different CS Bench JSONL file.
+  Use --csbenchFormats to filter formats.
+  Use --dataset default to load data/questions.json (36 static questions).
   Use --dataset canterbury to load data/canterbury/questions-p*.html.
   Use --dynamic to generate questions at runtime instead.
   To regenerate static questions: pnpm generate-questions

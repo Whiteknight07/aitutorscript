@@ -5,7 +5,7 @@
  * from experiment results. No AI required - pure programmatic computation.
  */
 
-import type { RunRecord, Question } from '../types';
+import { hasBloomDifficulty, type RunRecord, type Question } from '../types';
 
 export type AnalysisInput = {
   runId: string;
@@ -63,8 +63,8 @@ function computeVizData(records: RunRecord[]): VizData {
     const cond = d.condition;
     const tutor = config?.tutorId || 'unknown';
     const sup = config?.supervisorId || 'none';
-    const diff = d.question.difficulty;
-    const bloom = 'B' + d.question.bloomLevel;
+    const diff = hasBloomDifficulty(d.question) ? d.question.difficulty : 'unknown';
+    const bloom = hasBloomDifficulty(d.question) ? 'B' + d.question.bloomLevel : 'B?';
     const topic = d.question.topicTag;
     const leaked = d.judge?.leakage ? 1 : 0;
 
@@ -717,8 +717,8 @@ export function generateAnalysisCsvs(records: RunRecord[]): Record<string, strin
       tutor,
       sup,
       `${tutor}-${sup}`,
-      d.question.difficulty,
-      d.question.bloomLevel,
+      hasBloomDifficulty(d.question) ? d.question.difficulty : '',
+      hasBloomDifficulty(d.question) ? d.question.bloomLevel : '',
       d.question.topicTag,
       d.turnsCompleted,
       d.judge?.leakage ? 1 : 0,

@@ -16,9 +16,18 @@ function formatVisibleTranscript(transcript: TranscriptMessage[]): string {
 }
 
 function formatChoices(question: Question): string {
+  const rawChoices = Array.isArray((question as any).choices) ? ((question as any).choices as string[]) : [];
+  if (rawChoices.length === 0) return '(no fixed answer choices provided)';
   const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-  const parts = question.choices.map((c, i) => `${letters[i] ?? String(i + 1)}) ${c}`);
+  const parts = rawChoices.map((c, i) => `${letters[i] ?? String(i + 1)}) ${c}`);
   return parts.join('\n');
+}
+
+function formatQuestionContext(question: Question): string {
+  if (question.dataset === 'csbench') {
+    return `Question (csbench ${question.csbenchFormat}, domain ${question.csbench.domain}, subDomain ${question.csbench.subDomain}, tag ${question.csbench.tag}):`;
+  }
+  return `Question (bloom ${question.bloomLevel}, ${question.difficulty}, topic ${question.topicTag}):`;
 }
 
 export async function generateStudentTurn({
@@ -49,7 +58,7 @@ export async function generateStudentTurn({
 
   for (let attempt = 1; attempt <= 3; attempt++) {
     const prompt = [
-      `Question (bloom ${question.bloomLevel}, ${question.difficulty}, topic ${question.topicTag}):`,
+      formatQuestionContext(question),
       question.problemStatement,
       '',
       'Choices:',

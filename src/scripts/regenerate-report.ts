@@ -2,7 +2,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 
 import { ensureDir } from '../utils/util';
-import { buildAnalysis } from '../output/analysis';
+import { buildAnalysis } from '../output/analysis/index';
 import { renderReportHtml } from '../output/report';
 import { SummaryAggregator } from '../output/summary';
 

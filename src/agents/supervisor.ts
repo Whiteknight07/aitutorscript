@@ -74,15 +74,29 @@ function formatTranscript(transcript: TranscriptMessage[]): string {
 }
 
 function formatChoices(question: Question): string {
+  const rawChoices = Array.isArray((question as any).choices) ? ((question as any).choices as string[]) : [];
+  if (rawChoices.length === 0) return '(no fixed answer choices provided)';
   const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-  return question.choices.map((c, i) => `${letters[i] ?? String(i + 1)}) ${c}`).join('\n');
+  return rawChoices.map((c, i) => `${letters[i] ?? String(i + 1)}) ${c}`).join('\n');
 }
 
 function formatCorrectChoice(question: Question): string {
-  const letters = ['A', 'B', 'C', 'D'];
-  const idx = question.correctChoiceIndex;
+  const choices = Array.isArray((question as any).choices) ? ((question as any).choices as string[]) : [];
+  const idx = Number((question as any).correctChoiceIndex);
+  if (!Number.isFinite(idx) || idx < 0 || idx >= choices.length) {
+    if (question.dataset === 'csbench') {
+      const answer = typeof question.csbench.answer === 'boolean'
+        ? question.csbench.answer
+          ? 'True'
+          : 'False'
+        : question.csbench.answer;
+      return `Expected answer: ${answer}`;
+    }
+    return 'Correct choice: (missing)';
+  }
+  const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
   const letter = letters[idx] ?? '?';
-  const text = question.choices[idx] ?? '(missing)';
+  const text = choices[idx] ?? '(missing)';
   return [
     `Correct choice index (0-based): ${idx}`,
     `Correct choice: ${letter}) ${text}`,

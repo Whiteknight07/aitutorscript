@@ -10,12 +10,13 @@ import { simulateConversation } from './conversation';
 import { generateQuestionsBatch } from '../agents/question-gen';
 import { getTutorModel, getSupervisorModel, type TutorId, type SupervisorId } from '../config';
 import { createJsonlWriter, ensureDir, nowIso } from '../utils/util';
-import type { Question, RunRecord, TimedCallRecord } from '../types';
+import { hasBloomDifficulty, type Difficulty, type Question, type RunRecord, type TimedCallRecord } from '../types';
 import { runJudgeIfEnabled, runTurnJudge } from '../agents/judge';
 import { SummaryAggregator } from '../output/summary';
-import { buildAnalysis } from '../output/analysis';
+import { buildAnalysis } from '../output/analysis/index';
 import { renderReportHtml } from '../output/report';
 import { renderAnalysisDashboard, generateAnalysisCsvs } from '../output/analysis';
+import { loadCsbenchQuestions } from './csbench';
 
 // Type for a single run configuration
 type RunConfig = {
@@ -96,6 +97,16 @@ export async function runExperiments({
     });
     // eslint-disable-next-line no-console
     console.log(`✅ Loaded ${questions.length} Canterbury questions`);
+  } else if (args.dataset === 'csbench') {
+    // eslint-disable-next-line no-console
+    console.log(`\n📝 Loading CS Bench questions from ${args.csbenchPath}`);
+    questions = await loadCsbenchQuestions({
+      jsonlPath: args.csbenchPath,
+      limit: args.questionLimit,
+      formats: args.csbenchFormats,
+    });
+    // eslint-disable-next-line no-console
+    console.log(`✅ Loaded ${questions.length} CS Bench questions`);
   } else {
     const staticPath = join(process.cwd(), 'data', 'questions.json');
     // eslint-disable-next-line no-console
@@ -103,10 +114,15 @@ export async function runExperiments({
     try {
       const raw = await readFile(staticPath, 'utf-8');
       const data = JSON.parse(raw);
-      const allQuestions: Question[] = data.questions;
+      const allQuestions: Question[] = Array.isArray(data.questions)
+        ? data.questions
+            .map((q: unknown) => coerceLegacyDefaultQuestion(q))
+            .filter((q: Question | null): q is Question => q != null)
+        : [];
       
       questions = allQuestions.filter(
         (q) =>
+          hasBloomDifficulty(q) &&
           args.bloomLevels.includes(q.bloomLevel) &&
           args.difficulties.includes(q.difficulty)
       );
@@ -134,6 +150,8 @@ export async function runExperiments({
         questionLimit: args.questionLimit,
         courseLevels: args.courseLevels,
         skillTags: args.skillTags,
+        csbenchPath: args.csbenchPath,
+        csbenchFormats: args.csbenchFormats,
         questionsPerCell: args.questionsPerCell,
         calls: datasetCalls,
         questions,
@@ -338,11 +356,16 @@ export async function runExperiments({
           current: {
             index: runIdx + 1,
             questionId: question.id,
-            bloomLevel: question.bloomLevel,
-            difficulty: question.difficulty,
+            pairingId,
             tutorId,
             supervisorId,
             condition,
+            ...(hasBloomDifficulty(question)
+              ? {
+                  bloomLevel: question.bloomLevel,
+                  difficulty: question.difficulty,
+                }
+              : {}),
           },
           error: null,
         });
@@ -485,7 +508,16 @@ async function writePartialOutputs({
   plannedRuns: number;
   completedRuns: number;
   state: 'running' | 'complete' | 'failed';
-  current: { index: number; questionId: string; bloomLevel: number; difficulty: string; tutorId: string; supervisorId: string | null; condition: string } | null;
+  current: {
+    index: number;
+    questionId: string;
+    pairingId: string;
+    tutorId: string;
+    supervisorId: string | null;
+    condition: string;
+    bloomLevel?: number;
+    difficulty?: string;
+  } | null;
   error: { message: string; stack?: string } | null;
 }) {
   const summaryObject = {
@@ -611,7 +643,7 @@ async function loadCanterburyQuestions({
   baseDir: string;
   limit: number | null;
   bloomLevels: number[];
-  difficulties: Array<Question['difficulty']>;
+  difficulties: Difficulty[];
   courseLevels: string[];
   skillTags: string[];
 }): Promise<Question[]> {
@@ -678,7 +710,7 @@ function buildCanterburyQuestion(
     skillTags,
   }: {
     bloomLevels: number[];
-    difficulties: Array<Question['difficulty']>;
+    difficulties: Difficulty[];
     courseLevels: string[];
     skillTags: string[];
   }
@@ -725,6 +757,7 @@ function buildCanterburyQuestion(
 
   return {
     id,
+    dataset: 'canterbury',
     bloomLevel: tagInfo.bloomLevel,
     difficulty: mappedDifficulty,
     topicTag: tagInfo.topicTag || tagInfo.courseLevel || 'canterbury',
@@ -798,11 +831,26 @@ function parseCanterburyTags(tagText: string): CanterburyTagInfo | null {
   return { bloomLevel, difficulty, courseLevel, skillTag, topicTag };
 }
 
-function mapCanterburyDifficulty(level: number | null): Question['difficulty'] | null {
+function mapCanterburyDifficulty(level: number | null): Difficulty | null {
   if (level === 1) return 'easy';
   if (level === 2) return 'medium';
   if (level === 3) return 'hard';
   return null;
+}
+
+function coerceLegacyDefaultQuestion(input: unknown): Question | null {
+  if (!input || typeof input !== 'object') return null;
+  const raw = input as Record<string, unknown>;
+  const dataset = raw.dataset;
+
+  if (dataset === 'default' || dataset === 'canterbury' || dataset === 'csbench') {
+    return raw as Question;
+  }
+
+  return {
+    ...raw,
+    dataset: 'default',
+  } as Question;
 }
 
 function stripHtml(html: string): string {

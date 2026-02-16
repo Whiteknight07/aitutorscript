@@ -16,11 +16,12 @@ export type ReportInput = {
     current?: {
       index: number;
       questionId: string;
-      bloomLevel: number;
-      difficulty: string;
+      pairingId: string;
       tutorId: string;
       supervisorId: string | null;
       condition: string;
+      bloomLevel?: number;
+      difficulty?: string;
     } | null;
     error?: {
       message: string;

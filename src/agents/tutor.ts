@@ -64,8 +64,10 @@ function formatTranscript(transcript: TranscriptMessage[]): string {
 }
 
 function formatChoices(question: Question): string {
+  const rawChoices = Array.isArray((question as any).choices) ? ((question as any).choices as string[]) : [];
+  if (rawChoices.length === 0) return '(no fixed answer choices provided)';
   const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-  return question.choices.map((c, i) => `${letters[i] ?? String(i + 1)}) ${c}`).join('\n');
+  return rawChoices.map((c, i) => `${letters[i] ?? String(i + 1)}) ${c}`).join('\n');
 }
 
 export async function generateTutorResponse({

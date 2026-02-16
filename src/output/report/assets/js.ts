@@ -571,7 +571,15 @@ export const REPORT_JS = `
     else parts.push('runs ' + completed);
     if (last) parts.push('updated ' + last);
     if (current && state !== 'complete'){
-      parts.push('at [' + current.index + '] q=' + current.questionId + ' bloom=' + current.bloomLevel + ' diff=' + current.difficulty + ' pairing=' + current.pairingId + ' cond=' + current.condition);
+      const currentParts = [
+        'at [' + current.index + ']',
+        'q=' + current.questionId,
+      ];
+      if (current.bloomLevel != null) currentParts.push('bloom=' + current.bloomLevel);
+      if (current.difficulty != null) currentParts.push('diff=' + current.difficulty);
+      currentParts.push('pairing=' + current.pairingId);
+      currentParts.push('cond=' + current.condition);
+      parts.push(currentParts.join(' '));
     }
 
     statusPill.innerHTML = '';

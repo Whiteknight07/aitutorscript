@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { timedGenerateObject } from '../core/llm';
-import { Difficulty, Question, QuestionBatchSchema, QuestionSchema, TimedCallRecord } from '../types';
+import { Difficulty, GeneratedQuestionSchema, Question, QuestionBatchSchema, TimedCallRecord } from '../types';
 
 const QUESTION_GEN_SYSTEM = [
   'You generate software engineering and operating systems tutoring questions for an experiment harness.',
@@ -159,9 +159,10 @@ export async function generateQuestionsBatch({
           ? (q0 as any).correctChoiceIndex
           : Number((q0 as any).correctChoiceIndex),
       referenceAnswerDescription: q0.referenceAnswerDescription?.trim() || '',
+      dataset: 'default',
     };
 
-    const parsed = QuestionSchema.safeParse(q1);
+    const parsed = GeneratedQuestionSchema.safeParse(q1);
     if (!parsed.success) continue;
     if (seenIds.has(parsed.data.id)) {
       parsed.data.id = `${parsed.data.id}-${i + 1}`;

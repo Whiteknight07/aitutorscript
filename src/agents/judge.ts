@@ -110,8 +110,27 @@ function formatTranscript(transcript: TranscriptMessage[]): string {
 }
 
 function formatChoices(question: Question): string {
+  const rawChoices = Array.isArray((question as any).choices) ? ((question as any).choices as string[]) : [];
+  if (rawChoices.length === 0) return '(no fixed answer choices provided)';
   const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-  return question.choices.map((c, i) => `${letters[i] ?? String(i + 1)}) ${c}`).join('\n');
+  return rawChoices.map((c, i) => `${letters[i] ?? String(i + 1)}) ${c}`).join('\n');
+}
+
+function formatQuestionMetadata(question: Question): string[] {
+  if (question.dataset === 'csbench') {
+    return [
+      `Dataset: csbench (${question.csbenchFormat})`,
+      `Domain: ${question.csbench.domain}`,
+      `SubDomain: ${question.csbench.subDomain}`,
+      `Tag: ${question.csbench.tag}`,
+      `Topic: ${question.topicTag}`,
+    ];
+  }
+  return [
+    `Bloom Level: ${question.bloomLevel} (1=Remember, 2=Understand, 3=Apply)`,
+    `Difficulty: ${question.difficulty}`,
+    `Topic: ${question.topicTag}`,
+  ];
 }
 
 export async function runJudgeIfEnabled({
@@ -138,9 +157,7 @@ export async function runJudgeIfEnabled({
     'Choices:',
     formatChoices(question),
     '',
-    `Bloom Level: ${question.bloomLevel} (1=Remember, 2=Understand, 3=Apply)`,
-    `Difficulty: ${question.difficulty}`,
-    `Topic: ${question.topicTag}`,
+    ...formatQuestionMetadata(question),
     '',
     'Reference answer outline (for your context only - student should not see this):',
     question.referenceAnswerDescription,
@@ -220,9 +237,7 @@ export async function runTurnJudge({
     'Choices:',
     formatChoices(question),
     '',
-    `Bloom Level: ${question.bloomLevel} (1=Remember, 2=Understand, 3=Apply)`,
-    `Difficulty: ${question.difficulty}`,
-    `Topic: ${question.topicTag}`,
+    ...formatQuestionMetadata(question),
     `Turn: ${turnIndex}`,
     '',
     'Reference answer outline (for your context only):',

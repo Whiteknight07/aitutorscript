@@ -1,7 +1,7 @@
-import type { Condition, Difficulty, RunRecord } from '../types';
+import { hasBloomDifficulty, type Condition, type RunRecord } from '../types';
 
 // GroupKey now uses string for pairingId since it can be legacy or new format
-type GroupKey = `${string}::${Condition}::${number}::${Difficulty}`;
+type GroupKey = `${string}::${Condition}::${string}`;
 
 type LoopAgg = {
   initiallyRejectedTurns: number;
@@ -27,7 +27,10 @@ export class SummaryAggregator {
   private groups = new Map<GroupKey, MetricsAgg>();
 
   add(record: RunRecord) {
-    const key: GroupKey = `${record.pairingId}::${record.condition}::${record.question.bloomLevel}::${record.question.difficulty}`;
+    const cellKey = hasBloomDifficulty(record.question)
+      ? `b${record.question.bloomLevel}-${record.question.difficulty}`
+      : `csbench-${record.question.csbenchFormat}`;
+    const key = `${record.pairingId}::${record.condition}::${cellKey}` as GroupKey;
     const agg = this.groups.get(key) ?? this.initAgg(record.condition);
 
     agg.nRuns += 1;
@@ -63,12 +66,9 @@ export class SummaryAggregator {
     const breakdown: Record<string, any> = {};
 
     for (const [key, agg] of this.groups.entries()) {
-      const [pairingId, condition, bloomStr, difficulty] = key.split('::');
+      const [pairingId, condition, cellKey] = key.split('::');
       breakdown[pairingId] ??= {};
       breakdown[pairingId][condition] ??= {};
-      const bloomLevel = Number(bloomStr);
-      const cellKey = `b${bloomLevel}-${difficulty}`;
-
       breakdown[pairingId][condition][cellKey] = finalizeAgg(agg);
     }
 

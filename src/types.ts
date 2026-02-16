@@ -28,23 +28,114 @@ export type RoleModelConfig = {
 export const DifficultySchema = z.enum(['easy', 'medium', 'hard']);
 export type Difficulty = z.infer<typeof DifficultySchema>;
 
-export const QuestionSchema = z.object({
+export const CsbenchFormatSchema = z.enum([
+  'multiple-choice',
+  'assertion',
+  'fill-in-the-blank',
+  'open-ended',
+]);
+export type CsbenchFormat = z.infer<typeof CsbenchFormatSchema>;
+
+const QuestionBaseSchema = z.object({
   id: z.string().min(1),
-  bloomLevel: z.number().int().min(1).max(3), // 1=Remember, 2=Understand, 3=Apply
-  difficulty: DifficultySchema,
   topicTag: z.string().min(1),
   courseLevel: z.string().min(1).optional(),
   skillTag: z.string().min(1).optional(),
   problemStatement: z.string().min(10),
-  choices: z.array(z.string().min(1)).min(2),
-  correctChoiceIndex: z.number().int().min(0),
   referenceAnswerDescription: z.string().min(10),
 });
+
+const BloomDifficultyQuestionFields = {
+  bloomLevel: z.number().int().min(1).max(3), // 1=Remember, 2=Understand, 3=Apply
+  difficulty: DifficultySchema,
+  choices: z.array(z.string().min(1)).min(2),
+  correctChoiceIndex: z.number().int().min(0),
+};
+
+export const DefaultQuestionSchema = QuestionBaseSchema.extend({
+  dataset: z.literal('default'),
+  ...BloomDifficultyQuestionFields,
+});
+
+export const CanterburyQuestionSchema = QuestionBaseSchema.extend({
+  dataset: z.literal('canterbury'),
+  ...BloomDifficultyQuestionFields,
+});
+
+const CsbenchQuestionBaseSchema = QuestionBaseSchema.extend({
+  dataset: z.literal('csbench'),
+  bloomLevel: z.never().optional(),
+  difficulty: z.never().optional(),
+  csbench: z.object({
+    id: z.string().min(1),
+    split: z.string().min(1),
+    domain: z.string().min(1),
+    subDomain: z.string().min(1),
+    tag: z.string().min(1),
+    language: z.string().min(1),
+    answer: z.union([z.string(), z.boolean()]),
+    explanation: z.string().min(1).optional(),
+  }),
+});
+
+export const CsbenchMultipleChoiceQuestionSchema = CsbenchQuestionBaseSchema.extend({
+  csbenchFormat: z.literal('multiple-choice'),
+  choices: z.array(z.string().min(1)).min(2),
+  correctChoiceIndex: z.number().int().min(0),
+});
+
+export const CsbenchAssertionQuestionSchema = CsbenchQuestionBaseSchema.extend({
+  csbenchFormat: z.literal('assertion'),
+  choices: z.array(z.string().min(1)).min(2),
+  correctChoiceIndex: z.number().int().min(0),
+});
+
+export const CsbenchFillInBlankQuestionSchema = CsbenchQuestionBaseSchema.extend({
+  csbenchFormat: z.literal('fill-in-the-blank'),
+  choices: z.array(z.string().min(1)).optional(),
+  correctChoiceIndex: z.number().int().min(0).optional(),
+});
+
+export const CsbenchOpenEndedQuestionSchema = CsbenchQuestionBaseSchema.extend({
+  csbenchFormat: z.literal('open-ended'),
+  choices: z.array(z.string().min(1)).optional(),
+  correctChoiceIndex: z.number().int().min(0).optional(),
+});
+
+export const GeneratedQuestionSchema = QuestionBaseSchema.extend({
+  dataset: z.literal('default').default('default'),
+  ...BloomDifficultyQuestionFields,
+});
+
+export const QuestionSchema = z.discriminatedUnion('dataset', [
+  DefaultQuestionSchema,
+  CanterburyQuestionSchema,
+  CsbenchMultipleChoiceQuestionSchema,
+  CsbenchAssertionQuestionSchema,
+  CsbenchFillInBlankQuestionSchema,
+  CsbenchOpenEndedQuestionSchema,
+]);
 export type Question = z.infer<typeof QuestionSchema>;
+export type BloomDifficultyQuestion = z.infer<typeof DefaultQuestionSchema> | z.infer<typeof CanterburyQuestionSchema>;
+export type CsbenchQuestion =
+  | z.infer<typeof CsbenchMultipleChoiceQuestionSchema>
+  | z.infer<typeof CsbenchAssertionQuestionSchema>
+  | z.infer<typeof CsbenchFillInBlankQuestionSchema>
+  | z.infer<typeof CsbenchOpenEndedQuestionSchema>;
 
 export const QuestionBatchSchema = z.object({
-  questions: z.array(QuestionSchema).min(1),
+  questions: z.array(GeneratedQuestionSchema).min(1),
 });
+
+export function hasBloomDifficulty(question: Question): question is BloomDifficultyQuestion {
+  return question.dataset === 'default' || question.dataset === 'canterbury';
+}
+
+export function hasQuestionChoices(
+  question: Question
+): question is Question & { choices: string[]; correctChoiceIndex: number } {
+  return Array.isArray((question as any).choices) && typeof (question as any).correctChoiceIndex === 'number';
+}
 
 export const StudentTurnSchema = z.object({
   message: z.string().min(1),
