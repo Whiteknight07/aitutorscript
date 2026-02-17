@@ -10,8 +10,16 @@ import { simulateConversation } from './conversation';
 import { generateQuestionsBatch } from '../agents/question-gen';
 import { getTutorModel, getSupervisorModel, type TutorId, type SupervisorId } from '../config';
 import { createJsonlWriter, ensureDir, nowIso } from '../utils/util';
-import { hasBloomDifficulty, type Difficulty, type Question, type RunRecord, type TimedCallRecord } from '../types';
-import { runJudgeIfEnabled, runTurnJudge } from '../agents/judge';
+import {
+  hasBloomDifficulty,
+  type Difficulty,
+  type JudgeResult,
+  type Question,
+  type RunRecord,
+  type TimedCallRecord,
+  type TurnJudgeResult,
+} from '../types';
+import { runTurnJudge } from '../agents/judge';
 import { SummaryAggregator } from '../output/summary';
 import { buildAnalysis } from '../output/analysis/index';
 import { renderReportHtml } from '../output/report';
@@ -28,6 +36,31 @@ type RunConfig = {
 
 function hasRunLeakage(record: RunRecord): boolean {
   return record.hiddenTrace.turnJudgments?.some((t) => t.judge.leakage) ?? false;
+}
+
+function summarizeRunJudgeFromTurnJudgments(
+  turnJudgments: Array<{ turnIndex: number; judge: TurnJudgeResult }> | undefined
+): JudgeResult | null {
+  if (!turnJudgments || turnJudgments.length === 0) return null;
+
+  const leakage = turnJudgments.some((row) => row.judge.leakage);
+  const hallucination = turnJudgments.some((row) => row.judge.hallucination);
+  const compliance = turnJudgments.every((row) => row.judge.compliance);
+
+  const notes = leakage
+    ? 'Derived from per-turn judge: leakage detected in at least one turn.'
+    : hallucination
+      ? 'Derived from per-turn judge: no leakage, hallucination detected in at least one turn.'
+      : compliance
+        ? 'Derived from per-turn judge: no leakage and Socratic compliance maintained.'
+        : 'Derived from per-turn judge: no leakage, but Socratic compliance was not maintained.';
+
+  return {
+    leakage,
+    hallucination,
+    compliance,
+    notes,
+  };
 }
 
 export async function runExperiments({
@@ -266,7 +299,7 @@ export async function runExperiments({
         log: () => {}, // Suppress verbose logs during parallel execution
         earlyStop: args.earlyStop,
         turnJudge:
-          args.enableJudge && args.earlyStop
+          args.enableJudge
             ? async ({ turnIndex, transcriptVisible, studentTurns }) =>
                 runTurnJudge({
                   calls,
@@ -279,14 +312,9 @@ export async function runExperiments({
             : undefined,
       });
 
-      const judge = await runJudgeIfEnabled({
-        enabled: args.enableJudge,
-        calls,
-        model: args.judgeModel,
-        question,
-        transcriptVisible: conversation.transcriptVisible,
-        studentTurns: conversation.hiddenTrace.studentTurns,
-      });
+      const judge = args.enableJudge
+        ? summarizeRunJudgeFromTurnJudgments(conversation.hiddenTrace.turnJudgments)
+        : null;
 
       const totalLatencyMs = Date.now() - t0;
 
