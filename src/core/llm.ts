@@ -162,6 +162,14 @@ function parseJsonObject(text: string): unknown {
   }
 }
 
+function normalizeParsedObjectCandidate(value: unknown): unknown {
+  // Some models wrap a single JSON object in an array when asked for json_object.
+  if (Array.isArray(value) && value.length === 1 && value[0] && typeof value[0] === 'object') {
+    return value[0];
+  }
+  return value;
+}
+
 export { getProviderOptions };
 
 export async function timedGenerateText({
@@ -303,7 +311,7 @@ export async function timedGenerateObject<T>({
       result.getText(),
       result.getResponse().catch(() => null),
     ]);
-    const parsed = schema.parse(parseJsonObject(String(text ?? '')));
+    const parsed = schema.parse(normalizeParsedObjectCandidate(parseJsonObject(String(text ?? ''))));
     const durationMs = hrNowMs() - t0;
 
     calls.push({
