@@ -114,6 +114,25 @@ export const CsbenchOpenEndedQuestionSchema = CsbenchQuestionBaseSchema.extend({
   correctChoiceIndex: z.number().int().min(0).optional(),
 });
 
+export const PairwiseQuestionSchema = QuestionBaseSchema.extend({
+  dataset: z.literal('pairwise'),
+  questionFormat: z.literal('multiple-choice'),
+  bloomLevel: z.never().optional(),
+  difficulty: z.never().optional(),
+  choices: z.array(z.string().min(1)).min(2),
+  correctChoiceIndex: z.number().int().min(0),
+  metadata: z.object({
+    tags: z.array(z.string().min(1)).min(1),
+    source: z.object({
+      questionsFile: z.string().min(1),
+      answersFile: z.string().min(1).nullable(),
+      questionsRow: z.number().int().min(1),
+      questionId: z.string().min(1).optional(),
+    }),
+    answersTelemetry: z.record(z.string(), z.unknown()).optional(),
+  }),
+});
+
 export const GeneratedQuestionSchema = QuestionBaseSchema.extend({
   dataset: z.literal('default').default('default'),
   ...BloomDifficultyQuestionFields,
@@ -126,6 +145,7 @@ export const QuestionSchema = z.discriminatedUnion('dataset', [
   CsbenchAssertionQuestionSchema,
   CsbenchFillInBlankQuestionSchema,
   CsbenchOpenEndedQuestionSchema,
+  PairwiseQuestionSchema,
 ]);
 export type Question = z.infer<typeof QuestionSchema>;
 export type BloomDifficultyQuestion = z.infer<typeof DefaultQuestionSchema> | z.infer<typeof CanterburyQuestionSchema>;
@@ -134,6 +154,7 @@ export type CsbenchQuestion =
   | z.infer<typeof CsbenchAssertionQuestionSchema>
   | z.infer<typeof CsbenchFillInBlankQuestionSchema>
   | z.infer<typeof CsbenchOpenEndedQuestionSchema>;
+export type PairwiseQuestion = z.infer<typeof PairwiseQuestionSchema>;
 
 export const QuestionBatchSchema = z.object({
   questions: z.array(GeneratedQuestionSchema).min(1),
