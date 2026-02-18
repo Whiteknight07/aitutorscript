@@ -5,11 +5,12 @@ export type CliArgs = {
   questionsPerCell: number;
   bloomLevels: number[];
   difficulties: Difficulty[];
-  dataset: 'default' | 'canterbury' | 'csbench';
+  dataset: 'default' | 'canterbury' | 'csbench' | 'pairwise';
   questionLimit: number | null;
   courseLevels: string[];
   skillTags: string[];
   csbenchPath: string;
+  pairwiseDir: string;
   csbenchFormats: CsbenchFormat[];
   turns: number;
   maxIters: number;
@@ -79,10 +80,15 @@ export function parseArgs(argv: string[]): CliArgs {
       : 1;
 
   const datasetRaw = raw['dataset'] ? String(raw['dataset']) : 'csbench';
-  if (datasetRaw !== 'default' && datasetRaw !== 'canterbury' && datasetRaw !== 'csbench') {
-    throw new Error(`Invalid dataset: "${datasetRaw}". Use "default", "canterbury", or "csbench".`);
+  if (
+    datasetRaw !== 'default' &&
+    datasetRaw !== 'canterbury' &&
+    datasetRaw !== 'csbench' &&
+    datasetRaw !== 'pairwise'
+  ) {
+    throw new Error(`Invalid dataset: "${datasetRaw}". Use "default", "canterbury", "csbench", or "pairwise".`);
   }
-  const dataset = datasetRaw as 'default' | 'canterbury' | 'csbench';
+  const dataset = datasetRaw as 'default' | 'canterbury' | 'csbench' | 'pairwise';
 
   const questionLimit = raw['questionLimit']
     ? parseIntFlag(String(raw['questionLimit']), 'questionLimit')
@@ -91,6 +97,7 @@ export function parseArgs(argv: string[]): CliArgs {
       : null;
 
   const csbenchPath = raw['csbenchPath'] ? String(raw['csbenchPath']) : 'test.jsonl';
+  const pairwiseDir = raw['pairwiseDir'] ? String(raw['pairwiseDir']) : 'data/pairwise';
   const csbenchFormatsRaw =
     raw['csbenchFormats'] != null
       ? parseListFlag(String(raw['csbenchFormats']))
@@ -181,6 +188,7 @@ export function parseArgs(argv: string[]): CliArgs {
     courseLevels,
     skillTags,
     csbenchPath,
+    pairwiseDir,
     csbenchFormats,
     turns,
     maxIters,
@@ -211,8 +219,9 @@ Usage:
   pnpm harness [flags]
 
 Flags:
-  --dataset NAME           Question source: csbench, default, canterbury (default: csbench)
+  --dataset NAME           Question source: csbench, default, canterbury, pairwise (default: csbench)
   --csbenchPath PATH       Path to CS Bench JSONL (default: test.jsonl)
+  --pairwiseDir PATH       Path to pairwise question directory (default: data/pairwise)
   --csbenchFormats LIST    multiple-choice,assertion,fill-in-the-blank,open-ended (default all)
   --questionLimit N        Max questions to load (default: 100 for canterbury)
   --dynamic                Generate questions dynamically (default: use static data/questions.json)
@@ -246,6 +255,7 @@ Question Source:
   Use --csbenchFormats to filter formats.
   Use --dataset default to load data/questions.json (36 static questions).
   Use --dataset canterbury to load data/canterbury/questions-p*.html.
+  Use --dataset pairwise to load pairwise questions from data/pairwise (or --pairwiseDir).
   Use --dynamic to generate questions at runtime instead.
   To regenerate static questions: pnpm generate-questions
 

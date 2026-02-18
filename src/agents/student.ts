@@ -33,7 +33,18 @@ function formatQuestionHeader(question: Question, format: QuestionFormat): strin
   if (question.dataset === 'csbench') {
     return `Question (format ${format}, csbench domain ${question.csbench.domain}, subDomain ${question.csbench.subDomain}, tag ${question.csbench.tag}):`;
   }
-  return `Question (format ${format}, bloom ${question.bloomLevel}, ${question.difficulty}, topic ${question.topicTag}):`;
+  const dataset = (question as { dataset?: string }).dataset ?? 'unknown';
+  if (dataset === 'pairwise') {
+    return `Question (format ${format}, pairwise item ${question.id}, topic ${question.topicTag}):`;
+  }
+
+  const bloomLevel = (question as { bloomLevel?: number }).bloomLevel;
+  const difficulty = (question as { difficulty?: string }).difficulty;
+  if (typeof bloomLevel === 'number' && typeof difficulty === 'string') {
+    return `Question (format ${format}, bloom ${bloomLevel}, ${difficulty}, topic ${question.topicTag}):`;
+  }
+
+  return `Question (format ${format}, dataset ${dataset}, topic ${question.topicTag}):`;
 }
 
 export async function generateStudentTurn({

@@ -140,6 +140,15 @@ export async function runExperiments({
     });
     // eslint-disable-next-line no-console
     console.log(`✅ Loaded ${questions.length} CS Bench questions`);
+  } else if (args.dataset === 'pairwise') {
+    // eslint-disable-next-line no-console
+    console.log(`\n📝 Loading pairwise questions from ${args.pairwiseDir}`);
+    questions = await loadPairwiseQuestions({
+      pairwiseDir: args.pairwiseDir,
+      limit: args.questionLimit,
+    });
+    // eslint-disable-next-line no-console
+    console.log(`✅ Loaded ${questions.length} pairwise questions`);
   } else {
     const staticPath = join(process.cwd(), 'data', 'questions.json');
     // eslint-disable-next-line no-console
@@ -184,6 +193,7 @@ export async function runExperiments({
         courseLevels: args.courseLevels,
         skillTags: args.skillTags,
         csbenchPath: args.csbenchPath,
+        pairwiseDir: args.pairwiseDir,
         csbenchFormats: args.csbenchFormats,
         questionsPerCell: args.questionsPerCell,
         calls: datasetCalls,
@@ -871,7 +881,7 @@ function coerceLegacyDefaultQuestion(input: unknown): Question | null {
   const raw = input as Record<string, unknown>;
   const dataset = raw.dataset;
 
-  if (dataset === 'default' || dataset === 'canterbury' || dataset === 'csbench') {
+  if (dataset === 'default' || dataset === 'canterbury' || dataset === 'csbench' || dataset === 'pairwise') {
     return raw as Question;
   }
 
@@ -879,6 +889,25 @@ function coerceLegacyDefaultQuestion(input: unknown): Question | null {
     ...raw,
     dataset: 'default',
   } as Question;
+}
+
+async function loadPairwiseQuestions({
+  pairwiseDir,
+  limit,
+}: {
+  pairwiseDir: string;
+  limit: number | null;
+}): Promise<Question[]> {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const pairwiseModule = require('./pairwise') as {
+    loadPairwiseQuestions?: (args: { pairwiseDir: string; limit: number | null }) => Promise<Question[]>;
+  };
+
+  if (typeof pairwiseModule.loadPairwiseQuestions !== 'function') {
+    throw new Error('Missing loadPairwiseQuestions export in src/core/pairwise.ts');
+  }
+
+  return pairwiseModule.loadPairwiseQuestions({ pairwiseDir, limit });
 }
 
 function stripHtml(html: string): string {
