@@ -30,8 +30,12 @@ The CLI is `node dist/cli.js` (wrapped by `pnpm harness`).
 ### Dataset source
 
 - `--dataset NAME`
-  - Question source: `csbench`, `default`, `canterbury`.
+  - Question source: `csbench`, `default`, `canterbury`, `pairwise`.
   - Default: `csbench`.
+- `--pairwiseDir PATH`
+  - Directory containing pairwise question files.
+  - Used when `--dataset pairwise`.
+  - Path is resolved from repo root when relative.
 - `--csbenchPath PATH`
   - Path to CS Bench JSONL (resolved from repo root when relative).
   - Default: `test.jsonl`.
@@ -152,7 +156,8 @@ In `--outDir/<runId>/` (default `results/<runId>/`):
   - Aggregated metrics broken down by:
     - pairing
     - condition
-    - difficulty
+    - dataset metadata (dataset/format/domain/tag when present)
+    - bloom × difficulty (only when bloom metadata exists)
 - `report.html`
   - Self-contained interactive report (no external assets) with per-run narrative views and side-by-side comparisons for the same question across pairings/conditions.
 
@@ -183,3 +188,5 @@ From `summary.json`:
   - `pnpm harness -- --pairings gpt5-gemini,gemini-gpt5 --conditions dual-loop --perDifficulty 2 --turns 8`
 - Turn off judging to speed up:
   - `pnpm harness -- --noJudge --turns 10`
+- Run using pairwise inputs:
+  - `pnpm harness -- --dataset pairwise --pairwiseDir data/pairwise --turns 4`

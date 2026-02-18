@@ -248,7 +248,8 @@ export function buildAnalysis(options: AnalysisOptions): AnalysisOutput {
       return String(a.domain ?? '').localeCompare(String(b.domain ?? ''));
     });
 
-  const runsWithBloomDifficulty = runs.filter((r) => r.bloomLevel != null || r.difficulty != null);
+  const hasBloomData = runs.some((r) => r.bloomLevel != null);
+  const runsWithBloomDifficulty = hasBloomData ? runs.filter((r) => r.bloomLevel != null) : [];
   const byBloomDifficulty = Array.from(
     groupBy(runsWithBloomDifficulty, (r) => tupleKey([r.bloomLevel ?? null, r.difficulty ?? null])).entries()
   )
@@ -266,7 +267,7 @@ export function buildAnalysis(options: AnalysisOptions): AnalysisOutput {
       return difficultyOrder(a.difficulty ?? null) - difficultyOrder(b.difficulty ?? null);
     });
 
-  const bloomDifficultyEffects = buildBloomDifficultyEffects(runs);
+  const bloomDifficultyEffects = hasBloomData ? buildBloomDifficultyEffects(runs) : [];
 
   const byQuestion = Array.from(groupBy(runs, (r) => r.questionId).entries())
     .map(([questionId, group]) => ({

@@ -98,6 +98,14 @@ export const REPORT_JS = `
     return { rank: 50, label: lower };
   }
 
+  function hasBloomLevelValue(value){
+    return value != null && Number.isFinite(Number(value));
+  }
+
+  function hasBloomRows(rows){
+    return Array.isArray(rows) && rows.some((row) => row && hasBloomLevelValue(row.bloomLevel));
+  }
+
   function fmtPct(value){
     if (value == null || !Number.isFinite(value)) return 'n/a';
     return Math.round(value * 100) + '%';
@@ -1508,6 +1516,10 @@ export const REPORT_JS = `
 
     const chartGrid = document.createElement('div');
     chartGrid.className = 'analysisCharts';
+    const hasBloomSections =
+      hasBloomRows(analysis.tables.byBloomDifficulty) ||
+      hasBloomRows(analysis.tables.bloomDifficultyEffects) ||
+      hasBloomRows(analysis.tables.byQuestion);
 
     // === ABSOLUTE VISUALIZATIONS FIRST ===
 
@@ -1595,7 +1607,7 @@ export const REPORT_JS = `
       chartGrid.appendChild(card);
     }
 
-    if (analysis.tables.byBloomDifficulty && analysis.tables.byBloomDifficulty.length){
+    if (hasBloomSections && analysis.tables.byBloomDifficulty && analysis.tables.byBloomDifficulty.length){
       const { card, body } = buildChartCard(
         'Bloom × difficulty heatmap',
         'Absolute leakage rate',
@@ -1722,7 +1734,7 @@ export const REPORT_JS = `
       chartGrid.appendChild(card);
     }
 
-    if (analysis.tables.bloomDifficultyEffects && analysis.tables.bloomDifficultyEffects.length){
+    if (hasBloomSections && analysis.tables.bloomDifficultyEffects && analysis.tables.bloomDifficultyEffects.length){
       const { card, body } = buildChartCard(
         'Bloom × difficulty heatmap (delta)',
         'Leakage delta (dual - single)',
@@ -2147,27 +2159,29 @@ export const REPORT_JS = `
       )
     );
 
-    wrap.appendChild(
-      buildAnalysisPanel(
-        'Bloom x difficulty',
-        'Outcome rates by Bloom level and difficulty',
-        analysis.tables.byBloomDifficulty,
-        [
-          { label: 'Bloom', value: (row) => row.bloomLevel },
-          { label: 'Difficulty', value: (row) => row.difficulty },
-          ...baseRunCols,
-        ]
-      )
-    );
+    if (hasBloomSections){
+      wrap.appendChild(
+        buildAnalysisPanel(
+          'Bloom x difficulty',
+          'Outcome rates by Bloom level and difficulty',
+          analysis.tables.byBloomDifficulty,
+          [
+            { label: 'Bloom', value: (row) => row.bloomLevel },
+            { label: 'Difficulty', value: (row) => row.difficulty },
+            ...baseRunCols,
+          ]
+        )
+      );
 
-    wrap.appendChild(
-      buildAnalysisPanel(
-        'Bloom x difficulty effects',
-        'Dual minus single by Bloom level and difficulty',
-        analysis.tables.bloomDifficultyEffects,
-        bloomDifficultyEffectCols
-      )
-    );
+      wrap.appendChild(
+        buildAnalysisPanel(
+          'Bloom x difficulty effects',
+          'Dual minus single by Bloom level and difficulty',
+          analysis.tables.bloomDifficultyEffects,
+          bloomDifficultyEffectCols
+        )
+      );
+    }
 
     wrap.appendChild(
       buildAnalysisPanel(

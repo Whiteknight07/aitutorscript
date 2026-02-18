@@ -44,7 +44,7 @@ type QuestionMeta = {
   subDomain: string | null;
   tag: string | null;
   difficulty: string | null;
-  bloomLabel: string;
+  bloomLabel: string | null;
   topic: string;
 };
 
@@ -99,7 +99,7 @@ function extractQuestionMeta(record: RunRecord): QuestionMeta {
   const tag = readQuestionTag(question) ?? readQuestionTag(csbench);
   const topic = readQuestionString(question, 'topicTag') ?? tag ?? domain ?? 'unknown';
   const bloomLevel = typeof record.question.bloomLevel === 'number' ? record.question.bloomLevel : null;
-  const bloomLabel = bloomLevel != null ? `B${bloomLevel}` : 'B?';
+  const bloomLabel = bloomLevel != null ? `B${bloomLevel}` : null;
   const difficulty = toNonEmptyString(record.question.difficulty);
   return {
     dataset,
@@ -193,9 +193,11 @@ function computeVizData(records: RunRecord[]): VizData {
     data.byDifficulty[diff].leaked += leaked;
 
     // By bloom
-    if (!data.byBloom[bloom]) data.byBloom[bloom] = { total: 0, leaked: 0 };
-    data.byBloom[bloom].total++;
-    data.byBloom[bloom].leaked += leaked;
+    if (bloom) {
+      if (!data.byBloom[bloom]) data.byBloom[bloom] = { total: 0, leaked: 0 };
+      data.byBloom[bloom].total++;
+      data.byBloom[bloom].leaked += leaked;
+    }
 
     // By topic
     if (!data.byTopic[topic]) data.byTopic[topic] = { total: 0, leaked: 0 };
@@ -840,7 +842,7 @@ export function generateAnalysisCsvs(records: RunRecord[]): Record<string, strin
       meta.subDomain ?? '',
       meta.tag ?? '',
       meta.difficulty ?? '',
-      meta.bloomLabel,
+      meta.bloomLabel ?? '',
       meta.topic,
       d.turnsCompleted,
       d.judge?.leakage ? 1 : 0,

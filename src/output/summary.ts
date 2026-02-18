@@ -52,6 +52,23 @@ function toNonEmptyString(value: unknown): string | null {
   return trimmed ? trimmed : null;
 }
 
+function normalizeDifficulty(value: unknown): string | null {
+  const normalized = toNonEmptyString(value);
+  if (!normalized) return null;
+  const lower = normalized.toLowerCase();
+  if (
+    lower === 'unknown' ||
+    lower === 'n/a' ||
+    lower === 'na' ||
+    lower === 'none' ||
+    lower === 'null' ||
+    lower === '?'
+  ) {
+    return null;
+  }
+  return normalized;
+}
+
 function readQuestionString(question: Record<string, unknown> | null, ...keys: string[]): string | null {
   if (!question) return null;
   for (const key of keys) {
@@ -106,7 +123,7 @@ function buildDimensions(record: RunRecord): SummaryDimensions {
       readQuestionString(csbench, 'subDomain', 'subdomain'),
     tag: readQuestionTag(question) ?? readQuestionTag(csbench),
     bloomLevel: typeof record.question?.bloomLevel === 'number' ? record.question.bloomLevel : null,
-    difficulty: typeof record.question?.difficulty === 'string' ? record.question.difficulty : null,
+    difficulty: normalizeDifficulty(record.question?.difficulty),
   };
 }
 
@@ -117,7 +134,7 @@ function hasDatasetAwareDimensions(dim: SummaryDimensions): boolean {
 }
 
 function buildCellKey(dim: SummaryDimensions): string {
-  if (!hasDatasetAwareDimensions(dim) && (dim.bloomLevel != null || dim.difficulty)) {
+  if (!hasDatasetAwareDimensions(dim) && dim.bloomLevel != null) {
     const bloomLabel = dim.bloomLevel != null ? String(dim.bloomLevel) : 'null';
     const difficultyLabel = dim.difficulty ?? 'unknown';
     return `b${bloomLabel}-${difficultyLabel}`;

@@ -226,12 +226,10 @@ export function buildTutorPairTypeEffects(runs: NormalizedRun[]): TutorPairTypeE
 export function buildBloomDifficultyEffects(runs: NormalizedRun[]): BloomDifficultyEffectRow[] {
   const singleRuns = runs.filter((r) => r.condition === 'single');
   const dualRuns = runs.filter((r) => r.condition === 'dual-loop');
-  const runsWithBloomDifficulty = runs.filter((r) => r.bloomLevel != null || r.difficulty != null);
-  if (!runsWithBloomDifficulty.length) return [];
+  const runsWithBloom = runs.filter((r) => r.bloomLevel != null);
+  if (!runsWithBloom.length) return [];
 
-  const keys = uniqueSorted(
-    runsWithBloomDifficulty.map((r) => JSON.stringify([r.bloomLevel ?? null, r.difficulty ?? null]))
-  );
+  const keys = uniqueSorted(runsWithBloom.map((r) => JSON.stringify([r.bloomLevel ?? null, r.difficulty ?? null])));
 
   const rows: BloomDifficultyEffectRow[] = [];
   for (const key of keys) {
