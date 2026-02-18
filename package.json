@@ -7,6 +7,7 @@
     "harness": "bun run src/cli.ts",
     "smoke": "bun run src/cli.ts --smoke",
     "generate-questions": "bun run src/scripts/generate-questions.ts",
+    "validate:pairwise": "bun run src/scripts/validate-pairwise-loader.ts",
     "build": "tsc -p tsconfig.json",
     "start": "bun run src/cli.ts",
     "test": "echo \"No tests configured\" && exit 0"

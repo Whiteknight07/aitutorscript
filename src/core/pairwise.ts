@@ -16,12 +16,11 @@ type LoadPairwiseQuestionsInput = {
 
 type AnswersTelemetry = {
   rowCount: number;
-  rows: Array<Record<string, unknown>>;
+  answerCounts: Record<string, number>;
 };
 
 type AnswersTelemetryIndex = {
   byQuestionId: Map<string, AnswersTelemetry>;
-  byQuestionText: Map<string, AnswersTelemetry>;
 };
 
 const QUESTION_FILE_RE = /^Questions_(.+)\.csv$/i;
@@ -32,6 +31,10 @@ const QUESTION_FIELD_ALIASES = ['question', 'questiontext', 'prompt', 'stem', 'p
 const ANSWER_FIELD_ALIASES = ['answer', 'correctanswer', 'correctchoice', 'correctoption', 'label'];
 const EXPLANATION_FIELD_ALIASES = ['explanation', 'rationale', 'reason', 'solution', 'referenceanswerdescription'];
 const QUESTION_ID_FIELD_ALIASES = ['id', 'questionid', 'question_id', 'qid', 'itemid', 'item_id'];
+const NUM_OPTIONS_FIELD_ALIASES = ['numoptions', 'num_options', 'optioncount', 'choicecount'];
+const AVG_RATING_FIELD_ALIASES = ['avgrating', 'avg_rating', 'ratingavg', 'ratingaverage'];
+const TOTAL_ANSWERS_FIELD_ALIASES = ['totalanswers', 'total_answers', 'answercount', 'answers'];
+const TOTAL_RATINGS_FIELD_ALIASES = ['totalratings', 'total_ratings', 'ratingcount'];
 const TAG_FIELD_ALIASES = [
   'tags',
   'tag',
@@ -114,6 +117,7 @@ export async function loadPairwiseQuestions({
       const built = buildPairwiseQuestion({
         row,
         csvRowNumber,
+        splitId: suffix,
         questionFile,
         answersFile,
         telemetryIndex,
@@ -193,65 +197,46 @@ async function loadTelemetryIndexFromFile({
   }
 
   const byQuestionId = new Map<string, AnswersTelemetry>();
-  const byQuestionText = new Map<string, AnswersTelemetry>();
 
   for (const row of rows) {
     const lookup = buildLookup(row);
     const questionId = getNormalizedField(lookup, QUESTION_ID_FIELD_ALIASES);
-    const questionText = getNormalizedField(lookup, QUESTION_FIELD_ALIASES);
-    const payload = normalizeTelemetryPayload(row);
-
-    if (Object.keys(payload).length === 0) continue;
-    if (questionId) pushTelemetry(byQuestionId, normalizeIdentifier(questionId), payload);
-    if (questionText) pushTelemetry(byQuestionText, normalizeTextKey(questionText), payload);
+    const answerValue = getNormalizedField(lookup, ANSWER_FIELD_ALIASES);
+    if (!questionId) continue;
+    pushTelemetry(byQuestionId, normalizeIdentifier(questionId), answerValue);
   }
 
   return {
     byQuestionId,
-    byQuestionText,
   };
 }
 
 function pushTelemetry(
   target: Map<string, AnswersTelemetry>,
   key: string,
-  payload: Record<string, unknown>
+  answerValue: string | null
 ) {
+  const normalizedAnswer = normalizeAnswerLabel(answerValue);
   const existing = target.get(key);
   if (!existing) {
+    const answerCounts: Record<string, number> = {};
+    if (normalizedAnswer) answerCounts[normalizedAnswer] = 1;
     target.set(key, {
       rowCount: 1,
-      rows: [payload],
+      answerCounts,
     });
     return;
   }
-  existing.rows.push(payload);
-  existing.rowCount = existing.rows.length;
-}
-
-function normalizeTelemetryPayload(row: CsvRow): Record<string, unknown> {
-  const out: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(row)) {
-    const cleanKey = key.trim();
-    if (!cleanKey) continue;
-    const parsedValue = normalizeTelemetryValue(value);
-    if (parsedValue == null) continue;
-    out[cleanKey] = parsedValue;
+  existing.rowCount += 1;
+  if (normalizedAnswer) {
+    existing.answerCounts[normalizedAnswer] = (existing.answerCounts[normalizedAnswer] ?? 0) + 1;
   }
-  return out;
-}
-
-function normalizeTelemetryValue(value: unknown): unknown {
-  const raw = normalizePlainText(value);
-  if (!raw) return null;
-  const maybeNumber = Number(raw);
-  if (!Number.isNaN(maybeNumber) && String(maybeNumber) === raw) return maybeNumber;
-  return raw;
 }
 
 function buildPairwiseQuestion({
   row,
   csvRowNumber,
+  splitId,
   questionFile,
   answersFile,
   telemetryIndex,
@@ -259,6 +244,7 @@ function buildPairwiseQuestion({
 }: {
   row: CsvRow;
   csvRowNumber: number;
+  splitId: string;
   questionFile: string;
   answersFile: string | null;
   telemetryIndex: AnswersTelemetryIndex | null;
@@ -272,7 +258,8 @@ function buildPairwiseQuestion({
     return null;
   }
 
-  const extractedChoices = extractChoices(lookup);
+  const declaredNumOptions = getIntegerField(lookup, NUM_OPTIONS_FIELD_ALIASES);
+  const extractedChoices = extractChoices(lookup, declaredNumOptions);
   if (extractedChoices.choices.length < 2) {
     warn(`Skipping malformed row ${csvRowNumber} in ${questionFile}: fewer than 2 answer choices.`);
     return null;
@@ -300,11 +287,27 @@ function buildPairwiseQuestion({
   const tags = extractTags(lookup);
   const topicTag = tags.join(' | ');
   const questionId = getNormalizedField(lookup, QUESTION_ID_FIELD_ALIASES);
-  const generatedId = buildGeneratedId(problemStatement, extractedChoices.choices, correctChoiceIndex);
+  const generatedId = buildGeneratedId({
+    splitId,
+    questionId,
+    problemStatement,
+    choices: extractedChoices.choices,
+    correctChoiceIndex,
+  });
+  const avgRating = getFloatField(lookup, AVG_RATING_FIELD_ALIASES);
+  const totalAnswers = getIntegerField(lookup, TOTAL_ANSWERS_FIELD_ALIASES);
+  const totalRatings = getIntegerField(lookup, TOTAL_RATINGS_FIELD_ALIASES);
+  const stats = {
+    avgRating: avgRating ?? undefined,
+    totalAnswers: totalAnswers ?? undefined,
+    totalRatings: totalRatings ?? undefined,
+    numOptions: declaredNumOptions ?? undefined,
+  };
+  const hasStats = Object.values(stats).some((value) => value != null);
   const telemetry = findTelemetry({
     telemetryIndex,
     questionId,
-    questionText: problemStatement,
+    authoredAnswer: answerRaw,
   });
 
   const candidate: Question = {
@@ -320,11 +323,13 @@ function buildPairwiseQuestion({
     metadata: {
       tags,
       source: {
+        splitId,
         questionsFile: questionFile,
         answersFile,
         questionsRow: csvRowNumber,
         questionId: questionId ?? undefined,
       },
+      stats: hasStats ? stats : undefined,
       answersTelemetry: telemetry ?? undefined,
     },
   };
@@ -335,22 +340,44 @@ function buildPairwiseQuestion({
 function findTelemetry({
   telemetryIndex,
   questionId,
-  questionText,
+  authoredAnswer,
 }: {
   telemetryIndex: AnswersTelemetryIndex | null;
   questionId: string | null;
-  questionText: string;
-}): Record<string, unknown> | null {
+  authoredAnswer: string;
+}):
+  | {
+      rowCount: number;
+      answerCounts: Record<string, number>;
+      authoredAnswer?: string;
+      authoredAnswerShare?: number;
+    }
+  | null {
   if (!telemetryIndex) return null;
+  if (!questionId) return null;
 
-  if (questionId) {
-    const byId = telemetryIndex.byQuestionId.get(normalizeIdentifier(questionId));
-    if (byId) return { rowCount: byId.rowCount, rows: byId.rows };
+  const byId = telemetryIndex.byQuestionId.get(normalizeIdentifier(questionId));
+  if (!byId) return null;
+
+  const normalizedAuthored = normalizeAnswerLabel(authoredAnswer);
+  const answerCounts = { ...byId.answerCounts };
+  const telemetry: {
+    rowCount: number;
+    answerCounts: Record<string, number>;
+    authoredAnswer?: string;
+    authoredAnswerShare?: number;
+  } = {
+    rowCount: byId.rowCount,
+    answerCounts,
+  };
+
+  if (normalizedAuthored) {
+    telemetry.authoredAnswer = normalizedAuthored;
+    const authoredVotes = answerCounts[normalizedAuthored] ?? 0;
+    telemetry.authoredAnswerShare = byId.rowCount > 0 ? authoredVotes / byId.rowCount : 0;
   }
 
-  const byText = telemetryIndex.byQuestionText.get(normalizeTextKey(questionText));
-  if (byText) return { rowCount: byText.rowCount, rows: byText.rows };
-  return null;
+  return telemetry;
 }
 
 function buildReferenceAnswerDescription({
@@ -367,7 +394,23 @@ function buildReferenceAnswerDescription({
   return `Correct option text: ${correctChoice}.`;
 }
 
-function buildGeneratedId(problemStatement: string, choices: string[], correctChoiceIndex: number): string {
+function buildGeneratedId({
+  splitId,
+  questionId,
+  problemStatement,
+  choices,
+  correctChoiceIndex,
+}: {
+  splitId: string;
+  questionId: string | null;
+  problemStatement: string;
+  choices: string[];
+  correctChoiceIndex: number;
+}): string {
+  const splitPart = toIdPart(splitId, 'unknown');
+  if (questionId) {
+    return `pairwise-${splitPart}-${toIdPart(questionId, 'unknown')}`;
+  }
   const digest = createHash('sha1')
     .update(problemStatement)
     .update('\n')
@@ -376,17 +419,21 @@ function buildGeneratedId(problemStatement: string, choices: string[], correctCh
     .update(String(correctChoiceIndex))
     .digest('hex')
     .slice(0, 16);
-  return `pairwise-${digest}`;
+  return `pairwise-${splitPart}-${digest}`;
 }
 
-function extractChoices(lookup: Map<string, string>): {
+function extractChoices(lookup: Map<string, string>, declaredNumOptions: number | null): {
   choices: string[];
   labelToIndex: Map<string, number>;
 } {
   const labelToIndex = new Map<string, number>();
+  const choiceLimit =
+    declaredNumOptions != null && declaredNumOptions > 0
+      ? Math.min(declaredNumOptions, CHOICE_LETTERS.length)
+      : CHOICE_LETTERS.length;
 
   const letterChoices: string[] = [];
-  for (let i = 0; i < CHOICE_LETTERS.length; i++) {
+  for (let i = 0; i < choiceLimit; i++) {
     const letter = CHOICE_LETTERS[i];
     const value = getNormalizedField(lookup, [
       letter,
@@ -410,7 +457,7 @@ function extractChoices(lookup: Map<string, string>): {
     };
   }
 
-  const numberedChoices = extractNumberedChoices(lookup);
+  const numberedChoices = extractNumberedChoices(lookup, choiceLimit);
   if (numberedChoices.length >= 2) {
     const out: string[] = [];
     for (const [ordinal, text] of numberedChoices) {
@@ -427,7 +474,7 @@ function extractChoices(lookup: Map<string, string>): {
 
   const combined = getNormalizedField(lookup, ['options', 'choices', 'answeroptions', 'answerchoices']);
   if (combined) {
-    const split = splitCombinedOptions(combined);
+    const split = splitCombinedOptions(combined, choiceLimit);
     for (let i = 0; i < split.length; i++) {
       labelToIndex.set(String(i + 1), i);
       const letter = CHOICE_LETTERS[i];
@@ -445,13 +492,16 @@ function extractChoices(lookup: Map<string, string>): {
   };
 }
 
-function extractNumberedChoices(lookup: Map<string, string>): Array<[number, string]> {
+function extractNumberedChoices(
+  lookup: Map<string, string>,
+  choiceLimit: number
+): Array<[number, string]> {
   const found: Array<[number, string]> = [];
   for (const [key, value] of lookup.entries()) {
     const match = /^(?:option|choice)(\d{1,2})$/.exec(key);
     if (!match) continue;
     const ordinal = Number.parseInt(match[1], 10);
-    if (!Number.isFinite(ordinal) || ordinal <= 0) continue;
+    if (!Number.isFinite(ordinal) || ordinal <= 0 || ordinal > choiceLimit) continue;
     const normalized = normalizePlainText(value);
     if (!normalized) continue;
     found.push([ordinal, normalized]);
@@ -460,14 +510,14 @@ function extractNumberedChoices(lookup: Map<string, string>): Array<[number, str
   return found;
 }
 
-function splitCombinedOptions(value: string): string[] {
+function splitCombinedOptions(value: string, choiceLimit: number): string[] {
   const splitters = [/\r?\n+/, /\s*\|\s*/, /\s*;\s*/, /\s*,\s*/];
   for (const splitter of splitters) {
     const parts = value
       .split(splitter)
       .map((part) => normalizePlainText(part))
       .filter((part) => part.length > 0);
-    if (parts.length >= 2) return parts;
+    if (parts.length >= 2) return parts.slice(0, choiceLimit);
   }
   return [];
 }
@@ -613,8 +663,41 @@ function normalizeIdentifier(value: string): string {
   return normalized || 'unknown';
 }
 
-function normalizeTextKey(value: string): string {
-  return normalizePlainText(value).toLowerCase();
+function toIdPart(value: string, fallback: string): string {
+  const normalized = normalizeIdentifier(value);
+  return normalized || fallback;
+}
+
+function getIntegerField(lookup: Map<string, string>, aliases: string[]): number | null {
+  const raw = getNormalizedField(lookup, aliases);
+  if (!raw) return null;
+  const value = Number.parseInt(raw, 10);
+  if (!Number.isFinite(value)) return null;
+  return value;
+}
+
+function getFloatField(lookup: Map<string, string>, aliases: string[]): number | null {
+  const raw = getNormalizedField(lookup, aliases);
+  if (!raw) return null;
+  const value = Number.parseFloat(raw);
+  if (!Number.isFinite(value)) return null;
+  return value;
+}
+
+function normalizeAnswerLabel(value: string | null): string | null {
+  if (!value) return null;
+  const text = normalizePlainText(value);
+  if (!text) return null;
+
+  const letterMatch = /(?:^|\b)([a-j])(?:\b|[\).:\-])/i.exec(text);
+  if (letterMatch) return letterMatch[1].toUpperCase();
+
+  const asNumber = Number.parseInt(text, 10);
+  if (Number.isFinite(asNumber) && asNumber >= 1 && asNumber <= CHOICE_LETTERS.length) {
+    return CHOICE_LETTERS[asNumber - 1];
+  }
+
+  return text.toUpperCase();
 }
 
 function normalizePlainText(value: unknown): string {

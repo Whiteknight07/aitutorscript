@@ -124,12 +124,28 @@ export const PairwiseQuestionSchema = QuestionBaseSchema.extend({
   metadata: z.object({
     tags: z.array(z.string().min(1)).min(1),
     source: z.object({
+      splitId: z.string().min(1),
       questionsFile: z.string().min(1),
       answersFile: z.string().min(1).nullable(),
       questionsRow: z.number().int().min(1),
       questionId: z.string().min(1).optional(),
     }),
-    answersTelemetry: z.record(z.string(), z.unknown()).optional(),
+    stats: z
+      .object({
+        avgRating: z.number().finite().optional(),
+        totalAnswers: z.number().int().min(0).optional(),
+        totalRatings: z.number().int().min(0).optional(),
+        numOptions: z.number().int().min(0).optional(),
+      })
+      .optional(),
+    answersTelemetry: z
+      .object({
+        rowCount: z.number().int().min(0),
+        answerCounts: z.record(z.string(), z.number().int().min(0)),
+        authoredAnswer: z.string().min(1).optional(),
+        authoredAnswerShare: z.number().min(0).max(1).optional(),
+      })
+      .optional(),
   }),
 });
 

@@ -25,6 +25,7 @@ import { buildAnalysis } from '../output/analysis/index';
 import { renderReportHtml } from '../output/report';
 import { renderAnalysisDashboard, generateAnalysisCsvs } from '../output/analysis';
 import { loadCsbenchQuestions } from './csbench';
+import { loadPairwiseQuestions } from './pairwise';
 
 // Type for a single run configuration
 type RunConfig = {
@@ -144,7 +145,7 @@ export async function runExperiments({
     // eslint-disable-next-line no-console
     console.log(`\n📝 Loading pairwise questions from ${args.pairwiseDir}`);
     questions = await loadPairwiseQuestions({
-      pairwiseDir: args.pairwiseDir,
+      dirPath: args.pairwiseDir,
       limit: args.questionLimit,
     });
     // eslint-disable-next-line no-console
@@ -889,25 +890,6 @@ function coerceLegacyDefaultQuestion(input: unknown): Question | null {
     ...raw,
     dataset: 'default',
   } as Question;
-}
-
-async function loadPairwiseQuestions({
-  pairwiseDir,
-  limit,
-}: {
-  pairwiseDir: string;
-  limit: number | null;
-}): Promise<Question[]> {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const pairwiseModule = require('./pairwise') as {
-    loadPairwiseQuestions?: (args: { pairwiseDir: string; limit: number | null }) => Promise<Question[]>;
-  };
-
-  if (typeof pairwiseModule.loadPairwiseQuestions !== 'function') {
-    throw new Error('Missing loadPairwiseQuestions export in src/core/pairwise.ts');
-  }
-
-  return pairwiseModule.loadPairwiseQuestions({ pairwiseDir, limit });
 }
 
 function stripHtml(html: string): string {

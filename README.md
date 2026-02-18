@@ -190,3 +190,5 @@ From `summary.json`:
   - `pnpm harness -- --noJudge --turns 10`
 - Run using pairwise inputs:
   - `pnpm harness -- --dataset pairwise --pairwiseDir data/pairwise --turns 4`
+- Validate pairwise ingestion locally (no model/API calls):
+  - `pnpm validate:pairwise`
