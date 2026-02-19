@@ -260,8 +260,9 @@ Question Source:
   To regenerate static questions: pnpm generate-questions
 
 Models:
-  Use OpenRouter model IDs like "openai/gpt-4o" and "google/gemini-2.0-flash-001".
+  Use provider-qualified model IDs like "openai/gpt-5.1" and "google/gemini-3-flash-preview".
   Configure defaults in src/config.ts.
-  Requires OPENROUTER_API_KEY (or install provider modules and set provider keys).
+  Requires provider keys (OPENAI_API_KEY and GEMINI_API_KEY).
+  GOOGLE_GENERATIVE_AI_API_KEY is also supported for Gemini.
 `.trim());
 }
