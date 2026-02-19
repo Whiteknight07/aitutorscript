@@ -107,6 +107,9 @@ function requireEnvVar(name: string, modelId: string): string {
 }
 
 function getGoogleApiKey(modelId: string): string {
+  const geminiKey = String(process.env.GEMINI_API_KEY ?? '').trim();
+  if (geminiKey) return geminiKey;
+
   const directKey = String(process.env.GOOGLE_GENERATIVE_AI_API_KEY ?? '').trim();
   if (directKey) return directKey;
 
@@ -114,7 +117,7 @@ function getGoogleApiKey(modelId: string): string {
   if (legacyKey) return legacyKey;
 
   throw new Error(
-    `GOOGLE_GENERATIVE_AI_API_KEY is not set (and GOOGLE_API_KEY fallback is empty); model "${modelId}" cannot be called directly.`
+    `Neither GEMINI_API_KEY nor GOOGLE_GENERATIVE_AI_API_KEY is set (and GOOGLE_API_KEY fallback is empty); model "${modelId}" cannot be called directly.`
   );
 }
 
