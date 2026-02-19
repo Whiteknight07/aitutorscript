@@ -587,6 +587,11 @@ function buildGeminiContents(messages: ChatMessage[]): Array<{
   }));
 }
 
+function isGemini3FlashPreviewModel(modelName: string): boolean {
+  const normalized = String(modelName ?? '').toLowerCase();
+  return normalized === 'gemini-3-flash-preview' || normalized.startsWith('gemini-3-flash-preview-');
+}
+
 async function callOpenAi({
   modelName,
   modelId,
@@ -654,6 +659,12 @@ async function callGoogle({
 }): Promise<ProviderCallResult> {
   const apiKey = getGoogleApiKey(modelId);
   const generationConfig: Record<string, unknown> = {};
+
+  if (isGemini3FlashPreviewModel(modelName)) {
+    generationConfig.thinkingConfig = {
+      thinkingLevel: 'low',
+    };
+  }
 
   if (maxOutputTokens !== undefined) {
     generationConfig.maxOutputTokens = maxOutputTokens;
