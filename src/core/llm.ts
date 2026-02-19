@@ -1,4 +1,4 @@
-import { ZodTypeAny } from 'zod';
+import { ZodTypeAny, toJSONSchema } from 'zod';
 import type { TimedCallRecord } from '../types';
 import { hrNowMs, nowIso } from '../utils/util';
 
@@ -16,6 +16,7 @@ type ProviderOptions = {
   provider?: {
     sort?: 'throughput' | 'price' | 'latency';
     order?: string[];
+    requireParameters?: boolean;
   };
 };
 
@@ -168,6 +169,14 @@ function normalizeParsedObjectCandidate(value: unknown): unknown {
   return value;
 }
 
+function zodSchemaToJsonSchema(schema: ZodTypeAny): Record<string, unknown> {
+  const jsonSchema = toJSONSchema(schema);
+  if (!jsonSchema || typeof jsonSchema !== 'object') {
+    throw new Error('Failed to convert Zod schema to JSON Schema for structured output.');
+  }
+  return jsonSchema as Record<string, unknown>;
+}
+
 export { getProviderOptions };
 
 export async function timedGenerateText({
@@ -284,23 +293,37 @@ export async function timedGenerateObject<T>({
 
   const client = await ensureOpenRouterClient(model);
   const providerOptions = getProviderOptions(model);
+  const providerForStructuredOutput = providerOptions.provider
+    ? { ...providerOptions.provider, requireParameters: true }
+    : { requireParameters: true };
+  const jsonSchema = zodSchemaToJsonSchema(schema);
 
   try {
     const request: {
       model: string;
       input: ChatInputMessage[];
       provider?: ProviderOptions['provider'];
-      text: { format: { type: 'json_object' } };
+      text: {
+        format: {
+          type: 'json_schema';
+          name: string;
+          strict: true;
+          schema: Record<string, unknown>;
+        };
+      };
       maxOutputTokens?: number;
     } = {
       model,
       input: chatInput,
       text: {
         format: {
-          type: 'json_object',
+          type: 'json_schema',
+          name: schemaName,
+          strict: true,
+          schema: jsonSchema,
         },
       },
-      ...providerOptions,
+      provider: providerForStructuredOutput,
     };
     if (maxOutputTokens !== undefined) request.maxOutputTokens = maxOutputTokens;
 
