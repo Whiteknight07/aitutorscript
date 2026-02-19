@@ -34,6 +34,10 @@ type ProviderCallResult = {
   response?: unknown;
 };
 
+const OPENAI_MAX_RETRY_ATTEMPTS = 6;
+const OPENAI_RETRY_BASE_DELAY_MS = 250;
+const OPENAI_RETRY_MAX_DELAY_MS = 8_000;
+
 /**
  * Compatibility export retained for callers that still import this symbol.
  * Routing is now handled directly by provider-prefixed model IDs.
@@ -452,6 +456,157 @@ function buildApiError(message: string, details: Record<string, unknown>): Error
   return err;
 }
 
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+function readStatusCode(value: unknown): number | undefined {
+  const status = typeof value === 'number' ? value : Number(value);
+  if (!Number.isInteger(status)) return undefined;
+  return status >= 100 && status <= 599 ? status : undefined;
+}
+
+function getErrorStatusCode(err: unknown): number | undefined {
+  if (!isRecord(err)) return undefined;
+
+  const directStatus = readStatusCode(err.status);
+  if (directStatus !== undefined) return directStatus;
+
+  const statusCode = readStatusCode(err.statusCode);
+  if (statusCode !== undefined) return statusCode;
+
+  return undefined;
+}
+
+function extractOpenAiErrorCode(err: unknown): string | undefined {
+  if (!isRecord(err) || !isRecord(err.response)) return undefined;
+  const response = err.response as Record<string, unknown>;
+  if (!isRecord(response.error)) return undefined;
+
+  const code = response.error.code;
+  if (typeof code === 'string' && code.trim().length > 0) {
+    return code.trim().toLowerCase();
+  }
+
+  return undefined;
+}
+
+function extractOpenAiErrorType(err: unknown): string | undefined {
+  if (!isRecord(err) || !isRecord(err.response)) return undefined;
+  const response = err.response as Record<string, unknown>;
+  if (!isRecord(response.error)) return undefined;
+
+  const type = response.error.type;
+  if (typeof type === 'string' && type.trim().length > 0) {
+    return type.trim().toLowerCase();
+  }
+
+  return undefined;
+}
+
+function getRetryErrorText(err: unknown): string {
+  if (!isRecord(err)) return '';
+
+  const parts: string[] = [];
+  if (typeof err.message === 'string') {
+    parts.push(err.message);
+  }
+  if (typeof err.text === 'string') {
+    parts.push(err.text);
+  }
+
+  if (isRecord(err.response) && isRecord(err.response.error) && typeof err.response.error.message === 'string') {
+    parts.push(err.response.error.message);
+  }
+
+  return parts.join(' ').toLowerCase();
+}
+
+function isLikelyNetworkError(err: unknown): boolean {
+  if (!isRecord(err)) return false;
+  if (getErrorStatusCode(err) !== undefined) return false;
+
+  if ('cause' in err && err.cause !== undefined) {
+    return true;
+  }
+
+  const retryText = getRetryErrorText(err);
+  return [
+    'network',
+    'fetch failed',
+    'econnreset',
+    'econnaborted',
+    'etimedout',
+    'timed out',
+    'enotfound',
+    'eai_again',
+    'ehostunreach',
+    'socket hang up',
+    'connection reset',
+  ].some((needle) => retryText.includes(needle));
+}
+
+function isRetryableOpenAiError(err: unknown): boolean {
+  const status = getErrorStatusCode(err);
+
+  if (status === 408) {
+    return true;
+  }
+
+  if (status === 429) {
+    const errorCode = extractOpenAiErrorCode(err);
+    if (errorCode === 'insufficient_quota') {
+      return false;
+    }
+
+    if (errorCode?.includes('rate') || errorCode?.includes('resource_unavailable')) {
+      return true;
+    }
+
+    const errorType = extractOpenAiErrorType(err);
+    if (errorType?.includes('rate') || errorType?.includes('resource_unavailable')) {
+      return true;
+    }
+
+    const retryText = getRetryErrorText(err);
+    if (
+      retryText.includes('rate limit') ||
+      retryText.includes('too many requests') ||
+      retryText.includes('resource unavailable')
+    ) {
+      return true;
+    }
+
+    return true;
+  }
+
+  if (status !== undefined && status >= 500 && status <= 599) {
+    return true;
+  }
+
+  return isLikelyNetworkError(err);
+}
+
+function calculateOpenAiRetryDelayMs(failureAttempt: number): number {
+  const exponent = Math.max(0, failureAttempt - 1);
+  const cappedExponential = Math.min(
+    OPENAI_RETRY_MAX_DELAY_MS,
+    OPENAI_RETRY_BASE_DELAY_MS * (2 ** exponent)
+  );
+  const jitterMultiplier = 0.5 + Math.random();
+
+  return Math.max(
+    1,
+    Math.min(OPENAI_RETRY_MAX_DELAY_MS, Math.round(cappedExponential * jitterMultiplier))
+  );
+}
+
+function shouldUseOpenAiFlexTier(modelName: string): boolean {
+  return modelName === 'gpt-5.1';
+}
+
 async function postJson({
   url,
   headers,
@@ -611,6 +766,9 @@ async function callOpenAi({
     model: modelName,
     input: chatInput,
   };
+  if (shouldUseOpenAiFlexTier(modelName)) {
+    body.service_tier = 'flex';
+  }
   if (maxOutputTokens !== undefined) {
     body.max_output_tokens = maxOutputTokens;
   }
@@ -626,20 +784,37 @@ async function callOpenAi({
     };
   }
 
-  const response = await postJson({
-    url: 'https://api.openai.com/v1/responses',
-    headers: {
-      authorization: `Bearer ${apiKey}`,
-    },
-    body,
-  });
+  for (let attempt = 1; attempt <= OPENAI_MAX_RETRY_ATTEMPTS; attempt += 1) {
+    try {
+      const response = await postJson({
+        url: 'https://api.openai.com/v1/responses',
+        headers: {
+          authorization: `Bearer ${apiKey}`,
+        },
+        body,
+      });
 
-  return {
-    text: extractOpenAiText(response.data),
-    finishReason: extractOpenAiFinishReason(response.data),
-    usage: isRecord(response.data) ? response.data.usage : undefined,
-    response: response.data,
-  };
+      return {
+        text: extractOpenAiText(response.data),
+        finishReason: extractOpenAiFinishReason(response.data),
+        usage: isRecord(response.data) ? response.data.usage : undefined,
+        response: response.data,
+      };
+    } catch (err: any) {
+      const canRetry =
+        attempt < OPENAI_MAX_RETRY_ATTEMPTS &&
+        isRetryableOpenAiError(err);
+
+      if (!canRetry) {
+        throw err;
+      }
+
+      const delayMs = calculateOpenAiRetryDelayMs(attempt);
+      await sleep(delayMs);
+    }
+  }
+
+  throw new Error('OpenAI request failed after retry budget was exhausted.');
 }
 
 async function callGoogle({
