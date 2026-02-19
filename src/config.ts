@@ -11,9 +11,7 @@
 
 /**
  * Available models - add new models here
- * Format: provider/model-name (OpenRouter format)
- * 
- * Browse models at: https://openrouter.ai/docs#models
+ * Format: provider/model-name
  */
 export const MODELS = {
   // OpenAI models
