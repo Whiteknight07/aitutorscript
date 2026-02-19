@@ -13,7 +13,7 @@ type ChatInputMessage = {
 };
 
 type ProviderOptions = {
-  provider: {
+  provider?: {
     sort?: 'throughput' | 'price' | 'latency';
     order?: string[];
   };
@@ -28,13 +28,10 @@ const importOpenRouterSdk = new Function('specifier', 'return import(specifier);
 
 /**
  * Get provider-specific options for a model.
- * - Configures OpenRouter to prefer high-throughput, low-price providers
+ * - Applies explicit provider routing overrides for specific models.
  */
 function getProviderOptions(modelId: string): ProviderOptions {
-  const provider: ProviderOptions['provider'] = {
-    // Prefer throughput by default for harness speed.
-    sort: 'throughput',
-  };
+  const provider: NonNullable<ProviderOptions['provider']> = {};
 
   // Hardcode: route Kimi K2 judge via Google Vertex on OpenRouter.
   // (OpenRouter provider naming varies; include both common identifiers.)
@@ -45,7 +42,6 @@ function getProviderOptions(modelId: string): ProviderOptions {
     modelId.endsWith('/kimik2')
   ) {
     provider.order = ['google-vertex', 'Google Vertex'];
-    delete provider.sort;
   }
 
   // Optional: force OpenRouter to use Google Vertex for specific model IDs.
@@ -57,10 +53,12 @@ function getProviderOptions(modelId: string): ProviderOptions {
     .filter(Boolean);
   if (vertexOnly.includes(modelId)) {
     provider.order = ['google-vertex', 'Google Vertex'];
-    delete provider.sort;
   }
 
-  return { provider };
+  if (provider.order && provider.order.length > 0) {
+    return { provider };
+  }
+  return {};
 }
 
 async function ensureOpenRouterClient(modelId: string): Promise<OpenRouterClient> {
@@ -203,7 +201,7 @@ export async function timedGenerateText({
     const request: {
       model: string;
       input: ChatInputMessage[];
-      provider: ProviderOptions['provider'];
+      provider?: ProviderOptions['provider'];
       maxOutputTokens?: number;
     } = {
       model,
@@ -291,7 +289,7 @@ export async function timedGenerateObject<T>({
     const request: {
       model: string;
       input: ChatInputMessage[];
-      provider: ProviderOptions['provider'];
+      provider?: ProviderOptions['provider'];
       text: { format: { type: 'json_object' } };
       maxOutputTokens?: number;
     } = {

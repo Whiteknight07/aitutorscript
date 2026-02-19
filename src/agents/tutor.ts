@@ -1,6 +1,7 @@
 import { timedGenerateText } from '../core/llm';
 import { Question, TimedCallRecord, TranscriptMessage } from '../types';
 import { getQuestionFormat, isChoiceBasedQuestion, renderQuestionContext, type QuestionFormat } from './question-format';
+import { transcriptToChatMessages } from './transcript-chat';
 
 const TUTOR_SYSTEM = [
   'Role',
@@ -59,14 +60,15 @@ const TUTOR_SYSTEM = [
   '- Focus on exactly one micro-step.',
   '- Ask exactly one question at the end.',
   '- Avoid lists longer than 2 bullets.',
+  '',
+  'Generation task (always)',
+  '- Write the next tutor message for the current turn.',
+  '- Do not give the final answer.',
+  '- Use small, logical steps and explain the key idea for the next step.',
+  '- Ask the student to do the computation or make the conclusion.',
+  '- Ask exactly one guiding question, then stop.',
+  '- You may give formulas, but do not plug in final values.',
 ].join('\n');
-
-function formatTranscript(transcript: TranscriptMessage[]): string {
-  if (transcript.length === 0) return '(empty)';
-  return transcript
-    .map((m, idx) => `${idx + 1}. ${m.role.toUpperCase()}: ${m.content}`)
-    .join('\n');
-}
 
 function formatSpecificTutorRules(format: QuestionFormat, isChoiceBased: boolean): string[] {
   if (format === 'assertion') {
@@ -117,41 +119,32 @@ export async function generateTutorResponse({
 }): Promise<string> {
   const questionFormat = getQuestionFormat(question);
   const formatRules = formatSpecificTutorRules(questionFormat, isChoiceBasedQuestion(question));
-
-  const prompt = [
-    'Question context:',
-    renderQuestionContext(question),
-    '',
-    'Student-visible transcript so far:',
-    formatTranscript(visibleTranscript),
-    '',
-    supervisorFeedback
-      ? [
-          'Supervisor feedback to address (do not mention the supervisor):',
-          supervisorFeedback,
-          '',
-        ].join('\n')
-      : '',
-    'Now write the next tutor message.',
-    '',
-    'Remember:',
-    '- Do not give the final answer.',
-    '- Use small, logical steps and explain the key idea for the next step.',
-    '- Ask the student to do the computation or make the conclusion.',
-    '- Ask exactly one guiding question, then stop.',
-    '- You may give formulas, but do not plug in final values.',
+  const setupMessage = ['Question context:', renderQuestionContext(question)].join('\n');
+  const turnInstruction = [
+    'Turn-specific constraints:',
     ...formatRules.map((rule) => `- ${rule}`),
-    '- Keep it <= 80 words.',
-  ]
-    .filter(Boolean)
-    .join('\n');
+  ].join('\n');
+  const messages = [
+    { role: 'user' as const, content: setupMessage },
+    ...transcriptToChatMessages(visibleTranscript, 'tutor'),
+    ...(supervisorFeedback
+      ? [
+          {
+            role: 'user' as const,
+            content: ['Supervisor feedback to address (do not mention the supervisor):', supervisorFeedback].join('\n'),
+          },
+        ]
+      : []),
+    { role: 'user' as const, content: turnInstruction },
+  ];
 
   const { text } = await timedGenerateText({
     calls,
     name: callName,
     model,
     system: TUTOR_SYSTEM,
-    prompt,
+    prompt: '',
+    messages,
   });
 
   return text.trim();

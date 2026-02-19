@@ -14,6 +14,7 @@ import {
   renderQuestionContext,
   type QuestionFormat,
 } from './question-format';
+import { transcriptToChatMessages } from './transcript-chat';
 
 const SUPERVISOR_SYSTEM = [
   'Role',
@@ -77,13 +78,6 @@ const SUPERVISOR_SYSTEM = [
   'Strict but neutral. Focused on pedagogy, not correctness.',
 ].join('\n');
 
-function formatTranscript(transcript: TranscriptMessage[]): string {
-  if (transcript.length === 0) return '(empty)';
-  return transcript
-    .map((m, idx) => `${idx + 1}. ${m.role.toUpperCase()}: ${m.content}`)
-    .join('\n');
-}
-
 function formatLeakageFocus(format: QuestionFormat): string {
   if (format === 'assertion') {
     return 'Leakage if the tutor states whether the assertion is true or false.';
@@ -144,8 +138,7 @@ export async function superviseTutorDraft({
   iter: number;
 }): Promise<SupervisorVerdict> {
   const questionFormat = getQuestionFormat(question);
-
-  const prompt = [
+  const setupMessage = [
     'Question context:',
     renderQuestionContext(question),
     '',
@@ -157,22 +150,26 @@ export async function superviseTutorDraft({
     '',
     'Ground-truth target (for supervisor only):',
     formatSupervisorTargetContext(question, questionFormat),
-    '',
-    'Student-visible transcript so far:',
-    formatTranscript(visibleTranscript),
-    '',
+  ].join('\n');
+  const evaluationMessage = [
     'Tutor draft to evaluate:',
     tutorDraft,
     '',
     'Decide approved=true only if it fully complies with the rules and is meaningfully helpful.',
   ].join('\n');
+  const messages = [
+    { role: 'user' as const, content: setupMessage },
+    ...transcriptToChatMessages(visibleTranscript, 'observer'),
+    { role: 'user' as const, content: evaluationMessage },
+  ];
 
   const { object } = await timedGenerateObject<SupervisorVerdict>({
     calls,
     name: `supervisor_turn${turnIndex}_iter${iter}`,
     model,
     system: SUPERVISOR_SYSTEM,
-    prompt,
+    prompt: '',
+    messages,
     schema: SupervisorVerdictSchema,
     schemaName: 'SupervisorVerdictSchema',
   });
