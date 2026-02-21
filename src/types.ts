@@ -315,8 +315,10 @@ export type RunRecord = {
   loopTurnIterations: Array<{
     turnIndex: number;
     iterationsUsed: number;
-    initiallyRejected: boolean;
-    endedApproved: boolean;
+    initiallyRejected?: boolean;
+    endedApproved?: boolean;
+    labelObserved?: boolean;
+    observedLabelApproved?: boolean;
     rationale: string;
   }> | null;
   transcriptVisible: TranscriptMessage[];
