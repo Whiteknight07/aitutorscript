@@ -18,8 +18,8 @@ async function main() {
 
 async function readEnvSummary(): Promise<Record<string, unknown>> {
   const keys = [
-    'OPENROUTER_API_KEY',
     'OPENAI_API_KEY',
+    'GEMINI_API_KEY',
     'GOOGLE_GENERATIVE_AI_API_KEY',
     'NODE_ENV',
   ];
@@ -47,4 +47,3 @@ main().catch((err) => {
   console.error(err);
   process.exit(1);
 });
-

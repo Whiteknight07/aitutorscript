@@ -20,63 +20,30 @@ type ProviderOptions = {
   };
 };
 
-type OpenRouterClient = InstanceType<(typeof import('@openrouter/sdk'))['OpenRouter']>;
+type SupportedProvider = 'openai' | 'google';
 
-let openrouterPromise: Promise<OpenRouterClient> | null = null;
-const importOpenRouterSdk = new Function('specifier', 'return import(specifier);') as (
-  specifier: string
-) => Promise<{ OpenRouter: (new (options: { apiKey: string }) => OpenRouterClient) }>;
+type StructuredOutputConfig = {
+  schemaName: string;
+  jsonSchema: Record<string, unknown>;
+};
+
+type ProviderCallResult = {
+  text: string;
+  finishReason?: string;
+  usage?: unknown;
+  response?: unknown;
+};
+
+const OPENAI_MAX_RETRY_ATTEMPTS = 6;
+const OPENAI_RETRY_BASE_DELAY_MS = 250;
+const OPENAI_RETRY_MAX_DELAY_MS = 8_000;
 
 /**
- * Get provider-specific options for a model.
- * - Applies explicit provider routing overrides for specific models.
+ * Compatibility export retained for callers that still import this symbol.
+ * Routing is now handled directly by provider-prefixed model IDs.
  */
-function getProviderOptions(modelId: string): ProviderOptions {
-  const provider: NonNullable<ProviderOptions['provider']> = {};
-
-  // Hardcode: route Kimi K2 judge via Google Vertex on OpenRouter.
-  // (OpenRouter provider naming varies; include both common identifiers.)
-  if (
-    modelId === 'moonshotai/kimi-k2-thinking' ||
-    modelId.endsWith('/kimi-k2-thinking') ||
-    modelId === 'kimik2' ||
-    modelId.endsWith('/kimik2')
-  ) {
-    provider.order = ['google-vertex', 'Google Vertex'];
-  }
-
-  // Optional: force OpenRouter to use Google Vertex for specific model IDs.
-  // Example:
-  //   OPENROUTER_GOOGLE_VERTEX_ONLY_MODELS="google/gemini-2.0-flash-001,google/gemini-2.0-pro"
-  const vertexOnly = String(process.env.OPENROUTER_GOOGLE_VERTEX_ONLY_MODELS ?? '')
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean);
-  if (vertexOnly.includes(modelId)) {
-    provider.order = ['google-vertex', 'Google Vertex'];
-  }
-
-  if (provider.order && provider.order.length > 0) {
-    return { provider };
-  }
+function getProviderOptions(_modelId: string): ProviderOptions {
   return {};
-}
-
-async function ensureOpenRouterClient(modelId: string): Promise<OpenRouterClient> {
-  const apiKey = process.env.OPENROUTER_API_KEY;
-  if (!apiKey) {
-    throw new Error(
-      `OPENROUTER_API_KEY is not set; model "${modelId}" cannot be called with @openrouter/sdk.`
-    );
-  }
-
-  if (!openrouterPromise) {
-    openrouterPromise = importOpenRouterSdk('@openrouter/sdk').then(
-      ({ OpenRouter }) => new OpenRouter({ apiKey })
-    );
-  }
-
-  return openrouterPromise;
 }
 
 function buildMessages(prompt: string, messages?: ChatMessage[]): ChatMessage[] {
@@ -108,6 +75,56 @@ function buildChatInput(system: string, inputMessages: ChatMessage[]): ChatInput
   ];
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function parseProviderModel(modelId: string): { provider: SupportedProvider; modelName: string } {
+  const [providerRaw, ...rest] = String(modelId ?? '').split('/');
+  const provider = providerRaw.toLowerCase();
+  const modelName = rest.join('/').trim();
+
+  if (!provider || !modelName) {
+    throw new Error(
+      `Invalid model ID "${modelId}". Expected provider-prefixed form like "openai/gpt-5.1" or "google/gemini-3-flash-preview".`
+    );
+  }
+
+  if (provider !== 'openai' && provider !== 'google') {
+    throw new Error(
+      `Unsupported model provider "${providerRaw}" in "${modelId}". Supported providers: openai/*, google/*.`
+    );
+  }
+
+  return {
+    provider,
+    modelName: modelName.startsWith('models/') ? modelName.slice('models/'.length) : modelName,
+  };
+}
+
+function requireEnvVar(name: string, modelId: string): string {
+  const value = String(process.env[name] ?? '').trim();
+  if (!value) {
+    throw new Error(`${name} is not set; model "${modelId}" cannot be called directly.`);
+  }
+  return value;
+}
+
+function getGoogleApiKey(modelId: string): string {
+  const geminiKey = String(process.env.GEMINI_API_KEY ?? '').trim();
+  if (geminiKey) return geminiKey;
+
+  const directKey = String(process.env.GOOGLE_GENERATIVE_AI_API_KEY ?? '').trim();
+  if (directKey) return directKey;
+
+  const legacyKey = String(process.env.GOOGLE_API_KEY ?? '').trim();
+  if (legacyKey) return legacyKey;
+
+  throw new Error(
+    `Neither GEMINI_API_KEY nor GOOGLE_GENERATIVE_AI_API_KEY is set (and GOOGLE_API_KEY fallback is empty); model "${modelId}" cannot be called directly.`
+  );
+}
+
 function numberOrZero(value: unknown): number {
   const n = typeof value === 'number' ? value : Number(value);
   return Number.isFinite(n) ? n : 0;
@@ -116,15 +133,32 @@ function numberOrZero(value: unknown): number {
 function normalizeUsage(usage: any): Record<string, unknown> | undefined {
   if (!usage || typeof usage !== 'object') return undefined;
 
-  const inputTokens = numberOrZero(usage.inputTokens ?? usage.promptTokens);
-  const outputTokens = numberOrZero(usage.outputTokens ?? usage.completionTokens);
+  const inputTokens = numberOrZero(
+    usage.inputTokens ?? usage.promptTokens ?? usage.input_tokens ?? usage.promptTokenCount
+  );
+  const outputTokens = numberOrZero(
+    usage.outputTokens ??
+      usage.completionTokens ??
+      usage.output_tokens ??
+      usage.candidatesTokenCount
+  );
   const cachedInputTokens = numberOrZero(
-    usage.inputTokensDetails?.cachedTokens ?? usage.cachedInputTokens ?? usage.cachedTokens
+    usage.inputTokensDetails?.cachedTokens ??
+      usage.cachedInputTokens ??
+      usage.cachedTokens ??
+      usage.input_tokens_details?.cached_tokens ??
+      usage.cachedContentTokenCount ??
+      usage.cached_content_token_count
   );
   const reasoningTokens = numberOrZero(
-    usage.outputTokensDetails?.reasoningTokens ?? usage.reasoningTokens
+    usage.outputTokensDetails?.reasoningTokens ??
+      usage.reasoningTokens ??
+      usage.output_tokens_details?.reasoning_tokens ??
+      usage.thoughtsTokenCount
   );
-  const totalTokens = numberOrZero(usage.totalTokens ?? inputTokens + outputTokens);
+  const totalTokens = numberOrZero(
+    usage.totalTokens ?? usage.total_tokens ?? usage.totalTokenCount ?? inputTokens + outputTokens
+  );
 
   const normalized: Record<string, unknown> = {
     inputTokens,
@@ -177,6 +211,711 @@ function zodSchemaToJsonSchema(schema: ZodTypeAny): Record<string, unknown> {
   return jsonSchema as Record<string, unknown>;
 }
 
+function resolveJsonPointer(root: Record<string, unknown>, ref: string): unknown {
+  if (!ref.startsWith('#/')) {
+    throw new Error(`Unsupported JSON schema reference "${ref}".`);
+  }
+
+  const pointer = ref.slice(2);
+  const segments = pointer
+    .split('/')
+    .map((segment) => segment.replace(/~1/g, '/').replace(/~0/g, '~'));
+
+  let current: unknown = root;
+  for (const segment of segments) {
+    if (Array.isArray(current)) {
+      const index = Number(segment);
+      if (!Number.isInteger(index) || index < 0 || index >= current.length) {
+        throw new Error(`Invalid array index "${segment}" in JSON schema reference "${ref}".`);
+      }
+      current = current[index];
+      continue;
+    }
+
+    if (!isRecord(current) || !(segment in current)) {
+      throw new Error(`Unresolved JSON schema reference "${ref}".`);
+    }
+
+    current = current[segment];
+  }
+
+  return current;
+}
+
+function dereferenceJsonSchemaNode(
+  node: unknown,
+  rootSchema: Record<string, unknown>,
+  activeRefs: Set<string>
+): unknown {
+  if (!isRecord(node)) return node;
+
+  const ref = typeof node.$ref === 'string' ? node.$ref : undefined;
+  if (!ref) return node;
+
+  if (activeRefs.has(ref)) {
+    throw new Error(`Circular JSON schema reference "${ref}".`);
+  }
+
+  activeRefs.add(ref);
+  try {
+    const resolved = resolveJsonPointer(rootSchema, ref);
+    return dereferenceJsonSchemaNode(resolved, rootSchema, activeRefs);
+  } finally {
+    activeRefs.delete(ref);
+  }
+}
+
+function inferJsonSchemaTypeFromValue(value: unknown): string {
+  if (value === null) return 'null';
+  if (Array.isArray(value)) return 'array';
+  if (typeof value === 'boolean') return 'boolean';
+  if (typeof value === 'number') return Number.isInteger(value) ? 'integer' : 'number';
+  if (typeof value === 'object') return 'object';
+  return 'string';
+}
+
+function jsonSchemaTypeToGeminiType(type: string): string {
+  switch (type) {
+    case 'object':
+      return 'OBJECT';
+    case 'array':
+      return 'ARRAY';
+    case 'string':
+      return 'STRING';
+    case 'integer':
+      return 'INTEGER';
+    case 'number':
+      return 'NUMBER';
+    case 'boolean':
+      return 'BOOLEAN';
+    case 'null':
+      return 'NULL';
+    default:
+      return 'STRING';
+  }
+}
+
+function isNullSchemaNode(node: unknown, rootSchema: Record<string, unknown>): boolean {
+  const resolved = dereferenceJsonSchemaNode(node, rootSchema, new Set<string>());
+  if (!isRecord(resolved)) return false;
+
+  if (resolved.type === 'null') return true;
+  if (Array.isArray(resolved.type)) {
+    return resolved.type.includes('null');
+  }
+  return false;
+}
+
+function convertJsonSchemaNodeToGeminiSchema(
+  node: unknown,
+  rootSchema: Record<string, unknown>,
+  activeRefs: Set<string>
+): Record<string, unknown> {
+  const resolved = dereferenceJsonSchemaNode(node, rootSchema, activeRefs);
+  if (!isRecord(resolved)) {
+    return { type: 'STRING' };
+  }
+
+  if (Array.isArray(resolved.anyOf) && resolved.anyOf.length > 0) {
+    const variants = resolved.anyOf;
+    const nonNullVariants = variants.filter((variant) => !isNullSchemaNode(variant, rootSchema));
+    const chosen = nonNullVariants[0] ?? variants[0];
+    const converted = convertJsonSchemaNodeToGeminiSchema(chosen, rootSchema, activeRefs);
+    if (nonNullVariants.length !== variants.length) {
+      converted.nullable = true;
+    }
+    return converted;
+  }
+
+  if (Array.isArray(resolved.oneOf) && resolved.oneOf.length > 0) {
+    const variants = resolved.oneOf;
+    const nonNullVariants = variants.filter((variant) => !isNullSchemaNode(variant, rootSchema));
+    const chosen = nonNullVariants[0] ?? variants[0];
+    const converted = convertJsonSchemaNodeToGeminiSchema(chosen, rootSchema, activeRefs);
+    if (nonNullVariants.length !== variants.length) {
+      converted.nullable = true;
+    }
+    return converted;
+  }
+
+  let nullable = Boolean(resolved.nullable);
+  let jsonType: string | undefined;
+
+  if (typeof resolved.type === 'string') {
+    jsonType = resolved.type;
+  } else if (Array.isArray(resolved.type)) {
+    for (const typeValue of resolved.type) {
+      if (typeValue === 'null') {
+        nullable = true;
+        continue;
+      }
+      if (!jsonType && typeof typeValue === 'string') {
+        jsonType = typeValue;
+      }
+    }
+  }
+
+  if (!jsonType && Array.isArray(resolved.enum) && resolved.enum.length > 0) {
+    jsonType = inferJsonSchemaTypeFromValue(resolved.enum[0]);
+  }
+
+  if (!jsonType && resolved.const !== undefined) {
+    jsonType = inferJsonSchemaTypeFromValue(resolved.const);
+  }
+
+  if (!jsonType) {
+    if (isRecord(resolved.properties)) {
+      jsonType = 'object';
+    } else if (resolved.items !== undefined) {
+      jsonType = 'array';
+    } else {
+      jsonType = 'string';
+    }
+  }
+
+  if (jsonType === 'null') {
+    jsonType = 'string';
+    nullable = true;
+  }
+
+  const geminiSchema: Record<string, unknown> = {
+    type: jsonSchemaTypeToGeminiType(jsonType),
+  };
+
+  if (nullable) {
+    geminiSchema.nullable = true;
+  }
+
+  if (typeof resolved.description === 'string' && resolved.description.trim().length > 0) {
+    geminiSchema.description = resolved.description;
+  }
+
+  if (Array.isArray(resolved.enum) && resolved.enum.length > 0) {
+    geminiSchema.enum = resolved.enum;
+  } else if (resolved.const !== undefined) {
+    geminiSchema.enum = [resolved.const];
+  }
+
+  if (jsonType === 'object') {
+    const properties = isRecord(resolved.properties)
+      ? (resolved.properties as Record<string, unknown>)
+      : {};
+    const convertedProps: Record<string, unknown> = {};
+
+    for (const [key, propSchema] of Object.entries(properties)) {
+      convertedProps[key] = convertJsonSchemaNodeToGeminiSchema(propSchema, rootSchema, activeRefs);
+    }
+
+    geminiSchema.properties = convertedProps;
+
+    if (Array.isArray(resolved.required) && resolved.required.length > 0) {
+      const required = resolved.required.filter((value): value is string => typeof value === 'string');
+      if (required.length > 0) {
+        geminiSchema.required = required;
+      }
+    }
+
+    if (isRecord(resolved.additionalProperties)) {
+      geminiSchema.additionalProperties = convertJsonSchemaNodeToGeminiSchema(
+        resolved.additionalProperties,
+        rootSchema,
+        activeRefs
+      );
+    }
+  }
+
+  if (jsonType === 'array' && resolved.items !== undefined) {
+    geminiSchema.items = convertJsonSchemaNodeToGeminiSchema(resolved.items, rootSchema, activeRefs);
+  }
+
+  return geminiSchema;
+}
+
+function jsonSchemaToGeminiSchema(jsonSchema: Record<string, unknown>): Record<string, unknown> | undefined {
+  try {
+    return convertJsonSchemaNodeToGeminiSchema(jsonSchema, jsonSchema, new Set<string>());
+  } catch {
+    return undefined;
+  }
+}
+
+function jsonParse(text: string): unknown {
+  const trimmed = String(text ?? '').trim();
+  if (!trimmed) return null;
+
+  try {
+    return JSON.parse(trimmed);
+  } catch {
+    return null;
+  }
+}
+
+function buildApiError(message: string, details: Record<string, unknown>): Error {
+  const err = new Error(message) as Error & Record<string, unknown>;
+  Object.assign(err, details);
+  return err;
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+function readStatusCode(value: unknown): number | undefined {
+  const status = typeof value === 'number' ? value : Number(value);
+  if (!Number.isInteger(status)) return undefined;
+  return status >= 100 && status <= 599 ? status : undefined;
+}
+
+function getErrorStatusCode(err: unknown): number | undefined {
+  if (!isRecord(err)) return undefined;
+
+  const directStatus = readStatusCode(err.status);
+  if (directStatus !== undefined) return directStatus;
+
+  const statusCode = readStatusCode(err.statusCode);
+  if (statusCode !== undefined) return statusCode;
+
+  return undefined;
+}
+
+function extractOpenAiErrorCode(err: unknown): string | undefined {
+  if (!isRecord(err) || !isRecord(err.response)) return undefined;
+  const response = err.response as Record<string, unknown>;
+  if (!isRecord(response.error)) return undefined;
+
+  const code = response.error.code;
+  if (typeof code === 'string' && code.trim().length > 0) {
+    return code.trim().toLowerCase();
+  }
+
+  return undefined;
+}
+
+function extractOpenAiErrorType(err: unknown): string | undefined {
+  if (!isRecord(err) || !isRecord(err.response)) return undefined;
+  const response = err.response as Record<string, unknown>;
+  if (!isRecord(response.error)) return undefined;
+
+  const type = response.error.type;
+  if (typeof type === 'string' && type.trim().length > 0) {
+    return type.trim().toLowerCase();
+  }
+
+  return undefined;
+}
+
+function getRetryErrorText(err: unknown): string {
+  if (!isRecord(err)) return '';
+
+  const parts: string[] = [];
+  if (typeof err.message === 'string') {
+    parts.push(err.message);
+  }
+  if (typeof err.text === 'string') {
+    parts.push(err.text);
+  }
+
+  if (isRecord(err.response) && isRecord(err.response.error) && typeof err.response.error.message === 'string') {
+    parts.push(err.response.error.message);
+  }
+
+  return parts.join(' ').toLowerCase();
+}
+
+function isLikelyNetworkError(err: unknown): boolean {
+  if (!isRecord(err)) return false;
+  if (getErrorStatusCode(err) !== undefined) return false;
+
+  if ('cause' in err && err.cause !== undefined) {
+    return true;
+  }
+
+  const retryText = getRetryErrorText(err);
+  return [
+    'network',
+    'fetch failed',
+    'econnreset',
+    'econnaborted',
+    'etimedout',
+    'timed out',
+    'enotfound',
+    'eai_again',
+    'ehostunreach',
+    'socket hang up',
+    'connection reset',
+  ].some((needle) => retryText.includes(needle));
+}
+
+function isRetryableOpenAiError(err: unknown): boolean {
+  const status = getErrorStatusCode(err);
+
+  if (status === 408) {
+    return true;
+  }
+
+  if (status === 429) {
+    const errorCode = extractOpenAiErrorCode(err);
+    if (errorCode === 'insufficient_quota') {
+      return false;
+    }
+
+    if (errorCode?.includes('rate') || errorCode?.includes('resource_unavailable')) {
+      return true;
+    }
+
+    const errorType = extractOpenAiErrorType(err);
+    if (errorType?.includes('rate') || errorType?.includes('resource_unavailable')) {
+      return true;
+    }
+
+    const retryText = getRetryErrorText(err);
+    if (
+      retryText.includes('rate limit') ||
+      retryText.includes('too many requests') ||
+      retryText.includes('resource unavailable')
+    ) {
+      return true;
+    }
+
+    return true;
+  }
+
+  if (status !== undefined && status >= 500 && status <= 599) {
+    return true;
+  }
+
+  return isLikelyNetworkError(err);
+}
+
+function calculateOpenAiRetryDelayMs(failureAttempt: number): number {
+  const exponent = Math.max(0, failureAttempt - 1);
+  const cappedExponential = Math.min(
+    OPENAI_RETRY_MAX_DELAY_MS,
+    OPENAI_RETRY_BASE_DELAY_MS * (2 ** exponent)
+  );
+  const jitterMultiplier = 0.5 + Math.random();
+
+  return Math.max(
+    1,
+    Math.min(OPENAI_RETRY_MAX_DELAY_MS, Math.round(cappedExponential * jitterMultiplier))
+  );
+}
+
+function shouldUseOpenAiFlexTier(modelName: string): boolean {
+  return modelName === 'gpt-5.1';
+}
+
+async function postJson({
+  url,
+  headers,
+  body,
+}: {
+  url: string;
+  headers: Record<string, string>;
+  body: Record<string, unknown>;
+}): Promise<{ status: number; data: unknown; text: string }> {
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        ...headers,
+      },
+      body: JSON.stringify(body),
+    });
+  } catch (err: any) {
+    throw buildApiError('Network request failed.', {
+      cause: err,
+      message: String(err?.message ?? err),
+    });
+  }
+
+  const text = await response.text();
+  const data = jsonParse(text);
+
+  if (!response.ok) {
+    throw buildApiError(`Provider request failed with status ${response.status}.`, {
+      status: response.status,
+      response: data,
+      text,
+      url,
+    });
+  }
+
+  return {
+    status: response.status,
+    data,
+    text,
+  };
+}
+
+function extractOpenAiText(response: unknown): string {
+  if (!isRecord(response)) return '';
+  if (typeof response.output_text === 'string') {
+    return response.output_text;
+  }
+
+  const output = Array.isArray(response.output) ? response.output : [];
+  const chunks: string[] = [];
+
+  for (const item of output) {
+    if (!isRecord(item)) continue;
+    const content = Array.isArray(item.content) ? item.content : [];
+    for (const part of content) {
+      if (!isRecord(part)) continue;
+      if (typeof part.text === 'string' && part.text.trim().length > 0) {
+        chunks.push(part.text);
+      }
+    }
+  }
+
+  return chunks.join('\n').trim();
+}
+
+function extractOpenAiFinishReason(response: unknown): string | undefined {
+  if (!isRecord(response)) return undefined;
+
+  if (isRecord(response.incomplete_details) && typeof response.incomplete_details.reason === 'string') {
+    return response.incomplete_details.reason;
+  }
+
+  const output = Array.isArray(response.output) ? response.output : [];
+  for (const item of output) {
+    if (!isRecord(item)) continue;
+    if (typeof item.status === 'string' && item.status.length > 0) {
+      return item.status;
+    }
+  }
+
+  if (typeof response.status === 'string' && response.status.length > 0) {
+    return response.status;
+  }
+
+  return undefined;
+}
+
+function extractGeminiText(response: unknown): string {
+  if (!isRecord(response)) return '';
+
+  const candidates = Array.isArray(response.candidates) ? response.candidates : [];
+  if (candidates.length === 0 || !isRecord(candidates[0])) return '';
+
+  const candidate = candidates[0];
+  const content = isRecord(candidate.content) ? candidate.content : null;
+  if (!content) return '';
+
+  const parts = Array.isArray(content.parts) ? content.parts : [];
+  const chunks: string[] = [];
+
+  for (const part of parts) {
+    if (!isRecord(part)) continue;
+    if (typeof part.text === 'string' && part.text.trim().length > 0) {
+      chunks.push(part.text);
+    }
+  }
+
+  return chunks.join('\n').trim();
+}
+
+function extractGeminiFinishReason(response: unknown): string | undefined {
+  if (!isRecord(response)) return undefined;
+  const candidates = Array.isArray(response.candidates) ? response.candidates : [];
+  if (candidates.length === 0 || !isRecord(candidates[0])) return undefined;
+
+  const finishReason = candidates[0].finishReason;
+  if (typeof finishReason === 'string' && finishReason.length > 0) {
+    return finishReason;
+  }
+  return undefined;
+}
+
+function buildGeminiContents(messages: ChatMessage[]): Array<{
+  role: 'user' | 'model';
+  parts: Array<{ text: string }>;
+}> {
+  return messages.map((message) => ({
+    role: message.role === 'assistant' ? 'model' : 'user',
+    parts: [{ text: message.content }],
+  }));
+}
+
+function isGemini3FlashPreviewModel(modelName: string): boolean {
+  const normalized = String(modelName ?? '').toLowerCase();
+  return normalized === 'gemini-3-flash-preview' || normalized.startsWith('gemini-3-flash-preview-');
+}
+
+async function callOpenAi({
+  modelName,
+  modelId,
+  chatInput,
+  maxOutputTokens,
+  structuredOutput,
+}: {
+  modelName: string;
+  modelId: string;
+  chatInput: ChatInputMessage[];
+  maxOutputTokens?: number;
+  structuredOutput?: StructuredOutputConfig;
+}): Promise<ProviderCallResult> {
+  const apiKey = requireEnvVar('OPENAI_API_KEY', modelId);
+
+  const body: Record<string, unknown> = {
+    model: modelName,
+    input: chatInput,
+  };
+  if (shouldUseOpenAiFlexTier(modelName)) {
+    body.service_tier = 'flex';
+  }
+  if (maxOutputTokens !== undefined) {
+    body.max_output_tokens = maxOutputTokens;
+  }
+
+  if (structuredOutput) {
+    body.text = {
+      format: {
+        type: 'json_schema',
+        name: structuredOutput.schemaName,
+        strict: true,
+        schema: structuredOutput.jsonSchema,
+      },
+    };
+  }
+
+  for (let attempt = 1; attempt <= OPENAI_MAX_RETRY_ATTEMPTS; attempt += 1) {
+    try {
+      const response = await postJson({
+        url: 'https://api.openai.com/v1/responses',
+        headers: {
+          authorization: `Bearer ${apiKey}`,
+        },
+        body,
+      });
+
+      return {
+        text: extractOpenAiText(response.data),
+        finishReason: extractOpenAiFinishReason(response.data),
+        usage: isRecord(response.data) ? response.data.usage : undefined,
+        response: response.data,
+      };
+    } catch (err: any) {
+      const canRetry =
+        attempt < OPENAI_MAX_RETRY_ATTEMPTS &&
+        isRetryableOpenAiError(err);
+
+      if (!canRetry) {
+        throw err;
+      }
+
+      const delayMs = calculateOpenAiRetryDelayMs(attempt);
+      await sleep(delayMs);
+    }
+  }
+
+  throw new Error('OpenAI request failed after retry budget was exhausted.');
+}
+
+async function callGoogle({
+  modelName,
+  modelId,
+  system,
+  inputMessages,
+  maxOutputTokens,
+  structuredOutput,
+}: {
+  modelName: string;
+  modelId: string;
+  system: string;
+  inputMessages: ChatMessage[];
+  maxOutputTokens?: number;
+  structuredOutput?: StructuredOutputConfig;
+}): Promise<ProviderCallResult> {
+  const apiKey = getGoogleApiKey(modelId);
+  const generationConfig: Record<string, unknown> = {};
+
+  if (isGemini3FlashPreviewModel(modelName)) {
+    generationConfig.thinkingConfig = {
+      thinkingLevel: 'low',
+    };
+  }
+
+  if (maxOutputTokens !== undefined) {
+    generationConfig.maxOutputTokens = maxOutputTokens;
+  }
+
+  if (structuredOutput) {
+    generationConfig.responseMimeType = 'application/json';
+    const geminiSchema = jsonSchemaToGeminiSchema(structuredOutput.jsonSchema);
+    if (geminiSchema) {
+      generationConfig.responseSchema = geminiSchema;
+    }
+  }
+
+  const body: Record<string, unknown> = {
+    contents: buildGeminiContents(inputMessages),
+  };
+  if (system.trim().length > 0) {
+    body.systemInstruction = {
+      parts: [{ text: system }],
+    };
+  }
+  if (Object.keys(generationConfig).length > 0) {
+    body.generationConfig = generationConfig;
+  }
+
+  const encodedModelName = encodeURIComponent(modelName);
+  const response = await postJson({
+    url: `https://generativelanguage.googleapis.com/v1beta/models/${encodedModelName}:generateContent?key=${encodeURIComponent(apiKey)}`,
+    headers: {},
+    body,
+  });
+
+  return {
+    text: extractGeminiText(response.data),
+    finishReason: extractGeminiFinishReason(response.data),
+    usage: isRecord(response.data) ? response.data.usageMetadata : undefined,
+    response: response.data,
+  };
+}
+
+async function callProvider({
+  modelId,
+  system,
+  inputMessages,
+  maxOutputTokens,
+  structuredOutput,
+}: {
+  modelId: string;
+  system: string;
+  inputMessages: ChatMessage[];
+  maxOutputTokens?: number;
+  structuredOutput?: StructuredOutputConfig;
+}): Promise<ProviderCallResult> {
+  const { provider, modelName } = parseProviderModel(modelId);
+  const chatInput = buildChatInput(system, inputMessages);
+
+  if (provider === 'openai') {
+    return callOpenAi({
+      modelName,
+      modelId,
+      chatInput,
+      maxOutputTokens,
+      structuredOutput,
+    });
+  }
+
+  return callGoogle({
+    modelName,
+    modelId,
+    system,
+    inputMessages,
+    maxOutputTokens,
+    structuredOutput,
+  });
+}
+
 export { getProviderOptions };
 
 export async function timedGenerateText({
@@ -199,31 +938,16 @@ export async function timedGenerateText({
   const startedAtIso = nowIso();
   const t0 = hrNowMs();
   const inputMessages = buildMessages(prompt, messages);
-  const chatInput = buildChatInput(system, inputMessages);
   const input: Record<string, unknown> = { model, system, inputMessages };
   if (maxOutputTokens !== undefined) input.maxOutputTokens = maxOutputTokens;
 
-  const client = await ensureOpenRouterClient(model);
-  const providerOptions = getProviderOptions(model);
-
   try {
-    const request: {
-      model: string;
-      input: ChatInputMessage[];
-      provider?: ProviderOptions['provider'];
-      maxOutputTokens?: number;
-    } = {
-      model,
-      input: chatInput,
-      ...providerOptions,
-    };
-    if (maxOutputTokens !== undefined) request.maxOutputTokens = maxOutputTokens;
-
-    const result = client.callModel(request);
-    const [text, response] = await Promise.all([
-      result.getText(),
-      result.getResponse().catch(() => null),
-    ]);
+    const result = await callProvider({
+      modelId: model,
+      system,
+      inputMessages,
+      maxOutputTokens,
+    });
     const durationMs = hrNowMs() - t0;
 
     calls.push({
@@ -234,13 +958,13 @@ export async function timedGenerateText({
       durationMs,
       input,
       output: {
-        text,
-        finishReason: (response as any)?.finishReason ?? response?.status,
+        text: result.text,
+        finishReason: result.finishReason,
       },
-      usage: normalizeUsage(response?.usage),
+      usage: normalizeUsage(result.usage),
     });
 
-    return { text: String(text ?? '') };
+    return { text: String(result.text ?? '') };
   } catch (err: any) {
     const durationMs = hrNowMs() - t0;
     const error = {
@@ -287,52 +1011,32 @@ export async function timedGenerateObject<T>({
   const startedAtIso = nowIso();
   const t0 = hrNowMs();
   const inputMessages = buildMessages(prompt, messages);
-  const chatInput = buildChatInput(system, inputMessages);
   const input: Record<string, unknown> = { model, system, inputMessages, schemaName };
   if (maxOutputTokens !== undefined) input.maxOutputTokens = maxOutputTokens;
 
-  const client = await ensureOpenRouterClient(model);
-  const providerOptions = getProviderOptions(model);
-  const providerForStructuredOutput = providerOptions.provider
-    ? { ...providerOptions.provider, requireParameters: true }
-    : { requireParameters: true };
   const jsonSchema = zodSchemaToJsonSchema(schema);
 
   try {
-    const request: {
-      model: string;
-      input: ChatInputMessage[];
-      provider?: ProviderOptions['provider'];
-      text: {
-        format: {
-          type: 'json_schema';
-          name: string;
-          strict: true;
-          schema: Record<string, unknown>;
-        };
-      };
-      maxOutputTokens?: number;
-    } = {
-      model,
-      input: chatInput,
-      text: {
-        format: {
-          type: 'json_schema',
-          name: schemaName,
-          strict: true,
-          schema: jsonSchema,
-        },
+    const result = await callProvider({
+      modelId: model,
+      system,
+      inputMessages,
+      maxOutputTokens,
+      structuredOutput: {
+        schemaName,
+        jsonSchema,
       },
-      provider: providerForStructuredOutput,
-    };
-    if (maxOutputTokens !== undefined) request.maxOutputTokens = maxOutputTokens;
-
-    const result = client.callModel(request);
-    const [text, response] = await Promise.all([
-      result.getText(),
-      result.getResponse().catch(() => null),
-    ]);
-    const parsed = schema.parse(normalizeParsedObjectCandidate(parseJsonObject(String(text ?? ''))));
+    });
+    let parsed: unknown;
+    try {
+      parsed = schema.parse(normalizeParsedObjectCandidate(parseJsonObject(String(result.text ?? ''))));
+    } catch (parseErr: any) {
+      if (parseErr && typeof parseErr === 'object') {
+        parseErr.text = result.text;
+        parseErr.response = result.response;
+      }
+      throw parseErr;
+    }
     const durationMs = hrNowMs() - t0;
 
     calls.push({
@@ -343,7 +1047,7 @@ export async function timedGenerateObject<T>({
       durationMs,
       input,
       output: parsed,
-      usage: normalizeUsage(response?.usage),
+      usage: normalizeUsage(result.usage),
     });
 
     return { object: parsed as T };
@@ -373,7 +1077,7 @@ function pickErrorDetails(err: any): unknown {
   const out: Record<string, unknown> = {};
   if (!err || typeof err !== 'object') return out;
 
-  for (const k of ['cause', 'text', 'response', 'status', 'statusCode', 'usage']) {
+  for (const k of ['cause', 'text', 'response', 'status', 'statusCode', 'usage', 'url']) {
     if (k in err) out[k] = err[k];
   }
   return out;

@@ -1,6 +1,6 @@
 # AI Tutor Experiment Harness (Node + TypeScript)
 
-A CLI harness for running comparable multi-turn tutoring experiments using the Vercel AI SDK with **OpenRouter** (model IDs like `openai/gpt-4o` and `google/gemini-2.0-flash-001`).
+A CLI harness for running comparable multi-turn tutoring experiments using the Vercel AI SDK with direct provider APIs (model IDs like `openai/gpt-5.1` and `google/gemini-3-flash-preview`).
 
 It generates a **fixed question set**, simulates an escalating **student attacker**, runs multiple **tutor/supervisor pairings** under multiple **supervision conditions**, and logs full traces + aggregated metrics.
 
@@ -9,10 +9,9 @@ It generates a **fixed question set**, simulates an escalating **student attacke
 1. Install deps:
    - `pnpm install`
 2. Configure auth:
-   - Set `OPENROUTER_API_KEY` in `.env` (get yours at https://openrouter.ai/keys)
-3. Optional: force a specific OpenRouter provider for certain models:
-   - Set `OPENROUTER_GOOGLE_VERTEX_ONLY_MODELS` to a comma-separated list of model IDs that should route via Google Vertex (e.g. your judge model).
-   - Example: `OPENROUTER_GOOGLE_VERTEX_ONLY_MODELS="google/gemini-2.0-flash-001"`
+   - Set `OPENAI_API_KEY` for OpenAI models.
+   - Set `GEMINI_API_KEY` for Gemini models.
+   - `GOOGLE_GENERATIVE_AI_API_KEY` is also supported for Gemini compatibility.
 3. Configure models (optional):
   - Edit `src/config.ts` to change model IDs and pairings
 
@@ -112,12 +111,10 @@ The CLI is `node dist/cli.js` (wrapped by `pnpm harness`).
 - `--pairings LIST`
   - Comma-separated pairing IDs to run. Each pairing selects (AI1 tutor model, AI2 supervisor model).
   - Allowed values (defined in `src/config.ts`):
-    - `gpt-gpt` → tutor `openai/gpt-4o`, supervisor `openai/gpt-4o`
-    - `gemini-gemini` → tutor `google/gemini-2.0-flash-001`, supervisor `google/gemini-2.0-flash-001`
-    - `gpt-gemini` → tutor `openai/gpt-4o`, supervisor `google/gemini-2.0-flash-001`
-    - `gemini-gpt` → tutor `google/gemini-2.0-flash-001`, supervisor `openai/gpt-4o`
-    - `claude-claude` → tutor `anthropic/claude-3.5-sonnet`, supervisor `anthropic/claude-3.5-sonnet`
-    - `claude-gemini` → tutor `anthropic/claude-3.5-sonnet`, supervisor `google/gemini-2.0-flash-001`
+    - `gpt-gpt` → tutor `openai/gpt-5.1`, supervisor `openai/gpt-5.1`
+    - `gemini-gemini` → tutor `google/gemini-3-flash-preview`, supervisor `google/gemini-3-flash-preview`
+    - `gpt-gemini` → tutor `openai/gpt-5.1`, supervisor `google/gemini-3-flash-preview`
+    - `gemini-gpt` → tutor `google/gemini-3-flash-preview`, supervisor `openai/gpt-5.1`
   - Default: all pairings (smoke: `gemini-gemini`).
 
 - `--conditions LIST`
@@ -139,13 +136,13 @@ These models are intended to be **fixed across all tutor/supervisor runs** so co
 
 - `--questionModel ID`
   - Model used to generate the question set (JSON via `generateObject`).
-  - Default: `google/gemini-2.0-flash-001` (from `config.ts`)
+  - Default: `google/gemini-3-flash-preview` (from `config.ts`)
 - `--studentModel ID`
   - Model used to generate the student attacker turns (JSON via `generateObject`), escalating attack level each turn.
-  - Default: `google/gemini-2.0-flash-001` (from `config.ts`)
+  - Default: `google/gemini-3-flash-preview` (from `config.ts`)
 - `--judgeModel ID`
   - Model used for the optional post-conversation judge pass (JSON via `generateObject`).
-  - Default: `google/gemini-2.0-flash-001` (from `config.ts`)
+  - Default: `google/gemini-3-flash-preview` (from `config.ts`)
 
 ### Judge toggle
 
