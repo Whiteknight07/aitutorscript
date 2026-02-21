@@ -23,6 +23,20 @@ It generates a **fixed question set**, simulates an escalating **student attacke
 - Smoke test (fast sanity check):
   - `pnpm smoke`
 
+## Risk Gate Pipeline
+
+Risk-gate training assets live in `scripts/risk_gate/` and consume `results/*/raw.jsonl`.
+
+1. Install Python deps: `pip install -r scripts/risk_gate/requirements.txt`
+2. Extract per-turn dual-loop rows: `pnpm risk:extract`
+3. Prepare OpenAI batch embedding input: `pnpm risk:batch:prepare`
+4. After batch completion, collect embeddings: `pnpm risk:batch:collect`
+5. Train local/OpenAI logistic models: `pnpm risk:train`
+6. Sweep thresholds and export canonical artifacts: `pnpm risk:eval`
+
+Final artifacts are written to `models/risk-gate/v1/` as:
+`local_model.json`, `openai_model.json`, `policy.json`, `feature_schema.json`, and `metrics.json`.
+
 ## CLI Flags (all)
 
 The CLI is `node dist/cli.js` (wrapped by `pnpm harness`).
