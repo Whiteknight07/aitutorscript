@@ -30,7 +30,7 @@ def parse_args() -> argparse.Namespace:
   )
   parser.add_argument(
     '--embedding-model',
-    default='nomic-embed-text',
+    default='Qwen/Qwen3-Embedding-0.6B',
     help='Embedding model name sent to local endpoint.',
   )
   parser.add_argument(

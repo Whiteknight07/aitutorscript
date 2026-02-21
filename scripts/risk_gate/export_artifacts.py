@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -56,6 +57,105 @@ def write_json(path: Path, payload: dict[str, Any]) -> None:
     fh.write('\n')
 
 
+def parse_finite_number(value: Any, label: str) -> float:
+  if isinstance(value, bool) or not isinstance(value, (int, float)):
+    raise SystemExit(f'{label} must be a finite number. Received: {value!r}')
+  parsed = float(value)
+  if not math.isfinite(parsed):
+    raise SystemExit(f'{label} must be a finite number. Received: {value!r}')
+  return parsed
+
+
+def parse_probability(value: Any, label: str) -> float:
+  parsed = parse_finite_number(value, label)
+  if parsed < 0.0 or parsed > 1.0:
+    raise SystemExit(f'{label} must be between 0 and 1. Received: {parsed}')
+  return parsed
+
+
+def parse_positive_int(value: Any, label: str) -> int:
+  parsed = parse_finite_number(value, label)
+  if int(parsed) != parsed or parsed <= 0:
+    raise SystemExit(f'{label} must be a positive integer. Received: {parsed}')
+  return int(parsed)
+
+
+def extract_thresholds(policy: dict[str, Any]) -> dict[str, float]:
+  thresholds_obj = policy.get('thresholds')
+  thresholds = thresholds_obj if isinstance(thresholds_obj, dict) else {}
+
+  local_low_raw = policy.get('local_low', thresholds.get('local_low'))
+  local_high_raw = policy.get('local_high', thresholds.get('local_high'))
+  openai_threshold_raw = policy.get('openai_threshold', thresholds.get('openai_threshold'))
+
+  if local_low_raw is None:
+    raise SystemExit('Policy is missing local_low (or thresholds.local_low).')
+  if local_high_raw is None:
+    raise SystemExit('Policy is missing local_high (or thresholds.local_high).')
+  if openai_threshold_raw is None:
+    raise SystemExit('Policy is missing openai_threshold (or thresholds.openai_threshold).')
+
+  local_low = parse_probability(local_low_raw, 'local_low')
+  local_high = parse_probability(local_high_raw, 'local_high')
+  openai_threshold = parse_probability(openai_threshold_raw, 'openai_threshold')
+
+  if local_low > local_high:
+    raise SystemExit(f'local_low ({local_low}) must be <= local_high ({local_high}).')
+
+  return {
+    'local_low': local_low,
+    'local_high': local_high,
+    'openai_threshold': openai_threshold,
+  }
+
+
+def extract_logistic_artifact(payload: dict[str, Any], label: str) -> dict[str, Any]:
+  candidates: list[dict[str, Any]] = [payload]
+  for key in (label, 'model', 'classifier'):
+    nested = payload.get(key)
+    if isinstance(nested, dict):
+      candidates.append(nested)
+
+  for candidate in candidates:
+    intercept_raw = candidate.get('intercept', candidate.get('bias'))
+    coefficients_raw = candidate.get('coefficients', candidate.get('weights'))
+    if intercept_raw is None or not isinstance(coefficients_raw, list):
+      continue
+
+    intercept = parse_finite_number(intercept_raw, f'{label}.intercept')
+    if not coefficients_raw:
+      raise SystemExit(f'{label}.coefficients cannot be empty.')
+    coefficients = [
+      parse_finite_number(value, f'{label}.coefficients[{idx}]')
+      for idx, value in enumerate(coefficients_raw)
+    ]
+    return {
+      'intercept': intercept,
+      'coefficients': coefficients,
+    }
+
+  raise SystemExit(f'Unable to find logistic artifact fields for {label}.')
+
+
+def extract_optional_metadata(policy: dict[str, Any]) -> dict[str, Any]:
+  metadata: dict[str, Any] = {}
+
+  for key in ('constraint', 'routing_policy', 'holdout_metrics'):
+    value = policy.get(key)
+    if isinstance(value, dict):
+      metadata[key] = value
+
+  source_version = policy.get('policy_version')
+  if isinstance(source_version, str) and source_version:
+    metadata['source_policy_version'] = source_version
+
+  source_created_at = policy.get('created_at')
+  if isinstance(source_created_at, str) and source_created_at:
+    metadata['source_policy_created_at'] = source_created_at
+
+  return metadata
+
+
 def main() -> int:
   args = parse_args()
 
@@ -70,9 +170,38 @@ def main() -> int:
   out_dir = Path(args.out_dir)
   out_dir.mkdir(parents=True, exist_ok=True)
 
+  thresholds = extract_thresholds(policy)
+  local_model_artifact = extract_logistic_artifact(local_model, 'local_model')
+  openai_model_artifact = extract_logistic_artifact(openai_model, 'openai_model')
+
+  max_feature_chars_raw = policy.get('max_feature_chars')
+  max_feature_chars = (
+    None
+    if max_feature_chars_raw is None
+    else parse_positive_int(max_feature_chars_raw, 'max_feature_chars')
+  )
+  selection_metadata = extract_optional_metadata(policy)
+
+  canonical_policy = {
+    'policy_version': 'risk-gate-v1',
+    'created_at': datetime.now(timezone.utc).isoformat(),
+    **thresholds,
+    'local_model': local_model_artifact,
+    'openai_model': openai_model_artifact,
+    'sources': {
+      'local_model': args.local_model,
+      'openai_model': args.openai_model,
+      'selected_policy': args.policy,
+    },
+  }
+  if max_feature_chars is not None:
+    canonical_policy['max_feature_chars'] = max_feature_chars
+  if selection_metadata:
+    canonical_policy['selection'] = selection_metadata
+
   write_json(out_dir / REQUIRED_FILENAMES['local_model'], local_model)
   write_json(out_dir / REQUIRED_FILENAMES['openai_model'], openai_model)
-  write_json(out_dir / REQUIRED_FILENAMES['policy'], policy)
+  write_json(out_dir / REQUIRED_FILENAMES['policy'], canonical_policy)
   write_json(out_dir / REQUIRED_FILENAMES['feature_schema'], feature_schema)
 
   combined_metrics = {
