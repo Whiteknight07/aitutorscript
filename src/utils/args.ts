@@ -1,4 +1,14 @@
-import { ConditionSchema, CsbenchFormat, CsbenchFormatSchema, Difficulty, DifficultySchema } from '../types';
+import {
+  ConditionSchema,
+  CsbenchFormat,
+  CsbenchFormatSchema,
+  Difficulty,
+  DifficultySchema,
+  RiskGateFailMode,
+  RiskGateFailModeSchema,
+  RiskGateMode,
+  RiskGateModeSchema,
+} from '../types';
 import { DEFAULT_MODELS, PAIRING_IDS, parsePairingId, type PairingId, TUTOR_IDS, SUPERVISOR_IDS, parseTutorId, parseSupervisorId, type TutorId, type SupervisorId } from '../config';
 
 export type CliArgs = {
@@ -30,6 +40,12 @@ export type CliArgs = {
   dynamicQuestions: boolean;
   smoke: boolean;
   verbose: boolean;
+  riskGateMode: RiskGateMode;
+  riskGateFailMode: RiskGateFailMode;
+  riskGatePolicyPath: string | null;
+  riskGateLocalEmbedUrl: string | null;
+  riskGateOpenAIModel: string;
+  riskGateOpenAITimeoutMs: number;
 };
 
 function parseIntFlag(value: string | undefined, name: string): number {
@@ -73,6 +89,30 @@ export function parseArgs(argv: string[]): CliArgs {
   const verbose = raw['verbose'] === true;
   const earlyStop = raw['noEarlyStop'] === true ? false : true;
   const dynamicQuestions = raw['dynamic'] === true;
+  const riskGateModeRaw = raw['riskGateMode']
+    ? String(raw['riskGateMode'])
+    : raw['riskGate'] === true
+      ? 'enforce'
+      : 'off';
+  const riskGateMode = RiskGateModeSchema.parse(riskGateModeRaw);
+  const riskGateFailMode = RiskGateFailModeSchema.parse(
+    raw['riskGateFailMode'] ? String(raw['riskGateFailMode']) : 'closed'
+  );
+  const riskGatePolicyPath = raw['riskGatePolicyPath']
+    ? String(raw['riskGatePolicyPath'])
+    : process.env.RISK_GATE_POLICY_PATH ?? null;
+  const riskGateLocalEmbedUrl = raw['riskGateLocalEmbedUrl']
+    ? String(raw['riskGateLocalEmbedUrl'])
+    : process.env.RISK_GATE_LOCAL_EMBED_URL ?? null;
+  const riskGateOpenAIModel = raw['riskGateOpenAIModel']
+    ? String(raw['riskGateOpenAIModel'])
+    : process.env.RISK_GATE_OPENAI_MODEL ?? 'text-embedding-3-small';
+  const riskGateOpenAITimeoutMs = raw['riskGateOpenAITimeoutMs']
+    ? parseIntFlag(String(raw['riskGateOpenAITimeoutMs']), 'riskGateOpenAITimeoutMs')
+    : 8000;
+  if (riskGateOpenAITimeoutMs <= 0) {
+    throw new Error(`Invalid value for --riskGateOpenAITimeoutMs: ${riskGateOpenAITimeoutMs}`);
+  }
 
   const questionsPerCell = raw['questionsPerCell']
     ? parseIntFlag(String(raw['questionsPerCell']), 'questionsPerCell')
@@ -215,6 +255,12 @@ export function parseArgs(argv: string[]): CliArgs {
     dynamicQuestions,
     smoke,
     verbose,
+    riskGateMode,
+    riskGateFailMode,
+    riskGatePolicyPath,
+    riskGateLocalEmbedUrl,
+    riskGateOpenAIModel,
+    riskGateOpenAITimeoutMs,
   };
 }
 
@@ -255,6 +301,13 @@ Flags:
   --noJudge                Disable judge pass
   --noEarlyStop            Disable early stopping (otherwise stops when judge detects leakage or attacker goal success)
   --verbose                Extra per-turn logs (can be noisy)
+  --riskGate               Shortcut for --riskGateMode enforce
+  --riskGateMode MODE      off,shadow,enforce (default off)
+  --riskGatePolicyPath P   Path to risk gate policy JSON
+  --riskGateLocalEmbedUrl U Local embedding endpoint URL
+  --riskGateOpenAIModel ID OpenAI embedding model (default text-embedding-3-small)
+  --riskGateFailMode MODE  closed,open (default closed)
+  --riskGateOpenAITimeoutMs N Timeout in ms for embedding calls (default 8000)
   --smoke                  1 question (bloom 1, easy), 2 turns, minimal variants
   --help                   Show help
 

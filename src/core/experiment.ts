@@ -6,6 +6,7 @@ import { Mutex } from 'async-mutex';
 import cliProgress from 'cli-progress';
 
 import { parseArgs } from '../utils/args';
+import { loadRiskGatePolicy, type RiskGateRuntimeConfig } from './risk-gate';
 import { simulateConversation } from './conversation';
 import { generateQuestionsBatch } from '../agents/question-gen';
 import { getTutorModel, getSupervisorModel, type TutorId, type SupervisorId } from '../config';
@@ -72,6 +73,8 @@ export async function runExperiments({
   args: ReturnType<typeof parseArgs>;
   envSummary: Record<string, unknown>;
 }) {
+  const riskGate = await buildRiskGateRuntimeConfig(args);
+
   const createdAtIso = nowIso();
   const runId = `run_${createdAtIso.replace(/[:.]/g, '-')}`;
 
@@ -92,6 +95,12 @@ export async function runExperiments({
   console.log(`          student=${args.studentModel.split('/').pop()}`);
   // eslint-disable-next-line no-console
   console.log(`          judge=${args.enableJudge ? args.judgeModel.split('/').pop() : '(disabled)'}`);
+  if (riskGate) {
+    // eslint-disable-next-line no-console
+    console.log(
+      `🛡️ Risk gate: mode=${riskGate.mode} fail=${riskGate.failMode} local=[${riskGate.policy.local_low.toFixed(2)},${riskGate.policy.local_high.toFixed(2)}] openai=${riskGate.policy.openai_threshold.toFixed(2)}`
+    );
+  }
   // eslint-disable-next-line no-console
   console.log(`⚡ Parallel: ${args.parallel} concurrent runs`);
   
@@ -332,6 +341,7 @@ export async function runExperiments({
                   turnIndex,
                 })
             : undefined,
+        riskGate,
       });
 
       const judge = args.enableJudge
@@ -372,6 +382,34 @@ export async function runExperiments({
         calls,
         totalLatencyMs,
         judge,
+        riskGate: riskGate
+          ? {
+              mode: riskGate.mode,
+              failMode: riskGate.failMode,
+              policyPath: args.riskGatePolicyPath,
+              localEmbedUrl: riskGate.localEmbedUrl,
+              openaiModel: riskGate.openaiModel,
+              openaiTimeoutMs: riskGate.openaiTimeoutMs,
+              policy: {
+                local_low: riskGate.policy.local_low,
+                local_high: riskGate.policy.local_high,
+                openai_threshold: riskGate.policy.openai_threshold,
+              },
+              stats: conversation.riskGateStats ?? {
+                evaluatedTurns: 0,
+                superviseCount: 0,
+                skipCount: 0,
+                enforcedSuperviseCount: 0,
+                enforcedSkipCount: 0,
+                localHighCount: 0,
+                localLowCount: 0,
+                openaiCount: 0,
+                openaiFallbackCount: 0,
+                failModeCount: 0,
+                failureCount: 0,
+              },
+            }
+          : undefined,
       };
 
       // Thread-safe state updates
@@ -524,6 +562,25 @@ export async function runExperiments({
   } finally {
     await rawWriter.close().catch(() => {});
   }
+}
+
+async function buildRiskGateRuntimeConfig(
+  args: ReturnType<typeof parseArgs>
+): Promise<RiskGateRuntimeConfig | null> {
+  if (args.riskGateMode === 'off') return null;
+  if (!args.riskGatePolicyPath) {
+    throw new Error('Risk gate enabled but --riskGatePolicyPath is not set.');
+  }
+
+  const policy = await loadRiskGatePolicy(args.riskGatePolicyPath);
+  return {
+    mode: args.riskGateMode,
+    failMode: args.riskGateFailMode,
+    policy,
+    localEmbedUrl: args.riskGateLocalEmbedUrl,
+    openaiModel: args.riskGateOpenAIModel,
+    openaiTimeoutMs: args.riskGateOpenAITimeoutMs,
+  };
 }
 
 function formatDuration(ms: number): string {
