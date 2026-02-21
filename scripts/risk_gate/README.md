@@ -25,9 +25,9 @@ This folder builds a supervision risk gate from harness outputs.
 - `train_openai_model.py`
   - Trains logistic regression (`class_weight='balanced'`) from precomputed OpenAI embeddings
 - `threshold_sweep.py`
-  - Sweeps `local_low`, `local_high`, `openai_threshold` and selects best policy with holdout recall constraint
+  - Sweeps `local_low`, `local_high`, `openai_threshold` and selects best thresholds with holdout recall constraint
 - `export_artifacts.py`
-  - Writes canonical artifact files to `models/risk-gate/v1`
+  - Combines selected thresholds + trained model artifacts into canonical runtime files in `models/risk-gate/v1`
 
 ## Quick Start
 
@@ -54,7 +54,7 @@ python3 scripts/risk_gate/collect_openai_batch_embeddings.py \
 python3 scripts/risk_gate/train_local_model.py \
   --dataset tmp/risk_gate/turn_dataset.jsonl \
   --embedding-url http://localhost:11434/api/embeddings \
-  --embedding-model nomic-embed-text \
+  --embedding-model Qwen/Qwen3-Embedding-0.6B \
   --model-out tmp/risk_gate/local_model.json \
   --predictions-out tmp/risk_gate/local_holdout_predictions.jsonl \
   --metrics-out tmp/risk_gate/local_metrics.json
@@ -93,3 +93,30 @@ python3 scripts/risk_gate/export_artifacts.py \
 - `models/risk-gate/v1/policy.json`
 - `models/risk-gate/v1/feature_schema.json`
 - `models/risk-gate/v1/metrics.json`
+
+### Canonical `policy.json` schema
+
+`models/risk-gate/v1/policy.json` is runtime-ready and includes:
+
+```json
+{
+  "local_low": 0.22,
+  "local_high": 0.74,
+  "openai_threshold": 0.58,
+  "local_model": {
+    "intercept": -0.13,
+    "coefficients": [0.01, -0.02]
+  },
+  "openai_model": {
+    "intercept": 0.44,
+    "coefficients": [0.03, 0.07]
+  },
+  "max_feature_chars": 6000
+}
+```
+
+Notes:
+
+- Runtime loaders treat `openai_model` as optional; current export flow includes it from `--openai-model`.
+- `max_feature_chars` is optional.
+- `threshold_sweep.py` output remains threshold-focused; `export_artifacts.py` is the step that emits the canonical runtime shape.

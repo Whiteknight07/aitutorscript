@@ -244,6 +244,9 @@ def main() -> int:
   policy_payload = {
     'policy_version': 'risk-gate-v1',
     'created_at': datetime.now(timezone.utc).isoformat(),
+    'local_low': chosen['local_low'],
+    'local_high': chosen['local_high'],
+    'openai_threshold': chosen['openai_threshold'],
     'constraint': {
       'metric': 'recall',
       'target': args.recall_target,
