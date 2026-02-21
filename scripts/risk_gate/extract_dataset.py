@@ -21,7 +21,16 @@ class ExtractionStats:
   skipped_missing_draft_iter1: int = 0
   skipped_short_text: int = 0
   malformed_lines: int = 0
+  unique_question_groups: int = 0
+  holdout_question_groups: int = 0
   rows_written: int = 0
+
+
+@dataclass
+class PendingRow:
+  row: dict[str, Any]
+  dataset_source: str
+  question_group_key: str
 
 
 def parse_args() -> argparse.Namespace:
@@ -114,10 +123,58 @@ def as_bool(value: Any, default: bool = False) -> bool:
   return default
 
 
-def stable_split(example_key: str, holdout_ratio: float, seed: str) -> str:
-  digest = hashlib.sha256(f'{seed}:{example_key}'.encode('utf-8')).hexdigest()
-  bucket = int(digest[:16], 16) / float(16**16)
-  return 'holdout' if bucket < holdout_ratio else 'train'
+def stable_hash_hex(value: str) -> str:
+  return hashlib.sha256(value.encode('utf-8')).hexdigest()
+
+
+def normalize_dataset_source(question: dict[str, Any]) -> str:
+  dataset = str(question.get('dataset', '')).strip()
+  return dataset if dataset else 'unknown'
+
+
+def normalize_question_id(question: dict[str, Any]) -> str:
+  question_id = str(question.get('id', '')).strip()
+  if question_id:
+    return question_id
+
+  problem_statement = str(question.get('problemStatement', '')).strip()
+  if problem_statement:
+    digest = stable_hash_hex(problem_statement)
+    return f'anon-{digest[:16]}'
+
+  return 'unknown-question'
+
+
+def build_question_group_key(dataset_source: str, question_id: str) -> str:
+  return f'{dataset_source}:{question_id}'
+
+
+def build_group_split_assignments(
+  groups_by_dataset: dict[str, set[str]],
+  holdout_ratio: float,
+  seed: str,
+) -> tuple[dict[str, str], dict[str, int], dict[str, int]]:
+  assignment: dict[str, str] = {}
+  dataset_group_counts: dict[str, int] = {}
+  dataset_holdout_counts: dict[str, int] = {}
+
+  for dataset_source in sorted(groups_by_dataset):
+    group_keys = sorted(
+      groups_by_dataset[dataset_source],
+      key=lambda group_key: stable_hash_hex(f'{seed}:{dataset_source}:{group_key}'),
+    )
+    group_count = len(group_keys)
+    holdout_count = int(round(group_count * holdout_ratio))
+    holdout_count = min(max(holdout_count, 0), group_count)
+
+    holdout_keys = set(group_keys[:holdout_count])
+    dataset_group_counts[dataset_source] = group_count
+    dataset_holdout_counts[dataset_source] = holdout_count
+
+    for group_key in group_keys:
+      assignment[group_key] = 'holdout' if group_key in holdout_keys else 'train'
+
+  return assignment, dataset_group_counts, dataset_holdout_counts
 
 
 def iter_jsonl(path: Path):
@@ -177,6 +234,12 @@ def build_feature_schema() -> dict[str, Any]:
     'id_field': 'example_id',
     'label_field': 'y_needs_supervision',
     'split_field': 'split',
+    'split_strategy': {
+      'method': 'group_by_question_id',
+      'stratify_by': 'dataset_source',
+      'seed_field': 'split_seed',
+      'holdout_ratio_field': 'holdout_ratio',
+    },
     'text_feature_field': 'feature_text',
     'aux_fields': ['aux_turn_leakage'],
     'required_raw_fields': {
@@ -200,6 +263,9 @@ def build_feature_schema() -> dict[str, Any]:
     'output_fields': [
       'example_id',
       'split',
+      'dataset_source',
+      'question_id',
+      'question_group_key',
       'y_needs_supervision',
       'aux_turn_leakage',
       'question',
@@ -230,125 +296,160 @@ def main() -> int:
 
   stats = ExtractionStats()
   seen_ids: dict[str, int] = {}
+  pending_rows: list[PendingRow] = []
+  groups_by_dataset: dict[str, set[str]] = {}
+
+  for raw_path in raw_paths:
+    for line_number, line in iter_jsonl(raw_path):
+      try:
+        record = json.loads(line)
+      except json.JSONDecodeError:
+        stats.malformed_lines += 1
+        continue
+
+      stats.records_total += 1
+      if str(record.get('condition')) != 'dual-loop':
+        stats.records_non_dual_loop += 1
+        continue
+
+      question = as_dict(record.get('question'))
+      hidden_trace = as_dict(record.get('hiddenTrace'))
+      student_turns = [as_dict(x) for x in as_list(hidden_trace.get('studentTurns'))]
+      tutor_drafts = [as_dict(x) for x in as_list(hidden_trace.get('tutorDrafts'))]
+      turn_judgments = [as_dict(x) for x in as_list(hidden_trace.get('turnJudgments'))]
+      loop_turn_iterations = [as_dict(x) for x in as_list(record.get('loopTurnIterations'))]
+
+      if not loop_turn_iterations:
+        stats.records_missing_loop_turns += 1
+        continue
+
+      draft_by_turn_iter: dict[tuple[int, int], dict[str, Any]] = {}
+      drafts_for_turn: dict[int, list[dict[str, Any]]] = {}
+      for draft in tutor_drafts:
+        turn_index = as_int(draft.get('turnIndex'))
+        iter_index = as_int(draft.get('iter'))
+        if turn_index <= 0 or iter_index <= 0:
+          continue
+        draft_by_turn_iter[(turn_index, iter_index)] = draft
+        drafts_for_turn.setdefault(turn_index, []).append(draft)
+
+      for turn_index in drafts_for_turn:
+        drafts_for_turn[turn_index].sort(key=lambda row: as_int(row.get('iter')))
+
+      judgment_by_turn: dict[int, dict[str, Any]] = {}
+      leakage_by_turn: dict[int, bool | None] = {}
+      for row in turn_judgments:
+        turn_index = as_int(row.get('turnIndex'))
+        if turn_index <= 0:
+          continue
+        judge = as_dict(row.get('judge'))
+        leakage_raw = judge.get('leakage')
+        leakage_value: bool | None
+        if isinstance(leakage_raw, bool):
+          leakage_value = leakage_raw
+        elif isinstance(leakage_raw, (int, float)):
+          leakage_value = bool(leakage_raw)
+        else:
+          leakage_value = None
+        judgment_by_turn[turn_index] = row
+        leakage_by_turn[turn_index] = leakage_value
+
+      loop_turn_iterations.sort(key=lambda row: as_int(row.get('turnIndex')))
+
+      for loop_row in loop_turn_iterations:
+        turn_index = as_int(loop_row.get('turnIndex'))
+        if turn_index <= 0:
+          continue
+
+        draft_iter1 = draft_by_turn_iter.get((turn_index, 1))
+        if draft_iter1 is None:
+          stats.skipped_missing_draft_iter1 += 1
+          continue
+
+        student_turn = student_turns[turn_index - 1] if len(student_turns) >= turn_index else {}
+        student_history = student_turns[:turn_index]
+        tutor_drafts_for_turn = drafts_for_turn.get(turn_index, [draft_iter1])
+        turn_judgment = judgment_by_turn.get(turn_index)
+        aux_turn_leakage = leakage_by_turn.get(turn_index)
+
+        feature_text = build_feature_text(question, student_turn, student_history, draft_iter1)
+        if len(feature_text) < args.min_feature_text_chars:
+          stats.skipped_short_text += 1
+          continue
+
+        run_id = str(record.get('runId', 'unknown-run'))
+        pairing_id = str(record.get('pairingId', 'unknown-pairing'))
+        base_id = f'{run_id}:{pairing_id}:turn{turn_index}'
+        suffix_count = seen_ids.get(base_id, 0)
+        seen_ids[base_id] = suffix_count + 1
+        example_id = base_id if suffix_count == 0 else f'{base_id}:{suffix_count + 1}'
+
+        dataset_source = normalize_dataset_source(question)
+        question_id = normalize_question_id(question)
+        question_group_key = build_question_group_key(dataset_source, question_id)
+        groups_by_dataset.setdefault(dataset_source, set()).add(question_group_key)
+
+        row = {
+          'example_id': example_id,
+          'source_file': str(raw_path),
+          'source_line_number': line_number,
+          'run_id': run_id,
+          'pairing_id': pairing_id,
+          'condition': 'dual-loop',
+          'turn_index': turn_index,
+          'dataset_source': dataset_source,
+          'question_id': question_id,
+          'question_group_key': question_group_key,
+          'y_needs_supervision': as_bool(loop_row.get('initiallyRejected')),
+          'aux_turn_leakage': aux_turn_leakage,
+          'question': question,
+          'student_turn': student_turn,
+          'student_turns_up_to_turn': student_history,
+          'tutor_draft_iter1': draft_iter1,
+          'tutor_drafts_for_turn': tutor_drafts_for_turn,
+          'loop_turn_iteration': loop_row,
+          'turn_judgment': turn_judgment,
+          'feature_numeric': {
+            'turn_index': turn_index,
+            'student_attack_level': as_int(student_turn.get('attackLevel')),
+            'question_bloom_level': as_int(question.get('bloomLevel')),
+          },
+          'feature_text': feature_text,
+        }
+
+        pending_rows.append(
+          PendingRow(
+            row=row,
+            dataset_source=dataset_source,
+            question_group_key=question_group_key,
+          )
+        )
+
+  split_assignment, dataset_group_counts, dataset_holdout_counts = build_group_split_assignments(
+    groups_by_dataset,
+    args.holdout_ratio,
+    args.split_seed,
+  )
+
+  stats.unique_question_groups = len(split_assignment)
+  stats.holdout_question_groups = sum(dataset_holdout_counts.values())
 
   with output_jsonl.open('w', encoding='utf-8') as out_fh:
-    for raw_path in raw_paths:
-      for line_number, line in iter_jsonl(raw_path):
-        try:
-          record = json.loads(line)
-        except json.JSONDecodeError:
-          stats.malformed_lines += 1
-          continue
-
-        stats.records_total += 1
-        if str(record.get('condition')) != 'dual-loop':
-          stats.records_non_dual_loop += 1
-          continue
-
-        question = as_dict(record.get('question'))
-        hidden_trace = as_dict(record.get('hiddenTrace'))
-        student_turns = [as_dict(x) for x in as_list(hidden_trace.get('studentTurns'))]
-        tutor_drafts = [as_dict(x) for x in as_list(hidden_trace.get('tutorDrafts'))]
-        turn_judgments = [as_dict(x) for x in as_list(hidden_trace.get('turnJudgments'))]
-        loop_turn_iterations = [as_dict(x) for x in as_list(record.get('loopTurnIterations'))]
-
-        if not loop_turn_iterations:
-          stats.records_missing_loop_turns += 1
-          continue
-
-        draft_by_turn_iter: dict[tuple[int, int], dict[str, Any]] = {}
-        drafts_for_turn: dict[int, list[dict[str, Any]]] = {}
-        for draft in tutor_drafts:
-          turn_index = as_int(draft.get('turnIndex'))
-          iter_index = as_int(draft.get('iter'))
-          if turn_index <= 0 or iter_index <= 0:
-            continue
-          draft_by_turn_iter[(turn_index, iter_index)] = draft
-          drafts_for_turn.setdefault(turn_index, []).append(draft)
-
-        for turn_index in drafts_for_turn:
-          drafts_for_turn[turn_index].sort(key=lambda row: as_int(row.get('iter')))
-
-        judgment_by_turn: dict[int, dict[str, Any]] = {}
-        leakage_by_turn: dict[int, bool | None] = {}
-        for row in turn_judgments:
-          turn_index = as_int(row.get('turnIndex'))
-          if turn_index <= 0:
-            continue
-          judge = as_dict(row.get('judge'))
-          leakage_raw = judge.get('leakage')
-          leakage_value: bool | None
-          if isinstance(leakage_raw, bool):
-            leakage_value = leakage_raw
-          elif isinstance(leakage_raw, (int, float)):
-            leakage_value = bool(leakage_raw)
-          else:
-            leakage_value = None
-          judgment_by_turn[turn_index] = row
-          leakage_by_turn[turn_index] = leakage_value
-
-        loop_turn_iterations.sort(key=lambda row: as_int(row.get('turnIndex')))
-
-        for loop_row in loop_turn_iterations:
-          turn_index = as_int(loop_row.get('turnIndex'))
-          if turn_index <= 0:
-            continue
-
-          draft_iter1 = draft_by_turn_iter.get((turn_index, 1))
-          if draft_iter1 is None:
-            stats.skipped_missing_draft_iter1 += 1
-            continue
-
-          student_turn = student_turns[turn_index - 1] if len(student_turns) >= turn_index else {}
-          student_history = student_turns[:turn_index]
-          tutor_drafts_for_turn = drafts_for_turn.get(turn_index, [draft_iter1])
-          turn_judgment = judgment_by_turn.get(turn_index)
-          aux_turn_leakage = leakage_by_turn.get(turn_index)
-
-          feature_text = build_feature_text(question, student_turn, student_history, draft_iter1)
-          if len(feature_text) < args.min_feature_text_chars:
-            stats.skipped_short_text += 1
-            continue
-
-          run_id = str(record.get('runId', 'unknown-run'))
-          pairing_id = str(record.get('pairingId', 'unknown-pairing'))
-          base_id = f'{run_id}:{pairing_id}:turn{turn_index}'
-          suffix_count = seen_ids.get(base_id, 0)
-          seen_ids[base_id] = suffix_count + 1
-          example_id = base_id if suffix_count == 0 else f'{base_id}:{suffix_count + 1}'
-
-          row = {
-            'example_id': example_id,
-            'split': stable_split(example_id, args.holdout_ratio, args.split_seed),
-            'source_file': str(raw_path),
-            'source_line_number': line_number,
-            'run_id': run_id,
-            'pairing_id': pairing_id,
-            'condition': 'dual-loop',
-            'turn_index': turn_index,
-            'y_needs_supervision': as_bool(loop_row.get('initiallyRejected')),
-            'aux_turn_leakage': aux_turn_leakage,
-            'question': question,
-            'student_turn': student_turn,
-            'student_turns_up_to_turn': student_history,
-            'tutor_draft_iter1': draft_iter1,
-            'tutor_drafts_for_turn': tutor_drafts_for_turn,
-            'loop_turn_iteration': loop_row,
-            'turn_judgment': turn_judgment,
-            'feature_numeric': {
-              'turn_index': turn_index,
-              'student_attack_level': as_int(student_turn.get('attackLevel')),
-              'question_bloom_level': as_int(question.get('bloomLevel')),
-            },
-            'feature_text': feature_text,
-          }
-
-          out_fh.write(json.dumps(row, ensure_ascii=True) + '\n')
-          stats.rows_written += 1
+    for pending in pending_rows:
+      split = split_assignment.get(pending.question_group_key, 'train')
+      pending.row['split'] = split
+      out_fh.write(json.dumps(pending.row, ensure_ascii=True) + '\n')
+      stats.rows_written += 1
 
   schema = build_feature_schema()
   schema['generated_at'] = datetime.now(timezone.utc).isoformat()
   schema['raw_inputs'] = [str(p) for p in raw_paths]
+  schema['split_seed'] = args.split_seed
+  schema['holdout_ratio'] = args.holdout_ratio
+  schema['question_groups_total'] = stats.unique_question_groups
+  schema['question_groups_holdout'] = stats.holdout_question_groups
+  schema['question_group_counts_by_dataset'] = dataset_group_counts
+  schema['question_group_holdout_counts_by_dataset'] = dataset_holdout_counts
   schema['rows_written'] = stats.rows_written
 
   with feature_schema_out.open('w', encoding='utf-8') as fh:
@@ -363,6 +464,8 @@ def main() -> int:
   print(f'  skipped_missing_draft_iter1: {stats.skipped_missing_draft_iter1}')
   print(f'  skipped_short_text: {stats.skipped_short_text}')
   print(f'  malformed_lines: {stats.malformed_lines}')
+  print(f'  question_groups_total: {stats.unique_question_groups}')
+  print(f'  question_groups_holdout: {stats.holdout_question_groups}')
   print(f'  rows_written: {stats.rows_written}')
   print(f'  output_jsonl: {output_jsonl}')
   print(f'  feature_schema: {feature_schema_out}')

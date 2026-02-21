@@ -8,6 +8,7 @@ This folder builds a supervision risk gate from harness outputs.
 - Keep only `condition == "dual-loop"`
 - Emit one row per turn where tutor first draft is `iter=1`
 - Label: `y_needs_supervision = loopTurnIterations.initiallyRejected`
+- Split policy: deterministic holdout split by `question_id` (grouped across turns), stratified by `dataset_source`
 - Include fields from `question`, `hiddenTrace.studentTurns`, `hiddenTrace.tutorDrafts`, `loopTurnIterations`
 - Include `hiddenTrace.turnJudgments[*].judge.leakage` as `aux_turn_leakage`
 
