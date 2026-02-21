@@ -1,4 +1,5 @@
 import type { RunRecord } from '../../types';
+import { labelQuestionBroadConcept } from '../../core/topic-normalization';
 import type { LoopSummary, NormalizedRun, TurnRow } from './types';
 import { labPairType, supervisorLabFromId, tutorLabFromId } from './labs';
 
@@ -92,6 +93,7 @@ export function normalizeRun(record: RunRecord, runKey: string): NormalizedRun {
   const question = record.question;
   const questionObj = asObject(question);
   const csbenchObj = asObject(questionObj?.csbench);
+  const broadConcept = labelQuestionBroadConcept(question);
   const tutorId = deriveTutorId(record);
   const supervisorId = deriveSupervisorId(record);
   const turnJudgments = Array.isArray(record.hiddenTrace?.turnJudgments) ? record.hiddenTrace.turnJudgments : [];
@@ -132,6 +134,7 @@ export function normalizeRun(record: RunRecord, runKey: string): NormalizedRun {
     bloomLevel: typeof question?.bloomLevel === 'number' ? question.bloomLevel : null,
     difficulty: typeof question?.difficulty === 'string' ? question.difficulty : null,
     topicTag: typeof question?.topicTag === 'string' ? question.topicTag : null,
+    broadConcept: broadConcept.concept,
     pairingId: String(record.pairingId ?? ''),
     condition: record.condition,
     tutorId,
@@ -203,6 +206,7 @@ export function buildTurnRows(record: RunRecord, run: NormalizedRun): TurnRow[] 
       bloomLevel: run.bloomLevel,
       difficulty: run.difficulty,
       topicTag: run.topicTag,
+      broadConcept: run.broadConcept,
       turnIndex: i,
       attackLevel,
       judged,

@@ -88,6 +88,7 @@ function buildQuestion(row: RawCsbenchRow, csbenchFormat: CsbenchFormat): Questi
 
   const csbenchBase = {
     dataset: 'csbench' as const,
+    source: 'csbench' as const,
     id: `csbench-${split.toLowerCase()}-${idRaw}`,
     csbenchFormat,
     questionFormat: csbenchFormat,

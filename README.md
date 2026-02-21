@@ -30,7 +30,7 @@ The CLI is `node dist/cli.js` (wrapped by `pnpm harness`).
 ### Dataset source
 
 - `--dataset NAME`
-  - Question source: `csbench`, `default`, `canterbury`, `pairwise`.
+  - Question source: `csbench`, `default`, `canterbury`, `pairwise`, `overlap-csbench-pairwise`.
   - Default: `csbench`.
 - `--pairwiseDir PATH`
   - Directory containing pairwise question files.
@@ -46,9 +46,26 @@ The CLI is `node dist/cli.js` (wrapped by `pnpm harness`).
     - `fill-in-the-blank`
     - `open-ended`
   - Default: all formats.
+- `--overlapPath PATH`
+  - Path to overlap dataset JSON built from CSBench + Pairwise.
+  - Used when `--dataset overlap-csbench-pairwise`.
+  - Default: `overlap-csbench-pairwise/questions.json`.
 - `--questionLimit N`
   - Max questions to load from the selected dataset.
   - Default: `100` for canterbury, otherwise unlimited.
+
+### Overlap dataset workflow
+
+- Build overlap questions:
+  - `pnpm build:overlap-dataset`
+- Run harness on overlap-only questions:
+  - `pnpm harness:overlap -- [other flags]`
+- The overlap dataset is written to:
+  - `overlap-csbench-pairwise/questions.json`
+- It contains mixed CSBench + Pairwise questions with:
+  - full original question metadata preserved
+  - `source: "csbench"` or `source: "pairwise"` on each question
+  - overlap concept metadata at dataset level
 - `--dynamic`
   - Generate Bloom × difficulty questions at runtime instead of loading a dataset file.
 - `--questionsPerCell N`
@@ -190,5 +207,7 @@ From `summary.json`:
   - `pnpm harness -- --noJudge --turns 10`
 - Run using pairwise inputs:
   - `pnpm harness -- --dataset pairwise --pairwiseDir data/pairwise --turns 4`
+- Build and run overlap-only inputs:
+  - `pnpm build:overlap-dataset && pnpm harness:overlap -- --turns 4`
 - Validate pairwise ingestion locally (no model/API calls):
   - `pnpm validate:pairwise`

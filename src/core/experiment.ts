@@ -26,6 +26,7 @@ import { renderReportHtml } from '../output/report';
 import { renderAnalysisDashboard, generateAnalysisCsvs } from '../output/analysis';
 import { loadCsbenchQuestions } from './csbench';
 import { loadPairwiseQuestions } from './pairwise';
+import { loadOverlapQuestions } from './overlap';
 
 // Type for a single run configuration
 type RunConfig = {
@@ -150,6 +151,15 @@ export async function runExperiments({
     });
     // eslint-disable-next-line no-console
     console.log(`✅ Loaded ${questions.length} pairwise questions`);
+  } else if (args.dataset === 'overlap-csbench-pairwise') {
+    // eslint-disable-next-line no-console
+    console.log(`\n📝 Loading overlap questions from ${args.overlapPath}`);
+    questions = await loadOverlapQuestions({
+      jsonPath: args.overlapPath,
+      limit: args.questionLimit,
+    });
+    // eslint-disable-next-line no-console
+    console.log(`✅ Loaded ${questions.length} overlap questions`);
   } else {
     const staticPath = join(process.cwd(), 'data', 'questions.json');
     // eslint-disable-next-line no-console
@@ -195,6 +205,7 @@ export async function runExperiments({
         skillTags: args.skillTags,
         csbenchPath: args.csbenchPath,
         pairwiseDir: args.pairwiseDir,
+        overlapPath: args.overlapPath,
         csbenchFormats: args.csbenchFormats,
         questionsPerCell: args.questionsPerCell,
         calls: datasetCalls,

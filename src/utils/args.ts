@@ -5,12 +5,13 @@ export type CliArgs = {
   questionsPerCell: number;
   bloomLevels: number[];
   difficulties: Difficulty[];
-  dataset: 'default' | 'canterbury' | 'csbench' | 'pairwise';
+  dataset: 'default' | 'canterbury' | 'csbench' | 'pairwise' | 'overlap-csbench-pairwise';
   questionLimit: number | null;
   courseLevels: string[];
   skillTags: string[];
   csbenchPath: string;
   pairwiseDir: string;
+  overlapPath: string;
   csbenchFormats: CsbenchFormat[];
   turns: number;
   maxIters: number;
@@ -84,11 +85,14 @@ export function parseArgs(argv: string[]): CliArgs {
     datasetRaw !== 'default' &&
     datasetRaw !== 'canterbury' &&
     datasetRaw !== 'csbench' &&
-    datasetRaw !== 'pairwise'
+    datasetRaw !== 'pairwise' &&
+    datasetRaw !== 'overlap-csbench-pairwise'
   ) {
-    throw new Error(`Invalid dataset: "${datasetRaw}". Use "default", "canterbury", "csbench", or "pairwise".`);
+    throw new Error(
+      `Invalid dataset: "${datasetRaw}". Use "default", "canterbury", "csbench", "pairwise", or "overlap-csbench-pairwise".`
+    );
   }
-  const dataset = datasetRaw as 'default' | 'canterbury' | 'csbench' | 'pairwise';
+  const dataset = datasetRaw as 'default' | 'canterbury' | 'csbench' | 'pairwise' | 'overlap-csbench-pairwise';
 
   const questionLimit = raw['questionLimit']
     ? parseIntFlag(String(raw['questionLimit']), 'questionLimit')
@@ -98,6 +102,9 @@ export function parseArgs(argv: string[]): CliArgs {
 
   const csbenchPath = raw['csbenchPath'] ? String(raw['csbenchPath']) : 'test.jsonl';
   const pairwiseDir = raw['pairwiseDir'] ? String(raw['pairwiseDir']) : 'data/pairwise';
+  const overlapPath = raw['overlapPath']
+    ? String(raw['overlapPath'])
+    : 'overlap-csbench-pairwise/questions.json';
   const csbenchFormatsRaw =
     raw['csbenchFormats'] != null
       ? parseListFlag(String(raw['csbenchFormats']))
@@ -189,6 +196,7 @@ export function parseArgs(argv: string[]): CliArgs {
     skillTags,
     csbenchPath,
     pairwiseDir,
+    overlapPath,
     csbenchFormats,
     turns,
     maxIters,
@@ -219,9 +227,10 @@ Usage:
   pnpm harness [flags]
 
 Flags:
-  --dataset NAME           Question source: csbench, default, canterbury, pairwise (default: csbench)
+  --dataset NAME           Question source: csbench, default, canterbury, pairwise, overlap-csbench-pairwise (default: csbench)
   --csbenchPath PATH       Path to CS Bench JSONL (default: test.jsonl)
   --pairwiseDir PATH       Path to pairwise question directory (default: data/pairwise)
+  --overlapPath PATH       Path to overlap questions JSON (default: overlap-csbench-pairwise/questions.json)
   --csbenchFormats LIST    multiple-choice,assertion,fill-in-the-blank,open-ended (default all)
   --questionLimit N        Max questions to load (default: 100 for canterbury)
   --dynamic                Generate questions dynamically (default: use static data/questions.json)
@@ -256,7 +265,10 @@ Question Source:
   Use --dataset default to load data/questions.json (36 static questions).
   Use --dataset canterbury to load data/canterbury/questions-p*.html.
   Use --dataset pairwise to load pairwise questions from data/pairwise (or --pairwiseDir).
+  Use --dataset overlap-csbench-pairwise to load mixed overlap questions from --overlapPath.
   Use --dynamic to generate questions at runtime instead.
+  Build overlap dataset with: pnpm build:overlap-dataset
+  Run harness on overlap only with: pnpm harness:overlap
   To regenerate static questions: pnpm generate-questions
 
 Models:

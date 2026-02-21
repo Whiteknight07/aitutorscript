@@ -36,12 +36,16 @@ export const CsbenchFormatSchema = z.enum([
 ]);
 export type CsbenchFormat = z.infer<typeof CsbenchFormatSchema>;
 
+export const QuestionSourceSchema = z.enum(['default', 'canterbury', 'csbench', 'pairwise']);
+export type QuestionSource = z.infer<typeof QuestionSourceSchema>;
+
 // Alias used by format-aware agent helpers.
 export const QuestionFormatSchema = CsbenchFormatSchema;
 export type QuestionFormat = z.infer<typeof QuestionFormatSchema>;
 
 const QuestionBaseSchema = z.object({
   id: z.string().min(1),
+  source: QuestionSourceSchema.optional(),
   topicTag: z.string().min(1),
   courseLevel: z.string().min(1).optional(),
   skillTag: z.string().min(1).optional(),

@@ -312,6 +312,7 @@ function buildPairwiseQuestion({
 
   const candidate: Question = {
     dataset: 'pairwise',
+    source: 'pairwise',
     id: generatedId,
     questionFormat: 'multiple-choice',
     topicTag: topicTag || 'pairwise',

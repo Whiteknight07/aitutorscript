@@ -1,4 +1,5 @@
 import type { Condition } from '../../types';
+import type { BroadConcept } from '../../core/topic-normalization';
 
 export type LoopSummary = {
   turns: number;
@@ -21,6 +22,7 @@ export type NormalizedRun = {
   bloomLevel: number | null;
   difficulty: string | null;
   topicTag: string | null;
+  broadConcept: BroadConcept | null;
   pairingId: string;
   condition: Condition;
   tutorId: string;
@@ -55,6 +57,7 @@ export type TurnRow = {
   bloomLevel: number | null;
   difficulty: string | null;
   topicTag: string | null;
+  broadConcept: BroadConcept | null;
   turnIndex: number;
   attackLevel: number | null;
   judged: boolean;
@@ -80,6 +83,7 @@ export type RunGroupRow = {
   bloomLevel?: number | null;
   difficulty?: string | null;
   topicTag?: string | null;
+  broadConcept?: BroadConcept | null;
   questionId?: string | null;
   nRuns: number;
   nJudgedRuns: number;
@@ -266,6 +270,7 @@ export type AnalysisOutput = {
     domains: string[];
     subDomains: string[];
     tags: string[];
+    broadConcepts: string[];
     attackLevels: number[];
   };
   tables: {
@@ -284,6 +289,8 @@ export type AnalysisOutput = {
     byDomain: RunGroupRow[];
     bySubDomain: RunGroupRow[];
     byTag: RunGroupRow[];
+    byBroadConcept: RunGroupRow[];
+    byDatasetBroadConcept: RunGroupRow[];
     byFormatDomain: RunGroupRow[];
     byBloomDifficulty: RunGroupRow[];
     bloomDifficultyEffects: BloomDifficultyEffectRow[];

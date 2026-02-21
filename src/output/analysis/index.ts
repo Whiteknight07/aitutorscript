@@ -1,4 +1,5 @@
 import type { RunRecord } from '../../types';
+import { BROAD_CONCEPTS, type BroadConcept } from '../../core/topic-normalization';
 import { nowIso } from '../../utils/util';
 import { buildConditionEffects, buildRunGroupRow, buildTurnGroupRow } from './aggregation';
 import {
@@ -26,6 +27,13 @@ function tupleKey(parts: Array<string | number | null>): string {
   return JSON.stringify(parts);
 }
 
+const BROAD_CONCEPT_SET = new Set<string>(BROAD_CONCEPTS);
+
+function toBroadConcept(value: string | null): BroadConcept | null {
+  if (!value) return null;
+  return BROAD_CONCEPT_SET.has(value) ? (value as BroadConcept) : null;
+}
+
 function buildTotals(runs: NormalizedRun[], turnRows: TurnRow[]) {
   return {
     runs: runs.length,
@@ -42,6 +50,7 @@ function buildTotals(runs: NormalizedRun[], turnRows: TurnRow[]) {
     domains: uniqueSorted(runs.map((r) => r.domain)),
     subDomains: uniqueSorted(runs.map((r) => r.subDomain)),
     tags: uniqueSorted(runs.map((r) => r.tag)),
+    broadConcepts: uniqueSorted(runs.map((r) => r.broadConcept)),
     attackLevels: uniqueSortedNumbers(turnRows.map((r) => r.attackLevel)),
   };
 }
@@ -225,6 +234,38 @@ export function buildAnalysis(options: AnalysisOptions): AnalysisOutput {
     }))
     .sort((a, b) => String(a.tag).localeCompare(String(b.tag)));
 
+  const byBroadConcept = Array.from(
+    groupBy(
+      runs.filter((r) => r.broadConcept),
+      (r) => String(r.broadConcept ?? 'unknown')
+    ).entries()
+  )
+    .map(([broadConcept, group]) => ({
+      broadConcept: toBroadConcept(broadConcept) ?? 'unknown',
+      ...buildRunGroupRow(group),
+    }))
+    .sort((a, b) => String(a.broadConcept).localeCompare(String(b.broadConcept)));
+
+  const byDatasetBroadConcept = Array.from(
+    groupBy(
+      runs.filter((r) => r.dataset || r.broadConcept),
+      (r) => tupleKey([r.dataset ?? null, r.broadConcept ?? null])
+    ).entries()
+  )
+    .map(([key, group]) => {
+      const [dataset, broadConcept] = JSON.parse(key) as [string | null, string | null];
+      return {
+        dataset,
+        broadConcept: toBroadConcept(broadConcept),
+        ...buildRunGroupRow(group),
+      };
+    })
+    .sort((a, b) => {
+      const d = String(a.dataset ?? '').localeCompare(String(b.dataset ?? ''));
+      if (d !== 0) return d;
+      return String(a.broadConcept ?? '').localeCompare(String(b.broadConcept ?? ''));
+    });
+
   const byFormatDomain = Array.from(
     groupBy(
       runs.filter((r) => r.questionFormat || r.domain),
@@ -280,6 +321,7 @@ export function buildAnalysis(options: AnalysisOptions): AnalysisOutput {
       bloomLevel: group[0]?.bloomLevel ?? null,
       difficulty: group[0]?.difficulty ?? null,
       topicTag: group[0]?.topicTag ?? null,
+      broadConcept: group[0]?.broadConcept ?? null,
       ...buildRunGroupRow(group),
     }))
     .sort((a, b) => String(a.questionId).localeCompare(String(b.questionId)));
@@ -338,6 +380,8 @@ export function buildAnalysis(options: AnalysisOptions): AnalysisOutput {
       byDomain,
       bySubDomain,
       byTag,
+      byBroadConcept,
+      byDatasetBroadConcept,
       byFormatDomain,
       byBloomDifficulty,
       bloomDifficultyEffects,
