@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import json
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -46,6 +48,12 @@ def parse_args() -> argparse.Namespace:
   parser.add_argument('--holdout-split-value', default='holdout', help='Split field value used for holdout rows.')
   parser.add_argument('--cache-jsonl', default='tmp/risk_gate/local_embeddings_cache.jsonl', help='Embedding cache JSONL.')
   parser.add_argument('--timeout-sec', type=float, default=60.0, help='Embedding request timeout in seconds.')
+  parser.add_argument(
+    '--workers',
+    type=int,
+    default=min(16, os.cpu_count() or 4),
+    help='Parallel workers for local embedding fetches (default: min(16, cpu_count)).',
+  )
   parser.add_argument('--max-rows', type=int, default=None, help='Optional row cap.')
   parser.add_argument('--max-iter', type=int, default=2000, help='LogisticRegression max_iter.')
   parser.add_argument('--c', type=float, default=1.0, help='LogisticRegression C regularization strength.')
@@ -125,14 +133,13 @@ def parse_headers(raw: str | None) -> dict[str, str]:
 
 
 def fetch_embedding(
-  session: requests.Session,
   url: str,
   model: str,
   text: str,
   timeout_sec: float,
   headers: dict[str, str],
 ) -> list[float]:
-  response = session.post(
+  response = requests.post(
     url,
     headers=headers,
     json={
@@ -274,12 +281,57 @@ def main() -> int:
 
   if not rows:
     raise SystemExit('No valid rows available for training after filtering.')
+  if args.workers <= 0:
+    raise SystemExit(f'--workers must be >= 1. Received: {args.workers}')
 
   headers = parse_headers(args.headers_json)
   cache = load_embedding_cache(cache_path)
-  new_embeddings = 0
+  missing_text_by_id: dict[str, str] = {}
+  for row in rows:
+    example_id = row['example_id']
+    if example_id in cache or example_id in missing_text_by_id:
+      continue
+    missing_text_by_id[example_id] = row['text']
 
-  session = requests.Session()
+  fetched_embeddings: dict[str, list[float]] = {}
+  if missing_text_by_id:
+    if args.workers == 1:
+      for example_id, text in missing_text_by_id.items():
+        fetched_embeddings[example_id] = fetch_embedding(
+          url=args.embedding_url,
+          model=args.embedding_model,
+          text=text,
+          timeout_sec=args.timeout_sec,
+          headers=headers,
+        )
+    else:
+      with concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as executor:
+        future_to_id = {
+          executor.submit(
+            fetch_embedding,
+            args.embedding_url,
+            args.embedding_model,
+            text,
+            args.timeout_sec,
+            headers,
+          ): example_id
+          for example_id, text in missing_text_by_id.items()
+        }
+        completed = 0
+        total = len(future_to_id)
+        for future in concurrent.futures.as_completed(future_to_id):
+          example_id = future_to_id[future]
+          completed += 1
+          try:
+            fetched_embeddings[example_id] = future.result()
+          except Exception as exc:  # noqa: BLE001
+            raise SystemExit(f'Embedding fetch failed for {example_id}: {exc}') from exc
+          if completed % 250 == 0 or completed == total:
+            print(f'  local embedding progress: {completed}/{total}')
+
+    cache.update(fetched_embeddings)
+
+  new_embeddings = len(fetched_embeddings)
   embeddings: list[list[float]] = []
   embedding_dim: int | None = None
 
@@ -287,16 +339,7 @@ def main() -> int:
     example_id = row['example_id']
     embedding = cache.get(example_id)
     if embedding is None:
-      embedding = fetch_embedding(
-        session=session,
-        url=args.embedding_url,
-        model=args.embedding_model,
-        text=row['text'],
-        timeout_sec=args.timeout_sec,
-        headers=headers,
-      )
-      cache[example_id] = embedding
-      new_embeddings += 1
+      raise SystemExit(f'Missing embedding for {example_id} after fetch/cache pass.')
 
     if embedding_dim is None:
       embedding_dim = len(embedding)
@@ -398,6 +441,7 @@ def main() -> int:
       'train_rows': int(train_indices.size),
       'holdout_rows': int(holdout_indices.size),
       'new_embeddings_fetched': new_embeddings,
+      'workers': args.workers,
       'cache_size': len(cache),
       'skipped_missing_id': skipped_missing_id,
       'skipped_missing_text': skipped_missing_text,
@@ -432,6 +476,7 @@ def main() -> int:
   print(f'  total_rows: {len(rows)}')
   print(f'  train_rows: {int(train_indices.size)}')
   print(f'  holdout_rows: {int(holdout_indices.size)}')
+  print(f'  workers: {args.workers}')
   print(f'  new_embeddings_fetched: {new_embeddings}')
   print(f'  holdout_recall_at_{args.prediction_threshold}: {holdout_metrics["recall"]}')
 

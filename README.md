@@ -34,6 +34,8 @@ Risk-gate training assets live in `scripts/risk_gate/` and consume `results/*/ra
 6. Train local/OpenAI logistic models: `pnpm risk:train`
 7. Sweep thresholds and export canonical artifacts: `pnpm risk:eval`
 
+For faster local embedding training on multi-core machines, run `train_local_model.py` with `--workers N` (the script defaults to `min(16, cpu_count)` workers).
+
 Final artifacts are written to `models/risk-gate/v1/` as:
 `local_model.json`, `openai_model.json`, `policy.json`, `feature_schema.json`, and `metrics.json`.
 

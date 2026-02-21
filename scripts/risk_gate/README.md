@@ -24,6 +24,7 @@ This folder builds a supervision risk gate from harness outputs.
   - Parses OpenAI Batch output JSONL into `example_id -> embedding`
 - `train_local_model.py`
   - Calls configurable local embedding endpoint and trains logistic regression (`class_weight='balanced'`)
+  - Supports `--workers N` for parallel local embedding fetches
 - `train_openai_model.py`
   - Trains logistic regression (`class_weight='balanced'`) from precomputed OpenAI embeddings
 - `threshold_sweep.py`
@@ -63,6 +64,7 @@ python3 scripts/risk_gate/train_local_model.py \
   --dataset tmp/risk_gate/turn_dataset.jsonl \
   --embedding-url http://localhost:11434/api/embeddings \
   --embedding-model Qwen/Qwen3-Embedding-0.6B \
+  --workers 10 \
   --model-out tmp/risk_gate/local_model.json \
   --predictions-out tmp/risk_gate/local_holdout_predictions.jsonl \
   --metrics-out tmp/risk_gate/local_metrics.json
