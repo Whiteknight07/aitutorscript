@@ -55,7 +55,11 @@ export function buildRiskGateFeatureText({
     transcriptVisible.length === 0
       ? '(empty)'
       : transcriptVisible.map((m, idx) => `${idx + 1}. ${m.role.toUpperCase()}: ${m.content}`).join('\n');
-  const choicesText = question.choices.map((choice, idx) => `${idx}. ${choice}`).join('\n');
+  const questionChoices = Array.isArray(question.choices) ? question.choices : [];
+  const choicesText =
+    questionChoices.length > 0
+      ? questionChoices.map((choice, idx) => `${idx}. ${choice}`).join('\n')
+      : '(none)';
 
   const featureText = [
     `QUESTION_ID: ${question.id}`,

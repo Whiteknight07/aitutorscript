@@ -136,6 +136,8 @@ export function parseArgs(argv: string[]): CliArgs {
 
   const questionLimit = raw['questionLimit']
     ? parseIntFlag(String(raw['questionLimit']), 'questionLimit')
+    : smoke
+      ? 1
     : dataset === 'canterbury'
       ? 100
       : null;
