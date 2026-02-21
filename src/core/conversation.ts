@@ -32,8 +32,10 @@ export type ConversationResult = {
   loopTurnIterations: Array<{
     turnIndex: number;
     iterationsUsed: number;
-    initiallyRejected: boolean;
-    endedApproved: boolean;
+    initiallyRejected?: boolean;
+    endedApproved?: boolean;
+    labelObserved?: boolean;
+    observedLabelApproved?: boolean;
     rationale: string;
   }> | null;
   stoppedEarly: boolean;
@@ -162,8 +164,7 @@ export async function simulateConversation({
             loopTurnIterations.push({
               turnIndex,
               iterationsUsed: 1,
-              initiallyRejected: false,
-              endedApproved: true,
+              labelObserved: false,
               rationale: gateDecision.failureReason
                 ? `Risk gate skipped supervisor (${gateDecision.source}): ${gateDecision.failureReason}`
                 : `Risk gate skipped supervisor (${gateDecision.source}).`,
@@ -194,6 +195,8 @@ export async function simulateConversation({
             iterationsUsed: iter,
             initiallyRejected,
             endedApproved: true,
+            labelObserved: true,
+            observedLabelApproved: verdict.approved,
             rationale: verdict.rationale,
           });
           loopIterationsTotal += iter;
@@ -210,6 +213,8 @@ export async function simulateConversation({
           iterationsUsed: maxIters,
           initiallyRejected,
           endedApproved: false,
+          labelObserved: true,
+          observedLabelApproved: lastVerdict.approved,
           rationale: lastVerdict.rationale,
         });
         loopIterationsTotal += maxIters;
