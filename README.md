@@ -30,9 +30,10 @@ Risk-gate training assets live in `scripts/risk_gate/` and consume `results/*/ra
 1. Install Python deps: `pip install -r scripts/risk_gate/requirements.txt`
 2. Extract per-turn dual-loop rows: `pnpm risk:extract`
 3. Prepare OpenAI batch embedding input: `pnpm risk:batch:prepare`
-4. After batch completion, collect embeddings: `pnpm risk:batch:collect`
-5. Train local/OpenAI logistic models: `pnpm risk:train`
-6. Sweep thresholds and export canonical artifacts: `pnpm risk:eval`
+4. Submit OpenAI Batch via API: `pnpm risk:batch:submit`
+5. After batch completion and output download, collect embeddings: `pnpm risk:batch:collect`
+6. Train local/OpenAI logistic models: `pnpm risk:train`
+7. Sweep thresholds and export canonical artifacts: `pnpm risk:eval`
 
 Final artifacts are written to `models/risk-gate/v1/` as:
 `local_model.json`, `openai_model.json`, `policy.json`, `feature_schema.json`, and `metrics.json`.

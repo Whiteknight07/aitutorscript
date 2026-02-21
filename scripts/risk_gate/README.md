@@ -18,6 +18,8 @@ This folder builds a supervision risk gate from harness outputs.
   - Builds extracted dataset JSONL + `feature_schema.json`
 - `prepare_openai_batch_embeddings.py`
   - Builds OpenAI Batch input JSONL for embedding requests
+- `submit_openai_batch.py`
+  - Uploads prepared JSONL and creates an OpenAI Batch job via API
 - `collect_openai_batch_embeddings.py`
   - Parses OpenAI Batch output JSONL into `example_id -> embedding`
 - `train_local_model.py`
@@ -45,7 +47,13 @@ python3 scripts/risk_gate/prepare_openai_batch_embeddings.py \
   --dataset tmp/risk_gate/turn_dataset.jsonl \
   --output-jsonl tmp/risk_gate/openai_batch_input.jsonl
 
-# Run OpenAI Batch externally, then collect the downloaded output file:
+python3 scripts/risk_gate/submit_openai_batch.py \
+  --input-jsonl tmp/risk_gate/openai_batch_input.jsonl \
+  --manifest-path tmp/risk_gate/openai_batch_manifest.json \
+  --endpoint /v1/embeddings \
+  --completion-window 24h
+
+# When batch reaches completed, download output to tmp/risk_gate/openai_batch_output.jsonl, then collect:
 python3 scripts/risk_gate/collect_openai_batch_embeddings.py \
   --dataset tmp/risk_gate/turn_dataset.jsonl \
   --batch-output-jsonl tmp/risk_gate/openai_batch_output.jsonl \
