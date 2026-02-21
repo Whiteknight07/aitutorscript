@@ -156,12 +156,172 @@ function boolRate(numerator: number, denominator: number): number | null {
   return numerator / denominator;
 }
 
-function normalizeRiskGateDecision(value: unknown): RiskGateDecision | null {
+type RiskGateDecisionNormalizationContext = {
+  loopLabelByTurnIndex: Map<number, boolean>;
+  loopTurnIndexOffset: number;
+  runGateMode: string | null;
+};
+
+const RISK_GATE_LABEL_KEYS = [
+  'labelShouldSupervise',
+  'shouldSuperviseLabel',
+  'groundTruthShouldSupervise',
+  'expectedSupervise',
+  'trueShouldSupervise',
+  'isPositiveLabel',
+  'observedLabelShouldSupervise',
+  'observedShouldSupervise',
+] as const;
+
+const RISK_GATE_LABEL_OBSERVED_KEYS = [
+  'labelObserved',
+  'isLabelObserved',
+  'groundTruthObserved',
+  'hasGroundTruthLabel',
+  'labelAvailable',
+  'hasObservedLabel',
+] as const;
+
+function toUnknownArray(value: unknown): unknown[] {
+  return Array.isArray(value) ? value : [];
+}
+
+function buildLoopLabelByTurnIndex(loop: RunRecord['loopTurnIterations']): Map<number, boolean> {
+  const out = new Map<number, boolean>();
+  if (!Array.isArray(loop)) return out;
+
+  for (const row of loop) {
+    const rowObj = asObject(row);
+    if (!rowObj) continue;
+    const turnIndex = firstNonNull(
+      intField(rowObj, 'turnIndex', 'turn', 'turnNumber', 'index'),
+      numberField(rowObj, 'turnIndex', 'turn', 'turnNumber', 'index')
+    );
+    const initiallyRejected = boolField(rowObj, 'initiallyRejected');
+    if (turnIndex == null || initiallyRejected == null) continue;
+    out.set(turnIndex, initiallyRejected);
+  }
+
+  return out;
+}
+
+function collectDecisionTurnIndices(values: unknown[]): number[] {
+  const out: number[] = [];
+  for (const value of values) {
+    const obj = asObject(value);
+    if (!obj) continue;
+    const turnIndex = firstNonNull(
+      intField(obj, 'turnIndex', 'turn', 'turnNumber', 'index'),
+      numberField(obj, 'turnIndex', 'turn', 'turnNumber', 'index')
+    );
+    if (turnIndex == null) continue;
+    out.push(turnIndex);
+  }
+  return out;
+}
+
+function deriveDecisionToLoopTurnOffset(
+  decisionValues: unknown[],
+  loopLabelByTurnIndex: Map<number, boolean>
+): number {
+  if (!decisionValues.length || loopLabelByTurnIndex.size === 0) return 0;
+  const decisionTurnIndices = collectDecisionTurnIndices(decisionValues);
+  if (!decisionTurnIndices.length) return 0;
+
+  const loopTurnIndexSet = new Set(loopLabelByTurnIndex.keys());
+  const candidateOffsets = [0, 1, -1];
+  let bestOffset = 0;
+  let bestMatches = -1;
+
+  for (const candidate of candidateOffsets) {
+    let matches = 0;
+    for (const turnIndex of decisionTurnIndices) {
+      if (loopTurnIndexSet.has(turnIndex + candidate)) matches += 1;
+    }
+    if (matches > bestMatches) {
+      bestMatches = matches;
+      bestOffset = candidate;
+    }
+  }
+
+  return bestOffset;
+}
+
+function normalizeRiskGateMode(value: unknown): 'off' | 'shadow' | 'enforce' | 'unknown' {
+  const raw = toNonEmptyString(value);
+  if (!raw) return 'unknown';
+  const normalized = raw.toLowerCase();
+  if (normalized === 'off' || normalized === 'disabled' || normalized === 'none') return 'off';
+  if (normalized === 'shadow' || normalized === 'observe' || normalized === 'monitor') return 'shadow';
+  if (normalized === 'enforce' || normalized === 'strict') return 'enforce';
+  return 'unknown';
+}
+
+function lookupLoopLabelShouldSupervise(
+  context: RiskGateDecisionNormalizationContext | null,
+  turnIndex: number | null
+): boolean | null {
+  if (!context || turnIndex == null) return null;
+  const value = context.loopLabelByTurnIndex.get(turnIndex + context.loopTurnIndexOffset);
+  return value == null ? null : value;
+}
+
+function extractRiskGateLabelShouldSupervise(obj: Record<string, unknown>): boolean | null {
+  const observation = asObject(obj.observation);
+  const observationMeta = asObject(obj.observationMetadata);
+  const metadata = asObject(obj.metadata);
+  return firstNonNull(
+    boolField(obj, ...RISK_GATE_LABEL_KEYS),
+    boolField(observation, ...RISK_GATE_LABEL_KEYS),
+    boolField(observationMeta, ...RISK_GATE_LABEL_KEYS),
+    boolField(metadata, ...RISK_GATE_LABEL_KEYS)
+  );
+}
+
+function extractRiskGateLabelObserved(obj: Record<string, unknown>): boolean | null {
+  const observation = asObject(obj.observation);
+  const observationMeta = asObject(obj.observationMetadata);
+  const metadata = asObject(obj.metadata);
+  return firstNonNull(
+    boolField(obj, ...RISK_GATE_LABEL_OBSERVED_KEYS),
+    boolField(observation, ...RISK_GATE_LABEL_OBSERVED_KEYS),
+    boolField(observationMeta, ...RISK_GATE_LABEL_OBSERVED_KEYS),
+    boolField(metadata, ...RISK_GATE_LABEL_OBSERVED_KEYS)
+  );
+}
+
+function resolveRiskGateMode(
+  obj: Record<string, unknown>,
+  context: RiskGateDecisionNormalizationContext | null
+): 'off' | 'shadow' | 'enforce' | 'unknown' {
+  const observation = asObject(obj.observation);
+  const metadata = asObject(obj.metadata);
+  const rawMode = firstNonNull(
+    toNonEmptyString(obj.mode),
+    toNonEmptyString(obj.gateMode),
+    toNonEmptyString(obj.riskGateMode),
+    toNonEmptyString(observation?.mode),
+    toNonEmptyString(observation?.gateMode),
+    toNonEmptyString(observation?.riskGateMode),
+    toNonEmptyString(metadata?.mode),
+    context?.runGateMode
+  );
+  return normalizeRiskGateMode(rawMode);
+}
+
+function normalizeRiskGateDecision(
+  value: unknown,
+  context: RiskGateDecisionNormalizationContext | null = null
+): RiskGateDecision | null {
   const obj = asObject(value);
   if (!obj) return null;
 
   const decision = normalizeRiskGateDecisionKind(
     firstNonNull(obj.decision, obj.action, obj.outcome, obj.route, obj.mode, obj.decisionType)
+  );
+  const turnIndex = firstNonNull(
+    intField(obj, 'turnIndex', 'turn', 'turnNumber', 'index'),
+    numberField(obj, 'turnIndex', 'turn', 'turnNumber', 'index')
   );
   const predictedShouldSupervise =
     boolField(obj, 'predictedShouldSupervise', 'predictSupervise', 'gateTriggered', 'triggered') ??
@@ -170,15 +330,24 @@ function normalizeRiskGateDecision(value: unknown): RiskGateDecision | null {
       : decision === 'skip'
         ? false
         : null);
-  const labelShouldSupervise = boolField(
-    obj,
-    'labelShouldSupervise',
-    'shouldSuperviseLabel',
-    'groundTruthShouldSupervise',
-    'expectedSupervise',
-    'trueShouldSupervise',
-    'isPositiveLabel'
-  );
+  const explicitLabelShouldSupervise = extractRiskGateLabelShouldSupervise(obj);
+  const loopDerivedLabelShouldSupervise = lookupLoopLabelShouldSupervise(context, turnIndex);
+  const explicitLabelObserved = extractRiskGateLabelObserved(obj);
+  const mode = resolveRiskGateMode(obj, context);
+  const inferredLabelObserved =
+    mode === 'enforce' && decision === 'skip'
+      ? false
+      : explicitLabelShouldSupervise != null || loopDerivedLabelShouldSupervise != null
+        ? true
+        : null;
+  const labelObserved = explicitLabelObserved ?? inferredLabelObserved;
+  let labelShouldSupervise = explicitLabelShouldSupervise;
+  if (labelObserved === false) {
+    labelShouldSupervise = null;
+  } else if (labelShouldSupervise == null && loopDerivedLabelShouldSupervise != null) {
+    labelShouldSupervise = loopDerivedLabelShouldSupervise;
+  }
+  const source = toNonEmptyString(firstNonNull(obj.source, obj.decisionSource, obj.routeSource));
   const fallbackOpenAICall =
     boolField(
       obj,
@@ -187,14 +356,10 @@ function normalizeRiskGateDecision(value: unknown): RiskGateDecision | null {
       'fallbackOpenAI',
       'usedOpenAIFallback',
       'didFallbackToOpenAI'
-    ) ?? false;
+    ) ?? (source?.toLowerCase() === 'openai-fallback');
   const failure =
     boolField(obj, 'failure', 'failed', 'isFailure', 'hadError', 'errorOccurred') ??
     !!(obj.error || obj.failureReason);
-  const turnIndex = firstNonNull(
-    intField(obj, 'turnIndex', 'turn', 'turnNumber', 'index'),
-    numberField(obj, 'turnIndex', 'turn', 'turnNumber', 'index')
-  );
   const latencyDeltaMs = numberField(
     obj,
     'latencyDeltaMs',
@@ -313,9 +478,14 @@ function normalizeRiskGateSweepPoint(value: unknown): RiskGateSweepPoint | null 
   };
 }
 
-function toRiskGateDecisionArray(value: unknown): RiskGateDecision[] {
-  if (!Array.isArray(value)) return [];
-  return value.map((item) => normalizeRiskGateDecision(item)).filter((item): item is RiskGateDecision => item != null);
+function toRiskGateDecisionArray(
+  value: unknown,
+  context: RiskGateDecisionNormalizationContext | null = null
+): RiskGateDecision[] {
+  const values = toUnknownArray(value);
+  return values
+    .map((item) => normalizeRiskGateDecision(item, context))
+    .filter((item): item is RiskGateDecision => item != null);
 }
 
 function toRiskGateSweepArray(value: unknown): RiskGateSweepPoint[] {
@@ -331,12 +501,23 @@ export function extractRiskGateRunSummary(record: RunRecord): RiskGateRunSummary
   const runRiskGate = asObject(unsafeRecord?.riskGate);
   const hiddenTrace = asObject(unsafeRecord?.hiddenTrace);
 
-  const decisions = firstNonEmptyArray(
-    toRiskGateDecisionArray((hiddenTrace as any)?.riskGateDecisions),
-    toRiskGateDecisionArray((runRiskGate as any)?.decisions),
-    toRiskGateDecisionArray((runRiskGate as any)?.gateDecisions),
-    toRiskGateDecisionArray((runRiskGate as any)?.decisionLog),
+  const decisionValues = firstNonEmptyArray(
+    toUnknownArray((hiddenTrace as any)?.riskGateDecisions),
+    toUnknownArray((runRiskGate as any)?.decisions),
+    toUnknownArray((runRiskGate as any)?.gateDecisions),
+    toUnknownArray((runRiskGate as any)?.decisionLog),
   );
+  const loopLabelByTurnIndex = buildLoopLabelByTurnIndex(record.loopTurnIterations);
+  const decisionContext: RiskGateDecisionNormalizationContext = {
+    loopLabelByTurnIndex,
+    loopTurnIndexOffset: deriveDecisionToLoopTurnOffset(decisionValues, loopLabelByTurnIndex),
+    runGateMode: firstNonNull(
+      toNonEmptyString((runRiskGate as any)?.mode),
+      toNonEmptyString((runRiskGate as any)?.riskGateMode),
+      toNonEmptyString((runRiskGate as any)?.gateMode)
+    ),
+  };
+  const decisions = toRiskGateDecisionArray(decisionValues, decisionContext);
 
   const thresholdSweep = firstNonEmptyArray(
     toRiskGateSweepArray((runRiskGate as any)?.thresholdSweep),
