@@ -1105,6 +1105,34 @@ html[data-theme="dark"] .analysisPanel__hd{ background: var(--paper3); }
   justify-content: flex-end;
 }
 .analysisPanel__bd{ padding: 16px; }
+.riskGateKpis{
+  display:grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.riskGateKpi{
+  border: 2px solid var(--line);
+  background: var(--paper2);
+  padding: 10px 12px;
+}
+html[data-theme="dark"] .riskGateKpi{ background: var(--paper2); }
+.riskGateKpi .k{
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--muted2);
+}
+.riskGateKpi .v{
+  margin-top: 6px;
+  font-size: 14px;
+  color: var(--ink);
+  font-weight: 700;
+}
+.riskGateKpi .s{
+  margin-top: 6px;
+  font-size: 10px;
+  color: var(--muted);
+}
 .tableWrap{
   border: 2px solid var(--line);
   background: var(--paper2);
@@ -1436,6 +1464,7 @@ html[data-theme="dark"] .miniStat{ background: var(--paper); }
   .cards{ grid-template-columns: 1fr 1fr; }
   .condGrid{ grid-template-columns: 1fr; }
   .analysisCharts{ grid-template-columns: 1fr; }
+  .riskGateKpis{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .barChart__row{ grid-template-columns: 90px minmax(0, 1fr) 60px; }
   .groupedBar__row{ grid-template-columns: 90px minmax(0, 1fr) 120px; }
   .heatmap__row{ grid-template-columns: 90px repeat(auto-fit, minmax(54px, 1fr)); }

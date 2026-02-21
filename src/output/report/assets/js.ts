@@ -117,6 +117,24 @@ export const REPORT_JS = `
     return (value / 1000).toFixed(2) + 's';
   }
 
+  function fmtSignedMs(value){
+    if (value == null || !Number.isFinite(value)) return 'n/a';
+    const abs = Math.abs(value);
+    const base = abs < 1000 ? Math.round(abs) + 'ms' : (abs / 1000).toFixed(2) + 's';
+    if (value > 0) return '+' + base;
+    if (value < 0) return '-' + base;
+    return '0ms';
+  }
+
+  function fmtSignedNumber(value){
+    if (value == null || !Number.isFinite(value)) return 'n/a';
+    const abs = Math.abs(value);
+    const rounded = abs >= 100 ? Math.round(abs).toString() : abs >= 10 ? abs.toFixed(1) : abs.toFixed(2);
+    if (value > 0) return '+' + rounded;
+    if (value < 0) return '-' + rounded;
+    return '0';
+  }
+
 
   function safeJson(value){
     try{ return JSON.stringify(value, null, 2); }catch{ return String(value); }
@@ -1435,6 +1453,15 @@ export const REPORT_JS = `
 
     const wrap = document.createElement('div');
     wrap.className = 'analysisGrid';
+    const gateOverallRows = Array.isArray(analysis.tables.gateOverall) ? analysis.tables.gateOverall : [];
+    const gateByConditionRows = Array.isArray(analysis.tables.gateByCondition) ? analysis.tables.gateByCondition : [];
+    const gateByTutorRows = Array.isArray(analysis.tables.gateByTutor) ? analysis.tables.gateByTutor : [];
+    const gateByTutorSupervisorRows = Array.isArray(analysis.tables.gateByTutorSupervisor)
+      ? analysis.tables.gateByTutorSupervisor
+      : [];
+    const gateThresholdSweepRows = Array.isArray(analysis.tables.gateThresholdSweep)
+      ? analysis.tables.gateThresholdSweep
+      : [];
 
     const overall = analysis.tables.overall && analysis.tables.overall[0] ? analysis.tables.overall[0] : null;
     if (overall){
@@ -1514,6 +1541,99 @@ export const REPORT_JS = `
       wrap.appendChild(cards);
     }
 
+    const gateOverall = gateOverallRows[0] || null;
+    if (gateOverall && gateOverall.nRunsWithGate > 0){
+      const panel = document.createElement('div');
+      panel.className = 'analysisPanel riskGatePanel';
+
+      const hd = document.createElement('div');
+      hd.className = 'analysisPanel__hd';
+      hd.innerHTML =
+        '<div class="analysisPanel__meta">' +
+        '<div class="analysisPanel__title">Risk Gate</div>' +
+        '<div class="analysisPanel__sub mono">Routing KPIs and guardrail efficiency</div>' +
+        '</div>';
+      panel.appendChild(hd);
+
+      const bd = document.createElement('div');
+      bd.className = 'analysisPanel__bd';
+      const grid = document.createElement('div');
+      grid.className = 'riskGateKpis';
+
+      function riskKpi(label, value, sub){
+        const item = document.createElement('div');
+        item.className = 'riskGateKpi';
+        const k = document.createElement('div');
+        k.className = 'k';
+        k.textContent = label;
+        const v = document.createElement('div');
+        v.className = 'v mono';
+        v.textContent = value;
+        item.appendChild(k);
+        item.appendChild(v);
+        if (sub){
+          const s = document.createElement('div');
+          s.className = 's mono';
+          s.textContent = sub;
+          item.appendChild(s);
+        }
+        return item;
+      }
+
+      grid.appendChild(
+        riskKpi(
+          'Coverage',
+          String(gateOverall.nRunsWithGate) + '/' + String(gateOverall.nRuns) + ' runs',
+          String(gateOverall.turnsEvaluated) + ' turns evaluated'
+        )
+      );
+      grid.appendChild(
+        riskKpi(
+          'Supervisor-call reduction',
+          fmtPct(gateOverall.supervisorCallReductionPct),
+          'supervise rate ' + fmtPct(gateOverall.superviseRate)
+        )
+      );
+      grid.appendChild(
+        riskKpi(
+          'Fallback OpenAI',
+          fmtPct(gateOverall.fallbackRate),
+          String(gateOverall.fallbackOpenAICalls) + ' fallback calls'
+        )
+      );
+      grid.appendChild(
+        riskKpi(
+          'Failures',
+          fmtPct(gateOverall.failureRate),
+          String(gateOverall.failures) + ' failed decisions'
+        )
+      );
+      grid.appendChild(
+        riskKpi(
+          'Recall / Precision / FNR',
+          fmtPct(gateOverall.recall) + ' / ' + fmtPct(gateOverall.precision) + ' / ' + fmtPct(gateOverall.fnr),
+          gateOverall.labeledDecisions > 0 ? String(gateOverall.labeledDecisions) + ' labeled turns' : 'no labels available'
+        )
+      );
+      grid.appendChild(
+        riskKpi('Latency delta (mean)', fmtSignedMs(gateOverall.latencyDeltaMsMean), 'vs baseline routing')
+      );
+      grid.appendChild(
+        riskKpi('Token delta (mean)', fmtSignedNumber(gateOverall.tokenDeltaMean), 'vs baseline routing')
+      );
+      grid.appendChild(
+        riskKpi(
+          'Decision mix',
+          'S:' + String(gateOverall.superviseDecisions) + ' K:' + String(gateOverall.skipDecisions),
+          'shadow ' + String(gateOverall.shadowDecisions)
+        )
+      );
+
+      bd.appendChild(grid);
+      panel.appendChild(bd);
+      wrap.appendChild(panel);
+    }
+
     const chartGrid = document.createElement('div');
     chartGrid.className = 'analysisCharts';
     const hasBloomSections =
@@ -1570,6 +1690,35 @@ export const REPORT_JS = `
       const labels = combined.map((r) => r.label);
       const values = combined.map((r) => r.latencyMeanMs);
       body.appendChild(buildBarChartRows(labels, values, fmtMs));
+      chartGrid.appendChild(card);
+    }
+
+    if (gateThresholdSweepRows.length){
+      const { card, body } = buildChartCard(
+        'Risk gate threshold sweep',
+        'Routing + quality by threshold',
+        'Threshold sensitivity: lower supervise rate increases reduction but can raise miss rate (FNR).'
+      );
+      const labels = gateThresholdSweepRows.map((r) => Number(r.threshold).toFixed(2));
+      const series = [
+        {
+          name: 'Supervise rate',
+          color: 'var(--accent)',
+          values: gateThresholdSweepRows.map((r) => r.superviseRate || 0),
+        },
+        {
+          name: 'Fallback rate',
+          color: 'var(--warn)',
+          values: gateThresholdSweepRows.map((r) => r.fallbackRate || 0),
+        },
+        {
+          name: 'FNR',
+          color: 'var(--danger)',
+          values: gateThresholdSweepRows.map((r) => r.fnr || 0),
+        },
+      ];
+      body.appendChild(buildLineChart(labels, series));
+      body.appendChild(buildLegend(series));
       chartGrid.appendChild(card);
     }
 
@@ -1974,6 +2123,116 @@ export const REPORT_JS = `
       turnRateCol('Compliance', 'complianceRate'),
       turnRateCol('Terminate', 'terminationRate'),
     ];
+
+    const gateRateCol = (label, key) => ({
+      label,
+      value: (row) => row[key],
+      format: (_, row) => fmtPct(row[key]),
+    });
+    const gateBaseCols = [
+      { label: 'Runs', value: (row) => row.nRuns },
+      { label: 'Gate runs', value: (row) => row.nRunsWithGate },
+      { label: 'Turns eval', value: (row) => row.turnsEvaluated },
+      { label: 'Supervise', value: (row) => row.superviseDecisions },
+      gateRateCol('Supervise rate', 'superviseRate'),
+      gateRateCol('Supv reduction', 'supervisorCallReductionPct'),
+      { label: 'Skip', value: (row) => row.skipDecisions },
+      gateRateCol('Skip rate', 'skipRate'),
+      { label: 'Shadow', value: (row) => row.shadowDecisions },
+      gateRateCol('Shadow rate', 'shadowRate'),
+      { label: 'Fallback', value: (row) => row.fallbackOpenAICalls },
+      gateRateCol('Fallback rate', 'fallbackRate'),
+      { label: 'Failures', value: (row) => row.failures },
+      gateRateCol('Failure rate', 'failureRate'),
+      { label: 'Labels', value: (row) => row.labeledDecisions },
+      gateRateCol('Recall', 'recall'),
+      gateRateCol('Precision', 'precision'),
+      gateRateCol('FNR', 'fnr'),
+      { label: 'Δ latency mean', value: (row) => row.latencyDeltaMsMean, format: (v) => fmtSignedMs(v) },
+      { label: 'Δ tokens mean', value: (row) => row.tokenDeltaMean, format: (v) => fmtSignedNumber(v) },
+    ];
+    const gateSweepCols = [
+      { label: 'Threshold', value: (row) => row.threshold, format: (v) => Number(v).toFixed(2) },
+      { label: 'Points', value: (row) => row.nPoints },
+      { label: 'Runs', value: (row) => row.nRuns },
+      { label: 'Turns eval', value: (row) => row.turnsEvaluated },
+      { label: 'Supervise', value: (row) => row.superviseDecisions },
+      gateRateCol('Supervise rate', 'superviseRate'),
+      gateRateCol('Supv reduction', 'supervisorCallReductionPct'),
+      { label: 'Skip', value: (row) => row.skipDecisions },
+      gateRateCol('Skip rate', 'skipRate'),
+      { label: 'Shadow', value: (row) => row.shadowDecisions },
+      gateRateCol('Shadow rate', 'shadowRate'),
+      { label: 'Fallback', value: (row) => row.fallbackOpenAICalls },
+      gateRateCol('Fallback rate', 'fallbackRate'),
+      { label: 'Failures', value: (row) => row.failures },
+      gateRateCol('Failure rate', 'failureRate'),
+      { label: 'Labels', value: (row) => row.labeledDecisions },
+      gateRateCol('Recall', 'recall'),
+      gateRateCol('Precision', 'precision'),
+      gateRateCol('FNR', 'fnr'),
+      { label: 'Δ latency mean', value: (row) => row.latencyDeltaMsMean, format: (v) => fmtSignedMs(v) },
+      { label: 'Δ tokens mean', value: (row) => row.tokenDeltaMean, format: (v) => fmtSignedNumber(v) },
+    ];
+
+    if (gateOverallRows.length){
+      wrap.appendChild(
+        buildAnalysisPanel(
+          'Risk gate overall',
+          'Aggregate gate routing and quality metrics',
+          gateOverallRows,
+          gateBaseCols
+        )
+      );
+    }
+
+    if (gateByConditionRows.length){
+      wrap.appendChild(
+        buildAnalysisPanel(
+          'Risk gate by condition',
+          'Gate behavior split by single vs dual-loop',
+          gateByConditionRows,
+          [{ label: 'Condition', value: (row) => row.condition }, ...gateBaseCols]
+        )
+      );
+    }
+
+    if (gateByTutorRows.length){
+      wrap.appendChild(
+        buildAnalysisPanel(
+          'Risk gate by tutor',
+          'Gate routing metrics by tutor model',
+          gateByTutorRows,
+          [{ label: 'Tutor', value: (row) => row.tutorId }, ...gateBaseCols]
+        )
+      );
+    }
+
+    if (gateByTutorSupervisorRows.length){
+      wrap.appendChild(
+        buildAnalysisPanel(
+          'Risk gate by tutor × supervisor',
+          'Gate routing metrics by tutor/supervisor pairing',
+          gateByTutorSupervisorRows,
+          [
+            { label: 'Tutor', value: (row) => row.tutorId },
+            { label: 'Supervisor', value: (row) => row.supervisorId },
+            ...gateBaseCols,
+          ]
+        )
+      );
+    }
+
+    if (gateThresholdSweepRows.length){
+      wrap.appendChild(
+        buildAnalysisPanel(
+          'Risk gate threshold sweep',
+          'Sensitivity of routing outcomes across thresholds',
+          gateThresholdSweepRows,
+          gateSweepCols
+        )
+      );
+    }
 
     wrap.appendChild(
       buildAnalysisPanel(

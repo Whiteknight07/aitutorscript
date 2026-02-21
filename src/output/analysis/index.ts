@@ -13,7 +13,7 @@ import {
 } from './comparisons';
 import { buildTurnRows, normalizeRun } from './normalize';
 import { difficultyOrder, groupBy, uniqueSorted, uniqueSortedNumbers } from './utils';
-import type { AnalysisOutput, NormalizedRun, TurnRow } from './types';
+import type { AnalysisOutput, GateGroupRow, GateThresholdSweepRow, NormalizedRun, TurnRow } from './types';
 
 export type { AnalysisOutput, ConditionEffectRow, RunGroupRow, TurnGroupRow } from './types';
 
@@ -53,6 +53,319 @@ function buildTotals(runs: NormalizedRun[], turnRows: TurnRow[]) {
     broadConcepts: uniqueSorted(runs.map((r) => r.broadConcept)),
     attackLevels: uniqueSortedNumbers(turnRows.map((r) => r.attackLevel)),
   };
+}
+
+type GateAggAccumulator = {
+  nRuns: number;
+  nRunsWithGate: number;
+  turnsEvaluated: number;
+  superviseDecisions: number;
+  skipDecisions: number;
+  shadowDecisions: number;
+  fallbackOpenAICalls: number;
+  failures: number;
+  labeledDecisions: number;
+  truePositive: number;
+  falsePositive: number;
+  trueNegative: number;
+  falseNegative: number;
+  latencyDeltaCount: number;
+  latencyDeltaMsTotal: number;
+  latencyDeltaHasValue: boolean;
+  tokenDeltaCount: number;
+  tokenDeltaTotal: number;
+  tokenDeltaHasValue: boolean;
+};
+
+type SweepAccumulator = {
+  threshold: number;
+  nPoints: number;
+  runKeys: Set<string>;
+  turnsEvaluated: number;
+  superviseDecisions: number;
+  skipDecisions: number;
+  shadowDecisions: number;
+  fallbackOpenAICalls: number;
+  failures: number;
+  labeledDecisions: number;
+  truePositive: number;
+  falsePositive: number;
+  trueNegative: number;
+  falseNegative: number;
+  recallWeightedSum: number;
+  recallWeight: number;
+  precisionWeightedSum: number;
+  precisionWeight: number;
+  fnrWeightedSum: number;
+  fnrWeight: number;
+  latencyDeltaCount: number;
+  latencyDeltaMsTotal: number;
+  latencyDeltaHasValue: boolean;
+  tokenDeltaCount: number;
+  tokenDeltaTotal: number;
+  tokenDeltaHasValue: boolean;
+};
+
+function initGateAggAccumulator(): GateAggAccumulator {
+  return {
+    nRuns: 0,
+    nRunsWithGate: 0,
+    turnsEvaluated: 0,
+    superviseDecisions: 0,
+    skipDecisions: 0,
+    shadowDecisions: 0,
+    fallbackOpenAICalls: 0,
+    failures: 0,
+    labeledDecisions: 0,
+    truePositive: 0,
+    falsePositive: 0,
+    trueNegative: 0,
+    falseNegative: 0,
+    latencyDeltaCount: 0,
+    latencyDeltaMsTotal: 0,
+    latencyDeltaHasValue: false,
+    tokenDeltaCount: 0,
+    tokenDeltaTotal: 0,
+    tokenDeltaHasValue: false,
+  };
+}
+
+function addRunToGateAccumulator(acc: GateAggAccumulator, run: NormalizedRun) {
+  acc.nRuns += 1;
+  if (!run.riskGate) return;
+  const gate = run.riskGate;
+  acc.nRunsWithGate += 1;
+  acc.turnsEvaluated += gate.turnsEvaluated;
+  acc.superviseDecisions += gate.superviseDecisions;
+  acc.skipDecisions += gate.skipDecisions;
+  acc.shadowDecisions += gate.shadowDecisions;
+  acc.fallbackOpenAICalls += gate.fallbackOpenAICalls;
+  acc.failures += gate.failures;
+  acc.labeledDecisions += gate.labeledDecisions;
+  acc.truePositive += gate.truePositive;
+  acc.falsePositive += gate.falsePositive;
+  acc.trueNegative += gate.trueNegative;
+  acc.falseNegative += gate.falseNegative;
+  if (gate.latencyDeltaMsTotal != null) {
+    acc.latencyDeltaMsTotal += gate.latencyDeltaMsTotal;
+    acc.latencyDeltaHasValue = true;
+  }
+  if (gate.latencyDeltaCount > 0) acc.latencyDeltaCount += gate.latencyDeltaCount;
+  if (gate.tokenDeltaTotal != null) {
+    acc.tokenDeltaTotal += gate.tokenDeltaTotal;
+    acc.tokenDeltaHasValue = true;
+  }
+  if (gate.tokenDeltaCount > 0) acc.tokenDeltaCount += gate.tokenDeltaCount;
+}
+
+function finalizeGateAccumulator(acc: GateAggAccumulator): Omit<GateGroupRow, 'tutorId' | 'supervisorId' | 'condition'> {
+  const superviseRate = acc.turnsEvaluated ? acc.superviseDecisions / acc.turnsEvaluated : null;
+  const skipRate = acc.turnsEvaluated ? acc.skipDecisions / acc.turnsEvaluated : null;
+  const shadowRate = acc.turnsEvaluated ? acc.shadowDecisions / acc.turnsEvaluated : null;
+  const fallbackRate = acc.turnsEvaluated ? acc.fallbackOpenAICalls / acc.turnsEvaluated : null;
+  const failureRate = acc.turnsEvaluated ? acc.failures / acc.turnsEvaluated : null;
+  const recall = acc.truePositive + acc.falseNegative
+    ? acc.truePositive / (acc.truePositive + acc.falseNegative)
+    : null;
+  const precision = acc.truePositive + acc.falsePositive
+    ? acc.truePositive / (acc.truePositive + acc.falsePositive)
+    : null;
+  const fnr = acc.truePositive + acc.falseNegative
+    ? acc.falseNegative / (acc.truePositive + acc.falseNegative)
+    : null;
+  const latencyDeltaMsTotal = acc.latencyDeltaHasValue ? acc.latencyDeltaMsTotal : null;
+  const tokenDeltaTotal = acc.tokenDeltaHasValue ? acc.tokenDeltaTotal : null;
+
+  return {
+    nRuns: acc.nRuns,
+    nRunsWithGate: acc.nRunsWithGate,
+    turnsEvaluated: acc.turnsEvaluated,
+    superviseDecisions: acc.superviseDecisions,
+    superviseRate,
+    skipDecisions: acc.skipDecisions,
+    skipRate,
+    shadowDecisions: acc.shadowDecisions,
+    shadowRate,
+    supervisorCallReductionPct: superviseRate == null ? null : 1 - superviseRate,
+    fallbackOpenAICalls: acc.fallbackOpenAICalls,
+    fallbackRate,
+    failures: acc.failures,
+    failureRate,
+    labeledDecisions: acc.labeledDecisions,
+    truePositive: acc.truePositive,
+    falsePositive: acc.falsePositive,
+    trueNegative: acc.trueNegative,
+    falseNegative: acc.falseNegative,
+    recall,
+    precision,
+    fnr,
+    latencyDeltaCount: acc.latencyDeltaCount,
+    latencyDeltaMsTotal,
+    latencyDeltaMsMean:
+      latencyDeltaMsTotal != null && acc.latencyDeltaCount > 0 ? latencyDeltaMsTotal / acc.latencyDeltaCount : null,
+    tokenDeltaCount: acc.tokenDeltaCount,
+    tokenDeltaTotal,
+    tokenDeltaMean: tokenDeltaTotal != null && acc.tokenDeltaCount > 0 ? tokenDeltaTotal / acc.tokenDeltaCount : null,
+  };
+}
+
+function buildGateGroupRows(runs: NormalizedRun[], groupKeyFn: (run: NormalizedRun) => string): Map<string, GateGroupRow> {
+  const groups = new Map<string, GateAggAccumulator>();
+  for (const run of runs) {
+    const key = groupKeyFn(run);
+    if (!groups.has(key)) groups.set(key, initGateAggAccumulator());
+    const acc = groups.get(key);
+    if (!acc) continue;
+    addRunToGateAccumulator(acc, run);
+  }
+
+  const out = new Map<string, GateGroupRow>();
+  for (const [key, acc] of groups.entries()) {
+    if (!acc.nRunsWithGate) continue;
+    out.set(key, finalizeGateAccumulator(acc));
+  }
+  return out;
+}
+
+function initSweepAccumulator(threshold: number): SweepAccumulator {
+  return {
+    threshold,
+    nPoints: 0,
+    runKeys: new Set<string>(),
+    turnsEvaluated: 0,
+    superviseDecisions: 0,
+    skipDecisions: 0,
+    shadowDecisions: 0,
+    fallbackOpenAICalls: 0,
+    failures: 0,
+    labeledDecisions: 0,
+    truePositive: 0,
+    falsePositive: 0,
+    trueNegative: 0,
+    falseNegative: 0,
+    recallWeightedSum: 0,
+    recallWeight: 0,
+    precisionWeightedSum: 0,
+    precisionWeight: 0,
+    fnrWeightedSum: 0,
+    fnrWeight: 0,
+    latencyDeltaCount: 0,
+    latencyDeltaMsTotal: 0,
+    latencyDeltaHasValue: false,
+    tokenDeltaCount: 0,
+    tokenDeltaTotal: 0,
+    tokenDeltaHasValue: false,
+  };
+}
+
+function buildGateThresholdSweep(runs: NormalizedRun[]): GateThresholdSweepRow[] {
+  const byThreshold = new Map<string, SweepAccumulator>();
+
+  for (const run of runs) {
+    const sweep = run.riskGate?.thresholdSweep ?? [];
+    if (!sweep.length) continue;
+    for (const point of sweep) {
+      const key = String(point.threshold);
+      if (!byThreshold.has(key)) byThreshold.set(key, initSweepAccumulator(point.threshold));
+      const acc = byThreshold.get(key);
+      if (!acc) continue;
+      acc.nPoints += 1;
+      acc.runKeys.add(run.runKey);
+      acc.turnsEvaluated += point.turnsEvaluated;
+      acc.superviseDecisions += point.superviseDecisions;
+      acc.skipDecisions += point.skipDecisions;
+      acc.shadowDecisions += point.shadowDecisions;
+      acc.fallbackOpenAICalls += point.fallbackOpenAICalls;
+      acc.failures += point.failures;
+      acc.labeledDecisions += point.labeledDecisions;
+      acc.truePositive += point.truePositive;
+      acc.falsePositive += point.falsePositive;
+      acc.trueNegative += point.trueNegative;
+      acc.falseNegative += point.falseNegative;
+      const metricWeight = point.labeledDecisions > 0 ? point.labeledDecisions : point.turnsEvaluated > 0 ? point.turnsEvaluated : 1;
+      if (point.recall != null) {
+        acc.recallWeightedSum += point.recall * metricWeight;
+        acc.recallWeight += metricWeight;
+      }
+      if (point.precision != null) {
+        acc.precisionWeightedSum += point.precision * metricWeight;
+        acc.precisionWeight += metricWeight;
+      }
+      if (point.fnr != null) {
+        acc.fnrWeightedSum += point.fnr * metricWeight;
+        acc.fnrWeight += metricWeight;
+      }
+      if (point.latencyDeltaMsTotal != null) {
+        acc.latencyDeltaMsTotal += point.latencyDeltaMsTotal;
+        acc.latencyDeltaHasValue = true;
+      }
+      if (point.latencyDeltaCount > 0) acc.latencyDeltaCount += point.latencyDeltaCount;
+      if (point.tokenDeltaTotal != null) {
+        acc.tokenDeltaTotal += point.tokenDeltaTotal;
+        acc.tokenDeltaHasValue = true;
+      }
+      if (point.tokenDeltaCount > 0) acc.tokenDeltaCount += point.tokenDeltaCount;
+    }
+  }
+
+  return Array.from(byThreshold.values())
+    .map((acc) => {
+      const superviseRate = acc.turnsEvaluated ? acc.superviseDecisions / acc.turnsEvaluated : null;
+      const skipRate = acc.turnsEvaluated ? acc.skipDecisions / acc.turnsEvaluated : null;
+      const shadowRate = acc.turnsEvaluated ? acc.shadowDecisions / acc.turnsEvaluated : null;
+      const fallbackRate = acc.turnsEvaluated ? acc.fallbackOpenAICalls / acc.turnsEvaluated : null;
+      const failureRate = acc.turnsEvaluated ? acc.failures / acc.turnsEvaluated : null;
+      const recall = acc.truePositive + acc.falseNegative
+        ? acc.truePositive / (acc.truePositive + acc.falseNegative)
+        : acc.recallWeight
+          ? acc.recallWeightedSum / acc.recallWeight
+          : null;
+      const precision = acc.truePositive + acc.falsePositive
+        ? acc.truePositive / (acc.truePositive + acc.falsePositive)
+        : acc.precisionWeight
+          ? acc.precisionWeightedSum / acc.precisionWeight
+          : null;
+      const fnr = acc.truePositive + acc.falseNegative
+        ? acc.falseNegative / (acc.truePositive + acc.falseNegative)
+        : acc.fnrWeight
+          ? acc.fnrWeightedSum / acc.fnrWeight
+          : null;
+      const latencyDeltaMsTotal = acc.latencyDeltaHasValue ? acc.latencyDeltaMsTotal : null;
+      const tokenDeltaTotal = acc.tokenDeltaHasValue ? acc.tokenDeltaTotal : null;
+      return {
+        threshold: acc.threshold,
+        nPoints: acc.nPoints,
+        nRuns: acc.runKeys.size,
+        turnsEvaluated: acc.turnsEvaluated,
+        superviseDecisions: acc.superviseDecisions,
+        superviseRate,
+        skipDecisions: acc.skipDecisions,
+        skipRate,
+        shadowDecisions: acc.shadowDecisions,
+        shadowRate,
+        supervisorCallReductionPct: superviseRate == null ? null : 1 - superviseRate,
+        fallbackOpenAICalls: acc.fallbackOpenAICalls,
+        fallbackRate,
+        failures: acc.failures,
+        failureRate,
+        labeledDecisions: acc.labeledDecisions,
+        truePositive: acc.truePositive,
+        falsePositive: acc.falsePositive,
+        trueNegative: acc.trueNegative,
+        falseNegative: acc.falseNegative,
+        recall,
+        precision,
+        fnr,
+        latencyDeltaCount: acc.latencyDeltaCount,
+        latencyDeltaMsTotal,
+        latencyDeltaMsMean:
+          latencyDeltaMsTotal != null && acc.latencyDeltaCount > 0 ? latencyDeltaMsTotal / acc.latencyDeltaCount : null,
+        tokenDeltaCount: acc.tokenDeltaCount,
+        tokenDeltaTotal,
+        tokenDeltaMean: tokenDeltaTotal != null && acc.tokenDeltaCount > 0 ? tokenDeltaTotal / acc.tokenDeltaCount : null,
+      };
+    })
+    .sort((a, b) => a.threshold - b.threshold);
 }
 
 export function buildAnalysis(options: AnalysisOptions): AnalysisOutput {
@@ -356,6 +669,37 @@ export function buildAnalysis(options: AnalysisOptions): AnalysisOutput {
   const tutorPairTypeEffects = buildTutorPairTypeEffects(runs);
   const survivalByCondition = buildSurvivalByCondition(runs, turnRows);
   const survivalByPairType = buildSurvivalByPairType(runs, turnRows);
+  const gateOverallMap = buildGateGroupRows(runs, () => 'overall');
+  const gateOverall = gateOverallMap.has('overall') ? [gateOverallMap.get('overall')!] : [];
+  const gateByCondition = Array.from(buildGateGroupRows(runs, (r) => r.condition).entries())
+    .map(([condition, row]) => ({
+      condition,
+      ...row,
+    }))
+    .sort((a, b) => String(a.condition).localeCompare(String(b.condition)));
+  const gateByTutor = Array.from(buildGateGroupRows(runs, (r) => r.tutorId).entries())
+    .map(([tutorId, row]) => ({
+      tutorId,
+      ...row,
+    }))
+    .sort((a, b) => String(a.tutorId).localeCompare(String(b.tutorId)));
+  const gateByTutorSupervisor = Array.from(
+    buildGateGroupRows(runs, (r) => tupleKey([r.tutorId, r.supervisorId ?? null])).entries()
+  )
+    .map(([key, row]) => {
+      const [tutorId, supervisorId] = JSON.parse(key) as [string, string | null];
+      return {
+        tutorId,
+        supervisorId,
+        ...row,
+      };
+    })
+    .sort((a, b) => {
+      const t = String(a.tutorId).localeCompare(String(b.tutorId));
+      if (t !== 0) return t;
+      return String(a.supervisorId ?? '').localeCompare(String(b.supervisorId ?? ''));
+    });
+  const gateThresholdSweep = buildGateThresholdSweep(runs);
 
   return {
     meta: {
@@ -397,6 +741,11 @@ export function buildAnalysis(options: AnalysisOptions): AnalysisOutput {
       tutorPairTypeEffects,
       survivalByCondition,
       survivalByPairType,
+      gateOverall,
+      gateByCondition,
+      gateByTutor,
+      gateByTutorSupervisor,
+      gateThresholdSweep,
     },
   };
 }
