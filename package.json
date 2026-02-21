@@ -13,7 +13,7 @@
     "analyze:topic-overlap": "bun run src/scripts/analyze-topic-overlap.ts",
     "build": "tsc -p tsconfig.json",
     "start": "bun run src/cli.ts",
-    "test": "echo \"No tests configured\" && exit 0",
+    "test": "node --import tsx --test tests/pipeline/*.test.ts",
     "risk:extract": "python3 scripts/risk_gate/extract_dataset.py --input-glob 'results/*/raw.jsonl' --output-jsonl tmp/risk_gate/turn_dataset.jsonl --feature-schema-out tmp/risk_gate/feature_schema.json",
     "risk:batch:prepare": "python3 scripts/risk_gate/prepare_openai_batch_embeddings.py --dataset tmp/risk_gate/turn_dataset.jsonl --output-jsonl tmp/risk_gate/openai_batch_input.jsonl --manifest-out tmp/risk_gate/openai_batch_manifest.json",
     "risk:batch:collect": "python3 scripts/risk_gate/collect_openai_batch_embeddings.py --dataset tmp/risk_gate/turn_dataset.jsonl --batch-output-jsonl tmp/risk_gate/openai_batch_output.jsonl --output-embeddings-jsonl tmp/risk_gate/openai_embeddings.jsonl --missing-out tmp/risk_gate/openai_missing.json --errors-out tmp/risk_gate/openai_batch_errors.jsonl",
