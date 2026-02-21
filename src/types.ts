@@ -4,6 +4,58 @@ import { PAIRING_IDS, type PairingId, TUTOR_IDS, SUPERVISOR_IDS, type TutorId, t
 export const ConditionSchema = z.enum(['single', 'dual-loop']);
 export type Condition = z.infer<typeof ConditionSchema>;
 
+export const RiskGateModeSchema = z.enum(['off', 'shadow', 'enforce']);
+export type RiskGateMode = z.infer<typeof RiskGateModeSchema>;
+
+export const RiskGateFailModeSchema = z.enum(['closed', 'open']);
+export type RiskGateFailMode = z.infer<typeof RiskGateFailModeSchema>;
+
+export type RiskGateLogisticModelArtifact = {
+  intercept: number;
+  coefficients: number[];
+};
+
+export type RiskGatePolicy = {
+  local_low: number;
+  local_high: number;
+  openai_threshold: number;
+  local_model: RiskGateLogisticModelArtifact;
+  openai_model?: RiskGateLogisticModelArtifact;
+  max_feature_chars?: number;
+};
+
+export type RiskGateDecisionSource =
+  | 'local-high'
+  | 'local-low'
+  | 'openai'
+  | 'openai-fallback'
+  | 'fail-mode';
+
+export type RiskGateDecision = {
+  turnIndex: number;
+  mode: RiskGateMode;
+  decision: 'supervise' | 'skip';
+  source: RiskGateDecisionSource;
+  localProbability: number | null;
+  openaiProbability: number | null;
+  latencyMs: number;
+  failureReason?: string;
+};
+
+export type RiskGateStats = {
+  evaluatedTurns: number;
+  superviseCount: number;
+  skipCount: number;
+  enforcedSuperviseCount: number;
+  enforcedSkipCount: number;
+  localHighCount: number;
+  localLowCount: number;
+  openaiCount: number;
+  openaiFallbackCount: number;
+  failModeCount: number;
+  failureCount: number;
+};
+
 // Re-export PairingId from config for convenience
 export type { PairingId } from './config';
 
@@ -273,8 +325,19 @@ export type RunRecord = {
     turnJudgments?: Array<{ turnIndex: number; judge: TurnJudgeResult }>;
     tutorDrafts: Array<{ turnIndex: number; iter: number; text: string }>;
     supervisorVerdicts: Array<{ turnIndex: number; iter: number; verdict: SupervisorVerdict }>;
+    riskGateDecisions?: RiskGateDecision[];
   };
   calls: TimedCallRecord[];
   totalLatencyMs: number;
   judge: JudgeResult | null;
+  riskGate?: {
+    mode: RiskGateMode;
+    failMode: RiskGateFailMode;
+    policyPath: string | null;
+    localEmbedUrl: string | null;
+    openaiModel: string;
+    openaiTimeoutMs: number;
+    policy: Pick<RiskGatePolicy, 'local_low' | 'local_high' | 'openai_threshold'>;
+    stats: RiskGateStats;
+  };
 };

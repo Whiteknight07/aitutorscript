@@ -1,9 +1,16 @@
 import { generateStudentTurn } from '../agents/student';
 import { superviseTutorDraft } from '../agents/supervisor';
 import { generateTutorResponse } from '../agents/tutor';
+import {
+  evaluateRiskGateDecision,
+  summarizeRiskGateDecisions,
+  type RiskGateRuntimeConfig,
+} from './risk-gate';
 import type {
   Condition,
   Question,
+  RiskGateDecision,
+  RiskGateStats,
   SupervisorVerdict,
   TimedCallRecord,
   TranscriptMessage,
@@ -18,6 +25,7 @@ export type ConversationResult = {
     turnJudgments: Array<{ turnIndex: number; judge: TurnJudgeResult }>;
     tutorDrafts: Array<{ turnIndex: number; iter: number; text: string }>;
     supervisorVerdicts: Array<{ turnIndex: number; iter: number; verdict: SupervisorVerdict }>;
+    riskGateDecisions?: RiskGateDecision[];
   };
   turnsCompleted: number;
   loopIterationsTotal: number | null;
@@ -30,6 +38,7 @@ export type ConversationResult = {
   }> | null;
   stoppedEarly: boolean;
   stopReason: 'leakage' | 'unknown' | null;
+  riskGateStats?: RiskGateStats;
 };
 
 export async function simulateConversation({
@@ -45,6 +54,7 @@ export async function simulateConversation({
   earlyStop,
   log,
   verbose,
+  riskGate,
 }: {
   calls: TimedCallRecord[];
   condition: Condition;
@@ -62,13 +72,17 @@ export async function simulateConversation({
   earlyStop?: boolean;
   log?: (line: string) => void;
   verbose?: boolean;
+  riskGate?: RiskGateRuntimeConfig | null;
 }): Promise<ConversationResult> {
+  const riskGateEnabled = Boolean(riskGate && riskGate.mode !== 'off');
+  const riskGateMode = riskGate?.mode ?? 'off';
   const transcriptVisible: TranscriptMessage[] = [];
   const hiddenTrace: ConversationResult['hiddenTrace'] = {
     studentTurns: [],
     turnJudgments: [],
     tutorDrafts: [],
     supervisorVerdicts: [],
+    riskGateDecisions: riskGateEnabled ? [] : undefined,
   };
 
   const loopTurnIterations: NonNullable<ConversationResult['loopTurnIterations']> = [];
@@ -121,6 +135,44 @@ export async function simulateConversation({
           supervisorFeedback: supervisorFeedback || undefined,
         });
         hiddenTrace.tutorDrafts.push({ turnIndex, iter, text: draft });
+
+        if (iter === 1 && riskGateEnabled && riskGate) {
+          const latestStudentTurn = hiddenTrace.studentTurns[hiddenTrace.studentTurns.length - 1];
+          if (!latestStudentTurn) {
+            throw new Error(`Missing student turn state before risk gate evaluation (turn ${turnIndex}).`);
+          }
+
+          const gateDecision = await evaluateRiskGateDecision({
+            turnIndex,
+            question,
+            transcriptVisible,
+            studentTurn: latestStudentTurn,
+            tutorDraft: draft,
+            config: riskGate,
+          });
+          hiddenTrace.riskGateDecisions?.push(gateDecision);
+
+          if (verbose) {
+            log?.(
+              `  turn ${turnIndex}/${turns}: riskGate source=${gateDecision.source} decision=${gateDecision.decision}`
+            );
+          }
+
+          if (riskGate.mode === 'enforce' && gateDecision.decision === 'skip') {
+            loopTurnIterations.push({
+              turnIndex,
+              iterationsUsed: 1,
+              initiallyRejected: false,
+              endedApproved: true,
+              rationale: gateDecision.failureReason
+                ? `Risk gate skipped supervisor (${gateDecision.source}): ${gateDecision.failureReason}`
+                : `Risk gate skipped supervisor (${gateDecision.source}).`,
+            });
+            loopIterationsTotal += 1;
+            tutorFinalText = draft.trim();
+            break;
+          }
+        }
 
         const verdict = await superviseTutorDraft({
           calls,
@@ -200,5 +252,12 @@ export async function simulateConversation({
     loopTurnIterations: condition === 'dual-loop' ? loopTurnIterations : null,
     stoppedEarly,
     stopReason,
+    riskGateStats:
+      riskGateEnabled && hiddenTrace.riskGateDecisions
+        ? summarizeRiskGateDecisions({
+            decisions: hiddenTrace.riskGateDecisions,
+            mode: riskGateMode,
+          })
+        : undefined,
   };
 }
