@@ -9,6 +9,72 @@ export type LoopSummary = {
   interventionCount: number;
 };
 
+export type RiskGateDecisionKind = 'supervise' | 'skip' | 'shadow' | 'unknown';
+
+export type RiskGateDecision = {
+  turnIndex: number | null;
+  decision: RiskGateDecisionKind;
+  predictedShouldSupervise: boolean | null;
+  labelShouldSupervise: boolean | null;
+  fallbackOpenAICall: boolean;
+  failure: boolean;
+  latencyDeltaMs: number | null;
+  tokenDelta: number | null;
+};
+
+export type RiskGateSweepPoint = {
+  threshold: number;
+  turnsEvaluated: number;
+  superviseDecisions: number;
+  skipDecisions: number;
+  shadowDecisions: number;
+  fallbackOpenAICalls: number;
+  failures: number;
+  labeledDecisions: number;
+  truePositive: number;
+  falsePositive: number;
+  trueNegative: number;
+  falseNegative: number;
+  recall: number | null;
+  precision: number | null;
+  fnr: number | null;
+  latencyDeltaCount: number;
+  latencyDeltaMsTotal: number | null;
+  latencyDeltaMsMean: number | null;
+  tokenDeltaCount: number;
+  tokenDeltaTotal: number | null;
+  tokenDeltaMean: number | null;
+};
+
+export type RiskGateRunSummary = {
+  enabled: boolean | null;
+  threshold: number | null;
+  turnsEvaluated: number;
+  superviseDecisions: number;
+  skipDecisions: number;
+  shadowDecisions: number;
+  fallbackOpenAICalls: number;
+  failures: number;
+  labeledDecisions: number;
+  truePositive: number;
+  falsePositive: number;
+  trueNegative: number;
+  falseNegative: number;
+  recall: number | null;
+  precision: number | null;
+  fnr: number | null;
+  supervisorCallReductionPct: number | null;
+  fallbackRate: number | null;
+  latencyDeltaCount: number;
+  latencyDeltaMsTotal: number | null;
+  latencyDeltaMsMean: number | null;
+  tokenDeltaCount: number;
+  tokenDeltaTotal: number | null;
+  tokenDeltaMean: number | null;
+  decisions: RiskGateDecision[];
+  thresholdSweep: RiskGateSweepPoint[];
+};
+
 export type NormalizedRun = {
   runId: string;
   runKey: string;
@@ -41,6 +107,7 @@ export type NormalizedRun = {
   earlyReason: string | null;
   earlyStopLeakage: boolean;
   loop: LoopSummary | null;
+  riskGate: RiskGateRunSummary | null;
 };
 
 export type TurnRow = {
@@ -208,6 +275,72 @@ export type SurvivalRow = {
   nRuns: number;
 };
 
+export type GateGroupRow = {
+  tutorId?: string | null;
+  supervisorId?: string | null;
+  condition?: string | null;
+  nRuns: number;
+  nRunsWithGate: number;
+  turnsEvaluated: number;
+  superviseDecisions: number;
+  superviseRate: number | null;
+  skipDecisions: number;
+  skipRate: number | null;
+  shadowDecisions: number;
+  shadowRate: number | null;
+  supervisorCallReductionPct: number | null;
+  fallbackOpenAICalls: number;
+  fallbackRate: number | null;
+  failures: number;
+  failureRate: number | null;
+  labeledDecisions: number;
+  truePositive: number;
+  falsePositive: number;
+  trueNegative: number;
+  falseNegative: number;
+  recall: number | null;
+  precision: number | null;
+  fnr: number | null;
+  latencyDeltaCount: number;
+  latencyDeltaMsTotal: number | null;
+  latencyDeltaMsMean: number | null;
+  tokenDeltaCount: number;
+  tokenDeltaTotal: number | null;
+  tokenDeltaMean: number | null;
+};
+
+export type GateThresholdSweepRow = {
+  threshold: number;
+  nPoints: number;
+  nRuns: number;
+  turnsEvaluated: number;
+  superviseDecisions: number;
+  superviseRate: number | null;
+  skipDecisions: number;
+  skipRate: number | null;
+  shadowDecisions: number;
+  shadowRate: number | null;
+  supervisorCallReductionPct: number | null;
+  fallbackOpenAICalls: number;
+  fallbackRate: number | null;
+  failures: number;
+  failureRate: number | null;
+  labeledDecisions: number;
+  truePositive: number;
+  falsePositive: number;
+  trueNegative: number;
+  falseNegative: number;
+  recall: number | null;
+  precision: number | null;
+  fnr: number | null;
+  latencyDeltaCount: number;
+  latencyDeltaMsTotal: number | null;
+  latencyDeltaMsMean: number | null;
+  tokenDeltaCount: number;
+  tokenDeltaTotal: number | null;
+  tokenDeltaMean: number | null;
+};
+
 export type LabEffectRow = {
   lab: string;
   supervisorCount: number;
@@ -306,5 +439,10 @@ export type AnalysisOutput = {
     tutorPairTypeEffects: TutorPairTypeEffectRow[];
     survivalByCondition: SurvivalRow[];
     survivalByPairType: SurvivalRow[];
+    gateOverall: GateGroupRow[];
+    gateByCondition: GateGroupRow[];
+    gateByTutor: GateGroupRow[];
+    gateByTutorSupervisor: GateGroupRow[];
+    gateThresholdSweep: GateThresholdSweepRow[];
   };
 };

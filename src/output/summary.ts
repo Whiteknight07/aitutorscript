@@ -1,4 +1,5 @@
 import type { Condition, RunRecord } from '../types';
+import { extractRiskGateRunSummary } from './analysis/normalize';
 
 type GroupKey = string;
 
@@ -12,6 +13,21 @@ type LoopAgg = {
   turnsWithIntervention: number;
 };
 
+type GateAgg = {
+  runsWithGate: number;
+  turnsEvaluated: number;
+  superviseDecisions: number;
+  skipDecisions: number;
+  shadowDecisions: number;
+  fallbackOpenAICalls: number;
+  failures: number;
+  labeledDecisions: number;
+  truePositive: number;
+  falsePositive: number;
+  trueNegative: number;
+  falseNegative: number;
+};
+
 type MetricsAgg = {
   nRuns: number;
   nJudged: number;
@@ -20,6 +36,7 @@ type MetricsAgg = {
   complianceCount: number;
   totalLatencyMs: number;
   loop?: LoopAgg;
+  gate?: GateAgg;
 };
 
 type SummaryDimensions = {
@@ -200,6 +217,36 @@ export class SummaryAggregator {
       }
     }
 
+    const riskGate = extractRiskGateRunSummary(record);
+    if (riskGate) {
+      agg.gate ??= {
+        runsWithGate: 0,
+        turnsEvaluated: 0,
+        superviseDecisions: 0,
+        skipDecisions: 0,
+        shadowDecisions: 0,
+        fallbackOpenAICalls: 0,
+        failures: 0,
+        labeledDecisions: 0,
+        truePositive: 0,
+        falsePositive: 0,
+        trueNegative: 0,
+        falseNegative: 0,
+      };
+      agg.gate.runsWithGate += 1;
+      agg.gate.turnsEvaluated += riskGate.turnsEvaluated;
+      agg.gate.superviseDecisions += riskGate.superviseDecisions;
+      agg.gate.skipDecisions += riskGate.skipDecisions;
+      agg.gate.shadowDecisions += riskGate.shadowDecisions;
+      agg.gate.fallbackOpenAICalls += riskGate.fallbackOpenAICalls;
+      agg.gate.failures += riskGate.failures;
+      agg.gate.labeledDecisions += riskGate.labeledDecisions;
+      agg.gate.truePositive += riskGate.truePositive;
+      agg.gate.falsePositive += riskGate.falsePositive;
+      agg.gate.trueNegative += riskGate.trueNegative;
+      agg.gate.falseNegative += riskGate.falseNegative;
+    }
+
     this.groups.set(key, state);
   }
 
@@ -275,6 +322,43 @@ function finalizeAgg(agg: MetricsAgg) {
       }
     : null;
 
+  const gate = agg.gate
+    ? {
+        runsWithGate: agg.gate.runsWithGate,
+        turnsEvaluated: agg.gate.turnsEvaluated,
+        superviseDecisions: agg.gate.superviseDecisions,
+        superviseRate: agg.gate.turnsEvaluated ? agg.gate.superviseDecisions / agg.gate.turnsEvaluated : null,
+        skipDecisions: agg.gate.skipDecisions,
+        skipRate: agg.gate.turnsEvaluated ? agg.gate.skipDecisions / agg.gate.turnsEvaluated : null,
+        shadowDecisions: agg.gate.shadowDecisions,
+        shadowRate: agg.gate.turnsEvaluated ? agg.gate.shadowDecisions / agg.gate.turnsEvaluated : null,
+        fallbackOpenAICalls: agg.gate.fallbackOpenAICalls,
+        fallbackRate: agg.gate.turnsEvaluated ? agg.gate.fallbackOpenAICalls / agg.gate.turnsEvaluated : null,
+        failures: agg.gate.failures,
+        failureRate: agg.gate.turnsEvaluated ? agg.gate.failures / agg.gate.turnsEvaluated : null,
+        supervisorCallReductionPct: agg.gate.turnsEvaluated
+          ? 1 - agg.gate.superviseDecisions / agg.gate.turnsEvaluated
+          : null,
+        labeledDecisions: agg.gate.labeledDecisions,
+        truePositive: agg.gate.truePositive,
+        falsePositive: agg.gate.falsePositive,
+        trueNegative: agg.gate.trueNegative,
+        falseNegative: agg.gate.falseNegative,
+        recall:
+          agg.gate.truePositive + agg.gate.falseNegative
+            ? agg.gate.truePositive / (agg.gate.truePositive + agg.gate.falseNegative)
+            : null,
+        precision:
+          agg.gate.truePositive + agg.gate.falsePositive
+            ? agg.gate.truePositive / (agg.gate.truePositive + agg.gate.falsePositive)
+            : null,
+        fnr:
+          agg.gate.truePositive + agg.gate.falseNegative
+            ? agg.gate.falseNegative / (agg.gate.truePositive + agg.gate.falseNegative)
+            : null,
+      }
+    : null;
+
   return {
     nRuns: agg.nRuns,
     nJudged: agg.nJudged,
@@ -283,5 +367,6 @@ function finalizeAgg(agg: MetricsAgg) {
     complianceRate,
     avgLatencyMs,
     loop,
+    gate,
   };
 }
