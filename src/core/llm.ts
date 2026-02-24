@@ -20,6 +20,14 @@ type ProviderOptions = {
   };
 };
 
+type OpenRouterCtor = new (options: { apiKey: string }) => {
+  callModel: (request: unknown) => {
+    getText: () => Promise<string>;
+    getResponse: () => Promise<unknown>;
+  };
+};
+type OpenRouterClient = InstanceType<OpenRouterCtor>;
+
 type SupportedProvider = 'openai' | 'google';
 
 type StructuredOutputConfig = {
@@ -34,9 +42,14 @@ type ProviderCallResult = {
   response?: unknown;
 };
 
+const importOpenRouterSdk = new Function('specifier', 'return import(specifier);') as (
+  specifier: string
+) => Promise<{ OpenRouter?: OpenRouterCtor; default?: OpenRouterCtor }>;
+
 const OPENAI_MAX_RETRY_ATTEMPTS = 6;
 const OPENAI_RETRY_BASE_DELAY_MS = 250;
 const OPENAI_RETRY_MAX_DELAY_MS = 8_000;
+let openRouterClientPromise: Promise<OpenRouterClient> | null = null;
 
 /**
  * Compatibility export retained for callers that still import this symbol.
@@ -110,19 +123,25 @@ function requireEnvVar(name: string, modelId: string): string {
   return value;
 }
 
-function getGoogleApiKey(modelId: string): string {
-  const geminiKey = String(process.env.GEMINI_API_KEY ?? '').trim();
-  if (geminiKey) return geminiKey;
+async function ensureOpenRouterClient(modelId: string): Promise<OpenRouterClient> {
+  const apiKey = String(process.env.OPENROUTER_API_KEY ?? '').trim();
+  if (!apiKey) {
+    throw new Error(
+      `OPENROUTER_API_KEY is not set; model "${modelId}" cannot be called with @openrouter/sdk.`
+    );
+  }
 
-  const directKey = String(process.env.GOOGLE_GENERATIVE_AI_API_KEY ?? '').trim();
-  if (directKey) return directKey;
+  if (!openRouterClientPromise) {
+    openRouterClientPromise = importOpenRouterSdk('@openrouter/sdk').then((sdkModule) => {
+      const OpenRouter = sdkModule.OpenRouter ?? sdkModule.default;
+      if (!OpenRouter) {
+        throw new Error('Failed to load OpenRouter SDK constructor from @openrouter/sdk.');
+      }
+      return new OpenRouter({ apiKey });
+    });
+  }
 
-  const legacyKey = String(process.env.GOOGLE_API_KEY ?? '').trim();
-  if (legacyKey) return legacyKey;
-
-  throw new Error(
-    `Neither GEMINI_API_KEY nor GOOGLE_GENERATIVE_AI_API_KEY is set (and GOOGLE_API_KEY fallback is empty); model "${modelId}" cannot be called directly.`
-  );
+  return openRouterClientPromise;
 }
 
 function numberOrZero(value: unknown): number {
@@ -209,234 +228,6 @@ function zodSchemaToJsonSchema(schema: ZodTypeAny): Record<string, unknown> {
     throw new Error('Failed to convert Zod schema to JSON Schema for structured output.');
   }
   return jsonSchema as Record<string, unknown>;
-}
-
-function resolveJsonPointer(root: Record<string, unknown>, ref: string): unknown {
-  if (!ref.startsWith('#/')) {
-    throw new Error(`Unsupported JSON schema reference "${ref}".`);
-  }
-
-  const pointer = ref.slice(2);
-  const segments = pointer
-    .split('/')
-    .map((segment) => segment.replace(/~1/g, '/').replace(/~0/g, '~'));
-
-  let current: unknown = root;
-  for (const segment of segments) {
-    if (Array.isArray(current)) {
-      const index = Number(segment);
-      if (!Number.isInteger(index) || index < 0 || index >= current.length) {
-        throw new Error(`Invalid array index "${segment}" in JSON schema reference "${ref}".`);
-      }
-      current = current[index];
-      continue;
-    }
-
-    if (!isRecord(current) || !(segment in current)) {
-      throw new Error(`Unresolved JSON schema reference "${ref}".`);
-    }
-
-    current = current[segment];
-  }
-
-  return current;
-}
-
-function dereferenceJsonSchemaNode(
-  node: unknown,
-  rootSchema: Record<string, unknown>,
-  activeRefs: Set<string>
-): unknown {
-  if (!isRecord(node)) return node;
-
-  const ref = typeof node.$ref === 'string' ? node.$ref : undefined;
-  if (!ref) return node;
-
-  if (activeRefs.has(ref)) {
-    throw new Error(`Circular JSON schema reference "${ref}".`);
-  }
-
-  activeRefs.add(ref);
-  try {
-    const resolved = resolveJsonPointer(rootSchema, ref);
-    return dereferenceJsonSchemaNode(resolved, rootSchema, activeRefs);
-  } finally {
-    activeRefs.delete(ref);
-  }
-}
-
-function inferJsonSchemaTypeFromValue(value: unknown): string {
-  if (value === null) return 'null';
-  if (Array.isArray(value)) return 'array';
-  if (typeof value === 'boolean') return 'boolean';
-  if (typeof value === 'number') return Number.isInteger(value) ? 'integer' : 'number';
-  if (typeof value === 'object') return 'object';
-  return 'string';
-}
-
-function jsonSchemaTypeToGeminiType(type: string): string {
-  switch (type) {
-    case 'object':
-      return 'OBJECT';
-    case 'array':
-      return 'ARRAY';
-    case 'string':
-      return 'STRING';
-    case 'integer':
-      return 'INTEGER';
-    case 'number':
-      return 'NUMBER';
-    case 'boolean':
-      return 'BOOLEAN';
-    case 'null':
-      return 'NULL';
-    default:
-      return 'STRING';
-  }
-}
-
-function isNullSchemaNode(node: unknown, rootSchema: Record<string, unknown>): boolean {
-  const resolved = dereferenceJsonSchemaNode(node, rootSchema, new Set<string>());
-  if (!isRecord(resolved)) return false;
-
-  if (resolved.type === 'null') return true;
-  if (Array.isArray(resolved.type)) {
-    return resolved.type.includes('null');
-  }
-  return false;
-}
-
-function convertJsonSchemaNodeToGeminiSchema(
-  node: unknown,
-  rootSchema: Record<string, unknown>,
-  activeRefs: Set<string>
-): Record<string, unknown> {
-  const resolved = dereferenceJsonSchemaNode(node, rootSchema, activeRefs);
-  if (!isRecord(resolved)) {
-    return { type: 'STRING' };
-  }
-
-  if (Array.isArray(resolved.anyOf) && resolved.anyOf.length > 0) {
-    const variants = resolved.anyOf;
-    const nonNullVariants = variants.filter((variant) => !isNullSchemaNode(variant, rootSchema));
-    const chosen = nonNullVariants[0] ?? variants[0];
-    const converted = convertJsonSchemaNodeToGeminiSchema(chosen, rootSchema, activeRefs);
-    if (nonNullVariants.length !== variants.length) {
-      converted.nullable = true;
-    }
-    return converted;
-  }
-
-  if (Array.isArray(resolved.oneOf) && resolved.oneOf.length > 0) {
-    const variants = resolved.oneOf;
-    const nonNullVariants = variants.filter((variant) => !isNullSchemaNode(variant, rootSchema));
-    const chosen = nonNullVariants[0] ?? variants[0];
-    const converted = convertJsonSchemaNodeToGeminiSchema(chosen, rootSchema, activeRefs);
-    if (nonNullVariants.length !== variants.length) {
-      converted.nullable = true;
-    }
-    return converted;
-  }
-
-  let nullable = Boolean(resolved.nullable);
-  let jsonType: string | undefined;
-
-  if (typeof resolved.type === 'string') {
-    jsonType = resolved.type;
-  } else if (Array.isArray(resolved.type)) {
-    for (const typeValue of resolved.type) {
-      if (typeValue === 'null') {
-        nullable = true;
-        continue;
-      }
-      if (!jsonType && typeof typeValue === 'string') {
-        jsonType = typeValue;
-      }
-    }
-  }
-
-  if (!jsonType && Array.isArray(resolved.enum) && resolved.enum.length > 0) {
-    jsonType = inferJsonSchemaTypeFromValue(resolved.enum[0]);
-  }
-
-  if (!jsonType && resolved.const !== undefined) {
-    jsonType = inferJsonSchemaTypeFromValue(resolved.const);
-  }
-
-  if (!jsonType) {
-    if (isRecord(resolved.properties)) {
-      jsonType = 'object';
-    } else if (resolved.items !== undefined) {
-      jsonType = 'array';
-    } else {
-      jsonType = 'string';
-    }
-  }
-
-  if (jsonType === 'null') {
-    jsonType = 'string';
-    nullable = true;
-  }
-
-  const geminiSchema: Record<string, unknown> = {
-    type: jsonSchemaTypeToGeminiType(jsonType),
-  };
-
-  if (nullable) {
-    geminiSchema.nullable = true;
-  }
-
-  if (typeof resolved.description === 'string' && resolved.description.trim().length > 0) {
-    geminiSchema.description = resolved.description;
-  }
-
-  if (Array.isArray(resolved.enum) && resolved.enum.length > 0) {
-    geminiSchema.enum = resolved.enum;
-  } else if (resolved.const !== undefined) {
-    geminiSchema.enum = [resolved.const];
-  }
-
-  if (jsonType === 'object') {
-    const properties = isRecord(resolved.properties)
-      ? (resolved.properties as Record<string, unknown>)
-      : {};
-    const convertedProps: Record<string, unknown> = {};
-
-    for (const [key, propSchema] of Object.entries(properties)) {
-      convertedProps[key] = convertJsonSchemaNodeToGeminiSchema(propSchema, rootSchema, activeRefs);
-    }
-
-    geminiSchema.properties = convertedProps;
-
-    if (Array.isArray(resolved.required) && resolved.required.length > 0) {
-      const required = resolved.required.filter((value): value is string => typeof value === 'string');
-      if (required.length > 0) {
-        geminiSchema.required = required;
-      }
-    }
-
-    if (isRecord(resolved.additionalProperties)) {
-      geminiSchema.additionalProperties = convertJsonSchemaNodeToGeminiSchema(
-        resolved.additionalProperties,
-        rootSchema,
-        activeRefs
-      );
-    }
-  }
-
-  if (jsonType === 'array' && resolved.items !== undefined) {
-    geminiSchema.items = convertJsonSchemaNodeToGeminiSchema(resolved.items, rootSchema, activeRefs);
-  }
-
-  return geminiSchema;
-}
-
-function jsonSchemaToGeminiSchema(jsonSchema: Record<string, unknown>): Record<string, unknown> | undefined {
-  try {
-    return convertJsonSchemaNodeToGeminiSchema(jsonSchema, jsonSchema, new Set<string>());
-  } catch {
-    return undefined;
-  }
 }
 
 function jsonParse(text: string): unknown {
@@ -678,6 +469,10 @@ function extractOpenAiText(response: unknown): string {
 function extractOpenAiFinishReason(response: unknown): string | undefined {
   if (!isRecord(response)) return undefined;
 
+  if (isRecord(response.incompleteDetails) && typeof response.incompleteDetails.reason === 'string') {
+    return response.incompleteDetails.reason;
+  }
+
   if (isRecord(response.incomplete_details) && typeof response.incomplete_details.reason === 'string') {
     return response.incomplete_details.reason;
   }
@@ -695,56 +490,6 @@ function extractOpenAiFinishReason(response: unknown): string | undefined {
   }
 
   return undefined;
-}
-
-function extractGeminiText(response: unknown): string {
-  if (!isRecord(response)) return '';
-
-  const candidates = Array.isArray(response.candidates) ? response.candidates : [];
-  if (candidates.length === 0 || !isRecord(candidates[0])) return '';
-
-  const candidate = candidates[0];
-  const content = isRecord(candidate.content) ? candidate.content : null;
-  if (!content) return '';
-
-  const parts = Array.isArray(content.parts) ? content.parts : [];
-  const chunks: string[] = [];
-
-  for (const part of parts) {
-    if (!isRecord(part)) continue;
-    if (typeof part.text === 'string' && part.text.trim().length > 0) {
-      chunks.push(part.text);
-    }
-  }
-
-  return chunks.join('\n').trim();
-}
-
-function extractGeminiFinishReason(response: unknown): string | undefined {
-  if (!isRecord(response)) return undefined;
-  const candidates = Array.isArray(response.candidates) ? response.candidates : [];
-  if (candidates.length === 0 || !isRecord(candidates[0])) return undefined;
-
-  const finishReason = candidates[0].finishReason;
-  if (typeof finishReason === 'string' && finishReason.length > 0) {
-    return finishReason;
-  }
-  return undefined;
-}
-
-function buildGeminiContents(messages: ChatMessage[]): Array<{
-  role: 'user' | 'model';
-  parts: Array<{ text: string }>;
-}> {
-  return messages.map((message) => ({
-    role: message.role === 'assistant' ? 'model' : 'user',
-    parts: [{ text: message.content }],
-  }));
-}
-
-function isGemini3FlashPreviewModel(modelName: string): boolean {
-  const normalized = String(modelName ?? '').toLowerCase();
-  return normalized === 'gemini-3-flash-preview' || normalized.startsWith('gemini-3-flash-preview-');
 }
 
 async function callOpenAi({
@@ -820,63 +565,63 @@ async function callOpenAi({
 async function callGoogle({
   modelName,
   modelId,
-  system,
-  inputMessages,
+  chatInput,
   maxOutputTokens,
   structuredOutput,
 }: {
   modelName: string;
   modelId: string;
-  system: string;
-  inputMessages: ChatMessage[];
+  chatInput: ChatInputMessage[];
   maxOutputTokens?: number;
   structuredOutput?: StructuredOutputConfig;
 }): Promise<ProviderCallResult> {
-  const apiKey = getGoogleApiKey(modelId);
-  const generationConfig: Record<string, unknown> = {};
-
-  if (isGemini3FlashPreviewModel(modelName)) {
-    generationConfig.thinkingConfig = {
-      thinkingLevel: 'low',
+  const client = await ensureOpenRouterClient(modelId);
+  const providerOptions = getProviderOptions(modelId);
+  const request: {
+    model: string;
+    input: ChatInputMessage[];
+    provider?: ProviderOptions['provider'];
+    maxOutputTokens?: number;
+    text?: {
+      format: {
+        type: 'json_schema';
+        name: string;
+        strict: boolean;
+        schema: Record<string, unknown>;
+      };
     };
-  }
+  } = {
+    model: `google/${modelName}`,
+    input: chatInput,
+    ...providerOptions,
+  };
 
   if (maxOutputTokens !== undefined) {
-    generationConfig.maxOutputTokens = maxOutputTokens;
+    request.maxOutputTokens = maxOutputTokens;
   }
 
   if (structuredOutput) {
-    generationConfig.responseMimeType = 'application/json';
-    const geminiSchema = jsonSchemaToGeminiSchema(structuredOutput.jsonSchema);
-    if (geminiSchema) {
-      generationConfig.responseSchema = geminiSchema;
-    }
-  }
-
-  const body: Record<string, unknown> = {
-    contents: buildGeminiContents(inputMessages),
-  };
-  if (system.trim().length > 0) {
-    body.systemInstruction = {
-      parts: [{ text: system }],
+    request.text = {
+      format: {
+        type: 'json_schema',
+        name: structuredOutput.schemaName,
+        strict: true,
+        schema: structuredOutput.jsonSchema,
+      },
     };
   }
-  if (Object.keys(generationConfig).length > 0) {
-    body.generationConfig = generationConfig;
-  }
 
-  const encodedModelName = encodeURIComponent(modelName);
-  const response = await postJson({
-    url: `https://generativelanguage.googleapis.com/v1beta/models/${encodedModelName}:generateContent?key=${encodeURIComponent(apiKey)}`,
-    headers: {},
-    body,
-  });
+  const result = client.callModel(request);
+  const [text, response] = await Promise.all([
+    result.getText(),
+    result.getResponse().catch(() => null),
+  ]);
 
   return {
-    text: extractGeminiText(response.data),
-    finishReason: extractGeminiFinishReason(response.data),
-    usage: isRecord(response.data) ? response.data.usageMetadata : undefined,
-    response: response.data,
+    text: String(text ?? ''),
+    finishReason: extractOpenAiFinishReason(response),
+    usage: isRecord(response) ? response.usage : undefined,
+    response,
   };
 }
 
@@ -909,8 +654,7 @@ async function callProvider({
   return callGoogle({
     modelName,
     modelId,
-    system,
-    inputMessages,
+    chatInput,
     maxOutputTokens,
     structuredOutput,
   });

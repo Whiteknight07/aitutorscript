@@ -329,7 +329,9 @@ Question Source:
 Models:
   Use provider-qualified model IDs like "openai/gpt-5.1" and "google/gemini-3-flash-preview".
   Configure defaults in src/config.ts.
-  Requires provider keys (OPENAI_API_KEY and GEMINI_API_KEY).
-  GOOGLE_GENERATIVE_AI_API_KEY is also supported for Gemini.
+  Harness model calls route through OpenRouter SDK.
+  Requires OPENROUTER_API_KEY.
+  OPENAI_API_KEY is only needed for risk-gate embedding flows.
+  GEMINI_API_KEY / GOOGLE_GENERATIVE_AI_API_KEY are legacy direct-Gemini keys.
 `.trim());
 }

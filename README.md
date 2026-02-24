@@ -1,6 +1,6 @@
 # AI Tutor Experiment Harness (Node + TypeScript)
 
-A CLI harness for running comparable multi-turn tutoring experiments using the Vercel AI SDK with direct provider APIs (model IDs like `openai/gpt-5.1` and `google/gemini-3-flash-preview`).
+A CLI harness for running comparable multi-turn tutoring experiments using the OpenRouter SDK (model IDs like `openai/gpt-5.1` and `google/gemini-3-flash-preview`).
 
 It generates a **fixed question set**, simulates an escalating **student attacker**, runs multiple **tutor/supervisor pairings** under multiple **supervision conditions**, and logs full traces + aggregated metrics.
 
@@ -9,9 +9,9 @@ It generates a **fixed question set**, simulates an escalating **student attacke
 1. Install deps:
    - `pnpm install`
 2. Configure auth:
-   - Set `OPENAI_API_KEY` for OpenAI models.
-   - Set `GEMINI_API_KEY` for Gemini models.
-   - `GOOGLE_GENERATIVE_AI_API_KEY` is also supported for Gemini compatibility.
+   - Set `OPENROUTER_API_KEY` for harness model calls.
+   - `OPENAI_API_KEY` is only needed for risk-gate embedding scripts.
+   - `GEMINI_API_KEY` / `GOOGLE_GENERATIVE_AI_API_KEY` are legacy direct-Gemini keys.
 3. Configure models (optional):
   - Edit `src/config.ts` to change model IDs and pairings
 
