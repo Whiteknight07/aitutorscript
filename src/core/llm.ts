@@ -50,7 +50,6 @@ const importOpenRouterSdk = new Function('specifier', 'return import(specifier);
 const OPENAI_MAX_RETRY_ATTEMPTS = 6;
 const OPENAI_RETRY_BASE_DELAY_MS = 250;
 const OPENAI_RETRY_MAX_DELAY_MS = 8_000;
-const OPENAI_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes for flex tier
 let openAiClient: OpenAI | null = null;
 let openRouterClientPromise: Promise<OpenRouterClient> | null = null;
 
@@ -131,7 +130,6 @@ function ensureOpenAiClient(modelId: string): OpenAI {
     const apiKey = requireEnvVar('OPENAI_API_KEY', modelId);
     openAiClient = new OpenAI({
       apiKey,
-      timeout: OPENAI_TIMEOUT_MS,
     });
   }
   return openAiClient;
@@ -561,10 +559,7 @@ async function callOpenAi({
 
   for (let attempt = 1; attempt <= OPENAI_MAX_RETRY_ATTEMPTS; attempt += 1) {
     try {
-      const response = await client.responses.create(
-        params as any,
-        { timeout: OPENAI_TIMEOUT_MS },
-      );
+      const response = await client.responses.create(params as any);
 
       return {
         text: response.output_text,
