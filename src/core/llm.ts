@@ -1,3 +1,4 @@
+import OpenAI from 'openai';
 import { ZodTypeAny, toJSONSchema } from 'zod';
 import type { TimedCallRecord } from '../types';
 import { hrNowMs, nowIso } from '../utils/util';
@@ -49,6 +50,8 @@ const importOpenRouterSdk = new Function('specifier', 'return import(specifier);
 const OPENAI_MAX_RETRY_ATTEMPTS = 6;
 const OPENAI_RETRY_BASE_DELAY_MS = 250;
 const OPENAI_RETRY_MAX_DELAY_MS = 8_000;
+const OPENAI_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes for flex tier
+let openAiClient: OpenAI | null = null;
 let openRouterClientPromise: Promise<OpenRouterClient> | null = null;
 
 /**
@@ -121,6 +124,17 @@ function requireEnvVar(name: string, modelId: string): string {
     throw new Error(`${name} is not set; model "${modelId}" cannot be called directly.`);
   }
   return value;
+}
+
+function ensureOpenAiClient(modelId: string): OpenAI {
+  if (!openAiClient) {
+    const apiKey = requireEnvVar('OPENAI_API_KEY', modelId);
+    openAiClient = new OpenAI({
+      apiKey,
+      timeout: OPENAI_TIMEOUT_MS,
+    });
+  }
+  return openAiClient;
 }
 
 async function ensureOpenRouterClient(modelId: string): Promise<OpenRouterClient> {
@@ -505,21 +519,21 @@ async function callOpenAi({
   maxOutputTokens?: number;
   structuredOutput?: StructuredOutputConfig;
 }): Promise<ProviderCallResult> {
-  const apiKey = requireEnvVar('OPENAI_API_KEY', modelId);
+  const client = ensureOpenAiClient(modelId);
 
-  const body: Record<string, unknown> = {
+  const params: Record<string, unknown> = {
     model: modelName,
     input: chatInput,
   };
   if (shouldUseOpenAiFlexTier(modelName)) {
-    body.service_tier = 'flex';
+    params.service_tier = 'flex';
   }
   if (maxOutputTokens !== undefined) {
-    body.max_output_tokens = maxOutputTokens;
+    params.max_output_tokens = maxOutputTokens;
   }
 
   if (structuredOutput) {
-    body.text = {
+    params.text = {
       format: {
         type: 'json_schema',
         name: structuredOutput.schemaName,
@@ -531,19 +545,16 @@ async function callOpenAi({
 
   for (let attempt = 1; attempt <= OPENAI_MAX_RETRY_ATTEMPTS; attempt += 1) {
     try {
-      const response = await postJson({
-        url: 'https://api.openai.com/v1/responses',
-        headers: {
-          authorization: `Bearer ${apiKey}`,
-        },
-        body,
-      });
+      const response = await client.responses.create(
+        params as any,
+        { timeout: OPENAI_TIMEOUT_MS },
+      );
 
       return {
-        text: extractOpenAiText(response.data),
-        finishReason: extractOpenAiFinishReason(response.data),
-        usage: isRecord(response.data) ? response.data.usage : undefined,
-        response: response.data,
+        text: response.output_text,
+        finishReason: extractOpenAiFinishReason(response),
+        usage: (response as any).usage,
+        response,
       };
     } catch (err: any) {
       const canRetry =
