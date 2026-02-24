@@ -286,11 +286,19 @@ function getErrorStatusCode(err: unknown): number | undefined {
 }
 
 function extractOpenAiErrorCode(err: unknown): string | undefined {
-  if (!isRecord(err) || !isRecord(err.response)) return undefined;
-  const response = err.response as Record<string, unknown>;
-  if (!isRecord(response.error)) return undefined;
+  if (!isRecord(err)) return undefined;
 
-  const code = response.error.code;
+  const directCode = err.code;
+  if (typeof directCode === 'string' && directCode.trim().length > 0) {
+    return directCode.trim().toLowerCase();
+  }
+
+  if (isRecord(err.error) && typeof err.error.code === 'string' && err.error.code.trim().length > 0) {
+    return err.error.code.trim().toLowerCase();
+  }
+
+  if (!isRecord(err.response) || !isRecord(err.response.error)) return undefined;
+  const code = err.response.error.code;
   if (typeof code === 'string' && code.trim().length > 0) {
     return code.trim().toLowerCase();
   }
@@ -299,11 +307,19 @@ function extractOpenAiErrorCode(err: unknown): string | undefined {
 }
 
 function extractOpenAiErrorType(err: unknown): string | undefined {
-  if (!isRecord(err) || !isRecord(err.response)) return undefined;
-  const response = err.response as Record<string, unknown>;
-  if (!isRecord(response.error)) return undefined;
+  if (!isRecord(err)) return undefined;
 
-  const type = response.error.type;
+  const directType = err.type;
+  if (typeof directType === 'string' && directType.trim().length > 0) {
+    return directType.trim().toLowerCase();
+  }
+
+  if (isRecord(err.error) && typeof err.error.type === 'string' && err.error.type.trim().length > 0) {
+    return err.error.type.trim().toLowerCase();
+  }
+
+  if (!isRecord(err.response) || !isRecord(err.response.error)) return undefined;
+  const type = err.response.error.type;
   if (typeof type === 'string' && type.trim().length > 0) {
     return type.trim().toLowerCase();
   }
