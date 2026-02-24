@@ -13,6 +13,7 @@ import { getTutorModel, getSupervisorModel, type TutorId, type SupervisorId } fr
 import { createJsonlWriter, ensureDir, nowIso } from '../utils/util';
 import {
   hasBloomDifficulty,
+  type CsbenchFormat,
   type Difficulty,
   type JudgeResult,
   type Question,
@@ -28,6 +29,7 @@ import { renderAnalysisDashboard, generateAnalysisCsvs } from '../output/analysi
 import { loadCsbenchQuestions } from './csbench';
 import { loadPairwiseQuestions } from './pairwise';
 import { loadOverlapQuestions } from './overlap';
+import { getQuestionFormat } from '../agents/question-format';
 
 // Type for a single run configuration
 type RunConfig = {
@@ -163,12 +165,26 @@ export async function runExperiments({
   } else if (args.dataset === 'overlap-csbench-pairwise') {
     // eslint-disable-next-line no-console
     console.log(`\n📝 Loading overlap questions from ${args.overlapPath}`);
-    questions = await loadOverlapQuestions({
+    const allOverlap = await loadOverlapQuestions({
       jsonPath: args.overlapPath,
-      limit: args.questionLimit,
+      limit: args.mcqOnly ? null : args.questionLimit,
     });
+    let filteredOverlap = allOverlap;
+    if (args.mcqOnly) {
+      filteredOverlap = allOverlap.filter(
+        (q) => getQuestionFormat(q) === 'multiple-choice'
+      );
+    }
+    questions =
+      args.questionLimit != null ? filteredOverlap.slice(0, args.questionLimit) : filteredOverlap;
     // eslint-disable-next-line no-console
-    console.log(`✅ Loaded ${questions.length} overlap questions`);
+    if (args.mcqOnly) {
+      console.log(
+        `✅ Loaded ${questions.length} MCQ overlap questions (filtered from ${allOverlap.length})`
+      );
+    } else {
+      console.log(`✅ Loaded ${questions.length} overlap questions`);
+    }
   } else {
     const staticPath = join(process.cwd(), 'data', 'questions.json');
     // eslint-disable-next-line no-console

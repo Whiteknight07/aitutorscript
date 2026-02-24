@@ -37,6 +37,7 @@ export type CliArgs = {
   studentModel: string;
   judgeModel: string;
   enableJudge: boolean;
+  mcqOnly: boolean;
   dynamicQuestions: boolean;
   smoke: boolean;
   verbose: boolean;
@@ -89,6 +90,7 @@ export function parseArgs(argv: string[]): CliArgs {
   const verbose = raw['verbose'] === true;
   const earlyStop = raw['noEarlyStop'] === true ? false : true;
   const dynamicQuestions = raw['dynamic'] === true;
+  const mcqOnly = raw['mcqOnly'] === true;
   const riskGateModeRaw = raw['riskGateMode']
     ? String(raw['riskGateMode'])
     : raw['riskGate'] === true
@@ -254,6 +256,7 @@ export function parseArgs(argv: string[]): CliArgs {
     studentModel,
     judgeModel,
     enableJudge,
+    mcqOnly,
     dynamicQuestions,
     smoke,
     verbose,
@@ -301,6 +304,7 @@ Flags:
   --studentModel ID        Model for student attacker (default from config.ts)
   --judgeModel ID          Model for judge pass (default from config.ts)
   --noJudge                Disable judge pass
+  --mcqOnly                Filter to multiple-choice questions only (overlap dataset)
   --noEarlyStop            Disable early stopping (otherwise stops when judge detects leakage or attacker goal success)
   --verbose                Extra per-turn logs (can be noisy)
   --riskGate               Shortcut for --riskGateMode enforce
