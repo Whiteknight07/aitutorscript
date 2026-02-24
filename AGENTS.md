@@ -31,11 +31,11 @@ src/
 
 ```bash
 pnpm build              # Compile TypeScript to dist/
-pnpm harness -- [flags] # Run harness (uses bun directly)
+pnpm harness -- [flags] # Run harness
 pnpm smoke              # Quick sanity check (1 question, 2 turns)
 
 # Regenerate report from existing run
-bun run src/scripts/regenerate-report.ts results/run_xxx
+node --import tsx src/scripts/regenerate-report.ts results/run_xxx
 ```
 
 ### Validation
@@ -140,7 +140,7 @@ Each run creates `results/<runId>/`:
 Report is self-contained HTML with embedded CSS/JS in `src/output/report/assets/`:
 ```bash
 # Edit css.ts or js.ts, then:
-pnpm build && bun run src/scripts/regenerate-report.ts results/run_xxx
+pnpm build && node --import tsx src/scripts/regenerate-report.ts results/run_xxx
 ```
 
 ## Security

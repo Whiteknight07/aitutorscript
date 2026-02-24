@@ -22,7 +22,7 @@ function parseJsonOrThrow(text: string, label: string): any {
 
 function usage(): never {
   // eslint-disable-next-line no-console
-  console.error('Usage: bun run src/scripts/regenerate-report.ts <results/run_xxx>');
+  console.error('Usage: node --import tsx src/scripts/regenerate-report.ts <results/run_xxx>');
   process.exit(2);
 }
 
