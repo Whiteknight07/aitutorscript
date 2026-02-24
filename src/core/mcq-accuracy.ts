@@ -243,7 +243,6 @@ async function defaultAttemptFn({
       prompt: userPrompt,
       schema: LetterResponseSchema,
       schemaName: 'mcq_letter_response',
-      maxOutputTokens: 16,
     });
 
     const call = calls[calls.length - 1];
@@ -385,15 +384,18 @@ export async function runOverlapMcqAccuracy(options: McqAccuracyRunOptions): Pro
   const startedAtIso = nowIso();
   const runId = `run_mcq_accuracy_${startedAtIso.replace(/[:.]/g, '-')}`;
 
+  console.error('[mcq-accuracy] Loading questions...');
   const allQuestions = options.questions ?? (await loadOverlapQuestions({
     jsonPath: options.overlapPath,
     limit: null,
   }));
+  console.error(`[mcq-accuracy] Loaded ${allQuestions.length} questions`);
 
   const selectedAll = selectOverlapMcqQuestions(allQuestions);
   const selected = options.questionLimit == null
     ? selectedAll
     : selectedAll.slice(0, Math.max(0, options.questionLimit));
+  console.error(`[mcq-accuracy] Selected ${selected.length} MCQ questions (from ${selectedAll.length} eligible)`);
 
   const writer = await createJsonlWriter(options.outDir, options.outFile);
 
@@ -408,6 +410,14 @@ export async function runOverlapMcqAccuracy(options: McqAccuracyRunOptions): Pro
       }
     }
 
+    const totalTasks = tasks.length;
+    console.error(`[mcq-accuracy] Evaluating ${totalTasks} tasks (${selected.length} questions × ${options.models.length} models, concurrency=${concurrency})`);
+    console.error(`[mcq-accuracy] Models: ${options.models.join(', ')}`);
+
+    let completed = 0;
+    let correctSoFar = 0;
+    const startTime = Date.now();
+
     const records = await Promise.all(
       tasks.map((task) =>
         limiter(async () => {
@@ -419,12 +429,23 @@ export async function runOverlapMcqAccuracy(options: McqAccuracyRunOptions): Pro
             attemptFn: options.attemptFn,
           });
           await writer.write(record);
+
+          completed += 1;
+          if (record.correct) correctSoFar += 1;
+          const elapsedSec = ((Date.now() - startTime) / 1000).toFixed(1);
+          const status = record.predicted == null ? 'INVALID' : record.correct ? '✓' : '✗';
+          console.error(
+            `[mcq-accuracy] [${completed}/${totalTasks}] ${status} ${record.question_id} | ${record.model_id} | predicted=${record.predicted ?? '—'} expected=${record.expected} | ${elapsedSec}s elapsed`
+          );
+
           return record;
         })
       )
     );
 
     const invalidRecords = records.filter((record) => record.predicted == null).length;
+    const totalElapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+    console.error(`[mcq-accuracy] Done — ${correctSoFar}/${totalTasks} correct, ${invalidRecords} invalid, ${totalElapsed}s total`);
 
     return {
       runId,
