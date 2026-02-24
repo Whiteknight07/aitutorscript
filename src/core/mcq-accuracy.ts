@@ -387,7 +387,7 @@ export async function runOverlapMcqAccuracy(options: McqAccuracyRunOptions): Pro
 
   const allQuestions = options.questions ?? (await loadOverlapQuestions({
     jsonPath: options.overlapPath,
-    limit: options.questionLimit,
+    limit: null,
   }));
 
   const selectedAll = selectOverlapMcqQuestions(allQuestions);
