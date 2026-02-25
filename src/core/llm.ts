@@ -633,18 +633,35 @@ async function callGoogle({
     };
   }
 
-  const result = client.callModel(request);
-  const [text, response] = await Promise.all([
-    result.getText(),
-    result.getResponse().catch(() => null),
-  ]);
+  for (let attempt = 1; attempt <= OPENAI_MAX_RETRY_ATTEMPTS; attempt += 1) {
+    try {
+      const result = client.callModel(request);
+      const [text, response] = await Promise.all([
+        result.getText(),
+        result.getResponse().catch(() => null),
+      ]);
 
-  return {
-    text: String(text ?? ''),
-    finishReason: extractOpenAiFinishReason(response),
-    usage: isRecord(response) ? response.usage : undefined,
-    response,
-  };
+      return {
+        text: String(text ?? ''),
+        finishReason: extractOpenAiFinishReason(response),
+        usage: isRecord(response) ? response.usage : undefined,
+        response,
+      };
+    } catch (err: any) {
+      const canRetry =
+        attempt < OPENAI_MAX_RETRY_ATTEMPTS &&
+        isRetryableOpenAiError(err);
+
+      if (!canRetry) {
+        throw err;
+      }
+
+      const delayMs = calculateOpenAiRetryDelayMs(attempt);
+      await sleep(delayMs);
+    }
+  }
+
+  throw new Error('OpenRouter request failed after retry budget was exhausted.');
 }
 
 async function callProvider({
