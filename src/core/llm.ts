@@ -50,6 +50,7 @@ const importOpenRouterSdk = new Function('specifier', 'return import(specifier);
 const OPENAI_MAX_RETRY_ATTEMPTS = 6;
 const OPENAI_RETRY_BASE_DELAY_MS = 250;
 const OPENAI_RETRY_MAX_DELAY_MS = 8_000;
+const OPENAI_PROMPT_CACHE_RETENTION = '24h' as const;
 let openAiClient: OpenAI | null = null;
 let openRouterClientPromise: Promise<OpenRouterClient> | null = null;
 
@@ -538,6 +539,7 @@ async function callOpenAi({
   const params: Record<string, unknown> = {
     model: modelName,
     input: chatInput,
+    prompt_cache_retention: OPENAI_PROMPT_CACHE_RETENTION,
   };
   if (shouldUseOpenAiFlexTier(modelName)) {
     params.service_tier = 'flex';
