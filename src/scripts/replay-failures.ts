@@ -10,13 +10,26 @@ import { basename, dirname, join, resolve } from 'node:path';
 import pLimit from 'p-limit';
 
 import { runTurnJudge } from '../agents/judge';
-import { getSupervisorModel, getTutorModel, isValidSupervisorId, isValidTutorId, type SupervisorId, type TutorId } from '../config';
+import {
+  getSupervisorModel,
+  getTutorModel,
+  isValidSupervisorId,
+  isValidTutorId,
+  type SupervisorId,
+  type TutorId,
+} from '../config';
 import { simulateConversation } from '../core/conversation';
 import { loadRiskGatePolicy, type RiskGateRuntimeConfig } from '../core/risk-gate';
 import { SummaryAggregator } from '../output/summary';
+import type {
+  Condition,
+  Question,
+  RunRecord,
+  TimedCallRecord,
+  TurnJudgeResult,
+} from '../types';
 import type { CliArgs } from '../utils/args';
 import { createJsonlWriter, ensureDir, nowIso } from '../utils/util';
-import type { Condition, Question, RunRecord, TimedCallRecord, TurnJudgeResult } from '../types';
 
 type StoredRunConfig = {
   runId?: string;
@@ -38,6 +51,59 @@ type ReplayKeyParts = {
   supervisorId: SupervisorId | null;
   condition: Condition;
 };
+
+type ErrorCategory =
+  | 'insufficient_balance'
+  | 'rate_limit'
+  | 'network'
+  | 'timeout'
+  | 'server_error'
+  | 'auth_error'
+  | 'invalid_request'
+  | 'unknown';
+
+type ErrorSnapshot = {
+  category: ErrorCategory;
+  retryable: boolean;
+  message: string;
+  status?: number;
+  statusCode?: number;
+  code?: string;
+  type?: string;
+  details?: Record<string, unknown>;
+};
+
+type FailedReplayRecord = {
+  replayRunId: string;
+  sourceRunId: string;
+  sourceRunDir: string;
+  createdAtIso: string;
+  questionId: string;
+  pairingId: string;
+  condition: Condition;
+  tutorId: TutorId;
+  supervisorId: SupervisorId | null;
+  attempt: number;
+  maxAttempts: number;
+  durationMs: number;
+  error: ErrorSnapshot;
+  callErrors: Array<{
+    name?: string;
+    kind?: string;
+    model?: string;
+    message: string;
+    status?: number;
+    statusCode?: number;
+    code?: string;
+    type?: string;
+    details?: Record<string, unknown>;
+  }>;
+};
+
+const REPLAY_MAX_ATTEMPTS = 3;
+const RETRY_BASE_DELAY_MS = 250;
+const RETRY_MAX_DELAY_MS = 8000;
+const PROGRESS_LOG_INTERVAL_MS = 5000;
 
 function usage(): never {
   // eslint-disable-next-line no-console
@@ -216,6 +282,241 @@ async function buildRiskGateRuntimeConfig(args: CliArgs): Promise<RiskGateRuntim
   };
 }
 
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function calculateRetryDelayMs(failureAttempt: number): number {
+  const exponent = Math.max(0, failureAttempt - 1);
+  const cappedExponential = Math.min(
+    RETRY_MAX_DELAY_MS,
+    RETRY_BASE_DELAY_MS * (2 ** exponent)
+  );
+  const jitterMultiplier = 0.5 + Math.random();
+
+  return Math.max(
+    1,
+    Math.min(RETRY_MAX_DELAY_MS, Math.round(cappedExponential * jitterMultiplier))
+  );
+}
+
+function pickStatus(err: any): { status?: number; statusCode?: number } {
+  const result: { status?: number; statusCode?: number } = {};
+
+  const directStatus = Number(err?.status);
+  if (Number.isFinite(directStatus) && directStatus > 0) {
+    result.status = directStatus;
+  }
+
+  const directStatusCode = Number(err?.statusCode);
+  if (Number.isFinite(directStatusCode) && directStatusCode > 0) {
+    result.statusCode = directStatusCode;
+  }
+
+  const details = err?.details;
+  const detailsStatus = Number(details?.status);
+  if (result.status === undefined && Number.isFinite(detailsStatus) && detailsStatus > 0) {
+    result.status = detailsStatus;
+  }
+
+  const detailsStatusCode = Number(details?.statusCode);
+  if (result.statusCode === undefined && Number.isFinite(detailsStatusCode) && detailsStatusCode > 0) {
+    result.statusCode = detailsStatusCode;
+  }
+
+  return result;
+}
+
+function toErrorSnapshot(err: any): ErrorSnapshot {
+  const nestedError = err?.error && typeof err.error === 'object' ? err.error : null;
+  const nestedCodeRaw = nestedError?.code;
+  const nestedCode =
+    typeof nestedCodeRaw === 'string' || typeof nestedCodeRaw === 'number'
+      ? String(nestedCodeRaw)
+      : undefined;
+  const message = String(nestedError?.message ?? err?.message ?? err ?? 'Unknown error');
+  const lowerMessage = message.toLowerCase();
+  const { status, statusCode } = pickStatus(err);
+  const code = nestedCode ?? (typeof err?.code === 'string' ? err.code : undefined);
+  const type = typeof err?.type === 'string' ? err.type : undefined;
+  const details = err?.details && typeof err.details === 'object'
+    ? (err.details as Record<string, unknown>)
+    : nestedError?.metadata && typeof nestedError.metadata === 'object'
+      ? (nestedError.metadata as Record<string, unknown>)
+      : undefined;
+
+  const effectiveStatus = status ?? statusCode;
+
+  if (
+    effectiveStatus === 402 ||
+    code === '402' ||
+    lowerMessage.includes('insufficient_quota') ||
+    lowerMessage.includes('insufficient balance') ||
+    lowerMessage.includes('insufficient credits') ||
+    lowerMessage.includes('payment required')
+  ) {
+    return {
+      category: 'insufficient_balance',
+      retryable: false,
+      message,
+      status,
+      statusCode,
+      code,
+      type,
+      details,
+    };
+  }
+
+  if (
+    effectiveStatus === 429 ||
+    code === '429' ||
+    lowerMessage.includes('rate limit') ||
+    lowerMessage.includes('too many requests')
+  ) {
+    return {
+      category: 'rate_limit',
+      retryable: true,
+      message,
+      status,
+      statusCode,
+      code,
+      type,
+      details,
+    };
+  }
+
+  if (
+    lowerMessage.includes('fetch failed') ||
+    lowerMessage.includes('unable to make request') ||
+    lowerMessage.includes('network') ||
+    lowerMessage.includes('econnreset') ||
+    lowerMessage.includes('socket hang up') ||
+    lowerMessage.includes('connection reset')
+  ) {
+    return {
+      category: 'network',
+      retryable: true,
+      message,
+      status,
+      statusCode,
+      code,
+      type,
+      details,
+    };
+  }
+
+  if (
+    lowerMessage.includes('timeout') ||
+    lowerMessage.includes('timed out') ||
+    lowerMessage.includes('econnaborted') ||
+    effectiveStatus === 408
+  ) {
+    return {
+      category: 'timeout',
+      retryable: true,
+      message,
+      status,
+      statusCode,
+      code,
+      type,
+      details,
+    };
+  }
+
+  if (
+    (effectiveStatus !== undefined && effectiveStatus >= 500) ||
+    (code !== undefined && /^5\d\d$/.test(code))
+  ) {
+    return {
+      category: 'server_error',
+      retryable: true,
+      message,
+      status,
+      statusCode,
+      code,
+      type,
+      details,
+    };
+  }
+
+  if (
+    effectiveStatus === 401 ||
+    effectiveStatus === 403 ||
+    code === '401' ||
+    code === '403' ||
+    lowerMessage.includes('unauthorized')
+  ) {
+    return {
+      category: 'auth_error',
+      retryable: false,
+      message,
+      status,
+      statusCode,
+      code,
+      type,
+      details,
+    };
+  }
+
+  if (effectiveStatus !== undefined && effectiveStatus >= 400 && effectiveStatus < 500) {
+    return {
+      category: 'invalid_request',
+      retryable: false,
+      message,
+      status,
+      statusCode,
+      code,
+      type,
+      details,
+    };
+  }
+
+  return {
+    category: 'unknown',
+    retryable: false,
+    message,
+    status,
+    statusCode,
+    code,
+    type,
+    details,
+  };
+}
+
+function extractCallErrors(calls: TimedCallRecord[]): FailedReplayRecord['callErrors'] {
+  const output: FailedReplayRecord['callErrors'] = [];
+
+  for (const call of calls) {
+    if (!call.error) continue;
+    const err: any = call.error;
+    const status = Number(err?.details?.status);
+    const statusCode = Number(err?.details?.statusCode);
+    output.push({
+      name: call.name,
+      kind: call.kind,
+      model: call.model,
+      message: String(err?.message ?? 'Unknown call error'),
+      status: Number.isFinite(status) ? status : undefined,
+      statusCode: Number.isFinite(statusCode) ? statusCode : undefined,
+      code: typeof err?.code === 'string' ? err.code : undefined,
+      type: typeof err?.type === 'string' ? err.type : undefined,
+      details: err?.details && typeof err.details === 'object'
+        ? err.details as Record<string, unknown>
+        : undefined,
+    });
+  }
+
+  return output;
+}
+
+function formatDuration(ms: number): string {
+  if (ms < 1000) return `${Math.round(ms)}ms`;
+  if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
+  const mins = Math.floor(ms / 60000);
+  const secs = Math.floor((ms % 60000) / 1000);
+  return `${mins}m ${secs}s`;
+}
+
 async function main() {
   const runDirArg = process.argv[2];
   if (!runDirArg) usage();
@@ -307,6 +608,7 @@ async function main() {
   await ensureDir(replayOutDir);
 
   const rawWriter = await createJsonlWriter(replayOutDir, 'raw.jsonl');
+  const failedWriter = await createJsonlWriter(replayOutDir, 'failed.jsonl');
   const aggregator = new SummaryAggregator();
   const aiVersion = await getAiVersion();
   const riskGate = await buildRiskGateRuntimeConfig(args);
@@ -329,125 +631,286 @@ async function main() {
     )
   );
 
+  const startedAtMs = Date.now();
+  const missingCount = missingPlans.length;
   let succeeded = 0;
   let failed = 0;
+  let processed = 0;
+  let lastProgressLogMs = 0;
+  let fatalStopReason: string | null = null;
+  const failedByCategory: Record<ErrorCategory, number> = {
+    insufficient_balance: 0,
+    rate_limit: 0,
+    network: 0,
+    timeout: 0,
+    server_error: 0,
+    auth_error: 0,
+    invalid_request: 0,
+    unknown: 0,
+  };
+
+  function maybeLogProgress(force = false): void {
+    const nowMs = Date.now();
+    if (!force && nowMs - lastProgressLogMs < PROGRESS_LOG_INTERVAL_MS) {
+      return;
+    }
+    lastProgressLogMs = nowMs;
+
+    const elapsedMs = Math.max(1, nowMs - startedAtMs);
+    const done = processed;
+    const pct = missingCount === 0 ? 100 : (done / missingCount) * 100;
+    const rate = done / (elapsedMs / 1000);
+    const remaining = Math.max(0, missingCount - done);
+    const etaMs = rate > 0 ? (remaining / rate) * 1000 : 0;
+
+    // eslint-disable-next-line no-console
+    console.log(
+      [
+        `[replay] ${done}/${missingCount}`,
+        `(${pct.toFixed(1)}%)`,
+        `ok=${succeeded}`,
+        `fail=${failed}`,
+        `rate=${rate.toFixed(2)}/s`,
+        `eta=${formatDuration(etaMs)}`,
+        fatalStopReason ? `fatalStop=${fatalStopReason}` : null,
+      ].filter(Boolean).join(' ')
+    );
+  }
+
+  // eslint-disable-next-line no-console
+  console.log(`Replay start: source=${sourceRunId} missing=${missingCount} parallel=${Math.max(1, args.parallel ?? 1)} maxAttempts=${REPLAY_MAX_ATTEMPTS}`);
+
   const limit = pLimit(Math.max(1, args.parallel ?? 1));
 
   async function executeMissingRun(plan: RunPlan): Promise<void> {
-    const calls: TimedCallRecord[] = [];
-    const started = Date.now();
+    if (fatalStopReason) {
+      processed += 1;
+      failed += 1;
+      failedByCategory.unknown += 1;
+      await failedWriter.write({
+        replayRunId,
+        sourceRunId,
+        sourceRunDir,
+        createdAtIso: nowIso(),
+        questionId: plan.question.id,
+        pairingId: plan.supervisorId ? `${plan.tutorId}-${plan.supervisorId}` : `${plan.tutorId}-single`,
+        condition: plan.condition,
+        tutorId: plan.tutorId,
+        supervisorId: plan.supervisorId,
+        attempt: 0,
+        maxAttempts: REPLAY_MAX_ATTEMPTS,
+        durationMs: 0,
+        error: {
+          category: 'unknown',
+          retryable: false,
+          message: `Skipped due to fatal stop: ${fatalStopReason}`,
+        },
+        callErrors: [],
+      } satisfies FailedReplayRecord);
+      maybeLogProgress();
+      return;
+    }
+
     const tutorModel = getTutorModel(plan.tutorId);
     const supervisorModel = plan.supervisorId ? getSupervisorModel(plan.supervisorId) : null;
     const pairingId = plan.supervisorId ? `${plan.tutorId}-${plan.supervisorId}` : `${plan.tutorId}-single`;
 
-    try {
-      const conversation = await simulateConversation({
-        calls,
-        condition: plan.condition,
-        question: plan.question,
-        turns: args.turns,
-        maxIters: args.maxIters,
-        studentModel: args.studentModel,
-        tutorModel,
-        supervisorModel,
-        verbose: args.verbose,
-        log: () => {},
-        earlyStop: args.earlyStop,
-        turnJudge:
-          args.enableJudge
-            ? async ({ turnIndex, transcriptVisible, studentTurns }) =>
-                runTurnJudge({
-                  calls,
-                  model: args.judgeModel,
-                  question: plan.question,
-                  transcriptVisible,
-                  studentTurns,
-                  turnIndex,
-                })
+    let lastSnapshot: ErrorSnapshot | null = null;
+    let lastCallErrors: FailedReplayRecord['callErrors'] = [];
+
+    for (let attempt = 1; attempt <= REPLAY_MAX_ATTEMPTS; attempt += 1) {
+      const calls: TimedCallRecord[] = [];
+      const attemptStartedMs = Date.now();
+
+      try {
+        const conversation = await simulateConversation({
+          calls,
+          condition: plan.condition,
+          question: plan.question,
+          turns: args.turns,
+          maxIters: args.maxIters,
+          studentModel: args.studentModel,
+          tutorModel,
+          supervisorModel,
+          verbose: args.verbose,
+          log: () => {},
+          earlyStop: args.earlyStop,
+          turnJudge:
+            args.enableJudge
+              ? async ({ turnIndex, transcriptVisible, studentTurns }) =>
+                  runTurnJudge({
+                    calls,
+                    model: args.judgeModel,
+                    question: plan.question,
+                    transcriptVisible,
+                    studentTurns,
+                    turnIndex,
+                  })
+              : undefined,
+          riskGate,
+        });
+
+        const record: RunRecord = {
+          runId: replayRunId,
+          createdAtIso,
+          versions: {
+            node: process.version,
+            ai: aiVersion,
+          },
+          config: {
+            args,
+            models: {
+              questionGeneratorModel: args.questionModel,
+              studentAttackerModel: args.studentModel,
+              judgeModel: args.judgeModel,
+              tutorModel,
+              supervisorModel,
+            },
+            tutorId: plan.tutorId,
+            supervisorId: plan.supervisorId,
+            replay: {
+              sourceRunDir,
+              sourceRunId,
+            },
+          },
+          question: plan.question,
+          pairingId,
+          condition: plan.condition,
+          turnsRequested: args.turns,
+          maxIters: args.maxIters,
+          turnsCompleted: conversation.turnsCompleted,
+          loopIterationsTotal: conversation.loopIterationsTotal,
+          loopTurnIterations: conversation.loopTurnIterations,
+          transcriptVisible: conversation.transcriptVisible,
+          hiddenTrace: conversation.hiddenTrace,
+          calls,
+          totalLatencyMs: Date.now() - attemptStartedMs,
+          judge: args.enableJudge
+            ? summarizeRunJudgeFromTurnJudgments(conversation.hiddenTrace.turnJudgments)
+            : null,
+          riskGate: riskGate
+            ? {
+                mode: riskGate.mode,
+                failMode: riskGate.failMode,
+                policyPath: args.riskGatePolicyPath,
+                localEmbedUrl: riskGate.localEmbedUrl,
+                openaiModel: riskGate.openaiModel,
+                openaiTimeoutMs: riskGate.openaiTimeoutMs,
+                policy: {
+                  local_low: riskGate.policy.local_low,
+                  local_high: riskGate.policy.local_high,
+                  openai_threshold: riskGate.policy.openai_threshold,
+                },
+                stats: conversation.riskGateStats ?? {
+                  evaluatedTurns: 0,
+                  superviseCount: 0,
+                  skipCount: 0,
+                  enforcedSuperviseCount: 0,
+                  enforcedSkipCount: 0,
+                  localHighCount: 0,
+                  localLowCount: 0,
+                  openaiCount: 0,
+                  openaiFallbackCount: 0,
+                  failModeCount: 0,
+                  failureCount: 0,
+                },
+              }
             : undefined,
-        riskGate,
-      });
+        };
 
-      const record: RunRecord = {
-        runId: replayRunId,
-        createdAtIso,
-        versions: {
-          node: process.version,
-          ai: aiVersion,
-        },
-        config: {
-          args,
-          models: {
-            questionGeneratorModel: args.questionModel,
-            studentAttackerModel: args.studentModel,
-            judgeModel: args.judgeModel,
-            tutorModel,
-            supervisorModel,
-          },
-          tutorId: plan.tutorId,
-          supervisorId: plan.supervisorId,
-          replay: {
-            sourceRunDir,
+        await rawWriter.write(record);
+        aggregator.add(record);
+        succeeded += 1;
+        processed += 1;
+        maybeLogProgress();
+        return;
+      } catch (err: any) {
+        const snapshot = toErrorSnapshot(err);
+        const durationMs = Date.now() - attemptStartedMs;
+        const callErrors = extractCallErrors(calls);
+        lastSnapshot = snapshot;
+        lastCallErrors = callErrors;
+
+        if (snapshot.category === 'insufficient_balance') {
+          fatalStopReason = snapshot.message;
+        }
+
+        const canRetry =
+          attempt < REPLAY_MAX_ATTEMPTS &&
+          snapshot.retryable &&
+          !fatalStopReason;
+
+        if (!canRetry) {
+          failed += 1;
+          processed += 1;
+          failedByCategory[snapshot.category] += 1;
+
+          await failedWriter.write({
+            replayRunId,
             sourceRunId,
-          },
-        },
-        question: plan.question,
-        pairingId,
-        condition: plan.condition,
-        turnsRequested: args.turns,
-        maxIters: args.maxIters,
-        turnsCompleted: conversation.turnsCompleted,
-        loopIterationsTotal: conversation.loopIterationsTotal,
-        loopTurnIterations: conversation.loopTurnIterations,
-        transcriptVisible: conversation.transcriptVisible,
-        hiddenTrace: conversation.hiddenTrace,
-        calls,
-        totalLatencyMs: Date.now() - started,
-        judge: args.enableJudge
-          ? summarizeRunJudgeFromTurnJudgments(conversation.hiddenTrace.turnJudgments)
-          : null,
-        riskGate: riskGate
-          ? {
-              mode: riskGate.mode,
-              failMode: riskGate.failMode,
-              policyPath: args.riskGatePolicyPath,
-              localEmbedUrl: riskGate.localEmbedUrl,
-              openaiModel: riskGate.openaiModel,
-              openaiTimeoutMs: riskGate.openaiTimeoutMs,
-              policy: {
-                local_low: riskGate.policy.local_low,
-                local_high: riskGate.policy.local_high,
-                openai_threshold: riskGate.policy.openai_threshold,
-              },
-              stats: conversation.riskGateStats ?? {
-                evaluatedTurns: 0,
-                superviseCount: 0,
-                skipCount: 0,
-                enforcedSuperviseCount: 0,
-                enforcedSkipCount: 0,
-                localHighCount: 0,
-                localLowCount: 0,
-                openaiCount: 0,
-                openaiFallbackCount: 0,
-                failModeCount: 0,
-                failureCount: 0,
-              },
-            }
-          : undefined,
-      };
+            sourceRunDir,
+            createdAtIso: nowIso(),
+            questionId: plan.question.id,
+            pairingId,
+            condition: plan.condition,
+            tutorId: plan.tutorId,
+            supervisorId: plan.supervisorId,
+            attempt,
+            maxAttempts: REPLAY_MAX_ATTEMPTS,
+            durationMs,
+            error: snapshot,
+            callErrors,
+          } satisfies FailedReplayRecord);
 
-      await rawWriter.write(record);
-      aggregator.add(record);
-      succeeded += 1;
-    } catch {
-      failed += 1;
+          // eslint-disable-next-line no-console
+          console.error(
+            `[replay][fail] ${plan.question.id} ${pairingId}/${plan.condition} attempt=${attempt}/${REPLAY_MAX_ATTEMPTS} category=${snapshot.category} status=${snapshot.status ?? snapshot.statusCode ?? '-'} msg=${snapshot.message}`
+          );
+          maybeLogProgress();
+          return;
+        }
+
+        const delayMs = calculateRetryDelayMs(attempt);
+        // eslint-disable-next-line no-console
+        console.warn(
+          `[replay][retry] ${plan.question.id} ${pairingId}/${plan.condition} attempt=${attempt}/${REPLAY_MAX_ATTEMPTS} category=${snapshot.category} waiting=${delayMs}ms`
+        );
+        await sleep(delayMs);
+      }
     }
+
+    // Defensive fallback: loop should always return.
+    failed += 1;
+    processed += 1;
+    failedByCategory.unknown += 1;
+    await failedWriter.write({
+      replayRunId,
+      sourceRunId,
+      sourceRunDir,
+      createdAtIso: nowIso(),
+      questionId: plan.question.id,
+      pairingId,
+      condition: plan.condition,
+      tutorId: plan.tutorId,
+      supervisorId: plan.supervisorId,
+      attempt: REPLAY_MAX_ATTEMPTS,
+      maxAttempts: REPLAY_MAX_ATTEMPTS,
+      durationMs: 0,
+      error: lastSnapshot ?? {
+        category: 'unknown',
+        retryable: false,
+        message: 'Replay failed without captured error snapshot.',
+      },
+      callErrors: lastCallErrors,
+    } satisfies FailedReplayRecord);
+    maybeLogProgress();
   }
 
   try {
     await Promise.all(missingPlans.map((plan) => limit(() => executeMissingRun(plan))));
   } finally {
     await rawWriter.close().catch(() => {});
+    await failedWriter.close().catch(() => {});
   }
 
   const completedInSource = plannedRuns.length - missingPlans.length;
@@ -464,18 +927,26 @@ async function main() {
       replayed: missingPlans.length,
       succeeded,
       failed,
+      failedByCategory,
+      fatalStopReason,
+      maxAttemptsPerRun: REPLAY_MAX_ATTEMPTS,
     },
     totals: {
       questions: questions.length,
       plannedRuns: missingPlans.length,
       completedRuns: succeeded,
+      failedRuns: failed,
     },
     ...aggregator.toSummaryObject(),
   };
   await writeFile(join(replayOutDir, 'summary.json'), JSON.stringify(summary, null, 2));
 
+  maybeLogProgress(true);
+
   // eslint-disable-next-line no-console
   console.log(`Replay output: ${replayOutDir}`);
+  // eslint-disable-next-line no-console
+  console.log(`Replay failures: ${join(replayOutDir, 'failed.jsonl')}`);
   // eslint-disable-next-line no-console
   console.log(
     [
@@ -485,6 +956,7 @@ async function main() {
       `replayed=${missingPlans.length}`,
       `succeeded=${succeeded}`,
       `failed=${failed}`,
+      fatalStopReason ? `fatalStop=true` : 'fatalStop=false',
     ].join(' ')
   );
 }
