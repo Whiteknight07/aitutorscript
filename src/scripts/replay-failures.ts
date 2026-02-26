@@ -425,7 +425,12 @@ function toErrorSnapshot(err: any): ErrorSnapshot {
 
   if (
     (effectiveStatus !== undefined && effectiveStatus >= 500) ||
-    (code !== undefined && /^5\d\d$/.test(code))
+    (code !== undefined && /^5\d\d$/.test(code)) ||
+    code === 'server_error' ||
+    lowerMessage.includes('"code":"server_error"') ||
+    lowerMessage.includes('json error injected into sse stream') ||
+    lowerMessage.includes('response failed: {"code":"server_error"') ||
+    lowerMessage.includes('provider disconnected')
   ) {
     return {
       category: 'server_error',
