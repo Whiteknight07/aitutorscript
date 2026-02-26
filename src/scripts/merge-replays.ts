@@ -1,5 +1,7 @@
+import { createReadStream } from 'node:fs';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { basename, dirname, join, resolve } from 'node:path';
+import { createInterface } from 'node:readline';
 
 import { buildAnalysis } from '../output/analysis/index';
 import { renderReportHtml } from '../output/report';
@@ -27,6 +29,8 @@ type MergeSource = {
   label: string;
   path: string;
 };
+
+const MAX_RECORDS_FOR_ANALYSIS = 2000;
 
 function usage(): never {
   // eslint-disable-next-line no-console
@@ -83,24 +87,37 @@ function recordKey(record: RunRecord, fallback: string): string {
   return fallback;
 }
 
-async function readJsonl(path: string, label: string): Promise<RunRecord[]> {
-  const text = await readFile(path, 'utf8');
-  const lines = text
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean);
+async function forEachJsonlRecord(
+  path: string,
+  label: string,
+  onRecord: (record: RunRecord, lineNo: number) => Promise<void> | void
+): Promise<void> {
+  const input = createReadStream(path, { encoding: 'utf8' });
+  const rl = createInterface({
+    input,
+    crlfDelay: Infinity,
+  });
 
-  const out: RunRecord[] = [];
-  for (let i = 0; i < lines.length; i += 1) {
-    const line = lines[i];
-    try {
-      out.push(JSON.parse(line) as RunRecord);
-    } catch (err: any) {
-      throw new Error(`${label} line ${i + 1} is not valid JSON: ${String(err?.message ?? err)}`);
+  let lineNo = 0;
+  try {
+    for await (const rawLine of rl) {
+      lineNo += 1;
+      const line = rawLine.trim();
+      if (!line) continue;
+
+      let record: RunRecord;
+      try {
+        record = JSON.parse(line) as RunRecord;
+      } catch (err: any) {
+        throw new Error(`${label} line ${lineNo} is not valid JSON: ${String(err?.message ?? err)}`);
+      }
+
+      await onRecord(record, lineNo);
     }
+  } finally {
+    rl.close();
+    input.destroy();
   }
-
-  return out;
 }
 
 function asIsoOrNow(value: unknown): string {
@@ -141,20 +158,18 @@ async function main() {
     ...replayDirs.map((name) => ({ label: name, path: join(parentDir, name, 'raw.jsonl') })),
   ];
 
-  const dedup = new Map<string, RunRecord>();
+  const winningSourceIndexByKey = new Map<string, number>();
   let totalSeen = 0;
 
-  for (const source of sources) {
-    const records = await readJsonl(source.path, source.label);
-    for (let idx = 0; idx < records.length; idx += 1) {
-      const record = records[idx];
+  for (let sourceIndex = 0; sourceIndex < sources.length; sourceIndex += 1) {
+    const source = sources[sourceIndex];
+    await forEachJsonlRecord(source.path, source.label, async (record, lineNo) => {
       totalSeen += 1;
-      const key = recordKey(record, `${source.label}|${idx}`);
-      dedup.set(key, record);
-    }
+      const key = recordKey(record, `${source.label}|${lineNo}`);
+      winningSourceIndexByKey.set(key, sourceIndex);
+    });
   }
-
-  const mergedRecords = Array.from(dedup.values());
+  const mergedRecordCount = winningSourceIndexByKey.size;
 
   const mergedRunId = `${baseRunName}_merged_${nowIso().replace(/[:.]/g, '-')}`;
   const mergedCreatedAtIso = nowIso();
@@ -173,27 +188,51 @@ async function main() {
       sourceRunId: String(runConfig.runId ?? sourceSummary.runId ?? baseRunName),
       replayDirs,
       totalInputRecords: totalSeen,
-      uniqueOutputRecords: mergedRecords.length,
+      uniqueOutputRecords: mergedRecordCount,
     },
   };
 
   await writeFile(join(mergedOutDir, 'run-config.json'), JSON.stringify(mergedRunConfig, null, 2));
   await writeFile(join(mergedOutDir, 'questions.json'), JSON.stringify(questionsJson, null, 2));
-  await writeFile(
-    join(mergedOutDir, 'raw.jsonl'),
-    mergedRecords.map((record) => JSON.stringify(record)).join('\n') + (mergedRecords.length ? '\n' : '')
-  );
 
   const aggregator = new SummaryAggregator();
-  for (const record of mergedRecords) {
-    aggregator.add(record);
+  const mergedRecordsForAnalysis: RunRecord[] = [];
+  const writtenKeys = new Set<string>();
+  const rawLines: string[] = [];
+
+  for (let sourceIndex = 0; sourceIndex < sources.length; sourceIndex += 1) {
+    const source = sources[sourceIndex];
+    await forEachJsonlRecord(source.path, source.label, async (record, lineNo) => {
+      const key = recordKey(record, `${source.label}|${lineNo}`);
+      if (winningSourceIndexByKey.get(key) !== sourceIndex || writtenKeys.has(key)) {
+        return;
+      }
+
+      writtenKeys.add(key);
+      aggregator.add(record);
+
+      if (mergedRecordCount <= MAX_RECORDS_FOR_ANALYSIS) {
+        mergedRecordsForAnalysis.push(record);
+      }
+
+      rawLines.push(JSON.stringify(record));
+      if (rawLines.length >= 100) {
+        const prefix = rawLines.join('\n') + '\n';
+        rawLines.length = 0;
+        await writeFile(join(mergedOutDir, 'raw.jsonl'), prefix, { flag: 'a' });
+      }
+    });
+  }
+
+  if (rawLines.length > 0) {
+    await writeFile(join(mergedOutDir, 'raw.jsonl'), rawLines.join('\n') + '\n', { flag: 'a' });
   }
 
   const plannedRuns =
     typeof sourceSummary?.totals?.plannedRuns === 'number'
       ? sourceSummary.totals.plannedRuns
-      : mergedRecords.length;
-  const completedRuns = mergedRecords.length;
+      : mergedRecordCount;
+  const completedRuns = mergedRecordCount;
   const args = mergedRunConfig.args;
   const questions = Array.isArray(questionsJson?.questions) ? questionsJson.questions : [];
 
@@ -209,42 +248,50 @@ async function main() {
     ...aggregator.toSummaryObject(),
   };
 
-  const analysis = buildAnalysis({
-    runId: mergedRunId,
-    createdAtIso: mergedCreatedAtIso,
-    records: mergedRecords,
-  });
-
   await writeFile(join(mergedOutDir, 'summary.json'), JSON.stringify(summary, null, 2));
-  await writeFile(join(mergedOutDir, 'analysis.json'), JSON.stringify(analysis, null, 2));
-  await ensureDir(join(mergedOutDir, 'analysis'));
+  if (mergedRecordCount <= MAX_RECORDS_FOR_ANALYSIS) {
+    const analysis = buildAnalysis({
+      runId: mergedRunId,
+      createdAtIso: mergedCreatedAtIso,
+      records: mergedRecordsForAnalysis,
+    });
 
-  const html = renderReportHtml({
-    runId: mergedRunId,
-    createdAtIso: mergedCreatedAtIso,
-    args,
-    questions,
-    summary,
-    analysis,
-    records: mergedRecords,
-    status: {
-      state: completedRuns >= plannedRuns ? 'complete' : 'running',
-      plannedRuns,
-      completedRuns,
-      lastUpdatedAtIso: asIsoOrNow(mergedCreatedAtIso),
-      current: null,
-      error: null,
-    },
-  });
+    await writeFile(join(mergedOutDir, 'analysis.json'), JSON.stringify(analysis, null, 2));
+    await ensureDir(join(mergedOutDir, 'analysis'));
 
-  await writeFile(join(mergedOutDir, 'report.html'), html);
+    const html = renderReportHtml({
+      runId: mergedRunId,
+      createdAtIso: mergedCreatedAtIso,
+      args,
+      questions,
+      summary,
+      analysis,
+      records: mergedRecordsForAnalysis,
+      status: {
+        state: completedRuns >= plannedRuns ? 'complete' : 'running',
+        plannedRuns,
+        completedRuns,
+        lastUpdatedAtIso: asIsoOrNow(mergedCreatedAtIso),
+        current: null,
+        error: null,
+      },
+    });
+
+    await writeFile(join(mergedOutDir, 'report.html'), html);
+  }
 
   // eslint-disable-next-line no-console
   console.log(`Merged run: ${mergedOutDir}`);
   // eslint-disable-next-line no-console
   console.log(`Sources: base + ${replayDirs.length} replay dir(s)`);
   // eslint-disable-next-line no-console
-  console.log(`Records: input=${totalSeen} unique=${mergedRecords.length}`);
+  console.log(`Records: input=${totalSeen} unique=${mergedRecordCount}`);
+  if (mergedRecordCount > MAX_RECORDS_FOR_ANALYSIS) {
+    // eslint-disable-next-line no-console
+    console.log(
+      `Skipped analysis/report generation for ${mergedRecordCount} merged records (limit ${MAX_RECORDS_FOR_ANALYSIS})`
+    );
+  }
 }
 
 main().catch((err) => {
