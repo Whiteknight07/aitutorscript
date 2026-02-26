@@ -22,6 +22,22 @@ It generates a **fixed question set**, simulates an escalating **student attacke
 - Smoke test (fast sanity check):
   - `pnpm smoke`
 
+## Replay and Merge
+
+- Replay only failed/missing runs from a prior run folder:
+  - `pnpm replay-failures results/run_YYYY-MM-DDTHH-mm-ss-sssZ`
+- Do not add an extra `--` before the run directory for `replay-failures`.
+- Replay writes a new sibling folder:
+  - `results/<sourceRunId>_replay_<timestamp>/`
+  - `raw.jsonl` (successful replays), `failed.jsonl` (still failed), and refreshed `summary.json`.
+
+- Merge base run + all sibling replay `raw.jsonl` files (deduped by `question.id|pairingId|condition`):
+  - `pnpm merge-replays results/run_YYYY-MM-DDTHH-mm-ss-sssZ`
+- Optional custom output directory:
+  - `pnpm merge-replays results/run_YYYY-MM-DDTHH-mm-ss-sssZ --outDir results/run_custom_merged`
+- Merge writes a new merged run folder with:
+  - `raw.jsonl`, `summary.json`, `analysis.json`, and `report.html`.
+
 ## Risk Gate Pipeline
 
 Risk-gate training assets live in `scripts/risk_gate/` and consume `results/*/raw.jsonl`.
