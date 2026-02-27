@@ -4,8 +4,10 @@
  */
 import 'dotenv/config';
 
+import { createReadStream } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { basename, dirname, join, resolve } from 'node:path';
+import { createInterface } from 'node:readline';
 
 import pLimit from 'p-limit';
 
@@ -522,6 +524,58 @@ function formatDuration(ms: number): string {
   return `${mins}m ${secs}s`;
 }
 
+async function collectDoneKeysFromRawJsonl({
+  sourceRunDir,
+  plannedKeySet,
+}: {
+  sourceRunDir: string;
+  plannedKeySet: Set<string>;
+}): Promise<Set<string>> {
+  const doneKeys = new Set<string>();
+  const rawPath = join(sourceRunDir, 'raw.jsonl');
+
+  const rl = createInterface({
+    input: createReadStream(rawPath, { encoding: 'utf8' }),
+    crlfDelay: Infinity,
+  });
+
+  let lineNo = 0;
+  for await (const rawLine of rl) {
+    lineNo += 1;
+    const line = String(rawLine ?? '').trim();
+    if (!line) continue;
+
+    let parsed: any;
+    try {
+      parsed = JSON.parse(line);
+    } catch {
+      // Ignore incomplete trailing lines from in-progress runs.
+      // eslint-disable-next-line no-console
+      console.warn(`Skipping invalid JSON at raw.jsonl line ${lineNo}`);
+      continue;
+    }
+
+    const condition = deriveCondition(parsed);
+    if (!condition) continue;
+    const ids = deriveTutorAndSupervisor(parsed, condition);
+    if (!ids) continue;
+    const questionId = typeof parsed?.question?.id === 'string' ? parsed.question.id : null;
+    if (!questionId) continue;
+
+    const key = toReplayKey({
+      questionId,
+      tutorId: ids.tutorId,
+      supervisorId: ids.supervisorId,
+      condition,
+    });
+    if (plannedKeySet.has(key)) {
+      doneKeys.add(key);
+    }
+  }
+
+  return doneKeys;
+}
+
 async function main() {
   const runDirArg = process.argv[2];
   if (!runDirArg) usage();
@@ -556,42 +610,10 @@ async function main() {
     )
   );
 
-  const doneKeys = new Set<string>();
-  const rawText = await readFile(join(sourceRunDir, 'raw.jsonl'), 'utf8');
-  const lines = rawText.split('\n');
-  for (let idx = 0; idx < lines.length; idx++) {
-    const line = lines[idx]?.trim();
-    if (!line) continue;
-
-    let parsed: any;
-    try {
-      parsed = JSON.parse(line);
-    } catch {
-      // Ignore incomplete trailing lines from in-progress runs.
-      if (idx !== lines.length - 1) {
-        // eslint-disable-next-line no-console
-        console.warn(`Skipping invalid JSON at raw.jsonl line ${idx + 1}`);
-      }
-      continue;
-    }
-
-    const condition = deriveCondition(parsed);
-    if (!condition) continue;
-    const ids = deriveTutorAndSupervisor(parsed, condition);
-    if (!ids) continue;
-    const questionId = typeof parsed?.question?.id === 'string' ? parsed.question.id : null;
-    if (!questionId) continue;
-
-    const key = toReplayKey({
-      questionId,
-      tutorId: ids.tutorId,
-      supervisorId: ids.supervisorId,
-      condition,
-    });
-    if (plannedKeySet.has(key)) {
-      doneKeys.add(key);
-    }
-  }
+  const doneKeys = await collectDoneKeysFromRawJsonl({
+    sourceRunDir,
+    plannedKeySet,
+  });
 
   const missingPlans = plannedRuns.filter(
     (plan) =>

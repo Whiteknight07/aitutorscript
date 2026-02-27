@@ -9,6 +9,7 @@
     "smoke": "node --import tsx src/cli.ts --smoke",
     "generate-questions": "node --import tsx src/scripts/generate-questions.ts",
     "replay-failures": "node --import tsx src/scripts/replay-failures.ts",
+    "auto-replay-next": "node --import tsx src/scripts/auto-replay-next.ts",
     "build:overlap-dataset": "node --import tsx src/scripts/build-overlap-dataset.ts --outDir overlap-csbench-pairwise --outFile questions.json",
     "validate:pairwise": "node --import tsx src/scripts/validate-pairwise-loader.ts",
     "analyze:topic-overlap": "node --import tsx src/scripts/analyze-topic-overlap.ts",
