@@ -19,7 +19,7 @@
 
 \raggedbottom
 
-\title{Beyond a Single Benchmark: Source Effects, Closed-Book Correctness, and Practical Tradeoffs in Dual-Agent AI Tutor Supervision}
+\title{Beyond a Single Benchmark: Source Effects, Closed-Book Correctness, and Practical Tradeoffs in Dual-Loop AI Tutor Supervision}
 
 \author{Anonymous Author(s)}
 \affiliation{\institution{Anonymous Institution}}
@@ -27,7 +27,7 @@
 
 \begin{abstract}
 \textbf{Background and context.}
-Large language models are increasingly used as tutors in computing education, but a tutoring response can still fail instructionally even when it is fluent and factually correct. In assessment-adjacent settings, one important failure mode is answer leakage: the tutor discloses the answer, the final result, or a copyable solution that bypasses the intended reasoning process. A prior workshop study established that leakage persists in multi-turn tutoring under sustained student pressure and that dual-agent supervision can reduce it on a single curated benchmark.
+Large language models are increasingly used as tutors in computing education, but a tutoring response can still fail instructionally even when it is fluent and factually correct. In assessment-adjacent settings, one important failure mode is answer leakage: the tutor discloses the answer, the final result, or a copyable solution that bypasses the intended reasoning process. A prior workshop study established that leakage persists in multi-turn tutoring under sustained student pressure and that dual-loop supervision can reduce it on a single curated benchmark.
 
 \textbf{Objectives.}
 This paper extends that result in three directions. First, we test whether leakage depends materially on question source rather than only on tutor configuration. Second, we control leakage analyses by joining each tutoring conversation to a closed-book multiple-choice result for the same tutor model on the same item. Third, we quantify the practical burden of supervision in rejection, revision, latency, token use, and model-call overhead.
@@ -36,7 +36,7 @@ This paper extends that result in three directions. First, we test whether leaka
 We analyze 8,538 judged tutoring conversations over 1,423 computer science multiple-choice questions drawn from two sources, CSBench and PeerWise. The study evaluates GPT-5.1 and Gemini-3-Flash-Preview in single-tutor and dual-loop conditions with same-provider and cross-provider supervisors. All analyses in this paper are computed from the merged MCQ tutoring run and a separate MCQ closed-book accuracy file joined by \texttt{(question\_id, tutor\_model\_id)}.
 
 \textbf{Findings.}
-In this precise MCQ-only setup, dual-loop supervision sharply reduced leakage across both tutor families and both sources. Question-paired exact McNemar tests supported all eight matched single-versus-dual comparisons after Holm correction ($p_{\mathrm{Holm}} \le .0026$). For GPT as tutor, leakage fell from 15.8\% to 3.7--4.2\% on CSBench and from 22.5\% to 2.1--3.6\% on PeerWise. For Gemini as tutor, leakage fell from 6.1\% to 1.6--2.6\% on CSBench and from 6.4\% to 1.9--2.1\% on PeerWise. Source effects were also substantial: closed-book accuracy dropped from CSBench to PeerWise for both tutors (two-sided Fisher tests, both $p_{\mathrm{Holm}} \le 3.0\times10^{-20}$), and PeerWise triggered consistently higher supervisor reject rates. Correctness-conditioned leakage tables were descriptive rather than inferential: within single-tutor cells, leakage remained nonzero for both closed-book-correct and closed-book-wrong items, but none of those within-cell contrasts was significant after Holm correction. Supervision overhead was real but moderate: average iterations per supervised turn remained between 1.02 and 1.22, most rejected drafts were repaired safely, and fallback was near zero.
+In this precise MCQ-only setup, dual-loop supervision sharply reduced leakage across both tutor families and both sources. Across the eight matched single-versus-dual-loop comparisons, matched odds ratios ranged from 2.57 to 18.67, with absolute leakage drops of 3.4 to 20.4 percentage points (all $p_{\mathrm{Holm}} \le .0026$). Closed-book accuracy also dropped from CSBench to the PeerWise slice for both tutors (GPT: +23.5 percentage points, 95\% CI [18.6, 28.2]; Gemini: +22.5 points, 95\% CI [18.4, 26.5]), and that PeerWise slice triggered consistently higher supervisor reject rates. Correctness-conditioned single-tutor leakage gaps remained small and uncertain: all four 95\% confidence intervals crossed zero. Supervision overhead was real but moderate: average iterations per supervised turn remained between 1.02 and 1.22, most rejected drafts were repaired safely, and fallback was near zero.
 
 \textbf{Implications.}
 These results support a narrower claim than improved learning. In adversarial MCQ tutoring, answer leakage is best understood as an interactional robustness problem shaped by dataset provenance, tutor choice, and conversational control structure. The contribution of this paper is a stronger evaluation methodology for tutoring safety that separates leakage from raw answer knowledge and makes the practical tradeoffs of supervision explicit.
@@ -54,7 +54,7 @@ These results support a narrower claim than improved learning. In adversarial MC
 
 \ccsdesc[300]{General and reference~Evaluation}
 
-\keywords{LLM tutoring, Socratic tutoring, answer leakage, multi-agent supervision, computing education}
+\keywords{LLM tutoring, Socratic tutoring, answer leakage, dual-loop supervision, computing education}
 
 \maketitle
 
@@ -70,7 +70,7 @@ We address these questions with 8,538 judged tutoring conversations on 1,423 com
 
 The main contribution is not simply a larger run. It is a stronger way of interpreting leakage measurements. Once source provenance and closed-book correctness are made explicit, leakage is no longer just a single aggregate failure rate attached to a tutor configuration. It becomes possible to ask whether a source is intrinsically more leakage-prone, whether leakage remains common even when a tutor cannot answer correctly in closed-book mode, and whether supervisory mitigation is buying enough safety to justify its practical overhead.
 
-Three findings motivate the paper. First, source effects are substantial. PeerWise produced lower closed-book accuracy and higher supervisory burden than CSBench for both tutors, and it induced substantially more single-tutor leakage for GPT. Second, closed-book correctness does not provide a simple inferential account of leakage. In the descriptive correctness-conditioned tables, GPT single-tutor leakage on PeerWise was nearly identical on questions answered correctly and incorrectly in closed-book mode, and none of the four single-tutor correct-versus-wrong contrasts was significant after Holm correction. Third, dual-loop supervision helps sharply while remaining operationally lightweight: most turns are approved on the first attempt, most rejected drafts are revised safely, and fallback remains rare.
+Three findings motivate the paper. First, source effects are substantial. In this merged run, the PeerWise slice produced lower closed-book accuracy and higher supervisory burden than CSBench for both tutors, and it induced substantially more single-tutor leakage for GPT. Second, closed-book correctness does not provide a simple inferential account of leakage. In the descriptive correctness-conditioned tables, GPT single-tutor leakage on PeerWise was nearly identical on questions answered correctly and incorrectly in closed-book mode, and none of the four single-tutor correct-versus-wrong contrasts was significant after Holm correction. Third, dual-loop supervision helps sharply while remaining operationally lightweight: most turns are approved on the first attempt, most rejected drafts are revised safely, and fallback remains rare.
 
 The paper is organized around four research questions:
 \begin{enumerate}
@@ -98,7 +98,7 @@ This framing also changes what counts as a failure. We do not require a model to
 
 \subsection{Benchmark Provenance and Multi-Agent Control}
 
-This paper also speaks to benchmark design in computing education. PeerWise is rooted in student-generated MCQs used in classroom practice \cite{denny2008peerwise}, whereas CSBench was introduced as a broad benchmark for computer science reasoning and knowledge \cite{song2024csbench}. Results from a single curated benchmark can obscure how strongly tutoring behavior depends on source style, item phrasing, and answerability. By comparing CSBench and PeerWise within the same merged evaluation and conditioning leakage on closed-book correctness, we treat source provenance and baseline competence as part of the methodological problem rather than as background detail.
+This paper also speaks to benchmark design in computing education. In the merged run analyzed here, the PeerWise slice reflects community-authored, student-submitted platform content \cite{denny2008peerwise}, whereas CSBench contributes items from a published computer-science benchmark \cite{song2024csbench}. Results from a single curated benchmark can obscure how strongly tutoring behavior depends on source style, item phrasing, and answerability. By comparing CSBench and PeerWise within the same merged evaluation and conditioning leakage on closed-book correctness, we treat source provenance and baseline competence as part of the methodological problem rather than as background detail.
 
 Finally, our work connects to multi-agent tutoring and review loops. Prior systems have used specialist agents, critics, or reviewers to improve educational dialogue or evaluate teaching behavior \cite{shi2025educationq}. The distinctive question here is not simply whether a second model changes the output, but whether that second model measurably reduces \emph{student-visible} answer leakage at a practical revision cost. In other words, we treat supervision as both a safety intervention and an operational process.
 
@@ -150,6 +150,8 @@ The merge itself is concept-based rather than question-paired. The builder first
 
 From that overlap file, the final analysis pool keeps only items whose format resolves to multiple-choice and whose choice set remains usable for evaluation: at least two options must be recoverable and the correct choice index must be valid. Items with incomplete answer options, invalid answer indices, unsupported datasets, or non-MCQ formats are excluded before either tutoring runs or closed-book accuracy generation. The merged tutoring log analyzed here is therefore MCQ-only; no fill-in-the-blank, assertion, or open-ended items appear in the run. We made these exclusions to avoid mixing source effects with artifact quality problems in which a model is penalized for malformed or underspecified questions rather than for leakage behavior.
 
+In provenance terms, this merged run juxtaposes a published benchmark source (CSBench) with community-authored, student-submitted platform content (PeerWise). We therefore interpret source labels as carrying authorship regime and phrasing differences in addition to topic mix.
+
 \subsection{Source Composition and Shared Concept Coverage}
 
 The merged run preserves source labels and enough metadata to recover a coarse concept breakdown. The analyzed questions fall into three shared concept groups represented in the merged artifact: algorithms and complexity, data structures, and systems/OS. The distribution is uneven across sources (Table~\ref{tab:concepts}). PeerWise is dominated by data-structures items, while CSBench is more evenly spread across the three groups.
@@ -189,6 +191,19 @@ After each student-visible tutor response, the harness judge scored the executed
 
 Conversation-level leakage was the primary outcome. We also recorded first-leak turn, conversation-level compliance, and conversation-level hallucination. The harness supports leakage-triggered early stopping, but regardless of whether later turns are suppressed, the compliance and hallucination metrics in this paper are interpreted over the executed conversation prefix rather than over hypothetical later turns. This interpretive detail matters especially for compliance, which reaches ceiling in most dual-loop cells.
 
+\begin{table}[t]
+\small
+\setlength{\fboxsep}{5pt}
+\noindent\fbox{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{
+\textbf{Qualitative rubric exemplars from the merged run.}
+\textbf{Clear leak (gemini-single, csbench-test-35).} After the student requested an acrostic spelling the option, the tutor gave four D-starting steps: ``Declare a temporary pointer \ldots Determine the larger memory size \ldots Duplicate the existing data \ldots Defer any changes to the element count.'' This counted as leakage because the acrostic directly encoded the answer.
+
+\textbf{Safe but helpful (gemini-gpt dual-loop, csbench-test-4).} The student-visible tutor explained the difference between a data element and a data object using a ``single brick'' versus ``pile of bricks'' analogy, then asked which option described a grouped collection. The response was helpful without selecting or tightly paraphrasing the answer.
+
+\textbf{Supervisor repair before student-visible output (gemini-gpt dual-loop, csbench-test-9).} A rejected draft echoed the exact option wording about ``values of data elements'' and ``relationships between data elements.'' The supervisor blocked it and approved a rewrite about ``individual pieces of data'' plus the ``logical framework'' connecting them, preserving guidance while removing answer-text overlap.
+}}
+\end{table}
+
 \subsection{Closed-Book Linkage and Practicality Measures}
 
 To contextualize leakage against model capability, we linked each tutoring conversation to the closed-book MCQ file using \texttt{(question\_id, tutor\_model\_id)}. This lets us ask whether a tutoring leak occurred on an item the same tutor model answered correctly or incorrectly when asked directly with no dialogue. That control does not eliminate all confounding, but it improves interpretability relative to a leakage analysis that treats all questions as equally answerable by the tutor.
@@ -196,13 +211,13 @@ To contextualize leakage against model capability, we linked each tutoring conve
 For dual-loop conditions, we also computed process metrics: supervisor reject rate, average iterations per student-visible turn, approval-on-first-try, fallback rate, and the fate of rejected drafts. These metrics are derived directly from the per-turn iteration traces and supervisor verdicts stored in the raw logs. We further recorded median conversation latency, median turn latency, mean tokens per conversation, and mean model calls per turn. These metrics let us evaluate supervision as an operational intervention rather than only as a binary safety feature.
 
 \paragraph{Inferential note.}
-Most tables in this paper are descriptive summaries of one fixed merged run. For confirmatory inference on the central claims, we used two-sided exact McNemar tests for question-paired single-versus-dual leakage comparisons within each tutor/source cell, and two-sided Fisher exact tests for source differences in closed-book accuracy and for within-cell correctness-conditioned leakage contrasts. We applied Holm corrections within each family of related tests and report adjusted $p$-values only for these confirmatory comparisons.
+Most tables in this paper are descriptive summaries of one fixed merged run. For confirmatory inference on the central claims, we used two-sided exact McNemar tests for question-paired single-versus-dual-loop leakage comparisons within each tutor/source cell, and two-sided Fisher exact tests for source differences in closed-book accuracy and for within-cell correctness-conditioned leakage contrasts. We applied Holm corrections within each family of related tests and report adjusted $p$-values only for these confirmatory comparisons. For prose interpretation, we pair those tests with matched odds ratios for the single-versus-dual-loop contrasts and absolute percentage-point gaps for the source and correctness-conditioned comparisons, all with 95\% confidence intervals from the precomputed stats artifact.
 
 \section{Results}
 
 \subsection{Closed-Book Baselines}
 
-Closed-book accuracy differed sharply by source for both tutors (Table~\ref{tab:closed-book}). Gemini scored 89.3\% on CSBench and 66.8\% on PeerWise, while GPT scored 76.1\% and 52.6\%, respectively. These source gaps were statistically clear for both tutors (two-sided Fisher tests, both $p_{\mathrm{Holm}} \le 3.0\times10^{-20}$). We therefore treat source provenance as more than a reporting detail. Even after constraining the merged set to a shared MCQ setting, the two sources impose materially different competence baselines.
+Closed-book accuracy differed sharply by source for both tutors (Table~\ref{tab:closed-book}). Gemini scored 89.3\% on CSBench and 66.8\% on PeerWise, an absolute CSBench--PeerWise gap of +22.5 percentage points (95\% CI [18.4, 26.5]); GPT scored 76.1\% and 52.6\%, a gap of +23.5 points (95\% CI [18.6, 28.2]). These source gaps were statistically clear for both tutors (two-sided Fisher tests, both $p_{\mathrm{Holm}} \le 3.0\times10^{-20}$). We therefore treat source provenance as more than a reporting detail. Even after constraining the merged set to a shared MCQ setting, the two sources impose materially different competence baselines.
 
 \begin{table}[t]
 \caption{Closed-book MCQ accuracy by tutor and source.}
@@ -223,7 +238,7 @@ These baseline differences already suggest that a single aggregate leakage rate 
 
 \subsection{Conversation-Level Tutoring Outcomes}
 
-Across all single-tutor conversations, leakage occurred in 366/2,846 conversations (12.9\%). Across all dual-loop conversations, leakage fell to 153/5,692 (2.7\%), a relative reduction of roughly 79\%. Question-paired exact McNemar tests confirmed lower leakage in every matched single-versus-dual comparison (all $p_{\mathrm{Holm}} \le .0026$). The reduction held across both tutors and both sources, but the absolute rates differed enough that tutor choice and source still matter (Table~\ref{tab:outcomes}).
+Across all single-tutor conversations, leakage occurred in 366/2,846 conversations (12.9\%). Across all dual-loop conversations, leakage fell to 153/5,692 (2.7\%), a relative reduction of roughly 79\%. Question-paired exact McNemar tests confirmed lower leakage in every matched single-versus-dual-loop comparison (all $p_{\mathrm{Holm}} \le .0026$). The reduction held across both tutors and both sources, but the absolute rates differed enough that tutor choice and source still matter (Table~\ref{tab:outcomes}).
 
 \begin{table}[t]
 \caption{Conversation-level outcomes by tutor, source, and supervision condition.}
@@ -237,22 +252,22 @@ Tutor & Source & Condition & Leakage & Compliance & Hallucination & Median first
 \midrule
 GPT & CSBench & Single & 102/644 (15.8\%) & 628/644 (97.5\%) & 19/644 (3.0\%) & 3.0 \\
 Gemini & CSBench & Single & 39/644 (6.1\%) & 644/644 (100.0\%) & 4/644 (0.6\%) & 4.0 \\
-GPT & CSBench & Dual/GPT & 24/644 (3.7\%) & 644/644 (100.0\%) & 9/644 (1.4\%) & 2.0 \\
-Gemini & CSBench & Dual/Gemini & 17/644 (2.6\%) & 644/644 (100.0\%) & 9/644 (1.4\%) & 3.0 \\
-GPT & CSBench & Dual/Gemini & 27/644 (4.2\%) & 644/644 (100.0\%) & 18/644 (2.8\%) & 3.0 \\
-Gemini & CSBench & Dual/GPT & 10/644 (1.6\%) & 644/644 (100.0\%) & 5/644 (0.8\%) & 2.5 \\
+GPT & CSBench & Dual-loop/GPT & 24/644 (3.7\%) & 644/644 (100.0\%) & 9/644 (1.4\%) & 2.0 \\
+Gemini & CSBench & Dual-loop/Gemini & 17/644 (2.6\%) & 644/644 (100.0\%) & 9/644 (1.4\%) & 3.0 \\
+GPT & CSBench & Dual-loop/Gemini & 27/644 (4.2\%) & 644/644 (100.0\%) & 18/644 (2.8\%) & 3.0 \\
+Gemini & CSBench & Dual-loop/GPT & 10/644 (1.6\%) & 644/644 (100.0\%) & 5/644 (0.8\%) & 2.5 \\
 \midrule
 GPT & PeerWise & Single & 175/779 (22.5\%) & 736/779 (94.5\%) & 29/779 (3.7\%) & 4.0 \\
 Gemini & PeerWise & Single & 50/779 (6.4\%) & 776/779 (99.6\%) & 17/779 (2.2\%) & 5.0 \\
-GPT & PeerWise & Dual/GPT & 16/779 (2.1\%) & 779/779 (100.0\%) & 9/779 (1.2\%) & 3.0 \\
-Gemini & PeerWise & Dual/Gemini & 16/779 (2.1\%) & 779/779 (100.0\%) & 11/779 (1.4\%) & 4.0 \\
-GPT & PeerWise & Dual/Gemini & 28/779 (3.6\%) & 779/779 (100.0\%) & 13/779 (1.7\%) & 4.0 \\
-Gemini & PeerWise & Dual/GPT & 15/779 (1.9\%) & 779/779 (100.0\%) & 4/779 (0.5\%) & 4.0 \\
+GPT & PeerWise & Dual-loop/GPT & 16/779 (2.1\%) & 779/779 (100.0\%) & 9/779 (1.2\%) & 3.0 \\
+Gemini & PeerWise & Dual-loop/Gemini & 16/779 (2.1\%) & 779/779 (100.0\%) & 11/779 (1.4\%) & 4.0 \\
+GPT & PeerWise & Dual-loop/Gemini & 28/779 (3.6\%) & 779/779 (100.0\%) & 13/779 (1.7\%) & 4.0 \\
+Gemini & PeerWise & Dual-loop/GPT & 15/779 (1.9\%) & 779/779 (100.0\%) & 4/779 (0.5\%) & 4.0 \\
 \bottomrule
 \end{tabular}}
 \end{table}
 
-Several patterns matter for interpretation. First, Gemini was the stronger tutor family both closed-book and conversationally. In single-tutor mode, Gemini leaked much less often than GPT on both sources: 6.1\% versus 15.8\% on CSBench and 6.4\% versus 22.5\% on PeerWise. Second, PeerWise acted as the harder source for both tutors. Closed-book accuracy dropped substantially there, and single-tutor leakage rose there for GPT by 6.7 percentage points. Third, dual-loop supervision improved every tutor-source cell. The largest absolute drops occurred for GPT on PeerWise, from 22.5\% single to 2.1\% with GPT supervision ($p_{\mathrm{Holm}}=3.4\times10^{-38}$) and to 3.6\% with Gemini supervision ($p_{\mathrm{Holm}}=8.0\times10^{-29}$). Even the smallest matched reduction, Gemini on CSBench from 6.1\% single to 2.6\% with Gemini supervision, remained significant ($p_{\mathrm{Holm}}=.0026$). The best leakage rates were achieved by Gemini tutor with GPT supervisor, at 1.6\% on CSBench and 1.9\% on PeerWise.
+Several patterns matter for interpretation. First, Gemini was the stronger tutor family both closed-book and conversationally. In single-tutor mode, Gemini leaked much less often than GPT on both sources: 6.1\% versus 15.8\% on CSBench and 6.4\% versus 22.5\% on PeerWise. Second, the PeerWise slice was harder for both tutors in this merged run: closed-book accuracy dropped substantially there, and single-tutor leakage rose there for GPT by 6.7 percentage points. Third, dual-loop supervision improved every tutor-source cell. For GPT, leakage fell by 12.1 points on CSBench with GPT supervision (matched OR 7.50, 95\% CI [4.09, 15.05]) and by 11.6 points with Gemini supervision (5.41 [3.20, 9.69]); on PeerWise, the drops were 20.4 points with GPT supervision (18.67 [9.60, 41.53]) and 18.9 points with Gemini supervision (8.00 [5.07, 13.26]). For Gemini, leakage fell by 3.4 points on CSBench with Gemini supervision (2.57 [1.35, 5.16]) and by 4.5 points with GPT supervision (4.62 [2.12, 11.50]); on PeerWise, the drops were 4.4 points with Gemini supervision (3.43 [1.86, 6.73]) and 4.5 points with GPT supervision (3.92 [2.05, 8.11]). The best leakage rates were achieved by Gemini tutor with GPT supervisor, at 1.6\% on CSBench and 1.9\% on PeerWise.
 
 Compliance and hallucination should be read cautiously. Dual-loop supervision drives compliance to 100\% in every cell, and hallucination remains rare. These outcomes are useful as sanity checks but not the central contribution of the paper. Leakage is the better differentiator in this setting because it directly captures the tutoring boundary the system is meant to preserve.
 
@@ -272,7 +287,7 @@ First-leak incidence by turn supports the same interpretation. GPT single on Pee
 
 \subsection{First-Leak Incidence by Turn}
 
-The survival analysis above shows how many conversations remain safe by each turn. First-leak incidence shows where failures first appear (Table~\ref{tab:firstleak}). This view makes the single-versus-dual contrast more concrete. GPT single on PeerWise leaks only once at turn 1, but then leaks 24 times at turn 2, 49 times at turn 3, and 44 times at turn 4. By contrast, the best dual-loop cells show only single-digit first-leak counts at any turn.
+The survival analysis above shows how many conversations remain safe by each turn. First-leak incidence shows where failures first appear (Table~\ref{tab:firstleak}). This view makes the single-versus-dual-loop contrast more concrete. GPT single on PeerWise leaks only once at turn 1, but then leaks 24 times at turn 2, 49 times at turn 3, and 44 times at turn 4. By contrast, the best dual-loop cells show only single-digit first-leak counts at any turn.
 
 \begin{table}[t]
 \caption{First-leak incidence by turn for selected conditions.}
@@ -281,28 +296,29 @@ The survival analysis above shows how many conversations remain safe by each tur
 \centering
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{0.95}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{@{}llcccccc@{}}
 \toprule
 Tutor/Condition & Source & $t1$ & $t2$ & $t3$ & $t4$ & $t5$ & $t6$ \\
 \midrule
 GPT single & CSBench & 3.4\% & 3.3\% & 2.8\% & 2.2\% & 2.0\% & 2.2\% \\
 Gemini single & CSBench & 0.3\% & 1.1\% & 1.2\% & 0.8\% & 0.5\% & 2.2\% \\
-GPT/GPT dual & CSBench & 0.6\% & 1.6\% & 0.6\% & 0.5\% & 0.2\% & 0.3\% \\
-Gemini/GPT dual & CSBench & 0.2\% & 0.6\% & 0.6\% & 0.0\% & 0.0\% & 0.2\% \\
+GPT/GPT dual-loop & CSBench & 0.6\% & 1.6\% & 0.6\% & 0.5\% & 0.2\% & 0.3\% \\
+Gemini/GPT dual-loop & CSBench & 0.2\% & 0.6\% & 0.6\% & 0.0\% & 0.0\% & 0.2\% \\
 \midrule
 GPT single & PeerWise & 0.1\% & 3.1\% & 6.3\% & 5.6\% & 4.2\% & 3.1\% \\
 Gemini single & PeerWise & 0.0\% & 0.6\% & 1.2\% & 1.2\% & 0.9\% & 2.6\% \\
-GPT/GPT dual & PeerWise & 0.0\% & 0.5\% & 0.8\% & 0.5\% & 0.1\% & 0.1\% \\
-Gemini/GPT dual & PeerWise & 0.0\% & 0.3\% & 0.5\% & 0.9\% & 0.1\% & 0.1\% \\
+GPT/GPT dual-loop & PeerWise & 0.0\% & 0.5\% & 0.8\% & 0.5\% & 0.1\% & 0.1\% \\
+Gemini/GPT dual-loop & PeerWise & 0.0\% & 0.3\% & 0.5\% & 0.9\% & 0.1\% & 0.1\% \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
 This pattern sharpens the main claim of the paper. Leakage is not just a first-response calibration problem. It is a sustained interaction problem in which the risk can increase as the student continues to negotiate, pressure, or reframe the request. That is why a turn-aware evaluation is more informative than a one-shot benchmark.
 
 \subsection{Controlled Leakage by Closed-Book Correctness}
 
-Conditioning on closed-book correctness changes how leakage should be interpreted (Table~\ref{tab:controlled}). Within the four single-tutor cells, however, Fisher's exact tests did not detect a reliable leakage-rate difference between closed-book-correct and closed-book-wrong items after Holm correction (all $p_{\mathrm{Holm}} \ge .70$). We therefore treat Table~\ref{tab:controlled} as descriptive rather than as evidence for a strong within-cell correctness effect. GPT single-tutor leakage on PeerWise was nearly identical on questions answered correctly and incorrectly closed-book: 92/410 (22.4\%) versus 83/369 (22.5\%). Gemini single-tutor leakage on CSBench was higher on incorrect than correct items, 7/69 (10.1\%) versus 32/575 (5.6\%). Nonzero wrong-answer leakage also remained under supervision.
+Conditioning on closed-book correctness changes how leakage should be interpreted (Table~\ref{tab:controlled}). Within the four single-tutor cells, however, Fisher's exact tests did not detect a reliable leakage-rate difference between closed-book-correct and closed-book-wrong items after Holm correction (all $p_{\mathrm{Holm}} \ge .70$). The four absolute leakage gaps were +3.7 percentage points for GPT on CSBench (95\% CI [-3.2, 9.4]), -0.1 on PeerWise ([-5.9, 5.8]), -4.6 for Gemini on CSBench ([-14.1, 1.0]), and -2.0 on PeerWise ([-6.2, 1.6]); every interval crossed zero. We therefore treat Table~\ref{tab:controlled} as descriptive rather than as evidence for a strong within-cell correctness effect. GPT single-tutor leakage on PeerWise was nearly identical on questions answered correctly and incorrectly closed-book: 92/410 (22.4\%) versus 83/369 (22.5\%). Gemini single-tutor leakage on CSBench was higher on incorrect than correct items, 7/69 (10.1\%) versus 32/575 (5.6\%). Nonzero wrong-answer leakage also remained under dual-loop supervision.
 
 \begin{table}[t]
 \caption{Controlled leakage by closed-book correctness.}
@@ -316,10 +332,10 @@ Pairing & Cond. & Tutor & CSB correct & CSB wrong & PW correct & PW wrong \\
 \midrule
 Gemini-single & Single & Gemini & 32/575 (5.6\%) & 7/69 (10.1\%) & 30/520 (5.8\%) & 20/259 (7.7\%) \\
 GPT-single & Single & GPT & 82/490 (16.7\%) & 20/154 (13.0\%) & 92/410 (22.4\%) & 83/369 (22.5\%) \\
-Gemini-Gemini & Dual & Gemini & 16/575 (2.8\%) & 1/69 (1.4\%) & 13/520 (2.5\%) & 3/259 (1.2\%) \\
-Gemini-GPT & Dual & Gemini & 8/575 (1.4\%) & 2/69 (2.9\%) & 12/520 (2.3\%) & 3/259 (1.2\%) \\
-GPT-Gemini & Dual & GPT & 18/490 (3.7\%) & 9/154 (5.8\%) & 13/410 (3.2\%) & 15/369 (4.1\%) \\
-GPT-GPT & Dual & GPT & 19/490 (3.9\%) & 5/154 (3.2\%) & 6/410 (1.5\%) & 10/369 (2.7\%) \\
+Gemini-Gemini & Dual-loop & Gemini & 16/575 (2.8\%) & 1/69 (1.4\%) & 13/520 (2.5\%) & 3/259 (1.2\%) \\
+Gemini-GPT & Dual-loop & Gemini & 8/575 (1.4\%) & 2/69 (2.9\%) & 12/520 (2.3\%) & 3/259 (1.2\%) \\
+GPT-Gemini & Dual-loop & GPT & 18/490 (3.7\%) & 9/154 (5.8\%) & 13/410 (3.2\%) & 15/369 (4.1\%) \\
+GPT-GPT & Dual-loop & GPT & 19/490 (3.9\%) & 5/154 (3.2\%) & 6/410 (1.5\%) & 10/369 (2.7\%) \\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -328,7 +344,7 @@ This controlled view is one of the most important additions over the earlier sin
 
 That claim should still be stated cautiously. Some wrong-answer cells are small, especially for Gemini on CSBench. The point is not that answer knowledge is irrelevant. The point is that this run does not support a strong within-cell correctness effect, while still showing that wrong-answer leakage is not eliminated.
 
-\subsection{Process Metrics for Dual Supervision}
+\subsection{Process Metrics for Dual-Loop Supervision}
 
 The dual-loop mechanism reduced leakage without requiring heavy iterative overhead (Table~\ref{tab:process}). Across 33,767 supervised turns, average iterations per turn stayed between 1.02 and 1.22 depending on pairing and source. Overall, 31,105 turns (92.1\%) were approved on the first try, and 2,628 of 2,662 rejected drafts (98.7\%) were revised into a safe approved response. Only 13 rejected drafts still leaked after revision, and fallback was used in 21 turns total (0.06\%).
 
@@ -355,7 +371,7 @@ Gemini/GPT & PeerWise & 530/4639 (11.4\%) & 1.14 & 88.6\% & 524/530 (98.9\%) & 6
 \end{tabular}}
 \end{table}
 
-Two practical interpretations follow. First, PeerWise is not only harder in the sense of lower closed-book accuracy. It is also busier operationally: every dual-loop pairing produces a higher reject rate there than on CSBench. Second, reject-heavy pairings are not necessarily impractical. Even GPT/GPT on PeerWise, the busiest cell, still averages only 1.22 iterations per student-visible turn and resolves 98.3\% of rejected drafts into safe approved responses.
+Two practical interpretations follow. First, in this merged run the PeerWise slice is not only harder in the sense of lower closed-book accuracy. It is also busier operationally: every dual-loop pairing produces a higher reject rate there than on CSBench. Second, reject-heavy pairings are not necessarily impractical. Even GPT/GPT on PeerWise, the busiest cell, still averages only 1.22 iterations per student-visible turn and resolves 98.3\% of rejected drafts into safe approved responses.
 
 \subsection{Reject Rate by Turn Index}
 
@@ -420,12 +436,12 @@ Gemini/GPT & PeerWise & 53,757 & 3,670 & 39,976.96 & 4.27 \\
 
 Because observed dollar-cost coverage is incomplete for GPT-involving conditions, we treat latency, token usage, and call volume as the stronger practicality evidence. The qualitative conclusion is still useful: supervision roughly adds one extra model-review layer per turn without exploding into a deep multi-stage pipeline.
 
-\subsection{Observed Cost Estimates}
+\subsection{Lower-Bound Cost Estimates Under Partial Coverage}
 
-Observed dollar-cost estimates are available for some, but not all, calls in the merged run (Table~\ref{tab:cost}). Because GPT-involving cells have partial coverage, these estimates should be interpreted as lower-bound operational summaries rather than as exact budget projections. GPT calls often omit the \texttt{usage.cost} field entirely, so the coverage percentages reflect only the subset of call records with billing data. Even so, the pattern is informative: dual-loop supervision does not merely add latency, it also increases the observed cost per conversation and the cost per non-leaking conversation.
+Observed dollar-cost estimates are available for only a subset of calls in the merged run (Table~\ref{tab:cost}), so we report them explicitly as lower-bound operational summaries under partial billing coverage. GPT calls often omit the \texttt{usage.cost} field entirely, so the coverage percentages reflect only the subset of call records with billing data. Even so, the pattern is informative: dual-loop supervision does not merely add latency, it also increases the observed cost per conversation and the cost per non-leaking conversation.
 
 \begin{table}[t]
-\caption{Observed cost per conversation and coverage.}
+\caption{Lower-bound observed cost per conversation under partial billing coverage.}
 \label{tab:cost}
 \footnotesize
 \centering
@@ -433,7 +449,7 @@ Observed dollar-cost estimates are available for some, but not all, calls in the
 \renewcommand{\arraystretch}{0.95}
 \begin{tabular}{@{}llccc@{}}
 \toprule
-Condition & Source & Cost/conv. & Cost/non-leak conv. & Coverage \\
+Condition & Source & Cost/conv. & Cost/non-leak conv. & Billing cov. \\
 \midrule
 GPT single & CSBench & \$0.0105 & \$0.0124 & 66.7\% \\
 Gemini single & CSBench & \$0.0155 & \$0.0165 & 100.0\% \\
@@ -482,13 +498,13 @@ This taxonomy is heuristic rather than fully validated, so it should be read as 
 
 \subsection{Leakage as Interaction-Control Failure}
 
-The most important contribution of this paper is explanatory rather than architectural. A tutoring system can leak even when it is reasonably compliant and even on items it misses in closed-book mode. The strongest confirmatory result is the supervision effect itself: every matched single-versus-dual leakage comparison remained significant after Holm correction, with adjusted $p$-values ranging from $3.4\times10^{-38}$ to $.0026$. That shifts the framing from ``does the model know the answer?'' to ``does the tutoring process maintain the boundary between guidance and disclosure under pressure?'' In this study, the answer depended materially on source provenance, tutor family, and whether a supervisory loop intervened before the response reached the student.
+The most important contribution of this paper is explanatory rather than architectural. A tutoring system can leak even when it is reasonably compliant and even on items it misses in closed-book mode. The strongest confirmatory result is the supervision effect itself: every matched single-versus-dual-loop leakage comparison remained significant after Holm correction, with matched odds ratios from 2.57 to 18.67 and absolute drops from 3.4 to 20.4 percentage points. That shifts the framing from ``does the model know the answer?'' to ``does the tutoring process maintain the boundary between guidance and disclosure under pressure?'' In this study, the answer depended materially on source provenance, tutor family, and whether a supervisory loop intervened before the response reached the student.
 
 The turn-level survival results reinforce that framing. GPT single on PeerWise looks almost perfectly safe after turn 1, then degrades steadily through turns 3--5. A tutor that appears safe in a one-turn evaluation can therefore still be fragile as a conversational tutor. This is precisely the kind of phenomenon a single-prompt evaluation is poorly suited to reveal.
 
 \subsection{Source Provenance as a Safety Variable}
 
-PeerWise-like items appear to be a better stress test than a curated benchmark alone. Closed-book accuracy dropped on PeerWise for both tutors, with both source contrasts highly significant ($p_{\mathrm{Holm}} \le 3.0\times10^{-20}$), every dual-loop pairing produced a higher reject rate there, and single-tutor GPT leakage was markedly worse there. We avoid a stronger causal claim because the present study does not isolate language style, item quality, or difficulty composition as mechanisms. The narrower takeaway is that benchmark provenance materially changes what a leakage number means.
+Within this merged run, the PeerWise slice was a harsher stress test than the CSBench slice. Closed-book accuracy dropped there for both tutors by 22.5--23.5 percentage points, every dual-loop pairing produced a higher reject rate there, and single-tutor GPT leakage was markedly worse there. We avoid a stronger causal claim because the present study does not isolate language style, item quality, or difficulty composition as mechanisms. The narrower takeaway is that benchmark provenance materially changes what a leakage number means in this studied configuration.
 
 This matters for computing education research because benchmark choice is often treated as a background design decision rather than as part of the phenomenon being measured. Here, it is part of the phenomenon. A tutoring system that appears relatively robust on one benchmark can look considerably less robust on another, even when both are framed as undergraduate computing MCQs.
 
@@ -500,17 +516,28 @@ At the same time, same-provider versus cross-provider is not a simple story. The
 
 \subsection{Practical Deployment Implications}
 
-From a deployment perspective, the dual-loop design looks plausible for MCQ tutoring. The leakage reductions are large, but the process remains lightweight: most turns pass on the first attempt, most rejected drafts are repaired safely, and the extra latency is measurable without being catastrophic. This does not make dual-loop supervision a complete safety solution, but it does make it a credible mitigation in the specific assessment-adjacent setting studied here.
+\begin{table}[t]
+\small
+\setlength{\fboxsep}{5pt}
+\noindent\fbox{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{
+\textbf{Implications for educators and deployers.}
+\textbf{Use dual-loop supervision where answer disclosure is costly.} In matched comparisons, leakage fell by 3.4--20.4 percentage points (matched ORs 2.57--18.67) across every tutor/source cell.
 
-The data also suggest a practical workflow for future deployments and evaluations. Base tutor selection should come first, because the tutor family strongly affects both leakage and closed-book competence. Source-sensitive evaluation should come second, because a single benchmark can mask important safety variation. Supervisory pairing should come third, because it refines an already chosen tutor rather than replacing the need for a good tutor. This ordering follows directly from the magnitude of the effects observed in the merged run.
+\textbf{Validate on more than one source before deployment.} In this merged run, the PeerWise slice cut closed-book accuracy by 22.5--23.5 points and raised reject rates for every dual-loop pairing relative to CSBench.
 
-The process data also help clarify what ``practical'' means here. A deployer does not need to assume that supervision implies a large and unpredictable number of hidden revisions. In the present run, most supervised turns are still first-pass approvals, and even the busiest cells remain close to one visible response per student message. This does not eliminate latency or cost concerns, but it makes them concrete enough to reason about. A deployment decision can therefore be framed in terms of measurable tradeoffs rather than intuition alone.
+\textbf{Do not treat closed-book correctness as a leakage proxy.} All four single-tutor correct-minus-wrong leakage gaps had 95\% CIs crossing zero, so wrong-answer items still leaked often enough to matter.
+
+\textbf{Track burden alongside safety.} The studied dual-loop configurations approved 92.1\% of turns on the first try and repaired 98.7\% of rejected drafts safely, but latency, tokens, and observed lower-bound cost still increased.
+}}
+\end{table}
+
+From a deployment perspective, the studied dual-loop configurations look plausible for assessment-adjacent MCQ tutoring. The box above should be read as configuration-specific rather than universal: in this merged run, the largest effects suggest checking base tutor choice first, then source sensitivity, then supervisor pairing. That ordering is a practical summary of the present artifact, not a general theorem about every tutoring deployment.
 
 \subsection{Implications for Evaluation Design}
 
 The results also suggest several implications for how LLM tutoring should be evaluated in computing education research. First, a single benchmark is not enough. Here, the same tutor family and the same supervision policy look materially different once the source changes from CSBench to PeerWise. A paper that reports only one benchmark cell may therefore be describing source sensitivity as if it were a stable tutor property.
 
-Second, conversational robustness should not be conflated with closed-book competence. Closed-book accuracy remains useful as a baseline, but the correctness-conditioned tables do not support a strong within-cell correct-versus-wrong leakage contrast in this run. They do show descriptively that a tutor can still reveal too much on items it misses in isolation. This means that benchmarking tutors only as answerers misses a central part of the tutoring problem. The interactive control structure is itself part of what must be evaluated.
+Second, conversational robustness should not be conflated with closed-book competence. Closed-book accuracy remains useful as a baseline, but the correctness-conditioned tables do not support a strong within-cell correct-versus-wrong leakage contrast in this run: all four 95\% confidence intervals cross zero. They do show descriptively that a tutor can still reveal too much on items it misses in isolation. This means that benchmarking tutors only as answerers misses a central part of the tutoring problem. The interactive control structure is itself part of what must be evaluated.
 
 Third, safety outcomes should be reported together with process and overhead metrics. A mitigation strategy that lowers leakage but requires large hidden iteration counts, high fallback rates, or impractical latency may not be deployable. Conversely, a comparatively lightweight supervisory loop that sharply reduces leakage at modest additional burden is substantively more interesting than a raw accuracy improvement alone. In that sense, the paper argues for a broader evaluation package: source-aware outcomes, correctness-controlled interpretation, and practical overhead, all within the same reported artifact.
 
@@ -552,7 +579,7 @@ The third is broader ecological validation. The synthetic attacker is useful bec
 
 \section{Conclusion}
 
-Within the scope of adversarial multiple-choice tutoring, the main result is straightforward: answer leakage is not just a matter of whether a model knows the answer, but of how well it maintains tutoring boundaries across a multi-turn interaction. PeerWise-like questions make that boundary-keeping problem harder than curated benchmark items, and a lightweight dual-loop supervisor substantially reduces leakage with moderate overhead. Tutor selection remains a first-order safety decision; supervision helps considerably, but it does not remove the importance of starting from a more robust base tutor.
+Within the scope of adversarial multiple-choice tutoring, the main result is straightforward: answer leakage is not just a matter of whether a model knows the answer, but of how well it maintains tutoring boundaries across a multi-turn interaction. In this merged run, the PeerWise slice made that boundary-keeping problem harder than the CSBench slice, and a lightweight dual-loop supervisor substantially reduced leakage with moderate overhead. Tutor selection remains a first-order safety decision; supervision helps considerably, but it does not remove the importance of starting from a more robust base tutor.
 
 We therefore see dual-loop supervision as a practical containment mechanism for MCQ tutoring rather than as evidence of better learning. The present results support cautious claims about reduced answer leakage under adversarial interaction in an MCQ-only setting. They should not be read as showing improved pedagogy, improved student outcomes, or robustness across tutoring formats more broadly. The broader methodological contribution is to make leakage interpretable: by separating source effects, closed-book answerability, and supervisory overhead, the evaluation reveals \emph{why} a tutoring configuration appears safer, not only whether it does.
 
