@@ -1,0 +1,16 @@
+icer2026-draft/*.aux
+icer2026-draft/*.log
+icer2026-template/ICER TEMplate.zip
+icer2026-template/project/*
+!icer2026-template/project/ACM-Reference-Format.bst
+!icer2026-template/project/acmart.cls
+!icer2026-template/project/balance.sty
+!icer2026-template/project/comment.sty
+!icer2026-template/project/hyperxmp.sty
+!icer2026-template/project/paper.bib
+!icer2026-template/project/paper.tex
+!icer2026-template/project/recompute_inferential_stats.py
+!icer2026-template/project/inferential_stats.json
+!icer2026-template/project/inferential_stats.md
+!icer2026-template/project/pbalance.sty
+!icer2026-template/project/totpages.sty
