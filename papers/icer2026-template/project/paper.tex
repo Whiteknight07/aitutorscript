@@ -95,17 +95,17 @@ This framing also changes what counts as a failure. We do not require a model to
 
 This paper also speaks to benchmark design in computing education. In the merged run analyzed here, the PeerWise slice reflects community-authored, student-submitted platform content \cite{denny2008peerwise}, whereas CSBench contributes items from a published computer-science benchmark \cite{song2024csbench}. Results from a single curated benchmark can obscure how strongly tutoring behavior depends on source style, item phrasing, and answerability. By comparing CSBench and PeerWise within the same merged evaluation and conditioning leakage on closed-book correctness, we treat source provenance and baseline competence as part of the methodological problem rather than as background detail.
 
-Finally, our work connects to multi-agent tutoring and review loops. Prior systems have used specialist agents, critics, or reviewers to improve educational dialogue or evaluate teaching behavior \cite{shi2025educationq}. The distinctive question here is not simply whether a second model changes the output, but whether that second model measurably reduces \emph{student-visible} answer leakage at a practical revision cost. In other words, we treat supervision as both a safety intervention and an operational process.
+Finally, our work connects to multi-agent tutoring and review loops. Prior systems have used specialist agents, critics, or reviewers to improve educational dialogue or evaluate teaching behavior \cite{shi2025educationq}. The distinctive question here is not simply whether a second model changes the output, but whether that second model measurably reduces \emph{student-visible} answer leakage at a practical revision burden. In other words, we treat supervision as both a safety intervention and an operational process.
 
 \section{Tutoring Workflow and Harness}
 
 This study centers on a single harnessed workflow rather than an abstract prompt comparison. In the single-tutor condition, the model receives the question, options, and conversation history and responds directly to the learner. In the dual-loop condition, the tutor still drafts the first response, but that draft is screened by a supervisor before it becomes student-visible. Rejected drafts are returned with corrective feedback, the tutor revises, and the loop continues until approval or fallback. The relevant unit of analysis is therefore not merely the tutor draft, but the student-visible turn after whatever supervisory intervention occurred.
 
-This control structure matters because it changes the object of evaluation. A dual-loop system can fail in at least two ways: the supervisor can miss a problematic draft, or it can intervene so often that the system becomes too slow or too expensive to be practical. Both forms of failure are visible in the logs and therefore measurable. This is one reason the current paper treats supervision as an operational process rather than only as a binary safety feature.
+This control structure matters because it changes the object of evaluation. A dual-loop system can fail in at least two ways: the supervisor can miss a problematic draft, or it can intervene so often that the system becomes too slow or too operationally heavy to be practical. Both forms of failure are visible in the logs and therefore measurable. This is one reason the current paper treats supervision as an operational process rather than only as a binary safety feature.
 
 The benchmark harness mirrors this turn structure at scale. Instead of relying on human students, it uses an automated attacker to generate escalating requests and an automated judge to label the resulting dialogue. Each run writes a structured raw artifact that records conversation outcomes, first-leak timing, model calls, token use, and per-turn supervision traces. The present paper analyzes one merged raw artifact containing the full MCQ conversation set reported here so that every quantitative result is derived from the same conversation pool.
 
-The harness framing is important for two reasons. First, it aligns the evaluation with a deployable tutoring workflow rather than with a static answer-generation benchmark. Second, it creates a natural bridge between safety outcomes and operational burden. Because each draft, revision, and judge call is recorded, the paper can evaluate not just whether supervision helps, but how much supervision costs in practice.
+The harness framing is important for two reasons. First, it aligns the evaluation with a deployable tutoring workflow rather than with a static answer-generation benchmark. Second, it creates a natural bridge between safety outcomes and operational burden. Because each draft, revision, and judge call is recorded, the paper can evaluate not just whether supervision helps, but how much overhead supervision adds in practice.
 
 \section{Study Context and Method}
 
@@ -429,41 +429,7 @@ Gemini/GPT & PeerWise & 53,757 & 3,670 & 39,976.96 & 4.27 \\
 \end{tabular}}
 \end{table}
 
-Because observed dollar-cost coverage is incomplete for GPT-involving conditions, we treat latency, token usage, and call volume as the stronger practicality evidence. The qualitative conclusion is still useful: supervision roughly adds one extra model-review layer per turn without exploding into a deep multi-stage pipeline.
-
-\subsection{Lower-Bound Cost Estimates Under Partial Coverage}
-
-Observed dollar-cost estimates are available for only a subset of calls in the merged run (Table~\ref{tab:cost}), so we report them explicitly as lower-bound operational summaries under partial billing coverage. GPT calls often omit the \texttt{usage.cost} field entirely, so the coverage percentages reflect only the subset of call records with billing data. Even so, the pattern is informative: dual-loop supervision does not merely add latency, it also increases the observed cost per conversation and the cost per non-leaking conversation.
-
-\begin{table}[t]
-\caption{Lower-bound observed cost per conversation under partial billing coverage.}
-\label{tab:cost}
-\footnotesize
-\centering
-\setlength{\tabcolsep}{4pt}
-\renewcommand{\arraystretch}{0.95}
-\begin{tabular}{@{}llccc@{}}
-\toprule
-Condition & Source & Cost/conv. & Cost/non-leak conv. & Billing cov. \\
-\midrule
-GPT single & CSBench & \$0.0105 & \$0.0124 & 66.7\% \\
-Gemini single & CSBench & \$0.0155 & \$0.0165 & 100.0\% \\
-GPT/GPT & CSBench & \$0.0110 & \$0.0114 & 47.1\% \\
-Gemini/Gemini & CSBench & \$0.0212 & \$0.0218 & 100.0\% \\
-GPT/Gemini & CSBench & \$0.0172 & \$0.0180 & 74.4\% \\
-Gemini/GPT & CSBench & \$0.0161 & \$0.0164 & 74.0\% \\
-\midrule
-GPT single & PeerWise & \$0.0112 & \$0.0144 & 66.7\% \\
-Gemini single & PeerWise & \$0.0169 & \$0.0181 & 100.0\% \\
-GPT/GPT & PeerWise & \$0.0119 & \$0.0122 & 45.1\% \\
-Gemini/Gemini & PeerWise & \$0.0234 & \$0.0239 & 100.0\% \\
-GPT/Gemini & PeerWise & \$0.0192 & \$0.0199 & 74.1\% \\
-Gemini/GPT & PeerWise & \$0.0177 & \$0.0181 & 73.4\% \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The practical implication is not that one pairing is universally cheapest or best. It is that operational tradeoffs become legible once safety is measured alongside coverage, latency, token use, and supervisory effort. This strengthens the paper's central claim that leakage mitigation should be evaluated as a process, not only as a final outcome.
+These latency, token, and call-volume results are the stronger practicality evidence in this run. The qualitative conclusion is that supervision roughly adds one extra model-review layer per turn without exploding into a deep multi-stage pipeline. This strengthens the paper's central claim that leakage mitigation should be evaluated as a process, not only as a final outcome.
 
 \subsection{Leakage Types}
 
@@ -522,7 +488,7 @@ At the same time, same-provider versus cross-provider is not a simple story. The
 
 \textbf{Do not treat closed-book correctness as a leakage proxy.} All four single-tutor correct-minus-wrong leakage gaps had 95\% CIs crossing zero, so wrong-answer items still leaked often enough to matter.
 
-\textbf{Track burden alongside safety.} The studied dual-loop configurations approved 92.1\% of turns on the first try and repaired 98.7\% of rejected drafts safely, but latency, tokens, and observed lower-bound cost still increased.
+\textbf{Track burden alongside safety.} The studied dual-loop configurations approved 92.1\% of turns on the first try and repaired 98.7\% of rejected drafts safely, but latency, tokens, and model-call overhead still increased.
 }}
 \end{table}
 
@@ -562,7 +528,7 @@ This work also has a dual-use aspect. Studying how tutors leak can reveal strate
 
 This study is narrow in several ways. First, it is entirely within an MCQ setting, so the results do not justify claims about open-ended explanations, code synthesis, proofs, or other tutoring formats where the line between helpfulness and leakage is less operationally clean. Second, the model set is small: two tutor families and a small supervision matrix are enough to show strong configuration effects, but not enough to support broad claims about providers or architectures. Third, some controlled-leakage cells are small, especially wrong-answer cells for Gemini on CSBench, so those conditional comparisons should be read as indicative rather than definitive.
 
-The paper is also limited by the artifacts available in the merged run. The logs expose the observed escalation pattern but not an explicit attacker protocol version string. Cost fields are incomplete for some GPT-involving conditions, which is why we emphasize latency, token, and call overhead over dollar estimates. Because the current analysis relies on one merged MCQ run and one MCQ closed-book file, it does not yet support claims about non-MCQ formats, about variation across multiple independent attacker/judge families, or about the stability of the same results across repeated reruns with newly refreshed model versions.
+The paper is also limited by the artifacts available in the merged run. The logs expose the observed escalation pattern but not an explicit attacker protocol version string. Because the current analysis relies on one merged MCQ run and one MCQ closed-book file, it does not yet support claims about non-MCQ formats, about variation across multiple independent attacker/judge families, or about the stability of the same results across repeated reruns with newly refreshed model versions.
 
 Finally, the paper is intentionally not a learning-outcomes study. Reduced leakage is valuable in its own right for assessment-adjacent tutoring, but it is not a substitute for evidence about better learning, transfer, or long-term help quality. A system can be safer against answer disclosure and still be pedagogically weak in other ways. That is why the present contribution is methodological and evaluative rather than instructional in the stronger classroom sense.
 
