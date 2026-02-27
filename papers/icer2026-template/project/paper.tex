@@ -26,19 +26,14 @@
 \email{anonymous@anonymous.edu}
 
 \begin{abstract}
-\textbf{Background and context.}
 Large language models are increasingly used as tutors in computing education, but a tutoring response can still fail instructionally even when it is fluent and factually correct. In assessment-adjacent settings, one important failure mode is answer leakage: the tutor discloses the answer, the final result, or a copyable solution that bypasses the intended reasoning process. A prior workshop study established that leakage persists in multi-turn tutoring under sustained student pressure and that dual-loop supervision can reduce it on a single curated benchmark.
 
-\textbf{Objectives.}
 This paper extends that result in three directions. First, we test whether leakage depends materially on question source rather than only on tutor configuration. Second, we control leakage analyses by joining each tutoring conversation to a closed-book multiple-choice result for the same tutor model on the same item. Third, we quantify the practical burden of supervision in rejection, revision, latency, token use, and model-call overhead.
 
-\textbf{Method.}
 We analyze 8,538 judged tutoring conversations over 1,423 computer science multiple-choice questions drawn from two sources, CSBench and PeerWise. The study evaluates GPT-5.1 and Gemini-3-Flash-Preview in single-tutor and dual-loop conditions with same-provider and cross-provider supervisors. All analyses in this paper are computed from the merged MCQ tutoring run and a separate MCQ closed-book accuracy file joined by \texttt{(question\_id, tutor\_model\_id)}.
 
-\textbf{Findings.}
 In this precise MCQ-only setup, dual-loop supervision sharply reduced leakage across both tutor families and both sources. Across the eight matched single-versus-dual-loop comparisons, matched odds ratios ranged from 2.57 to 18.67, with absolute leakage drops of 3.4 to 20.4 percentage points (all $p_{\mathrm{Holm}} \le .0026$). Closed-book accuracy also dropped from CSBench to the PeerWise slice for both tutors (GPT: +23.5 percentage points, 95\% CI [18.6, 28.2]; Gemini: +22.5 points, 95\% CI [18.4, 26.5]), and that PeerWise slice triggered consistently higher supervisor reject rates. Correctness-conditioned single-tutor leakage gaps remained small and uncertain: all four 95\% confidence intervals crossed zero. Supervision overhead was real but moderate: average iterations per supervised turn remained between 1.02 and 1.22, most rejected drafts were repaired safely, and fallback was near zero.
 
-\textbf{Implications.}
 These results support a narrower claim than improved learning. In adversarial MCQ tutoring, answer leakage is best understood as an interactional robustness problem shaped by dataset provenance, tutor choice, and conversational control structure. The contribution of this paper is a stronger evaluation methodology for tutoring safety that separates leakage from raw answer knowledge and makes the practical tradeoffs of supervision explicit.
 \end{abstract}
 
