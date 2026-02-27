@@ -1,13 +1,21 @@
 #!/usr/bin/env python3
-"""Recompute the exact inferential statistics reported in paper.tex.
+"""Recompute the inferential statistics reported in paper.tex.
 
-This script uses only the Python standard library. It reads the merged tutoring
-run and the closed-book MCQ file, then writes JSON and Markdown summaries for:
+This script reads the merged tutoring run and the closed-book MCQ file, then
+writes JSON and Markdown summaries for:
 
 1. Question-paired single-vs-dual leakage comparisons (exact McNemar tests).
 2. Source differences in closed-book accuracy (two-sided Fisher exact tests).
 3. Single-tutor correctness-conditioned leakage contrasts (two-sided Fisher
    exact tests; descriptive in the manuscript because none are significant).
+
+It also adds the primary effect size and a 95% confidence interval for each
+family:
+
+1. Matched odds ratios for the paired single-vs-dual leakage comparisons.
+2. Absolute accuracy gaps (CSBench - PeerWise) for source-level accuracy.
+3. Absolute leakage gaps (closed-book correct - closed-book wrong) for the
+   correctness-conditioned contrasts.
 
 Default inputs target the paper's fixed artifacts but can be overridden.
 """
@@ -52,6 +60,43 @@ DUAL_PAIRINGS_BY_MODEL = {
   'openai/gpt-5.1': ['gpt-gpt', 'gpt-gemini'],
   'google/gemini-3-flash-preview': ['gemini-gemini', 'gemini-gpt'],
 }
+EFFECT_SIZE_GUIDE = {
+  'single_vs_dual_leakage': {
+    'effect_size_key': 'matched_odds_ratio_single_vs_dual',
+    'effect_size_label': 'Matched odds ratio (single / dual leakage odds among discordant question pairs)',
+    'ci_level': 0.95,
+    'ci_method': 'Exact Clopper-Pearson interval on the discordant-pair binomial proportion, transformed to an odds ratio',
+    'why_this_choice': (
+      'The question-paired design and exact McNemar test are identified by the '
+      'discordant pairs only, so the matched odds ratio is the natural primary '
+      'effect size for the main supervision comparison.'
+    ),
+    'secondary_context': 'Absolute leakage-rate drops are retained as descriptive percentages.',
+  },
+  'source_accuracy': {
+    'effect_size_key': 'csbench_minus_pairwise_accuracy_gap',
+    'effect_size_label': 'Absolute accuracy gap (CSBench - PeerWise)',
+    'ci_level': 0.95,
+    'ci_method': 'Newcombe-Wilson score interval for the difference between independent proportions',
+    'why_this_choice': (
+      'The claim is explicitly about how many percentage points accuracy drops '
+      'from CSBench to PeerWise, so an absolute gap is more interpretable than '
+      'a ratio-based effect size here.'
+    ),
+  },
+  'single_tutor_correctness_conditioned_leakage': {
+    'effect_size_key': 'correct_minus_wrong_leakage_gap',
+    'effect_size_label': 'Absolute leakage gap (closed-book correct - closed-book wrong)',
+    'ci_level': 0.95,
+    'ci_method': 'Newcombe-Wilson score interval for the difference between independent proportions',
+    'why_this_choice': (
+      'These within-cell contrasts are descriptive and some wrong-answer cells '
+      'are modest, so a percentage-point leakage gap is the clearest measure '
+      'of substantive contrast without overstating small-cell ratios.'
+    ),
+  },
+}
+Z_975 = 1.959963984540054
 
 
 def normalize_source(value: str | None) -> str:
@@ -145,6 +190,147 @@ def fisher_exact_two_sided(a: int, b: int, c: int, d: int) -> float:
   return float(extreme)
 
 
+def logsumexp(values: list[float]) -> float:
+  if not values:
+    return float('-inf')
+  pivot = max(values)
+  if math.isinf(pivot):
+    return pivot
+  return pivot + math.log(sum(math.exp(value - pivot) for value in values))
+
+
+def log_binomial_pmf(k: int, n: int, p: float) -> float:
+  if p <= 0.0:
+    return 0.0 if k == 0 else float('-inf')
+  if p >= 1.0:
+    return 0.0 if k == n else float('-inf')
+  return (
+    math.lgamma(n + 1)
+    - math.lgamma(k + 1)
+    - math.lgamma(n - k + 1)
+    + k * math.log(p)
+    + (n - k) * math.log1p(-p)
+  )
+
+
+def binomial_cdf(k: int, n: int, p: float) -> float:
+  if k < 0:
+    return 0.0
+  if k >= n:
+    return 1.0
+  return math.exp(logsumexp([log_binomial_pmf(i, n, p) for i in range(k + 1)]))
+
+
+def binomial_sf(k: int, n: int, p: float) -> float:
+  if k <= 0:
+    return 1.0
+  if k > n:
+    return 0.0
+  return math.exp(logsumexp([log_binomial_pmf(i, n, p) for i in range(k, n + 1)]))
+
+
+def clopper_pearson_interval(k: int, n: int, confidence: float = 0.95) -> tuple[float, float]:
+  if n <= 0:
+    return (0.0, 1.0)
+
+  alpha = 1.0 - confidence
+
+  if k == 0:
+    lower = 0.0
+  else:
+    target = alpha / 2.0
+    lo = 0.0
+    hi = k / n
+    for _ in range(80):
+      mid = (lo + hi) / 2.0
+      if binomial_sf(k, n, mid) > target:
+        hi = mid
+      else:
+        lo = mid
+    lower = (lo + hi) / 2.0
+
+  if k == n:
+    upper = 1.0
+  else:
+    target = alpha / 2.0
+    lo = k / n
+    hi = 1.0
+    for _ in range(80):
+      mid = (lo + hi) / 2.0
+      if binomial_cdf(k, n, mid) > target:
+        lo = mid
+      else:
+        hi = mid
+    upper = (lo + hi) / 2.0
+
+  return (lower, upper)
+
+
+def wilson_interval(successes: int, total: int, confidence: float = 0.95) -> tuple[float, float]:
+  if total <= 0:
+    return (0.0, 1.0)
+
+  p_hat = successes / total
+  z = Z_975 if math.isclose(confidence, 0.95) else Z_975
+  z_sq = z * z
+  denom = 1.0 + z_sq / total
+  center = (p_hat + z_sq / (2.0 * total)) / denom
+  radius = (
+    z
+    * math.sqrt((p_hat * (1.0 - p_hat) + z_sq / (4.0 * total)) / total)
+    / denom
+  )
+  return (max(0.0, center - radius), min(1.0, center + radius))
+
+
+def newcombe_difference_interval(
+  successes_a: int,
+  total_a: int,
+  successes_b: int,
+  total_b: int,
+  confidence: float = 0.95,
+) -> tuple[float, float]:
+  if total_a <= 0 or total_b <= 0:
+    return (-1.0, 1.0)
+
+  rate_a = successes_a / total_a
+  rate_b = successes_b / total_b
+  low_a, high_a = wilson_interval(successes_a, total_a, confidence=confidence)
+  low_b, high_b = wilson_interval(successes_b, total_b, confidence=confidence)
+
+  lower = rate_a - rate_b - math.sqrt((rate_a - low_a) ** 2 + (high_b - rate_b) ** 2)
+  upper = rate_a - rate_b + math.sqrt((high_a - rate_a) ** 2 + (rate_b - low_b) ** 2)
+  return (max(-1.0, lower), min(1.0, upper))
+
+
+def matched_odds_ratio_with_ci(
+  single_only: int,
+  dual_only: int,
+  confidence: float = 0.95,
+) -> dict[str, float | None]:
+  discordant = single_only + dual_only
+  if discordant == 0:
+    return {
+      'discordant_pairs': 0,
+      'matched_odds_ratio': 1.0,
+      'matched_odds_ratio_ci_low': 1.0,
+      'matched_odds_ratio_ci_high': 1.0,
+    }
+
+  lower_p, upper_p = clopper_pearson_interval(single_only, discordant, confidence=confidence)
+
+  odds_ratio = math.inf if dual_only == 0 else single_only / dual_only
+  ci_low = math.inf if math.isclose(lower_p, 1.0) else lower_p / (1.0 - lower_p)
+  ci_high = math.inf if math.isclose(upper_p, 1.0) else upper_p / (1.0 - upper_p)
+
+  return {
+    'discordant_pairs': discordant,
+    'matched_odds_ratio': odds_ratio,
+    'matched_odds_ratio_ci_low': ci_low,
+    'matched_odds_ratio_ci_high': ci_high,
+  }
+
+
 def holm_adjust(records: list[dict[str, Any]], p_key: str = 'p_raw') -> None:
   ordered = sorted(enumerate(records), key=lambda item: item[1][p_key])
   running_max = 0.0
@@ -180,6 +366,7 @@ def compute_single_vs_dual(outcomes: dict[tuple[str, str, str, str], bool]) -> l
             both_safe += 1
 
         total = both_leak + single_only + dual_only + both_safe
+        matched_or = matched_odds_ratio_with_ci(single_only, dual_only)
         results.append({
           'family': 'single_vs_dual_leakage',
           'tutor_model': tutor_model,
@@ -200,6 +387,10 @@ def compute_single_vs_dual(outcomes: dict[tuple[str, str, str, str], bool]) -> l
           'single_leak_rate': (both_leak + single_only) / total,
           'dual_leak_rate': (both_leak + dual_only) / total,
           'absolute_rate_drop': ((both_leak + single_only) - (both_leak + dual_only)) / total,
+          'discordant_pairs': matched_or['discordant_pairs'],
+          'matched_odds_ratio': matched_or['matched_odds_ratio'],
+          'matched_odds_ratio_ci_low': matched_or['matched_odds_ratio_ci_low'],
+          'matched_odds_ratio_ci_high': matched_or['matched_odds_ratio_ci_high'],
           'p_raw': exact_mcnemar_pvalue(single_only, dual_only),
         })
 
@@ -217,6 +408,7 @@ def compute_source_accuracy(by_model_source: dict[tuple[str, str], dict[str, int
     b = csbench['total'] - csbench['correct']
     c = pairwise['correct']
     d = pairwise['total'] - pairwise['correct']
+    ci_low, ci_high = newcombe_difference_interval(a, csbench['total'], c, pairwise['total'])
     results.append({
       'family': 'source_accuracy',
       'tutor_model': tutor_model,
@@ -228,6 +420,8 @@ def compute_source_accuracy(by_model_source: dict[tuple[str, str], dict[str, int
       'csbench_accuracy': a / csbench['total'],
       'pairwise_accuracy': c / pairwise['total'],
       'absolute_accuracy_gap': (a / csbench['total']) - (c / pairwise['total']),
+      'accuracy_gap_ci_low': ci_low,
+      'accuracy_gap_ci_high': ci_high,
       'p_raw': fisher_exact_two_sided(a, b, c, d),
     })
 
@@ -261,6 +455,12 @@ def compute_correctness_conditioned(
 
       correct_total = correct_leak + correct_safe
       wrong_total = wrong_leak + wrong_safe
+      ci_low, ci_high = newcombe_difference_interval(
+        correct_leak,
+        correct_total,
+        wrong_leak,
+        wrong_total,
+      )
       results.append({
         'family': 'single_tutor_correctness_conditioned_leakage',
         'tutor_model': tutor_model,
@@ -273,6 +473,9 @@ def compute_correctness_conditioned(
         'wrong_total': wrong_total,
         'correct_leak_rate': correct_leak / correct_total,
         'wrong_leak_rate': wrong_leak / wrong_total,
+        'correct_minus_wrong_leakage_gap': (correct_leak / correct_total) - (wrong_leak / wrong_total),
+        'correct_minus_wrong_leakage_gap_ci_low': ci_low,
+        'correct_minus_wrong_leakage_gap_ci_high': ci_high,
         'p_raw': fisher_exact_two_sided(correct_leak, correct_safe, wrong_leak, wrong_safe),
       })
 
@@ -282,6 +485,20 @@ def compute_correctness_conditioned(
 
 def format_pct(value: float) -> str:
   return f'{100.0 * value:.1f}%'
+
+
+def format_pct_point_ci(lower: float, upper: float) -> str:
+  return f'[{100.0 * lower:.1f}, {100.0 * upper:.1f}]'
+
+
+def format_signed_pct_points(value: float) -> str:
+  return f'{100.0 * value:+.1f} pp'
+
+
+def format_odds_ratio(value: float) -> str:
+  if math.isinf(value):
+    return 'inf'
+  return f'{value:.2f}'
 
 
 def format_p(value: float) -> str:
@@ -298,42 +515,66 @@ def render_markdown(payload: dict[str, Any]) -> str:
   lines.append(f"- Raw tutoring log: `{payload['inputs']['raw_path']}`")
   lines.append(f"- Closed-book file: `{payload['inputs']['accuracy_path']}`")
   lines.append('')
+  lines.append('## Effect-Size Conventions')
+  lines.append('')
+  for family in (
+    'single_vs_dual_leakage',
+    'source_accuracy',
+    'single_tutor_correctness_conditioned_leakage',
+  ):
+    guide = payload['effect_size_guide'][family]
+    lines.append(f"### `{family}`")
+    lines.append('')
+    lines.append(f"- Primary effect size: {guide['effect_size_label']}")
+    lines.append(f"- 95% CI method: {guide['ci_method']}")
+    lines.append(f"- Rationale: {guide['why_this_choice']}")
+    if guide.get('secondary_context'):
+      lines.append(f"- Secondary context: {guide['secondary_context']}")
+    lines.append('')
 
   lines.append('## Single vs Dual Leakage')
   lines.append('')
-  lines.append('| Tutor | Source | Comparison | Single | Dual | Discordant (single only / dual only) | p_raw | p_Holm |')
-  lines.append('| --- | --- | --- | --- | --- | --- | --- | --- |')
+  lines.append('| Tutor | Source | Comparison | Single | Dual | Discordant (single only / dual only) | Matched OR (95% CI) | Rate drop | p_raw | p_Holm |')
+  lines.append('| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |')
   for row in payload['single_vs_dual_leakage']:
     lines.append(
       f"| {row['tutor_label']} | {row['source_label']} | {row['single_label']} vs {row['dual_label']} | "
       f"{row['single_leak_count']}/{row['n_pairs']} ({format_pct(row['single_leak_rate'])}) | "
       f"{row['dual_leak_count']}/{row['n_pairs']} ({format_pct(row['dual_leak_rate'])}) | "
-      f"{row['single_only']} / {row['dual_only']} | {format_p(row['p_raw'])} | {format_p(row['p_holm'])} |"
+      f"{row['single_only']} / {row['dual_only']} | "
+      f"{format_odds_ratio(row['matched_odds_ratio'])} "
+      f"[{format_odds_ratio(row['matched_odds_ratio_ci_low'])}, {format_odds_ratio(row['matched_odds_ratio_ci_high'])}] | "
+      f"{format_signed_pct_points(row['absolute_rate_drop'])} | "
+      f"{format_p(row['p_raw'])} | {format_p(row['p_holm'])} |"
     )
   lines.append('')
 
   lines.append('## Source-Level Closed-Book Accuracy')
   lines.append('')
-  lines.append('| Tutor | CSBench | PeerWise | Gap | p_raw | p_Holm |')
+  lines.append('| Tutor | CSBench | PeerWise | Accuracy gap (95% CI) | p_raw | p_Holm |')
   lines.append('| --- | --- | --- | --- | --- | --- |')
   for row in payload['source_accuracy']:
     lines.append(
       f"| {row['tutor_label']} | "
       f"{row['csbench_correct']}/{row['csbench_total']} ({format_pct(row['csbench_accuracy'])}) | "
       f"{row['pairwise_correct']}/{row['pairwise_total']} ({format_pct(row['pairwise_accuracy'])}) | "
-      f"{format_pct(row['absolute_accuracy_gap'])} | {format_p(row['p_raw'])} | {format_p(row['p_holm'])} |"
+      f"{format_signed_pct_points(row['absolute_accuracy_gap'])} "
+      f"{format_pct_point_ci(row['accuracy_gap_ci_low'], row['accuracy_gap_ci_high'])} | "
+      f"{format_p(row['p_raw'])} | {format_p(row['p_holm'])} |"
     )
   lines.append('')
 
   lines.append('## Single-Tutor Correctness-Conditioned Leakage')
   lines.append('')
-  lines.append('| Tutor | Source | Closed-book correct | Closed-book wrong | p_raw | p_Holm |')
-  lines.append('| --- | --- | --- | --- | --- | --- |')
+  lines.append('| Tutor | Source | Closed-book correct | Closed-book wrong | Correct - wrong gap (95% CI) | p_raw | p_Holm |')
+  lines.append('| --- | --- | --- | --- | --- | --- | --- |')
   for row in payload['single_tutor_correctness_conditioned_leakage']:
     lines.append(
       f"| {row['tutor_label']} | {row['source_label']} | "
       f"{row['correct_leak']}/{row['correct_total']} ({format_pct(row['correct_leak_rate'])}) | "
       f"{row['wrong_leak']}/{row['wrong_total']} ({format_pct(row['wrong_leak_rate'])}) | "
+      f"{format_signed_pct_points(row['correct_minus_wrong_leakage_gap'])} "
+      f"{format_pct_point_ci(row['correct_minus_wrong_leakage_gap_ci_low'], row['correct_minus_wrong_leakage_gap_ci_high'])} | "
       f"{format_p(row['p_raw'])} | {format_p(row['p_holm'])} |"
     )
   lines.append('')
@@ -361,6 +602,7 @@ def main() -> None:
       'raw_path': str(args.raw.resolve()),
       'accuracy_path': str(args.accuracy.resolve()),
     },
+    'effect_size_guide': EFFECT_SIZE_GUIDE,
     'single_vs_dual_leakage': compute_single_vs_dual(outcome_payload['outcomes']),
     'source_accuracy': compute_source_accuracy(accuracy['by_model_source']),
     'single_tutor_correctness_conditioned_leakage': compute_correctness_conditioned(

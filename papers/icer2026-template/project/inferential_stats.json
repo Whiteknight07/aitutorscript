@@ -3,6 +3,30 @@
     "raw_path": "/root/clawd/code/aitutorscript/results/run_2026-02-24T23-50-44-586Z_merged_2026-02-26T22-58-06-051Z/raw.jsonl",
     "accuracy_path": "/root/clawd/code/aitutorscript/results/mcq_accuracy_2026-02-24T04-24-19-103Z.jsonl"
   },
+  "effect_size_guide": {
+    "single_vs_dual_leakage": {
+      "effect_size_key": "matched_odds_ratio_single_vs_dual",
+      "effect_size_label": "Matched odds ratio (single / dual leakage odds among discordant question pairs)",
+      "ci_level": 0.95,
+      "ci_method": "Exact Clopper-Pearson interval on the discordant-pair binomial proportion, transformed to an odds ratio",
+      "why_this_choice": "The question-paired design and exact McNemar test are identified by the discordant pairs only, so the matched odds ratio is the natural primary effect size for the main supervision comparison.",
+      "secondary_context": "Absolute leakage-rate drops are retained as descriptive percentages."
+    },
+    "source_accuracy": {
+      "effect_size_key": "csbench_minus_pairwise_accuracy_gap",
+      "effect_size_label": "Absolute accuracy gap (CSBench - PeerWise)",
+      "ci_level": 0.95,
+      "ci_method": "Newcombe-Wilson score interval for the difference between independent proportions",
+      "why_this_choice": "The claim is explicitly about how many percentage points accuracy drops from CSBench to PeerWise, so an absolute gap is more interpretable than a ratio-based effect size here."
+    },
+    "single_tutor_correctness_conditioned_leakage": {
+      "effect_size_key": "correct_minus_wrong_leakage_gap",
+      "effect_size_label": "Absolute leakage gap (closed-book correct - closed-book wrong)",
+      "ci_level": 0.95,
+      "ci_method": "Newcombe-Wilson score interval for the difference between independent proportions",
+      "why_this_choice": "These within-cell contrasts are descriptive and some wrong-answer cells are modest, so a percentage-point leakage gap is the clearest measure of substantive contrast without overstating small-cell ratios."
+    }
+  },
   "single_vs_dual_leakage": [
     {
       "family": "single_vs_dual_leakage",
@@ -24,6 +48,10 @@
       "single_leak_rate": 0.15838509316770186,
       "dual_leak_rate": 0.037267080745341616,
       "absolute_rate_drop": 0.12111801242236025,
+      "discordant_pairs": 102,
+      "matched_odds_ratio": 7.5,
+      "matched_odds_ratio_ci_low": 4.089324551503411,
+      "matched_odds_ratio_ci_high": 15.053711356186916,
       "p_raw": 6.125402762201369e-16,
       "p_holm": 3.6752416573208215e-15
     },
@@ -47,6 +75,10 @@
       "single_leak_rate": 0.15838509316770186,
       "dual_leak_rate": 0.04192546583850932,
       "absolute_rate_drop": 0.11645962732919254,
+      "discordant_pairs": 109,
+      "matched_odds_ratio": 5.411764705882353,
+      "matched_odds_ratio_ci_low": 3.20294222524886,
+      "matched_odds_ratio_ci_high": 9.688354793934423,
       "p_raw": 1.2265535543318512e-13,
       "p_holm": 6.132767771659256e-13
     },
@@ -70,6 +102,10 @@
       "single_leak_rate": 0.2246469833119384,
       "dual_leak_rate": 0.02053915275994865,
       "absolute_rate_drop": 0.20410783055198972,
+      "discordant_pairs": 177,
+      "matched_odds_ratio": 18.666666666666668,
+      "matched_odds_ratio_ci_low": 9.601372830461916,
+      "matched_odds_ratio_ci_high": 41.532873796768804,
       "p_raw": 4.212562749690412e-39,
       "p_holm": 3.3700501997523296e-38
     },
@@ -93,6 +129,10 @@
       "single_leak_rate": 0.2246469833119384,
       "dual_leak_rate": 0.03594351732991014,
       "absolute_rate_drop": 0.18870346598202825,
+      "discordant_pairs": 189,
+      "matched_odds_ratio": 8.0,
+      "matched_odds_ratio_ci_low": 5.067198981183798,
+      "matched_odds_ratio_ci_high": 13.263451504149067,
       "p_raw": 1.147823543595089e-29,
       "p_holm": 8.034764805165623e-29
     },
@@ -116,6 +156,10 @@
       "single_leak_rate": 0.06055900621118013,
       "dual_leak_rate": 0.026397515527950312,
       "absolute_rate_drop": 0.034161490683229816,
+      "discordant_pairs": 50,
+      "matched_odds_ratio": 2.5714285714285716,
+      "matched_odds_ratio_ci_low": 1.3534652681775603,
+      "matched_odds_ratio_ci_high": 5.161027041013197,
       "p_raw": 0.0026021714567221466,
       "p_holm": 0.0026021714567221466
     },
@@ -139,6 +183,10 @@
       "single_leak_rate": 0.06055900621118013,
       "dual_leak_rate": 0.015527950310559006,
       "absolute_rate_drop": 0.04503105590062112,
+      "discordant_pairs": 45,
+      "matched_odds_ratio": 4.625,
+      "matched_odds_ratio_ci_low": 2.119791475049257,
+      "matched_odds_ratio_ci_high": 11.497194776979327,
       "p_raw": 1.5374090196473844e-05,
       "p_holm": 4.612227058942153e-05
     },
@@ -162,6 +210,10 @@
       "single_leak_rate": 0.06418485237483953,
       "dual_leak_rate": 0.02053915275994865,
       "absolute_rate_drop": 0.043645699614890884,
+      "discordant_pairs": 62,
+      "matched_odds_ratio": 3.4285714285714284,
+      "matched_odds_ratio_ci_low": 1.859292492513377,
+      "matched_odds_ratio_ci_high": 6.733717647141056,
       "p_raw": 1.7428522601631996e-05,
       "p_holm": 4.612227058942153e-05
     },
@@ -185,6 +237,10 @@
       "single_leak_rate": 0.06418485237483953,
       "dual_leak_rate": 0.019255455712451863,
       "absolute_rate_drop": 0.044929396662387676,
+      "discordant_pairs": 59,
+      "matched_odds_ratio": 3.9166666666666665,
+      "matched_odds_ratio_ci_low": 2.0457140115536077,
+      "matched_odds_ratio_ci_high": 8.111312954245587,
       "p_raw": 5.1256292496887346e-06,
       "p_holm": 2.0502516998754938e-05
     }
@@ -201,6 +257,8 @@
       "csbench_accuracy": 0.7608695652173914,
       "pairwise_accuracy": 0.5263157894736842,
       "absolute_accuracy_gap": 0.23455377574370717,
+      "accuracy_gap_ci_low": 0.1855663966968296,
+      "accuracy_gap_ci_high": 0.28161087388561057,
       "p_raw": 2.995930605384667e-20,
       "p_holm": 2.995930605384667e-20
     },
@@ -215,6 +273,8 @@
       "csbench_accuracy": 0.8928571428571429,
       "pairwise_accuracy": 0.6675224646983312,
       "absolute_accuracy_gap": 0.2253346781588117,
+      "accuracy_gap_ci_low": 0.18379279059340065,
+      "accuracy_gap_ci_high": 0.2654755513328231,
       "p_raw": 7.577952098960002e-25,
       "p_holm": 1.5155904197920004e-24
     }
@@ -232,6 +292,9 @@
       "wrong_total": 154,
       "correct_leak_rate": 0.1673469387755102,
       "wrong_leak_rate": 0.12987012987012986,
+      "correct_minus_wrong_leakage_gap": 0.037476808905380354,
+      "correct_minus_wrong_leakage_gap_ci_low": -0.031787513118840274,
+      "correct_minus_wrong_leakage_gap_ci_high": 0.09424011989120135,
       "p_raw": 0.3118977305797186,
       "p_holm": 0.9356931917391558
     },
@@ -247,6 +310,9 @@
       "wrong_total": 369,
       "correct_leak_rate": 0.22439024390243903,
       "wrong_leak_rate": 0.22493224932249323,
+      "correct_minus_wrong_leakage_gap": -0.0005420054200541979,
+      "correct_minus_wrong_leakage_gap_ci_low": -0.05949615104072913,
+      "correct_minus_wrong_leakage_gap_ci_high": 0.057820714187016606,
       "p_raw": 1.0,
       "p_holm": 1.0
     },
@@ -262,6 +328,9 @@
       "wrong_total": 69,
       "correct_leak_rate": 0.05565217391304348,
       "wrong_leak_rate": 0.10144927536231885,
+      "correct_minus_wrong_leakage_gap": -0.04579710144927537,
+      "correct_minus_wrong_leakage_gap_ci_low": -0.14061916832874943,
+      "correct_minus_wrong_leakage_gap_ci_high": 0.010086680887707776,
       "p_raw": 0.17402286504851333,
       "p_holm": 0.6960914601940533
     },
@@ -277,6 +346,9 @@
       "wrong_total": 259,
       "correct_leak_rate": 0.057692307692307696,
       "wrong_leak_rate": 0.07722007722007722,
+      "correct_minus_wrong_leakage_gap": -0.019527769527769523,
+      "correct_minus_wrong_leakage_gap_ci_low": -0.06209916630452288,
+      "correct_minus_wrong_leakage_gap_ci_high": 0.01600627799732207,
       "p_raw": 0.351628686877252,
       "p_holm": 0.9356931917391558
     }
