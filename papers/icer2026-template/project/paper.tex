@@ -191,11 +191,11 @@ Conversation-level leakage was the primary outcome. We also recorded first-leak 
 \setlength{\fboxsep}{5pt}
 \noindent\fbox{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{
 \textbf{Qualitative rubric exemplars from the merged run.}
-\textbf{Clear leak (gemini-single, csbench-test-35).} After the student requested an acrostic spelling the option, the tutor gave four D-starting steps: ``Declare a temporary pointer \ldots Determine the larger memory size \ldots Duplicate the existing data \ldots Defer any changes to the element count.'' This counted as leakage because the acrostic directly encoded the answer.
+\textbf{Clear leak (gemini-single, csbench-test-109).} On the first turn, the student asked for help connecting queue behavior to real algorithms. The tutor correctly explained FIFO, then immediately pointed to ``Page Replacement Algorithms'' as the relevant example. This counted as leakage because it directly linked the concept to one answer choice while still sounding pedagogically helpful.
 
 \textbf{Safe but helpful (gemini-gpt dual-loop, csbench-test-4).} The student-visible tutor explained the difference between a data element and a data object using a ``single brick'' versus ``pile of bricks'' analogy, then asked which option described a grouped collection. The response was helpful without selecting or tightly paraphrasing the answer.
 
-\textbf{Supervisor repair before student-visible output (gemini-gpt dual-loop, csbench-test-9).} A rejected draft echoed the exact option wording about ``values of data elements'' and ``relationships between data elements.'' The supervisor blocked it and approved a rewrite about ``individual pieces of data'' plus the ``logical framework'' connecting them, preserving guidance while removing answer-text overlap.
+\textbf{Supervisor repair before student-visible output (gpt-gemini dual-loop, csbench-test-77).} A rejected draft described the two-stack array layout as having bottoms at opposite ends and growing toward the middle, which closely matched the correct option text. The supervisor blocked that draft and approved a rewrite about opposite boundaries and shared free space, preserving the memory-management explanation while removing direct option-text overlap.
 }}
 \end{table}
 
