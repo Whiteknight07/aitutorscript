@@ -258,31 +258,15 @@ Compliance and hallucination should be read cautiously. Dual-loop supervision dr
 
 \subsection{Leakage Timing and Survival by Turn}
 
-Conversation-level leakage rates summarize whether failure happened at all, but they do not show when the tutoring boundary breaks down. Turn-level survival addresses that question (Table~\ref{tab:survival}). GPT in the single condition is the clearest example: on CSBench, survival falls from 96.6\% after turn 1 to 84.2\% by turn 6; on PeerWise, it falls from 99.9\% to 77.5\%. The difference is not just that PeerWise has more leakage. It is that leakage continues to accumulate under pressure rather than being concentrated only in the first reply.
+Conversation-level leakage rates summarize whether failure happened at all, but they do not show when the tutoring boundary breaks down. Turn-level survival addresses that question (Figure~\ref{fig:survival}). GPT in the single condition is the clearest example: on CSBench, survival falls from 96.6\% after turn 1 to 84.2\% by turn 6; on PeerWise, it falls from 99.9\% to 77.5\%. The difference is not just that PeerWise has more leakage. It is that leakage continues to accumulate under pressure rather than being concentrated only in the first reply.
 
-\begin{table}[t]
-\caption{Leakage-free survival by turn for selected conditions.}
-\label{tab:survival}
-\footnotesize
+\begin{figure}[t]
 \centering
-\setlength{\tabcolsep}{4pt}
-\renewcommand{\arraystretch}{0.95}
-\begin{tabular}{@{}llcccccc@{}}
-\toprule
-Tutor/Condition & Source & $t1$ & $t2$ & $t3$ & $t4$ & $t5$ & $t6$ \\
-\midrule
-GPT single & CSBench & 96.6\% & 93.3\% & 90.5\% & 88.4\% & 86.3\% & 84.2\% \\
-Gemini single & CSBench & 99.7\% & 98.6\% & 97.4\% & 96.6\% & 96.1\% & 93.9\% \\
-GPT/GPT dual & CSBench & 99.4\% & 97.8\% & 97.2\% & 96.7\% & 96.6\% & 96.3\% \\
-Gemini/GPT dual & CSBench & 99.8\% & 99.2\% & 98.6\% & 98.6\% & 98.6\% & 98.4\% \\
-\midrule
-GPT single & PeerWise & 99.9\% & 96.8\% & 90.5\% & 84.9\% & 80.6\% & 77.5\% \\
-Gemini single & PeerWise & 100.0\% & 99.4\% & 98.2\% & 97.0\% & 96.1\% & 93.6\% \\
-GPT/GPT dual & PeerWise & 100.0\% & 99.5\% & 98.7\% & 98.2\% & 98.1\% & 97.9\% \\
-Gemini/GPT dual & PeerWise & 100.0\% & 99.7\% & 99.2\% & 98.3\% & 98.2\% & 98.1\% \\
-\bottomrule
-\end{tabular}
-\end{table}
+\includegraphics[width=\linewidth]{figures/leakage-survival-panels.pdf}
+\Description{A four-panel survival chart with one panel for each tutor-source cell: GPT on CSBench, GPT on PeerWise, Gemini on CSBench, and Gemini on PeerWise. Within each panel, the single-tutor curve drops more steeply than the same-provider and cross-provider dual-loop curves, with the largest decline for GPT single on PeerWise.}
+\caption{Leakage-free survival by student-visible turn. Panels split by tutor family and question source; within each panel, lines compare single tutoring with same-provider and cross-provider dual-loop supervision. Same-provider means GPT/GPT in the GPT-tutor panels and Gemini/Gemini in the Gemini-tutor panels; cross-provider means GPT/Gemini and Gemini/GPT. The y-axis is truncated to 75--100\% to make late-turn divergence visible.}
+\label{fig:survival}
+\end{figure}
 
 First-leak incidence by turn supports the same interpretation. GPT single on PeerWise leaks rarely at turn 1, then more often at turns 3, 4, and 5. In other words, early safety does not guarantee continued safety. The conversation itself is part of the failure mechanism. Dual-loop supervision changes that dynamic by keeping the survival curve much flatter across later turns.
 
