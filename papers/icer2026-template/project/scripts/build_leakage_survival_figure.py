@@ -229,7 +229,7 @@ def build_svg(summary: dict[tuple[str, str, str], dict]) -> str:
 
   inner_left = 54
   inner_right = 76
-  inner_top = 34
+  inner_top = 50
   inner_bottom = 38
 
   parts = [
@@ -288,8 +288,18 @@ def build_svg(summary: dict[tuple[str, str, str], dict]) -> str:
         f'<rect x="{plot_x:.1f}" y="{plot_y:.1f}" width="{plot_width:.1f}" height="{plot_height:.1f}" '
         f'fill="white" stroke="#e0e0e0" stroke-width="1.0" />'
       )
-      parts.append(svg_text(panel_x + 18, panel_y + 24, title, size=17, weight='700', extra='class="panel-title"'))
-      parts.append(svg_text(panel_x + 18, panel_y + 42, f'n = {panel_n}', size=12, fill='#666666', extra='class="panel-note"'))
+      parts.append(svg_text(panel_x + 18, panel_y + 28, title, size=17, weight='700', extra='class="panel-title"'))
+      parts.append(
+        svg_text(
+          panel_x + panel_width - 18,
+          panel_y + 28,
+          f'n = {panel_n}',
+          size=12,
+          anchor='end',
+          fill='#666666',
+          extra='class="panel-note"',
+        ),
+      )
 
       def x_for_turn(turn: int) -> float:
         return plot_x + plot_width * (turn - 1) / (MAX_TURN - 1)
