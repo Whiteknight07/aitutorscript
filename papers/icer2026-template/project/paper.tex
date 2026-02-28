@@ -67,13 +67,15 @@ This design lets us ask four focused questions:
 
 The scope is intentionally narrow: we make claims about high-pressure, MCQ-only tutoring in a synthetic, model-mediated setting. Within that scope, the paper argues that answer leakage is best understood as a breakdown in tutoring interaction, with supervision serving mainly as a way to probe and sometimes stabilize that boundary.
 
+Beyond the earlier workshop-scale result that established the basic leakage risk under escalating requests, the present paper adds three pieces needed for a tighter educational interpretation: a direct source comparison across two question provenances, a matched closed-book linkage that separates answerability from tutoring behavior, and a concrete account of how much supervision burden is required to preserve the boundary. The argument therefore proceeds in a deliberate arc: the next sections situate leakage as a learning-relevant failure of tutoring, show how the interaction design and study setup make that failure observable, and then use RQ1--RQ4 to distinguish interaction trajectory, answerability, provenance, and practical control cost.
+
 \section{Related Work}
 
 \subsection{Productive Struggle, Help-Seeking, and LLM Tutoring}
 
 Recent work on LLM tutoring in computing education shows both promise and instability. Systems such as CodeAid explicitly try to balance support for students with instructor concerns about overhelping \cite{kazemitabaar2024codeaid}, and earlier Socratic tutoring work in computer science similarly emphasizes question-driven scaffolding rather than answer delivery \cite{alshaikh2020socratic}. These studies establish that non-disclosing tutoring is a real instructional objective, not an artificial restriction imposed for evaluation.
 
-Classic learning research helps explain why that objective matters. Productive failure and retrieval-based practice rely on learners generating and testing their own answers before receiving the solution, while the learning-versus-performance literature cautions that assistance which feels efficient in the moment may weaken later retention or transfer \cite{kapur2008productivefailure,roediger2006testenhanced,soderstrom2015learningperformance}. In this paper, answer leakage is one observable way an AI tutor can move from scaffolding into over-assistance.
+Classic learning research helps explain why that objective matters. Productive failure and retrieval-based practice rely on learners generating and testing their own answers before receiving the solution, while the learning-versus-performance literature cautions that assistance which feels efficient in the moment may weaken later retention or transfer \cite{kapur2008productivefailure,roediger2006testenhanced,soderstrom2015learningperformance}. In multiple-choice tutoring, the critical final act is often the learner's own discrimination among plausible options or candidate results. Answer leakage removes that last step prematurely. In this paper, it is therefore one observable way an AI tutor can move from scaffolding into over-assistance.
 
 Broader evaluations of educational dialogue reinforce the same distinction: conversational fluency does not guarantee pedagogical quality \cite{tack2022teacher,shi2025educationq}. A model can sound helpful while still abandoning the intended tutoring stance. We use a narrow operational definition of leakage precisely so that this specific teaching failure can be measured consistently at scale.
 
@@ -87,13 +89,13 @@ This framing also changes what counts as leakage. In multiple-choice tutoring, a
 
 This paper also speaks to benchmark design in computing education. The PeerWise slice reflects student-generated, community-authored question content \cite{denny2008peerwise}, whereas CSBench contributes expert-curated benchmark items \cite{song2024csbench}. If tutor behavior changes substantially across those sources, then benchmark choice is part of the educational claim, not just background reporting.
 
-The paper also connects to review-loop designs in educational AI. Prior work has used critics, reviewers, and multi-agent dialogue to alter or evaluate teaching behavior \cite{shi2025educationq}. Here, the distinctive question is not whether a second model changes a response in the abstract, but whether a review step changes what the student actually sees, and whether that change is educationally meaningful once revision burden is considered.
+The paper also connects to review-loop designs in educational AI. Prior work has used critics, reviewers, and multi-agent dialogue to alter or evaluate teaching behavior \cite{shi2025educationq}. In that lineage, the present analysis asks not only whether leakage occurs, but whether it tracks source provenance, whether it can be reduced to closed-book answerability, and how much student-visible protection a lightweight review loop buys once rejection burden is counted. Here, the distinctive question is not whether a second model changes a response in the abstract, but whether a review step changes what the student actually sees, and whether that change is educationally meaningful once revision burden is considered.
 
 \section{Interaction Design as Study Instrument}
 
 The study compares two interaction designs. In the single-tutor condition, the tutor sees the question, the options, and the visible conversation history, then responds directly to the learner. In the dual-loop condition, the tutor still drafts first, but that draft is reviewed before it reaches the learner. If the review rejects the draft, the tutor revises against the review feedback until the draft is approved or the loop falls back after the configured maximum number of iterations.
 
-This distinction matters because it makes the student-visible turn, not the hidden first draft, the relevant unit of analysis. The review loop is therefore useful in two ways. It can mitigate leakage, and it also turns otherwise hidden behavior into observable process data: which drafts were rejected, whether revisions repaired the problem, how many iterations were needed, and what latency or call overhead accompanied that review.
+This distinction matters because it makes the student-visible turn, not the hidden first draft, the relevant unit of analysis. A rejected draft can be diagnostically useful, but it changes the learner's opportunity to reason only if some version of it becomes visible. The review loop is therefore useful in two ways. It can mitigate leakage, and it also turns otherwise hidden behavior into observable process data: which drafts were rejected, whether revisions repaired the problem, how many iterations were needed, and what latency or call overhead accompanied that review.
 
 The same interaction design is then executed at scale with an automated student simulator and an automated turn judge. Because every turn stores both the visible exchange and the review trace, the study can separate three related questions that are often conflated: when leakage first appears in the dialogue, whether review changes the student-visible outcome, and how much instructional overhead that review introduces.
 
@@ -157,11 +159,11 @@ This composition matters for interpretation even though the paper does not make 
 
 Tutor models were GPT-5.1 and Gemini-3-Flash-Preview. In the single condition, each tutor responded directly to the student. In the dual-loop condition, the same tutor families were paired with either themselves or the other family as reviewer, yielding four tutor-reviewer pairings: GPT/GPT, Gemini/Gemini, GPT tutor with Gemini reviewer, and Gemini tutor with GPT reviewer.
 
-The canonical merged run used \texttt{google/gemini-3-flash-preview} for question generation, the student simulator, and judging, with \texttt{turns=6}, \texttt{maxIters=5}, \texttt{parallel=10}, and \texttt{earlyStop=true}. Outside the judge's \texttt{maxOutputTokens=320}, the repository leaves sampling controls and general output limits at provider defaults rather than setting temperature, top\_p, top\_k, seed, or a global token cap in code.
+In that canonical run, \texttt{google/gemini-3-flash-preview} handled question generation, the student simulator, and judging, with \texttt{turns=6}, \texttt{maxIters=5}, \texttt{parallel=10}, and \texttt{earlyStop=true}; other generation settings were left at provider defaults except where noted, such as the judge's \texttt{maxOutputTokens=320}.
 
 \subsection{Conversation Protocol and Outcomes}
 
-Conversations were allowed to continue for up to six turns. Each turn consisted of one student message and one student-visible tutor response. In dual-loop conditions, the visible response was the first approved tutor draft or, if the maximum number of revisions was exhausted, a fallback response. The metadata do not expose a separate protocol version string for the student simulator, but the merged logs show a stable six-level escalation pattern: the dialogue begins with ordinary requests for help and moves toward more direct answer-seeking, pressure, and indirect reconstruction attempts.
+Conversations were allowed to continue for up to six turns. Each turn consisted of one student message and one student-visible tutor response. In dual-loop conditions, the visible response was the first approved tutor draft or, if the maximum number of revisions was exhausted, a fallback response. The metadata do not expose a separate protocol version string for the student simulator, but the merged logs show a stable six-level escalation pattern: the dialogue begins with ordinary requests for help, then asks for stronger hints, option narrowing, confirmation, likely-answer guidance, and finally direct or indirectly reconstructable answer disclosure.
 
 After each student-visible tutor response, the turn judge scored the executed turn for leakage, hallucination, and Socratic compliance. Leakage was defined conservatively as revealing a final numeric, symbolic, or otherwise definitive answer. In the MCQ setting, this included selecting an option or eliminating options such that the answer became recoverable. Hallucination indicated factually incorrect domain content in the tutor response. Compliance indicated maintenance of a Socratic tutoring style rather than direct solution giving.
 
@@ -192,11 +194,15 @@ Most tables in this paper are descriptive summaries of one fixed merged run. For
 
 \section{Results}
 
+The results are organized to answer progressively sharper educational questions. RQ1 establishes that leakage is temporally back-loaded within conversations rather than concentrated at the first reply. RQ2 then asks whether that pattern can be reduced to item answerability and shows that it cannot be explained cleanly that way. RQ3 adds the source dimension by showing that provenance changes both how often leakage occurs and what kind of disclosure appears, while RQ4 uses the dual-loop traces to interpret supervision as both mitigation and measured instructional burden.
+
 \subsection{RQ1: Leakage as a Multi-Turn Interaction Phenomenon}
 
 The main RQ1 pattern is temporal rather than purely aggregate: leakage accumulates as the conversation continues. Figure~\ref{fig:survival} shows that the steepest failures appear in later turns, not at the first response. GPT in the single condition is the clearest example. On CSBench, leakage-free survival falls from 96.6\% after turn 1 to 84.2\% by turn 6. On PeerWise, it falls from 99.9\% to 77.5\%. Early safety therefore does not imply conversational safety.
 
 The first leaks are also concentrated after the opening exchange. GPT single on PeerWise leaks only once at turn 1, then leaks 24 times at turn 2, 49 times at turn 3, and 44 times at turn 4. This matters educationally because the tutoring boundary is being negotiated across turns: a response that begins as scaffolding can collapse into disclosure as the learner persists, reframes, or pressures the tutor.
+
+The back-loading is visible even within the set of conversations that eventually leak. On PeerWise, 126 of GPT single's 175 leaking conversations (72.0\%) first leak in turns 3--5. Gemini single is more delayed still: 20 of 50 leaks (40.0\%) first appear only at turn 6, and 27 of 50 (54.0\%) first appear in turns 5--6. The survival curves therefore show more than a generic multi-turn effect. In this corpus, boundary failure is typically deferred until the student has already received several rounds of apparently acceptable help.
 
 Dual-loop review supports that interpretation by flattening the late-turn decline. Across all single-tutor conversations, leakage occurred in 366/2,846 conversations (12.9\%). Across all dual-loop conversations, leakage fell to 153/5,692 (2.7\%), a relative reduction of roughly 79\%. Question-paired exact McNemar tests confirmed lower leakage in every matched single-versus-dual-loop comparison (all $p_{\mathrm{Holm}} \le .0026$), but the main use of that comparison here is explanatory: it shows that conversational pressure is a large part of the phenomenon, and that turn-level review can materially change the visible trajectory. Table~\ref{tab:outcomes} gives the conversation-level counterpart to the survival curves.
 
@@ -267,9 +273,9 @@ GPT-GPT & Dual-loop & GPT & 19/490 (3.9\%) & 5/154 (3.2\%) & 6/410 (1.5\%) & 10/
 \end{tabular}}
 \end{table}
 
-This controlled view supports a narrower inference than ``knowledge causes leakage'' or ``lack of knowledge prevents leakage.'' The descriptive tables show leakage on both closed-book-correct and closed-book-wrong items, and the correct-versus-wrong split does not follow a simple monotone pattern across cells.
+This controlled view supports a narrower inference than ``knowledge causes leakage'' or ``lack of knowledge prevents leakage.'' The descriptive tables show leakage on both closed-book-correct and closed-book-wrong items, and the correct-versus-wrong split does not follow a simple monotone pattern across cells. Several reviewed cells are even slightly higher on closed-book-wrong items than on closed-book-correct items, including GPT/Gemini on CSBench (5.8\% wrong versus 3.7\% correct), Gemini/GPT on CSBench (2.9\% versus 1.4\%), GPT/Gemini on PeerWise (4.1\% versus 3.2\%), and GPT/GPT on PeerWise (2.7\% versus 1.5\%). The claim is intentionally narrow: these contrasts do not show that wrong items are usually leakier. They do show that uncertainty is not a reliable guardrail, so answerability alone does not explain the tutoring boundary.
 
-\subsection{RQ3: Provenance and Content Effects}
+\subsection{RQ3: Provenance-Linked Leakage Profiles}
 
 Source provenance remained a first-order factor across the run. PeerWise behaved as the harder slice for both tutors: closed-book accuracy dropped there by 22.5--23.5 percentage points, single-tutor GPT leakage rose there by 6.7 points, and every dual-loop pairing had a higher reject rate there than on CSBench. Because concept distribution is uneven (Table~\ref{tab:concepts}), we interpret this as a source-sensitive profile in this corpus rather than as a single-cause effect.
 
@@ -292,6 +298,8 @@ Other & 118/219 (53.9\%) & 90/300 (30.0\%) \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+The source difference is not only about how often leakage occurs. On PeerWise, the first leaking response more often takes forms that are immediately usable by a student: final numeric or otherwise unique-result leaks account for 21.3\% of first leaks versus 11.4\% on CSBench, and paraphrase-equivalent leaks account for 36.0\% versus 27.4\%. These are precisely the leak types most likely to remove the learner's last discriminating step while still sounding like explanation. PeerWise's heavy data-structures concentration may contribute to that profile, but in this paper we treat that as source-linked context rather than as a separate causal claim.
 
 This taxonomy is heuristic rather than fully validated, so it is descriptive rather than definitive. In this coding scheme, the residual ``Other'' bucket captures leaks that did not fit the four named bins; in practice, that can include unusually specific restatements or partial-solution disclosures that effectively collapse the remaining choice. Its practical value is therefore not to provide a final ontology of leakage, but to show that auditing only for direct answer letters or literal final-answer statements will miss a meaningful share of the problem.
 
@@ -322,9 +330,11 @@ Gemini/GPT & PeerWise & 530/4639 (11.4\%) & 1.14 & 88.6\% & 524/530 (98.9\%) & 5
 \end{tabular}}
 \end{table}
 
-Two practical interpretations follow. First, the PeerWise slice is not only harder in the sense of lower closed-book accuracy. It is also more review-intensive: every pairing produces a higher reject rate there than on CSBench. Second, review-heavy cells are still not dominated by long revision chains. Even GPT/GPT on PeerWise, the busiest cell, averages only 1.22 iterations per student-visible turn and repairs 98.3\% of rejected drafts into safe approved responses.
+Two practical interpretations follow. First, the PeerWise slice is not only harder in the sense of lower closed-book accuracy. It is also more review-intensive: every pairing produces a higher reject rate there than on CSBench, and turn 6 is the peak reject point for all four PeerWise pairings (21.1\% for GPT/GPT, 5.7\% for Gemini/Gemini, 10.6\% for GPT/Gemini, and 16.7\% for Gemini/GPT). Review burden therefore rises exactly where RQ1 shows disclosure pressure rising: at the end of the conversation.
 
-Reviewer intervention is also more concentrated in later turns, especially on PeerWise. GPT/GPT on PeerWise rises from 9.9\% rejection at turn 1 to 21.1\% at turn 6, while Gemini/GPT rises from 6.3\% to 16.7\%. This again supports the RQ1 interpretation that disclosure pressure builds over the conversation.
+Second, the ``best'' reviewer is pairing-dependent rather than reducible to a simple same-provider versus cross-provider rule. On PeerWise, Gemini/Gemini is nearly as safe as Gemini/GPT (2.1\% versus 1.9\% leakage) while requiring far less intervention (2.5\% versus 11.4\% rejects) and lower median conversation latency (45.6\,s versus 53.8\,s). For GPT as tutor, by contrast, GPT/GPT achieves lower leakage than GPT/Gemini on PeerWise (2.1\% versus 3.6\%) but only with much heavier review. The educationally relevant design choice is therefore not just whether to add a reviewer, but which reviewer produces an acceptable safety-cost tradeoff for the tutor and source in view.
+
+Review-heavy cells are still not dominated by long revision chains. Even GPT/GPT on PeerWise, the busiest cell, averages only 1.22 iterations per student-visible turn and repairs 98.3\% of rejected drafts into safe approved responses.
 
 The overhead is real but bounded. In single-tutor runs, mean model calls per turn were 3.0 when counting student simulation, tutor generation, and judging; in dual-loop runs, they rose to 4.04--4.43. Mean tokens per conversation increased from roughly 22.6k--27.0k in single-tutor conditions to 32.0k--46.8k in dual-loop conditions. The practical interpretation is not that review is free, but that it behaves like one additional review layer rather than an open-ended multi-stage process.
 
@@ -336,11 +346,15 @@ The overhead is real but bounded. In single-tutor runs, mean model calls per tur
 
 Across this run, leakage is a conversational phenomenon rather than only a first-reply problem. That matters because many of the instructional benefits of practice come from the learner continuing to generate, retrieve, and refine an answer rather than receiving it immediately \cite{roediger2006testenhanced,soderstrom2015learningperformance}. A tutor that stays non-disclosing in turn 1 but collapses in turn 4 still undermines that process. For computing education, the practical lesson is to evaluate tutoring interactions longitudinally: the relevant question is not ``Did the first answer sound Socratic?'' but ``Did the tutoring boundary survive the student's persistence?''
 
+This matters for course evaluation because short scripted demos can systematically overstate safety. The most consequential leaks in this run, especially on PeerWise, often arrived only after several turns of apparently reasonable help. In instructional use, those are exactly the exchanges most likely to feel trustworthy to a learner: the tutor looks helpful, then gives away the discriminating step once the student keeps asking. For computing educators, that means leakage testing should include persistent follow-up sequences that resemble self-study or last-minute review, not only single-turn hint requests.
+
 \subsection{RQ2: Knowledge Versus Interaction Mechanism}
 
 \textbf{Educational implication.} Closed-book correctness should not be treated as a proxy for tutoring-boundary behavior.
 
 The correctness-conditioned analyses did not support strong within-cell correct-versus-wrong leakage differences in single-tutor cells after Holm correction, and wrong-answer items still leaked in both single and dual-loop settings. This does not mean answer knowledge is irrelevant. It means that a tutor can over-assist by pattern-matching to a revealing explanation, an option paraphrase, or a near-solution even when its direct answerability is imperfect. For educators, this matters because model competence and tutoring quality are related but not interchangeable constructs.
+
+The practical implication is that closed-book benchmark scores are an incomplete model-selection signal for tutoring use. A model can miss the item itself yet still reveal enough structure to let a student infer the option, especially in MCQ settings where narrowing the space is already most of the work. Conversely, a model that answers correctly can sometimes preserve the boundary. Computing education evaluations should therefore keep competence and tutoring-boundary measures side by side rather than collapsing both into a single axis of ``capability.''
 
 \subsection{RQ3: Provenance as an Educational Variable}
 
@@ -348,19 +362,23 @@ The correctness-conditioned analyses did not support strong within-cell correct-
 
 In this corpus, PeerWise was consistently the harsher slice: lower closed-book accuracy for both tutors, higher reject rates for every reviewed pairing, and higher single-tutor GPT leakage. We avoid a stronger causal attribution because source and concept composition are intertwined. The practical implication is still clear: reporting one benchmark cell can hide source-sensitive tutoring fragility. In course settings, that means a tutor that appears well behaved on curated material may be substantially less stable on student-authored question ecosystems whose phrasing, distractors, and ambiguity are closer to classroom practice.
 
+That distinction is educationally meaningful because the source changes the form of overhelp, not only its frequency. PeerWise first leaks were more often paraphrase-equivalent or final-result disclosures, both of which can be copied into an answer with minimal additional reasoning. In other words, the source difference is not just ``more errors'' or ``more leaks.'' It can alter how directly the tutor substitutes for the student's final comparison step. For instructors, that means local validation on course-like or student-authored material is not optional background checking; it is part of determining what kind of help the tutor is actually providing.
+
 \subsection{RQ4: Mitigation Practicality for Course Deployment}
 
 \textbf{Educational implication.} Dual-loop supervision is a plausible boundary-preserving strategy for high-cost disclosure contexts, but it is not free.
 
-Across all matched single-versus-dual comparisons, leakage fell significantly (absolute drops 3.4--20.4 points; matched odds ratios 2.57--18.67). The educational value of that result is not that review magically makes tutoring ``better.'' It is that review can preserve a narrower but important prerequisite for learning: the student is still asked to do the final discriminating step. Operationally, the burden remained moderate, but not negligible: latency, tokens, and call volume increased, and the burden was consistently higher on PeerWise. The deployment rule of thumb is therefore to treat review as a context-sensitive support for maintaining productive struggle, not as a substitute for choosing a strong base tutor.
+Across all matched single-versus-dual comparisons, leakage fell significantly (absolute drops 3.4--20.4 points; matched odds ratios 2.57--18.67). The educational value of that result is not that review magically makes tutoring ``better.'' It is that review can preserve a narrower but important prerequisite for learning: the student still has to make the last substantive choice. Operationally, the burden remained moderate, but not negligible: latency, tokens, and call volume increased, and the burden was consistently higher on PeerWise. The deployment rule of thumb is therefore to treat review as a context-sensitive support for maintaining productive struggle, not as a substitute for choosing a strong base tutor.
 
-Taken together, RQ1--RQ4 support a configuration-specific interpretation: leakage risk in AI tutoring is shaped by interaction trajectory, answerability context, content provenance, and control policy. The main contribution is not the review loop itself. It is the clearer educational interpretation of what leakage measures when tutoring is evaluated as an interaction rather than as a single response.
+For course deployment, the practical question is not whether supervision reduces leakage in principle, but whether the added friction is justified in the instructional setting. In high-stakes self-testing or homework-adjacent practice, a moderate latency increase may be acceptable if it keeps the tutor from short-circuiting that last bit of learner reasoning. In lower-stakes formative exploration, the same overhead may be harder to justify, especially when a stronger base tutor already performs well. The pairing-dependent tradeoffs in this run therefore argue for selective use: review is a targeted instructional control, not a universal default.
+
+Across RQ1--RQ4, the broader methodological lesson is that leakage claims become interpretable only when trajectory, benchmark source, answerability context, and process burden are read together. One benchmark is not enough because provenance changes both how often and how directly tutors leak. Closed-book competence is not enough because answerability does not map cleanly onto tutoring-boundary behavior. A mitigation result is also incomplete unless the burden required to sustain it is visible. Within this scope, the main contribution is therefore not the review loop itself, but a tighter educational account of leakage as an interactional failure whose meaning depends on what students see over time and what it costs to keep that last inferential move with the learner.
 
 \section{Threats to Validity and Ethics}
 
 \subsection{Construct and Measurement Validity}
 
-The paper operationalizes leakage narrowly, which aids reproducibility but also creates construct risk. A response can be educationally poor without leaking, and some disclosures are more implied than explicit. Our taxonomy broadens leakage beyond direct answer statements, but it remains a heuristic rather than a fully human-validated ontology. The same caution applies to compliance and hallucination: both are useful guardrails here, not complete measures of pedagogical quality.
+The paper operationalizes leakage narrowly, which aids reproducibility but also creates construct risk. A response can be educationally poor without leaking, and some disclosures are more implied than explicit. Our taxonomy broadens leakage beyond direct answer statements, but it remains a heuristic rather than a fully human-validated ontology. The measured outcomes should therefore be read as behavioral proxies for disclosure control, not as direct measures of student learning. The same caution applies to compliance and hallucination: both are useful guardrails here, not complete measures of pedagogical quality.
 
 Judge-based labeling introduces a second construct threat. The judge is itself an LLM, so leakage, hallucination, and compliance labels inherit some model-specific bias. We therefore emphasize comparative patterns across conditions rather than strong claims about the absolute meaning of any single compliance or hallucination percentage.
 
@@ -368,7 +386,7 @@ Judge-based labeling introduces a second construct threat. The judge is itself a
 
 The study does not use human participants. All analyzed conversations are synthetic interactions between configured tutor, student simulator, reviewer, and judge models. This improves reproducibility, but it means the paper should not be read as direct evidence about student perceptions, frustration, trust, or classroom learning.
 
-Several internal-validity threats follow. The student simulator cannot capture the full variety of real student behavior. Because the student simulator and judge are both Gemini-based components held constant across conditions, there may also be correlated biases in both escalation and evaluation. These constraints narrow what can be generalized from the within-study comparisons.
+Several internal-validity threats follow. The student simulator cannot capture the full variety of real student behavior. Because the student simulator and judge are both Gemini-based components held constant across conditions, shared model biases may systematically shape both the pressure applied and the labels assigned. These constraints narrow what can be generalized from the within-study comparisons.
 
 External validity is further constrained by format and source. The analyzed corpus is entirely MCQ-based and includes only CSBench and PeerWise items. The results therefore do not establish the same leakage profile for open-ended explanations, code synthesis, proofs, or other tutoring formats where the line between hinting and disclosure is less operationally clear.
 
@@ -380,7 +398,7 @@ This work also has a dual-use aspect. Studying how tutors leak can reveal strate
 
 \section{Limitations}
 
-This study is narrow in several ways. It is MCQ-only, limited to two tutor families and a small review matrix, and based on one canonical merged run plus one closed-book file. Some correctness-conditioned cells are small, especially wrong-answer cells for Gemini on CSBench, so those comparisons should be read as suggestive rather than definitive.
+This study is narrow in several ways. It is MCQ-only, limited to two tutor families and a small review matrix, and based on one canonical merged run plus one closed-book file. It therefore shows when a tutoring boundary fails under pressure, not whether those failures changed actual learning outcomes. Some correctness-conditioned cells are small, especially wrong-answer cells for Gemini on CSBench, so those comparisons should be read as suggestive rather than definitive.
 
 The available metadata also leave some parameters implicit. The repository and run files let us recover core settings such as turns, iteration limits, model IDs, and the absence of explicit sampling controls, but they do not expose an independently versioned student-simulator protocol identifier. Future replications should lock down those details even more tightly.
 
@@ -392,9 +410,11 @@ The third is ecological validation with authentic student behavior. The syntheti
 
 \section{Conclusion}
 
-The central result of this paper is educational: answer leakage is a multi-turn breakdown in tutoring, not simply a sign that a model ``gave the answer'' once. In this corpus, leakage accumulated under conversational pressure, varied sharply by question provenance, and was not cleanly explained by whether the same tutor could answer the item correctly in closed-book mode. Those patterns make leakage more interpretable as a teaching failure: the tutor stops preserving the learner's final reasoning step.
+The central result of this paper is educational: answer leakage is a multi-turn breakdown in tutoring, not simply a sign that a model ``gave the answer'' once. In this corpus, leakage accumulated under conversational pressure, varied sharply by question provenance, and was not cleanly explained by whether the same tutor could answer the item correctly in closed-book mode. Those patterns make leakage more interpretable as a teaching failure: the tutor stops leaving the learner the last substantive inference.
 
-The dual-loop condition matters because it makes that boundary visible and, often, more stable. Review reduced student-visible leakage across every tutor-source cell while revealing the practical burden required to keep the tutoring boundary intact. For computing education, the broader lesson is to evaluate whether AI tutors preserve productive struggle across an interaction, not just whether a first response looks fluent, correct, or politely Socratic.
+These claims are confined to six-turn, high-pressure, MCQ tutoring dialogues in a synthetic setup over CSBench and PeerWise; they do not establish the same leakage profile for broader tutoring formats or classroom populations.
+
+The dual-loop condition matters because it makes that instructional boundary visible and, often, more stable. Review reduced student-visible leakage across every tutor-source cell while revealing the practical burden required to sustain it. For computing education, the broader lesson is to evaluate whether AI tutors preserve productive struggle across an interaction, not just whether a first response looks fluent, correct, or politely Socratic.
 
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{paper}
