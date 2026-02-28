@@ -12,10 +12,10 @@ text { font-family: "Nimbus Roman", "Liberation Serif", serif; }
 <text x="194.0" y="53.0" font-size="14" font-weight="600" text-anchor="start" fill="#111111" class="legend-text">Single</text>
 <line x1="410" y1="48.0" x2="460" y2="48.0" stroke="#16697a" stroke-width="3.0" stroke-linecap="round" stroke-dasharray="10 6" />
 <rect x="430.5" y="43.5" width="9.0" height="9.0" fill="white" stroke="#16697a" stroke-width="2.0" />
-<text x="472.0" y="53.0" font-size="14" font-weight="600" text-anchor="start" fill="#111111" class="legend-text">Dual: same-provider</text>
+<text x="472.0" y="53.0" font-size="14" font-weight="600" text-anchor="start" fill="#111111" class="legend-text">Dual: GPT supervisor</text>
 <line x1="738" y1="48.0" x2="788" y2="48.0" stroke="#c77600" stroke-width="3.0" stroke-linecap="round" stroke-dasharray="3 5" />
 <polygon points="763.0,42.7 768.3,48.0 763.0,53.3 757.7,48.0" fill="white" stroke="#c77600" stroke-width="2.0" />
-<text x="800.0" y="53.0" font-size="14" font-weight="600" text-anchor="start" fill="#111111" class="legend-text">Dual: cross-provider</text>
+<text x="800.0" y="53.0" font-size="14" font-weight="600" text-anchor="start" fill="#111111" class="legend-text">Dual: Gemini supervisor</text>
 <text x="26.0" y="385.0" font-size="16" font-weight="700" text-anchor="start" fill="#111111" transform="rotate(-90 26 385)">Leakage-free conversations (%)</text>
 <text x="550.0" y="758.0" font-size="16" font-weight="700" text-anchor="middle" fill="#111111">Student-visible turn</text>
 <text x="1076.0" y="758.0" font-size="12" font-weight="400" text-anchor="end" fill="#666666">Y-axis truncated to 75-100% to show late-turn divergence.</text>
@@ -178,24 +178,24 @@ text { font-family: "Nimbus Roman", "Liberation Serif", serif; }
 <circle cx="474.0" cy="526.8" r="4.8" fill="white" stroke="#8c2d04" stroke-width="2.2" />
 <line x1="477.0" y1="526.8" x2="480.0" y2="526.8" stroke="#8c2d04" stroke-width="1.6" />
 <text x="486.0" y="530.8" font-size="13" font-weight="700" text-anchor="start" fill="#8c2d04">93.9%</text>
-<polyline points="126.0,481.0 195.6,489.2 265.2,492.7 334.8,497.4 404.4,497.4 474.0,501.0" fill="none" stroke="#16697a" stroke-width="3.0" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 6" />
-<rect x="121.5" y="476.5" width="9.0" height="9.0" fill="white" stroke="#16697a" stroke-width="2.0" />
-<rect x="191.1" y="484.7" width="9.0" height="9.0" fill="white" stroke="#16697a" stroke-width="2.0" />
-<rect x="260.7" y="488.2" width="9.0" height="9.0" fill="white" stroke="#16697a" stroke-width="2.0" />
-<rect x="330.3" y="492.9" width="9.0" height="9.0" fill="white" stroke="#16697a" stroke-width="2.0" />
-<rect x="399.9" y="492.9" width="9.0" height="9.0" fill="white" stroke="#16697a" stroke-width="2.0" />
-<rect x="469.5" y="496.5" width="9.0" height="9.0" fill="white" stroke="#16697a" stroke-width="2.0" />
-<line x1="477.0" y1="501.0" x2="480.0" y2="506.7" stroke="#16697a" stroke-width="1.6" />
-<text x="486.0" y="510.7" font-size="13" font-weight="700" text-anchor="start" fill="#16697a">97.4%</text>
-<polyline points="126.0,482.2 195.6,486.9 265.2,491.6 334.8,491.6 404.4,491.6 474.0,492.7" fill="none" stroke="#c77600" stroke-width="3.0" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="3 5" />
-<polygon points="126.0,476.9 131.3,482.2 126.0,487.5 120.7,482.2" fill="white" stroke="#c77600" stroke-width="2.0" />
-<polygon points="195.6,481.6 200.9,486.9 195.6,492.2 190.3,486.9" fill="white" stroke="#c77600" stroke-width="2.0" />
-<polygon points="265.2,486.3 270.5,491.6 265.2,496.9 259.9,491.6" fill="white" stroke="#c77600" stroke-width="2.0" />
-<polygon points="334.8,486.3 340.1,491.6 334.8,496.9 329.5,491.6" fill="white" stroke="#c77600" stroke-width="2.0" />
-<polygon points="404.4,486.3 409.7,491.6 404.4,496.9 399.1,491.6" fill="white" stroke="#c77600" stroke-width="2.0" />
-<polygon points="474.0,487.4 479.3,492.7 474.0,498.0 468.7,492.7" fill="white" stroke="#c77600" stroke-width="2.0" />
-<line x1="477.0" y1="492.7" x2="480.0" y2="492.7" stroke="#c77600" stroke-width="1.6" />
-<text x="486.0" y="496.7" font-size="13" font-weight="700" text-anchor="start" fill="#c77600">98.4%</text>
+<polyline points="126.0,482.2 195.6,486.9 265.2,491.6 334.8,491.6 404.4,491.6 474.0,492.7" fill="none" stroke="#16697a" stroke-width="3.0" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 6" />
+<rect x="121.5" y="477.7" width="9.0" height="9.0" fill="white" stroke="#16697a" stroke-width="2.0" />
+<rect x="191.1" y="482.4" width="9.0" height="9.0" fill="white" stroke="#16697a" stroke-width="2.0" />
+<rect x="260.7" y="487.1" width="9.0" height="9.0" fill="white" stroke="#16697a" stroke-width="2.0" />
+<rect x="330.3" y="487.1" width="9.0" height="9.0" fill="white" stroke="#16697a" stroke-width="2.0" />
+<rect x="399.9" y="487.1" width="9.0" height="9.0" fill="white" stroke="#16697a" stroke-width="2.0" />
+<rect x="469.5" y="488.2" width="9.0" height="9.0" fill="white" stroke="#16697a" stroke-width="2.0" />
+<line x1="477.0" y1="492.7" x2="480.0" y2="492.7" stroke="#16697a" stroke-width="1.6" />
+<text x="486.0" y="496.7" font-size="13" font-weight="700" text-anchor="start" fill="#16697a">98.4%</text>
+<polyline points="126.0,481.0 195.6,489.2 265.2,492.7 334.8,497.4 404.4,497.4 474.0,501.0" fill="none" stroke="#c77600" stroke-width="3.0" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="3 5" />
+<polygon points="126.0,475.7 131.3,481.0 126.0,486.3 120.7,481.0" fill="white" stroke="#c77600" stroke-width="2.0" />
+<polygon points="195.6,483.9 200.9,489.2 195.6,494.5 190.3,489.2" fill="white" stroke="#c77600" stroke-width="2.0" />
+<polygon points="265.2,487.4 270.5,492.7 265.2,498.0 259.9,492.7" fill="white" stroke="#c77600" stroke-width="2.0" />
+<polygon points="334.8,492.1 340.1,497.4 334.8,502.7 329.5,497.4" fill="white" stroke="#c77600" stroke-width="2.0" />
+<polygon points="404.4,492.1 409.7,497.4 404.4,502.7 399.1,497.4" fill="white" stroke="#c77600" stroke-width="2.0" />
+<polygon points="474.0,495.7 479.3,501.0 474.0,506.3 468.7,501.0" fill="white" stroke="#c77600" stroke-width="2.0" />
+<line x1="477.0" y1="501.0" x2="480.0" y2="506.7" stroke="#c77600" stroke-width="1.6" />
+<text x="486.0" y="510.7" font-size="13" font-weight="700" text-anchor="start" fill="#c77600">97.4%</text>
 <rect x="594.0" y="431.0" width="478.0" height="277.0" rx="14" ry="14" fill="#fbfbfb" stroke="#d9d9d9" stroke-width="1.2" />
 <rect x="648.0" y="481.0" width="348.0" height="189.0" fill="white" stroke="#e0e0e0" stroke-width="1.0" />
 <text x="612.0" y="459.0" font-size="17" font-weight="700" text-anchor="start" fill="#111111" class="panel-title">Gemini tutor / PeerWise</text>
@@ -233,22 +233,22 @@ text { font-family: "Nimbus Roman", "Liberation Serif", serif; }
 <circle cx="996.0" cy="529.5" r="4.8" fill="white" stroke="#8c2d04" stroke-width="2.2" />
 <line x1="999.0" y1="529.5" x2="1002.0" y2="529.5" stroke="#8c2d04" stroke-width="1.6" />
 <text x="1008.0" y="533.5" font-size="13" font-weight="700" text-anchor="start" fill="#8c2d04">93.6%</text>
-<polyline points="648.0,481.0 717.6,482.0 787.2,484.9 856.8,490.7 926.4,493.6 996.0,496.5" fill="none" stroke="#16697a" stroke-width="3.0" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 6" />
+<polyline points="648.0,481.0 717.6,482.9 787.2,486.8 856.8,493.6 926.4,494.6 996.0,495.6" fill="none" stroke="#16697a" stroke-width="3.0" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 6" />
 <rect x="643.5" y="476.5" width="9.0" height="9.0" fill="white" stroke="#16697a" stroke-width="2.0" />
-<rect x="713.1" y="477.5" width="9.0" height="9.0" fill="white" stroke="#16697a" stroke-width="2.0" />
-<rect x="782.7" y="480.4" width="9.0" height="9.0" fill="white" stroke="#16697a" stroke-width="2.0" />
-<rect x="852.3" y="486.2" width="9.0" height="9.0" fill="white" stroke="#16697a" stroke-width="2.0" />
-<rect x="921.9" y="489.1" width="9.0" height="9.0" fill="white" stroke="#16697a" stroke-width="2.0" />
-<rect x="991.5" y="492.0" width="9.0" height="9.0" fill="white" stroke="#16697a" stroke-width="2.0" />
-<line x1="999.0" y1="496.5" x2="1002.0" y2="509.6" stroke="#16697a" stroke-width="1.6" />
-<text x="1008.0" y="513.6" font-size="13" font-weight="700" text-anchor="start" fill="#16697a">97.9%</text>
-<polyline points="648.0,481.0 717.6,482.9 787.2,486.8 856.8,493.6 926.4,494.6 996.0,495.6" fill="none" stroke="#c77600" stroke-width="3.0" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="3 5" />
+<rect x="713.1" y="478.4" width="9.0" height="9.0" fill="white" stroke="#16697a" stroke-width="2.0" />
+<rect x="782.7" y="482.3" width="9.0" height="9.0" fill="white" stroke="#16697a" stroke-width="2.0" />
+<rect x="852.3" y="489.1" width="9.0" height="9.0" fill="white" stroke="#16697a" stroke-width="2.0" />
+<rect x="921.9" y="490.1" width="9.0" height="9.0" fill="white" stroke="#16697a" stroke-width="2.0" />
+<rect x="991.5" y="491.1" width="9.0" height="9.0" fill="white" stroke="#16697a" stroke-width="2.0" />
+<line x1="999.0" y1="495.6" x2="1002.0" y2="495.6" stroke="#16697a" stroke-width="1.6" />
+<text x="1008.0" y="499.6" font-size="13" font-weight="700" text-anchor="start" fill="#16697a">98.1%</text>
+<polyline points="648.0,481.0 717.6,482.0 787.2,484.9 856.8,490.7 926.4,493.6 996.0,496.5" fill="none" stroke="#c77600" stroke-width="3.0" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="3 5" />
 <polygon points="648.0,475.7 653.3,481.0 648.0,486.3 642.7,481.0" fill="white" stroke="#c77600" stroke-width="2.0" />
-<polygon points="717.6,477.6 722.9,482.9 717.6,488.2 712.3,482.9" fill="white" stroke="#c77600" stroke-width="2.0" />
-<polygon points="787.2,481.5 792.5,486.8 787.2,492.1 781.9,486.8" fill="white" stroke="#c77600" stroke-width="2.0" />
-<polygon points="856.8,488.3 862.1,493.6 856.8,498.9 851.5,493.6" fill="white" stroke="#c77600" stroke-width="2.0" />
-<polygon points="926.4,489.3 931.7,494.6 926.4,499.9 921.1,494.6" fill="white" stroke="#c77600" stroke-width="2.0" />
-<polygon points="996.0,490.3 1001.3,495.6 996.0,500.9 990.7,495.6" fill="white" stroke="#c77600" stroke-width="2.0" />
-<line x1="999.0" y1="495.6" x2="1002.0" y2="495.6" stroke="#c77600" stroke-width="1.6" />
-<text x="1008.0" y="499.6" font-size="13" font-weight="700" text-anchor="start" fill="#c77600">98.1%</text>
+<polygon points="717.6,476.7 722.9,482.0 717.6,487.3 712.3,482.0" fill="white" stroke="#c77600" stroke-width="2.0" />
+<polygon points="787.2,479.6 792.5,484.9 787.2,490.2 781.9,484.9" fill="white" stroke="#c77600" stroke-width="2.0" />
+<polygon points="856.8,485.4 862.1,490.7 856.8,496.0 851.5,490.7" fill="white" stroke="#c77600" stroke-width="2.0" />
+<polygon points="926.4,488.3 931.7,493.6 926.4,498.9 921.1,493.6" fill="white" stroke="#c77600" stroke-width="2.0" />
+<polygon points="996.0,491.2 1001.3,496.5 996.0,501.8 990.7,496.5" fill="white" stroke="#c77600" stroke-width="2.0" />
+<line x1="999.0" y1="496.5" x2="1002.0" y2="509.6" stroke="#c77600" stroke-width="1.6" />
+<text x="1008.0" y="513.6" font-size="13" font-weight="700" text-anchor="start" fill="#c77600">97.9%</text>
 </svg>

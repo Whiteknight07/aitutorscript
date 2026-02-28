@@ -28,7 +28,7 @@ SOURCE_LABELS = {
 }
 TUTOR_ORDER = ['gpt', 'gemini']
 SOURCE_ORDER = ['CSBench', 'PeerWise']
-CONDITION_ORDER = ['single', 'same-provider', 'cross-provider']
+CONDITION_ORDER = ['single', 'gpt-supervisor', 'gemini-supervisor']
 CONDITION_STYLES = {
   'single': {
     'label': 'Single',
@@ -36,14 +36,14 @@ CONDITION_STYLES = {
     'dash': None,
     'marker': 'circle',
   },
-  'same-provider': {
-    'label': 'Dual: same-provider',
+  'gpt-supervisor': {
+    'label': 'Dual: GPT supervisor',
     'color': '#16697a',
     'dash': '10 6',
     'marker': 'square',
   },
-  'cross-provider': {
-    'label': 'Dual: cross-provider',
+  'gemini-supervisor': {
+    'label': 'Dual: Gemini supervisor',
     'color': '#c77600',
     'dash': '3 5',
     'marker': 'diamond',
@@ -86,13 +86,14 @@ def normalize_source(raw_source: str) -> str:
 
 
 def derive_condition(row: dict) -> str:
-  tutor_id = row['config']['tutorId']
   supervisor_id = row['config'].get('supervisorId')
   if row['condition'] == 'single' or supervisor_id is None:
     return 'single'
-  if supervisor_id == tutor_id:
-    return 'same-provider'
-  return 'cross-provider'
+  if supervisor_id == 'gpt':
+    return 'gpt-supervisor'
+  if supervisor_id == 'gemini':
+    return 'gemini-supervisor'
+  raise ValueError(f'Unsupported supervisor id: {supervisor_id!r}')
 
 
 def first_leak_turn(row: dict) -> int | None:
@@ -248,8 +249,8 @@ def build_svg(summary: dict[tuple[str, str, str], dict]) -> str:
   legend_y = 48
   legend_items = [
     (180, 'single'),
-    (458, 'same-provider'),
-    (786, 'cross-provider'),
+    (458, 'gpt-supervisor'),
+    (786, 'gemini-supervisor'),
   ]
   for x, condition in legend_items:
     style = CONDITION_STYLES[condition]
