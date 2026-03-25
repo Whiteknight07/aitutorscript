@@ -7,6 +7,7 @@ import argparse
 import glob
 import hashlib
 import json
+import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -241,6 +242,25 @@ def build_feature_schema() -> dict[str, Any]:
       'holdout_ratio_field': 'holdout_ratio',
     },
     'text_feature_field': 'feature_text',
+    'numeric_feature_fields': {
+      'turn_index': 'int – 1-based turn index within the conversation',
+      'student_attack_level': 'int – attack level from student turn',
+      'question_bloom_level': 'int – Bloom taxonomy level of the question',
+      'tutor_draft_len': 'int – character length of tutor draft iter1 text',
+      'student_message_len': 'int – character length of student turn message',
+      'tutor_draft_word_count': 'int – word count of tutor draft iter1 text',
+      'student_message_word_count': 'int – word count of student turn message',
+      'reference_answer_len': 'int – character length of referenceAnswerDescription',
+      'len_ratio_draft_to_reference': 'float – ratio of draft length to reference answer length (0 if empty)',
+      'draft_has_equation': 'binary 0/1 – draft contains equation pattern (digits around =)',
+      'draft_has_answer_phrase': 'binary 0/1 – draft contains answer-revealing phrases',
+      'draft_has_numeric_value': 'binary 0/1 – draft contains multi-digit or decimal numbers',
+      'num_prior_student_turns': 'int – number of student turns before current turn',
+      'question_difficulty': 'int – difficulty level from question metadata',
+    },
+    'categorical_string_fields': {
+      'student_tactic': 'string – student tactic label (for downstream encoding)',
+    },
     'aux_fields': ['aux_turn_leakage'],
     'required_raw_fields': {
       'root': ['condition', 'question', 'loopTurnIterations', 'hiddenTrace'],
@@ -275,6 +295,8 @@ def build_feature_schema() -> dict[str, Any]:
       'tutor_drafts_for_turn',
       'loop_turn_iteration',
       'feature_text',
+      'feature_numeric',
+      'student_tactic',
     ],
   }
 
@@ -413,7 +435,36 @@ def main() -> int:
             'turn_index': turn_index,
             'student_attack_level': as_int(student_turn.get('attackLevel')),
             'question_bloom_level': as_int(question.get('bloomLevel')),
+            # Text length features
+            'tutor_draft_len': len(str(draft_iter1.get('text', ''))),
+            'student_message_len': len(str(student_turn.get('message', ''))),
+            'tutor_draft_word_count': len(str(draft_iter1.get('text', '')).split()),
+            'student_message_word_count': len(str(student_turn.get('message', '')).split()),
+            'reference_answer_len': len(str(question.get('referenceAnswerDescription', ''))),
+            'len_ratio_draft_to_reference': (
+              len(str(draft_iter1.get('text', ''))) / len(str(question.get('referenceAnswerDescription', '')))
+              if len(str(question.get('referenceAnswerDescription', ''))) > 0
+              else 0.0
+            ),
+            # Keyword/pattern features (binary 0/1)
+            'draft_has_equation': (
+              1 if re.search(r'\d\s*=\s*\d', str(draft_iter1.get('text', ''))) else 0
+            ),
+            'draft_has_answer_phrase': (
+              1 if re.search(
+                r'the answer is|the solution is|the result is|correct answer|equals',
+                str(draft_iter1.get('text', '')),
+                re.IGNORECASE,
+              ) else 0
+            ),
+            'draft_has_numeric_value': (
+              1 if re.search(r'\b\d{2,}\b|\b\d+\.\d+\b', str(draft_iter1.get('text', ''))) else 0
+            ),
+            # Conversation context features
+            'num_prior_student_turns': max(len(student_history) - 1, 0),
+            'question_difficulty': as_int(question.get('difficulty')),
           },
+          'student_tactic': str(student_turn.get('tactic', '')).strip(),
           'feature_text': feature_text,
         }
 
