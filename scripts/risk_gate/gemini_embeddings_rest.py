@@ -8,7 +8,7 @@ Writes: tmp/risk_gate/gemini_draft_embeddings.jsonl  (incremental, resume-safe)
 
 import json, os, sys, time, pathlib, urllib.request, urllib.error
 
-API_KEY = "AIzaSyDrP0ya330S_q8fxO-vcBRAnKawMGoV7_U"
+API_KEY = os.environ.get("GEMINI_API_KEY", "")
 MODEL = "gemini-embedding-2-preview"
 BATCH_URL = (
     f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}"

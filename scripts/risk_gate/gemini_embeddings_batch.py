@@ -21,7 +21,7 @@ from google.genai import types
 # ---------------------------------------------------------------------------
 # Config
 # ---------------------------------------------------------------------------
-API_KEY = "AIzaSyDrP0ya330S_q8fxO-vcBRAnKawMGoV7_U"
+API_KEY = os.environ.get("GEMINI_API_KEY", "")
 MODEL = "gemini-embedding-2-preview"
 DATASET_PATH = Path("tmp/risk_gate/turn_dataset.jsonl")
 TMP_DIR = Path("tmp/risk_gate")
