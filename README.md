@@ -2,13 +2,12 @@
 
 AI Tutor Harness benchmarks whether LLM tutors leak answers under escalating student pressure. It simulates multi-turn tutoring conversations, optionally inserts a second-model supervisor, and scores the student-visible exchange for leakage, hallucination, and Socratic compliance.
 
-This repository is prepared for a public paper release. The public repo includes one bundled publication dataset and the code needed to run the harness, regenerate reports, and inspect outputs. Large local outputs, scratch artifacts, and non-public source datasets are intentionally excluded from Git.
+This repository is prepared for a public release. The public repo includes one bundled publication dataset and the code needed to run the harness, regenerate reports, and inspect outputs. Large local outputs, scratch artifacts, and non-public source datasets are intentionally excluded from Git.
 
 ## What Is Public In This Repo
 
 - Source code for the harness and report generator in `src/`
 - Tests in `tests/`
-- Paper sources in `papers/`
 - One publication dataset bundle in `data/publication/run_2026-02-01T12-30-58-782Z/`
 
 ## Bundled Dataset
@@ -134,11 +133,10 @@ src/
   output/        Summary, analysis, and self-contained HTML report rendering
   scripts/       Utility scripts for report regeneration and offline analysis
 tests/           Runtime, pipeline, and analysis tests
-papers/          Paper drafts and analysis writeups
 data/publication Bundled public dataset for the paper release
 ```
 
-## Notes For The Paper Release
+## Public Release Notes
 
 - The bundled public artifact is the 900-run dataset above, not the full set of local exploratory runs.
 - `results/` and other large local artifacts are kept out of version control on purpose.
