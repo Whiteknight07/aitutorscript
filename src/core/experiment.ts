@@ -84,7 +84,7 @@ export async function runExperiments({
   await ensureDir(runOutDir);
   
   // eslint-disable-next-line no-console
-  console.log(`\n🚀 AI Tutor Benchmark Harness`);
+  console.log(`\n🚀 AI Tutor Harness`);
   // eslint-disable-next-line no-console
   console.log(`${'─'.repeat(50)}`);
   // eslint-disable-next-line no-console

@@ -272,7 +272,7 @@ export function parseArgs(argv: string[]): CliArgs {
 export function printHelp() {
   // eslint-disable-next-line no-console
   console.log(`
-aitutor-harness
+AI Tutor Harness
 
 Usage:
   pnpm harness [flags]

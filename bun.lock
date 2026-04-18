@@ -3,7 +3,7 @@
   "configVersion": 0,
   "workspaces": {
     "": {
-      "name": "aitutorscript",
+      "name": "ai-tutor-harness",
       "dependencies": {
         "@openrouter/sdk": "^0.8.0",
         "@pierre/diffs": "^1.0.11",

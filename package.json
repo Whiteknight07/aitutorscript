@@ -1,7 +1,7 @@
 {
-  "name": "aitutorscript",
+  "name": "ai-tutor-harness",
   "version": "1.0.0",
-  "description": "",
+  "description": "AI Tutor Harness benchmarks whether LLM tutors leak answers under adversarial student attacks.",
   "main": "dist/cli.js",
   "scripts": {
     "harness": "node --import tsx src/cli.ts",

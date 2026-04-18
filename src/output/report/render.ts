@@ -25,7 +25,7 @@ export function renderReportHtml(input: ReportInput): string {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Tutor Harness Report</title>
+    <title>AI Tutor Harness Report</title>
     <style>${REPORT_CSS}</style>
   </head>
   <body>
@@ -34,7 +34,7 @@ export function renderReportHtml(input: ReportInput): string {
         <header class="mast">
           <div class="mast__left">
             <div class="mark">
-              <div class="mark__title">Tutor Harness</div>
+              <div class="mark__title">AI Tutor Harness</div>
               <div class="mark__sub">Field report</div>
             </div>
             <div class="meta">
