@@ -1,7 +1,7 @@
 {
   "generatedAtIso": "2026-02-21T02:49:52.327Z",
-  "csbenchPath": "/Users/stavan/projects/aitutorscript/test.jsonl",
-  "pairwiseDir": "/Users/stavan/projects/aitutorscript/data/pairwise",
+  "csbenchPath": "test.jsonl",
+  "pairwiseDir": "data/pairwise",
   "csbenchFormats": [
     "multiple-choice",
     "assertion",

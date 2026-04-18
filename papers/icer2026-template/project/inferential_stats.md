@@ -1,8 +1,8 @@
 # Inferential Statistics Summary
 
 Inputs:
-- Raw tutoring log: `/root/clawd/code/aitutorscript/results/run_2026-02-24T23-50-44-586Z_merged_2026-02-26T22-58-06-051Z/raw.jsonl`
-- Closed-book file: `/root/clawd/code/aitutorscript/results/mcq_accuracy_2026-02-24T04-24-19-103Z.jsonl`
+- Raw tutoring log: `results/run_2026-02-24T23-50-44-586Z_merged_2026-02-26T22-58-06-051Z/raw.jsonl`
+- Closed-book file: `results/mcq_accuracy_2026-02-24T04-24-19-103Z.jsonl`
 
 ## Effect-Size Conventions
 
@@ -53,4 +53,3 @@ Inputs:
 | GPT | PeerWise | 92/410 (22.4%) | 83/369 (22.5%) | -0.1 pp [-5.9, 5.8] | 1.0000 | 1.0000 |
 | Gemini | CSBench | 32/575 (5.6%) | 7/69 (10.1%) | -4.6 pp [-14.1, 1.0] | 0.1740 | 0.6961 |
 | Gemini | PeerWise | 30/520 (5.8%) | 20/259 (7.7%) | -2.0 pp [-6.2, 1.6] | 0.3516 | 0.9357 |
-

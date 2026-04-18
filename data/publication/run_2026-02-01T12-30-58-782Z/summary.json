@@ -1,0 +1,971 @@
+{
+  "runId": "run_2026-02-01T12-30-58-782Z",
+  "createdAtIso": "2026-02-01T12:30:58.782Z",
+  "args": {
+    "questionsPerCell": 1,
+    "bloomLevels": [
+      1,
+      2,
+      3
+    ],
+    "difficulties": [
+      "easy",
+      "medium",
+      "hard"
+    ],
+    "dataset": "canterbury",
+    "questionLimit": 150,
+    "courseLevels": [],
+    "skillTags": [],
+    "turns": 6,
+    "maxIters": 5,
+    "maxRuns": null,
+    "parallel": 5,
+    "earlyStop": true,
+    "outDir": "results",
+    "pairings": [
+      "gpt-gpt",
+      "gemini-gemini",
+      "gpt-gemini",
+      "gemini-gpt"
+    ],
+    "tutors": [
+      "gpt",
+      "gemini"
+    ],
+    "supervisors": [
+      "gpt",
+      "gemini"
+    ],
+    "conditions": [
+      "single",
+      "dual-loop"
+    ],
+    "questionModel": "google/gemini-3-flash-preview",
+    "studentModel": "google/gemini-3-flash-preview",
+    "judgeModel": "google/gemini-3-flash-preview",
+    "enableJudge": true,
+    "dynamicQuestions": false,
+    "smoke": false,
+    "verbose": false
+  },
+  "totals": {
+    "questions": 150,
+    "plannedRuns": 900,
+    "completedRuns": 900
+  },
+  "breakdown": {
+    "gemini-single": {
+      "single": {
+        "b2-easy": {
+          "nRuns": 27,
+          "nJudged": 27,
+          "leakageRate": 0.07407407407407407,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 29210.74074074074,
+          "loop": null
+        },
+        "b3-easy": {
+          "nRuns": 29,
+          "nJudged": 29,
+          "leakageRate": 0.13793103448275862,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 27613.758620689656,
+          "loop": null
+        },
+        "b1-easy": {
+          "nRuns": 37,
+          "nJudged": 37,
+          "leakageRate": 0.1891891891891892,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 28882.675675675677,
+          "loop": null
+        },
+        "b1-medium": {
+          "nRuns": 9,
+          "nJudged": 9,
+          "leakageRate": 0.2222222222222222,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 26595.11111111111,
+          "loop": null
+        },
+        "b3-medium": {
+          "nRuns": 26,
+          "nJudged": 26,
+          "leakageRate": 0.07692307692307693,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 30155.923076923078,
+          "loop": null
+        },
+        "b2-medium": {
+          "nRuns": 20,
+          "nJudged": 20,
+          "leakageRate": 0.2,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 30537.8,
+          "loop": null
+        },
+        "b2-hard": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakageRate": 0,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 33652,
+          "loop": null
+        },
+        "b3-hard": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakageRate": 0,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 33321,
+          "loop": null
+        }
+      }
+    },
+    "gpt-single": {
+      "single": {
+        "b2-easy": {
+          "nRuns": 27,
+          "nJudged": 27,
+          "leakageRate": 0.4074074074074074,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 50286.25925925926,
+          "loop": null
+        },
+        "b3-easy": {
+          "nRuns": 29,
+          "nJudged": 29,
+          "leakageRate": 0.3793103448275862,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 48836.06896551724,
+          "loop": null
+        },
+        "b1-easy": {
+          "nRuns": 37,
+          "nJudged": 37,
+          "leakageRate": 0.4864864864864865,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 39813.89189189189,
+          "loop": null
+        },
+        "b1-medium": {
+          "nRuns": 9,
+          "nJudged": 9,
+          "leakageRate": 0.5555555555555556,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 42312.11111111111,
+          "loop": null
+        },
+        "b3-medium": {
+          "nRuns": 26,
+          "nJudged": 26,
+          "leakageRate": 0.3076923076923077,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 49400.42307692308,
+          "loop": null
+        },
+        "b2-medium": {
+          "nRuns": 20,
+          "nJudged": 20,
+          "leakageRate": 0.3,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 48783.45,
+          "loop": null
+        },
+        "b2-hard": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakageRate": 0,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 59417,
+          "loop": null
+        },
+        "b3-hard": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakageRate": 1,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 70156,
+          "loop": null
+        }
+      }
+    },
+    "gemini-gpt": {
+      "dual-loop": {
+        "b2-easy": {
+          "nRuns": 27,
+          "nJudged": 27,
+          "leakageRate": 0.037037037037037035,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 61154.51851851852,
+          "loop": {
+            "loopFixRate": 1,
+            "avgIterationsPerTurn": 1.06875,
+            "iterationDistribution": {
+              "1": 149,
+              "2": 11
+            },
+            "initiallyRejectedTurns": 11,
+            "fixedTurns": 11,
+            "totalTurns": 160,
+            "interventionCount": 11,
+            "turnsWithIntervention": 11,
+            "interventionRate": 0.06875,
+            "avgInterventionsPerTurn": 0.06875
+          }
+        },
+        "b3-easy": {
+          "nRuns": 29,
+          "nJudged": 29,
+          "leakageRate": 0.06896551724137931,
+          "hallucinationRate": 0.034482758620689655,
+          "complianceRate": 1,
+          "avgLatencyMs": 57205.75862068965,
+          "loop": {
+            "loopFixRate": 1,
+            "avgIterationsPerTurn": 1.0357142857142858,
+            "iterationDistribution": {
+              "1": 162,
+              "2": 6
+            },
+            "initiallyRejectedTurns": 6,
+            "fixedTurns": 6,
+            "totalTurns": 168,
+            "interventionCount": 6,
+            "turnsWithIntervention": 6,
+            "interventionRate": 0.03571428571428571,
+            "avgInterventionsPerTurn": 0.03571428571428571
+          }
+        },
+        "b1-easy": {
+          "nRuns": 37,
+          "nJudged": 37,
+          "leakageRate": 0.16216216216216217,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 55390.2972972973,
+          "loop": {
+            "loopFixRate": 1,
+            "avgIterationsPerTurn": 1.0541871921182266,
+            "iterationDistribution": {
+              "1": 195,
+              "2": 7,
+              "5": 1
+            },
+            "initiallyRejectedTurns": 8,
+            "fixedTurns": 8,
+            "totalTurns": 203,
+            "interventionCount": 11,
+            "turnsWithIntervention": 8,
+            "interventionRate": 0.03940886699507389,
+            "avgInterventionsPerTurn": 0.054187192118226604
+          }
+        },
+        "b1-medium": {
+          "nRuns": 9,
+          "nJudged": 9,
+          "leakageRate": 0.5555555555555556,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 48912.88888888889,
+          "loop": {
+            "loopFixRate": 1,
+            "avgIterationsPerTurn": 1.1842105263157894,
+            "iterationDistribution": {
+              "1": 34,
+              "2": 1,
+              "3": 3
+            },
+            "initiallyRejectedTurns": 4,
+            "fixedTurns": 4,
+            "totalTurns": 38,
+            "interventionCount": 7,
+            "turnsWithIntervention": 4,
+            "interventionRate": 0.10526315789473684,
+            "avgInterventionsPerTurn": 0.18421052631578946
+          }
+        },
+        "b3-medium": {
+          "nRuns": 26,
+          "nJudged": 26,
+          "leakageRate": 0.07692307692307693,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 62369.57692307692,
+          "loop": {
+            "loopFixRate": 1,
+            "avgIterationsPerTurn": 1.0718954248366013,
+            "iterationDistribution": {
+              "1": 143,
+              "2": 9,
+              "3": 1
+            },
+            "initiallyRejectedTurns": 10,
+            "fixedTurns": 10,
+            "totalTurns": 153,
+            "interventionCount": 11,
+            "turnsWithIntervention": 10,
+            "interventionRate": 0.06535947712418301,
+            "avgInterventionsPerTurn": 0.0718954248366013
+          }
+        },
+        "b2-medium": {
+          "nRuns": 20,
+          "nJudged": 20,
+          "leakageRate": 0.25,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 55176.15,
+          "loop": {
+            "loopFixRate": 1,
+            "avgIterationsPerTurn": 1.0272727272727273,
+            "iterationDistribution": {
+              "1": 107,
+              "2": 3
+            },
+            "initiallyRejectedTurns": 3,
+            "fixedTurns": 3,
+            "totalTurns": 110,
+            "interventionCount": 3,
+            "turnsWithIntervention": 3,
+            "interventionRate": 0.02727272727272727,
+            "avgInterventionsPerTurn": 0.02727272727272727
+          }
+        },
+        "b2-hard": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakageRate": 0,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 49273,
+          "loop": {
+            "loopFixRate": null,
+            "avgIterationsPerTurn": 1,
+            "iterationDistribution": {
+              "1": 6
+            },
+            "initiallyRejectedTurns": 0,
+            "fixedTurns": 0,
+            "totalTurns": 6,
+            "interventionCount": 0,
+            "turnsWithIntervention": 0,
+            "interventionRate": 0,
+            "avgInterventionsPerTurn": 0
+          }
+        },
+        "b3-hard": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakageRate": 0,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 64090,
+          "loop": {
+            "loopFixRate": null,
+            "avgIterationsPerTurn": 1,
+            "iterationDistribution": {
+              "1": 6
+            },
+            "initiallyRejectedTurns": 0,
+            "fixedTurns": 0,
+            "totalTurns": 6,
+            "interventionCount": 0,
+            "turnsWithIntervention": 0,
+            "interventionRate": 0,
+            "avgInterventionsPerTurn": 0
+          }
+        }
+      }
+    },
+    "gemini-gemini": {
+      "dual-loop": {
+        "b2-easy": {
+          "nRuns": 27,
+          "nJudged": 27,
+          "leakageRate": 0.14814814814814814,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 38413.96296296296,
+          "loop": {
+            "loopFixRate": 1,
+            "avgIterationsPerTurn": 1.038709677419355,
+            "iterationDistribution": {
+              "1": 149,
+              "2": 6
+            },
+            "initiallyRejectedTurns": 6,
+            "fixedTurns": 6,
+            "totalTurns": 155,
+            "interventionCount": 6,
+            "turnsWithIntervention": 6,
+            "interventionRate": 0.03870967741935484,
+            "avgInterventionsPerTurn": 0.03870967741935484
+          }
+        },
+        "b3-easy": {
+          "nRuns": 29,
+          "nJudged": 29,
+          "leakageRate": 0.034482758620689655,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 41608.75862068965,
+          "loop": {
+            "loopFixRate": 1,
+            "avgIterationsPerTurn": 1.0755813953488371,
+            "iterationDistribution": {
+              "1": 163,
+              "2": 7,
+              "3": 1,
+              "5": 1
+            },
+            "initiallyRejectedTurns": 9,
+            "fixedTurns": 9,
+            "totalTurns": 172,
+            "interventionCount": 13,
+            "turnsWithIntervention": 9,
+            "interventionRate": 0.05232558139534884,
+            "avgInterventionsPerTurn": 0.0755813953488372
+          }
+        },
+        "b1-easy": {
+          "nRuns": 37,
+          "nJudged": 37,
+          "leakageRate": 0.13513513513513514,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 37695.35135135135,
+          "loop": {
+            "loopFixRate": 1,
+            "avgIterationsPerTurn": 1.0242718446601942,
+            "iterationDistribution": {
+              "1": 202,
+              "2": 3,
+              "3": 1
+            },
+            "initiallyRejectedTurns": 4,
+            "fixedTurns": 4,
+            "totalTurns": 206,
+            "interventionCount": 5,
+            "turnsWithIntervention": 4,
+            "interventionRate": 0.019417475728155338,
+            "avgInterventionsPerTurn": 0.024271844660194174
+          }
+        },
+        "b1-medium": {
+          "nRuns": 9,
+          "nJudged": 9,
+          "leakageRate": 0.3333333333333333,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 32072.777777777777,
+          "loop": {
+            "loopFixRate": null,
+            "avgIterationsPerTurn": 1,
+            "iterationDistribution": {
+              "1": 41
+            },
+            "initiallyRejectedTurns": 0,
+            "fixedTurns": 0,
+            "totalTurns": 41,
+            "interventionCount": 0,
+            "turnsWithIntervention": 0,
+            "interventionRate": 0,
+            "avgInterventionsPerTurn": 0
+          }
+        },
+        "b3-medium": {
+          "nRuns": 26,
+          "nJudged": 26,
+          "leakageRate": 0.038461538461538464,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 40750.46153846154,
+          "loop": {
+            "loopFixRate": 1,
+            "avgIterationsPerTurn": 1.0192307692307692,
+            "iterationDistribution": {
+              "1": 153,
+              "2": 3
+            },
+            "initiallyRejectedTurns": 3,
+            "fixedTurns": 3,
+            "totalTurns": 156,
+            "interventionCount": 3,
+            "turnsWithIntervention": 3,
+            "interventionRate": 0.019230769230769232,
+            "avgInterventionsPerTurn": 0.019230769230769232
+          }
+        },
+        "b2-medium": {
+          "nRuns": 20,
+          "nJudged": 20,
+          "leakageRate": 0.15,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 40142.55,
+          "loop": {
+            "loopFixRate": 1,
+            "avgIterationsPerTurn": 1.0363636363636364,
+            "iterationDistribution": {
+              "1": 106,
+              "2": 4
+            },
+            "initiallyRejectedTurns": 4,
+            "fixedTurns": 4,
+            "totalTurns": 110,
+            "interventionCount": 4,
+            "turnsWithIntervention": 4,
+            "interventionRate": 0.03636363636363636,
+            "avgInterventionsPerTurn": 0.03636363636363636
+          }
+        },
+        "b2-hard": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakageRate": 0,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 42162,
+          "loop": {
+            "loopFixRate": null,
+            "avgIterationsPerTurn": 1,
+            "iterationDistribution": {
+              "1": 6
+            },
+            "initiallyRejectedTurns": 0,
+            "fixedTurns": 0,
+            "totalTurns": 6,
+            "interventionCount": 0,
+            "turnsWithIntervention": 0,
+            "interventionRate": 0,
+            "avgInterventionsPerTurn": 0
+          }
+        },
+        "b3-hard": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakageRate": 0,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 51029,
+          "loop": {
+            "loopFixRate": null,
+            "avgIterationsPerTurn": 1,
+            "iterationDistribution": {
+              "1": 6
+            },
+            "initiallyRejectedTurns": 0,
+            "fixedTurns": 0,
+            "totalTurns": 6,
+            "interventionCount": 0,
+            "turnsWithIntervention": 0,
+            "interventionRate": 0,
+            "avgInterventionsPerTurn": 0
+          }
+        }
+      }
+    },
+    "gpt-gemini": {
+      "dual-loop": {
+        "b2-easy": {
+          "nRuns": 27,
+          "nJudged": 27,
+          "leakageRate": 0.14814814814814814,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 65989.25925925926,
+          "loop": {
+            "loopFixRate": 1,
+            "avgIterationsPerTurn": 1.0794701986754967,
+            "iterationDistribution": {
+              "1": 139,
+              "2": 12
+            },
+            "initiallyRejectedTurns": 12,
+            "fixedTurns": 12,
+            "totalTurns": 151,
+            "interventionCount": 12,
+            "turnsWithIntervention": 12,
+            "interventionRate": 0.07947019867549669,
+            "avgInterventionsPerTurn": 0.07947019867549669
+          }
+        },
+        "b3-easy": {
+          "nRuns": 29,
+          "nJudged": 29,
+          "leakageRate": 0.10344827586206896,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 68133.68965517242,
+          "loop": {
+            "loopFixRate": 1,
+            "avgIterationsPerTurn": 1.0542168674698795,
+            "iterationDistribution": {
+              "1": 157,
+              "2": 9
+            },
+            "initiallyRejectedTurns": 9,
+            "fixedTurns": 9,
+            "totalTurns": 166,
+            "interventionCount": 9,
+            "turnsWithIntervention": 9,
+            "interventionRate": 0.05421686746987952,
+            "avgInterventionsPerTurn": 0.05421686746987952
+          }
+        },
+        "b1-easy": {
+          "nRuns": 37,
+          "nJudged": 37,
+          "leakageRate": 0.21621621621621623,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 59557.45945945946,
+          "loop": {
+            "loopFixRate": 1,
+            "avgIterationsPerTurn": 1.0833333333333333,
+            "iterationDistribution": {
+              "1": 179,
+              "2": 11,
+              "3": 1,
+              "4": 1
+            },
+            "initiallyRejectedTurns": 13,
+            "fixedTurns": 13,
+            "totalTurns": 192,
+            "interventionCount": 16,
+            "turnsWithIntervention": 13,
+            "interventionRate": 0.06770833333333333,
+            "avgInterventionsPerTurn": 0.08333333333333333
+          }
+        },
+        "b1-medium": {
+          "nRuns": 9,
+          "nJudged": 9,
+          "leakageRate": 0.3333333333333333,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 69449.88888888889,
+          "loop": {
+            "loopFixRate": 1,
+            "avgIterationsPerTurn": 1.1333333333333333,
+            "iterationDistribution": {
+              "1": 39,
+              "2": 6
+            },
+            "initiallyRejectedTurns": 6,
+            "fixedTurns": 6,
+            "totalTurns": 45,
+            "interventionCount": 6,
+            "turnsWithIntervention": 6,
+            "interventionRate": 0.13333333333333333,
+            "avgInterventionsPerTurn": 0.13333333333333333
+          }
+        },
+        "b3-medium": {
+          "nRuns": 26,
+          "nJudged": 26,
+          "leakageRate": 0.3076923076923077,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 60269.61538461538,
+          "loop": {
+            "loopFixRate": 1,
+            "avgIterationsPerTurn": 1.144,
+            "iterationDistribution": {
+              "1": 109,
+              "2": 14,
+              "3": 2
+            },
+            "initiallyRejectedTurns": 16,
+            "fixedTurns": 16,
+            "totalTurns": 125,
+            "interventionCount": 18,
+            "turnsWithIntervention": 16,
+            "interventionRate": 0.128,
+            "avgInterventionsPerTurn": 0.144
+          }
+        },
+        "b2-medium": {
+          "nRuns": 20,
+          "nJudged": 20,
+          "leakageRate": 0.15,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 67181.95,
+          "loop": {
+            "loopFixRate": 1,
+            "avgIterationsPerTurn": 1.0555555555555556,
+            "iterationDistribution": {
+              "1": 102,
+              "2": 6
+            },
+            "initiallyRejectedTurns": 6,
+            "fixedTurns": 6,
+            "totalTurns": 108,
+            "interventionCount": 6,
+            "turnsWithIntervention": 6,
+            "interventionRate": 0.05555555555555555,
+            "avgInterventionsPerTurn": 0.05555555555555555
+          }
+        },
+        "b2-hard": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakageRate": 0,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 68916,
+          "loop": {
+            "loopFixRate": null,
+            "avgIterationsPerTurn": 1,
+            "iterationDistribution": {
+              "1": 6
+            },
+            "initiallyRejectedTurns": 0,
+            "fixedTurns": 0,
+            "totalTurns": 6,
+            "interventionCount": 0,
+            "turnsWithIntervention": 0,
+            "interventionRate": 0,
+            "avgInterventionsPerTurn": 0
+          }
+        },
+        "b3-hard": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakageRate": 0,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 111835,
+          "loop": {
+            "loopFixRate": 1,
+            "avgIterationsPerTurn": 1.1666666666666667,
+            "iterationDistribution": {
+              "1": 5,
+              "2": 1
+            },
+            "initiallyRejectedTurns": 1,
+            "fixedTurns": 1,
+            "totalTurns": 6,
+            "interventionCount": 1,
+            "turnsWithIntervention": 1,
+            "interventionRate": 0.16666666666666666,
+            "avgInterventionsPerTurn": 0.16666666666666666
+          }
+        }
+      }
+    },
+    "gpt-gpt": {
+      "dual-loop": {
+        "b2-easy": {
+          "nRuns": 27,
+          "nJudged": 27,
+          "leakageRate": 0.18518518518518517,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 93188.66666666667,
+          "loop": {
+            "loopFixRate": 1,
+            "avgIterationsPerTurn": 1.1408450704225352,
+            "iterationDistribution": {
+              "1": 124,
+              "2": 16,
+              "3": 2
+            },
+            "initiallyRejectedTurns": 18,
+            "fixedTurns": 18,
+            "totalTurns": 142,
+            "interventionCount": 20,
+            "turnsWithIntervention": 18,
+            "interventionRate": 0.1267605633802817,
+            "avgInterventionsPerTurn": 0.14084507042253522
+          }
+        },
+        "b1-easy": {
+          "nRuns": 37,
+          "nJudged": 37,
+          "leakageRate": 0.2972972972972973,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 74712.02702702703,
+          "loop": {
+            "loopFixRate": 1,
+            "avgIterationsPerTurn": 1.1235955056179776,
+            "iterationDistribution": {
+              "1": 157,
+              "2": 20,
+              "3": 1
+            },
+            "initiallyRejectedTurns": 21,
+            "fixedTurns": 21,
+            "totalTurns": 178,
+            "interventionCount": 22,
+            "turnsWithIntervention": 21,
+            "interventionRate": 0.11797752808988764,
+            "avgInterventionsPerTurn": 0.12359550561797752
+          }
+        },
+        "b3-easy": {
+          "nRuns": 29,
+          "nJudged": 29,
+          "leakageRate": 0.1724137931034483,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 83054.03448275862,
+          "loop": {
+            "loopFixRate": 1,
+            "avgIterationsPerTurn": 1.0980392156862746,
+            "iterationDistribution": {
+              "1": 141,
+              "2": 10,
+              "3": 1,
+              "4": 1
+            },
+            "initiallyRejectedTurns": 12,
+            "fixedTurns": 12,
+            "totalTurns": 153,
+            "interventionCount": 15,
+            "turnsWithIntervention": 12,
+            "interventionRate": 0.0784313725490196,
+            "avgInterventionsPerTurn": 0.09803921568627451
+          }
+        },
+        "b1-medium": {
+          "nRuns": 9,
+          "nJudged": 9,
+          "leakageRate": 0.5555555555555556,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 77177.88888888889,
+          "loop": {
+            "loopFixRate": 1,
+            "avgIterationsPerTurn": 1.2702702702702702,
+            "iterationDistribution": {
+              "1": 28,
+              "2": 8,
+              "3": 1
+            },
+            "initiallyRejectedTurns": 9,
+            "fixedTurns": 9,
+            "totalTurns": 37,
+            "interventionCount": 10,
+            "turnsWithIntervention": 9,
+            "interventionRate": 0.24324324324324326,
+            "avgInterventionsPerTurn": 0.2702702702702703
+          }
+        },
+        "b3-medium": {
+          "nRuns": 26,
+          "nJudged": 26,
+          "leakageRate": 0.2692307692307692,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 73364.26923076923,
+          "loop": {
+            "loopFixRate": 1,
+            "avgIterationsPerTurn": 1.0775193798449612,
+            "iterationDistribution": {
+              "1": 120,
+              "2": 8,
+              "3": 1
+            },
+            "initiallyRejectedTurns": 9,
+            "fixedTurns": 9,
+            "totalTurns": 129,
+            "interventionCount": 10,
+            "turnsWithIntervention": 9,
+            "interventionRate": 0.06976744186046512,
+            "avgInterventionsPerTurn": 0.07751937984496124
+          }
+        },
+        "b2-medium": {
+          "nRuns": 20,
+          "nJudged": 20,
+          "leakageRate": 0.3,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 73846.2,
+          "loop": {
+            "loopFixRate": 1,
+            "avgIterationsPerTurn": 1.086021505376344,
+            "iterationDistribution": {
+              "1": 86,
+              "2": 6,
+              "3": 1
+            },
+            "initiallyRejectedTurns": 7,
+            "fixedTurns": 7,
+            "totalTurns": 93,
+            "interventionCount": 8,
+            "turnsWithIntervention": 7,
+            "interventionRate": 0.07526881720430108,
+            "avgInterventionsPerTurn": 0.08602150537634409
+          }
+        },
+        "b2-hard": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakageRate": 0,
+          "hallucinationRate": 0,
+          "complianceRate": 1,
+          "avgLatencyMs": 71962,
+          "loop": {
+            "loopFixRate": null,
+            "avgIterationsPerTurn": 1,
+            "iterationDistribution": {
+              "1": 6
+            },
+            "initiallyRejectedTurns": 0,
+            "fixedTurns": 0,
+            "totalTurns": 6,
+            "interventionCount": 0,
+            "turnsWithIntervention": 0,
+            "interventionRate": 0,
+            "avgInterventionsPerTurn": 0
+          }
+        },
+        "b3-hard": {
+          "nRuns": 1,
+          "nJudged": 1,
+          "leakageRate": 1,
+          "hallucinationRate": 1,
+          "complianceRate": 1,
+          "avgLatencyMs": 31038,
+          "loop": {
+            "loopFixRate": null,
+            "avgIterationsPerTurn": 1,
+            "iterationDistribution": {
+              "1": 2
+            },
+            "initiallyRejectedTurns": 0,
+            "fixedTurns": 0,
+            "totalTurns": 2,
+            "interventionCount": 0,
+            "turnsWithIntervention": 0,
+            "interventionRate": 0,
+            "avgInterventionsPerTurn": 0
+          }
+        }
+      }
+    }
+  }
+}

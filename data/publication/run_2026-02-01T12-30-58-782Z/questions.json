@@ -1,0 +1,2648 @@
+{
+  "runId": "run_2026-02-01T12-30-58-782Z",
+  "createdAtIso": "2026-02-01T12:30:58.782Z",
+  "questionGeneratorModel": "google/gemini-3-flash-preview",
+  "bloomLevels": [
+    1,
+    2,
+    3
+  ],
+  "difficulties": [
+    "easy",
+    "medium",
+    "hard"
+  ],
+  "dataset": "canterbury",
+  "questionLimit": 150,
+  "courseLevels": [],
+  "skillTags": [],
+  "questionsPerCell": 1,
+  "calls": [],
+  "questions": [
+    {
+      "id": "canterbury-633573",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-Arrays",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>Suppose you try to perform a binary search on a 5-element array sorted in the reverse order of what the binary search algorithm expects. How many of the items in this array will be found if they are searched for?</p>",
+      "choices": [
+        "<p>5</p>",
+        "<p>0</p>",
+        "<p>1</p>",
+        "<p>2</p>",
+        "<p>3</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>Only the middle element will be found. The remaining elements will not be contained in the subranges that we narrow our search to.</p>"
+    },
+    {
+      "id": "canterbury-632805",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "TopicWG-ADT-Set-Implementations",
+      "courseLevel": "CS2",
+      "skillTag": "SkillWG-AnalyzeCode",
+      "problemStatement": "<p>Which data structure used to implement&nbsp;<code>Set</code>&nbsp;yields the worst performance for <code>Set.contains</code>?</p>",
+      "choices": [
+        "<p>Binary search tree</p>",
+        "<p>Linked list</p>",
+        "<p>Sorted array</p>",
+        "<p>Hashtable</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>Implementing Set.contains involves a search of the data structure. A binary search tree and a sorted array are searched in O(lg n) time, and a hashtable in O(1), assuming a sane hash function. A linked list is searched in O(n) time.</p>"
+    },
+    {
+      "id": "canterbury-633246",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicWG-Graphs",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>For a graph with N nodes, what's the minimum number of edges it must have for it to contain a cycle?</p>",
+      "choices": [
+        "<p>N + 1</p>",
+        "<p>N</p>",
+        "<p>N - 1</p>",
+        "<p>1</p>",
+        "<p>2</p>"
+      ],
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "<p>A vertex with an edge to itself is a cycle.</p>"
+    },
+    {
+      "id": "canterbury-634254",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-DataTypesAndVariables",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-WriteCode_MeansChooseOption",
+      "problemStatement": "<p>Read the following method skeleton and choose the best expression to fill in the blank on <strong>line 8</strong>&nbsp;so that the method will behave correctly:</p>\n<pre lang=\"text/x-java\">/**\n* Takes a string reference and counts the number of times\n* the character 'A' or 'a' appears in the string object.\n* @param aString   String reference to object containing chars.\n* @precondition    aString is not null (you may assume this is true).\n* @return          The number of times 'A' or 'a' appears in the string.\n*/\npublic static int countAs(String aString)  // line 1\n{\n    int counter = __________;              // line 2\n    int totalA = 0;                        // line 3\n    while (counter &lt; __________)           // line 4\n    {\n        if ( __________.equals(\"A\") )      // line 5\n        {\n            totalA = totalA + __________;  // line 6\n        }\n        counter++;                         // line 7\n    }\n    return __________;                     // line 8\n}\n</pre>",
+      "choices": [
+        "<code>counter</code>",
+        "<code>true</code>",
+        "<code>false</code>",
+        "<code>totalA</code>",
+        "<code>aString</code>"
+      ],
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "<p>The return type of the method is <code>int</code>, so an integer return value must be provided. &nbsp;Since <code>counter</code> is used as a loop index, it will always end up being the total number of characters in the given string. &nbsp;The variable <code>totalA</code> is used as an accumulator that is incremented each time a letter A is found in the string, so it is the choice that will provide the correct return value for the method.</p>"
+    },
+    {
+      "id": "canterbury-633247",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-AlgorithmComplex-BigO",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>Two algorithms accomplish the same task on a collection of N items. Algorithm A performs log<sub>2</sub>&nbsp;N&nbsp;operations. Algorithm B performs log<sub>3</sub> N&nbsp;operations. Under what conditions does algorithm A offer better performance?</p>",
+      "choices": [
+        "<p>N &lt;= 2</p>",
+        "<p>N &lt; log<sub>2</sub> 3</p>",
+        "<p>N &lt; log<sub>3</sub> 2</p>",
+        "<p>N &lt; 8</p>",
+        "<p>For no N.</p>"
+      ],
+      "correctChoiceIndex": 4,
+      "referenceAnswerDescription": "<p>For no possible collection size N is log<sub>2</sub> N &lt; log3 N.</p>"
+    },
+    {
+      "id": "canterbury-633241",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-CollectionsExceptArray",
+      "courseLevel": "CS2",
+      "problemStatement": "<p>Finding the median value in a complete and balanced binary search tree is</p>",
+      "choices": [
+        "<p>O(1)</p>",
+        "<p>O(log N)</p>",
+        "<p>O(N)</p>",
+        "<p>O(N<sup>2</sup>)</p>",
+        "<p>O(N log N)</p>"
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "<p>The median is the element that has M elements less than it and M elements greater than it. This can only be said of the root node in a complete and balanced binary tree. The root is accessed in constant time.</p>"
+    },
+    {
+      "id": "canterbury-634183",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-Arrays",
+      "courseLevel": "CS2",
+      "problemStatement": "<p>For a heap of size n, which is indexed at 0, at what position will its last child be?</p>",
+      "choices": [
+        "<p>2n + 1</p>",
+        "<p>n / 2</p>",
+        "<p>n - 1</p>",
+        "<p>floor(n / 2) + 1</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>The last element will be at the end of the array.</p>"
+    },
+    {
+      "id": "canterbury-634156",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-AlgorithmComplex-BigO",
+      "courseLevel": "CS2",
+      "problemStatement": "<p>What design stategy does Quicksort use?</p>",
+      "choices": [
+        "<p>Greedy</p>",
+        "<p>Divide and conquer</p>",
+        "<p>Dynamic programming</p>",
+        "<p>Brute force</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>Quicksort is divide and conquer.</p>"
+    },
+    {
+      "id": "canterbury-634154",
+      "bloomLevel": 1,
+      "difficulty": "medium",
+      "topicTag": "TopicWG-Runtime-StorageManagement",
+      "courseLevel": "CS2",
+      "problemStatement": "<p>If you did not have a base case in a recursive function in C, and were working on a modern Unix-based system, what would most likely happen?</p>",
+      "choices": [
+        "<p>Segmentation fault</p>",
+        "<p>Stack overflow error</p>",
+        "<p>C wouldn&rsquo;t complain, but your computer would crash</p>",
+        "<p>Nothing, that&rsquo;s fine</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>It really depends on the program for whether it would be B or C. Both can be argued to be correct.</p>"
+    },
+    {
+      "id": "canterbury-634956",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-AlgorithmComplex-BigO",
+      "courseLevel": "CS1",
+      "skillTag": "SkillWG-AnalyzeCode",
+      "problemStatement": "<p>The following Python method determines whether or not a list of values, passed in as a parameter, has any duplicate values.</p>\n<p>What is the Big-Oh running time of this algorithm?</p>\n<p>def duplicates(lov):</p>\n<p>&nbsp; &nbsp; dupCount = 0<br>&nbsp; &nbsp; outer = 0<br>&nbsp; &nbsp; while (outer &lt; len(lov)):<br>&nbsp; &nbsp; &nbsp; &nbsp; inner = outer + 1<br>&nbsp; &nbsp; &nbsp; &nbsp; while (inner &lt; len(lov)):</p>\n<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; if (lov[inner] == lov[outer]):</p>\n<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; dupCount = dupCount + 1</p>\n<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; inner = inner + 1</p>\n<p>&nbsp; &nbsp; &nbsp; &nbsp; outer = outer + 1</p>\n<p>&nbsp; &nbsp; if (dupCount == 0):<br>&nbsp; &nbsp; &nbsp; &nbsp; print \"there are no duplicate values\"<br>&nbsp; &nbsp; else:<br>&nbsp; &nbsp; &nbsp; &nbsp; print \"there are \", dupCount, \" duplicate values\"</p>",
+      "choices": [
+        "<p>O(1)&nbsp;</p>",
+        "<p>O(n)</p>",
+        "<p>O(n log<sub>2</sub> n)</p>",
+        "<p>O(n<sup>2</sup>)</p>",
+        "<p>O(n<sup>3</sup>)</p>"
+      ],
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "<p>Each item in the list is compared against each other item in the list: a classic example of the<em> all-pairs</em> programming pattern. &nbsp;The first item is compared against n-1 other values. &nbsp;The second item is compared against n-2 other values, etc. &nbsp;The total number of comparisons is&nbsp; <img src=\"data/canterbury/img/2.png\" alt=\"\" title=\"latex\"></p>"
+    },
+    {
+      "id": "canterbury-633298",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-CollectionsExceptArray",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>You are storing a complete binary tree in an array, with the root at index 0. At what index is node i's parent?</p>",
+      "choices": [
+        "<p>2i</p>",
+        "<p>2i + 1</p>",
+        "<p>i + i + 2</p>",
+        "<p>i / 2 + 1</p>",
+        "<p>(i - 1) / 2</p>"
+      ],
+      "correctChoiceIndex": 4,
+      "referenceAnswerDescription": "No explanation provided."
+    },
+    {
+      "id": "canterbury-633228",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-LogicalOperators",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>What is printed when the following program runs?</p>\n<pre lang=\"text/x-java\">public class Main {\n  public static boolean getTrue() {\n    System.out.print(\"T\");\n    return true;\n  }\n  public static boolean getFalse() {\n    System.out.print(\"F\");\n    return false;\n  }\n  public static void main(String[] args) {\n    getTrue() || getFalse();\n  }\n}\n</pre>",
+      "choices": [
+        "<p>TF</p>",
+        "<p>F</p>",
+        "<p>T</p>",
+        "<p>TT</p>",
+        "<p>Nothing is printed</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>If the first operand for || is true, as is the case here, the second is not evaluated.</p>"
+    },
+    {
+      "id": "canterbury-633895",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "TopicWG-ChoosingAppropriateDS",
+      "courseLevel": "CS2",
+      "problemStatement": "<p>Kexin is hashing the values 9, 45, 22, 48, 38 into a hash table of size 20. Which hash function will give her no collisions?</p>",
+      "choices": [
+        "<p>h(k) = k % 10</p>",
+        "<p>h(k) = k / 10</p>",
+        "<p>h(k) = (k % 10) + (k / 10)</p>",
+        "<p>h(k) = (k % 10) - (k / 10)</p>"
+      ],
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "<p>A will collide on the 48/38; B will collide with 45/48; C will collide with 9/45.</p>"
+    },
+    {
+      "id": "canterbury-633618",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-AlgorithmComplex-BigO",
+      "courseLevel": "CS2",
+      "problemStatement": "<p>True or False:</p>\n<p>Breadth-first search (BFS) and Depth-first search (DFS) visit nodes of a graph in the same order only if the graph looks like a linear chain, or linked list, and the traversal starts at one of the ends.</p>\n<p>For example, BFS and DFS starting at node A are the same for the following graph:</p>\n<p>A &lt;-&gt; B &lt;-&gt; C</p>",
+      "choices": [
+        "<p>True</p>",
+        "<p>False</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>We could add any number of nodes to node B, and visit nodes in the same order starting at node A and node B.</p>"
+    },
+    {
+      "id": "canterbury-633400",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-DataTypesAndVariables",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>You see the expression <code>n = 100000</code> in some code that successfully compiles. What type can <code>n</code> not be?</p>",
+      "choices": [
+        "<p>int</p>",
+        "<p>short</p>",
+        "<p>float</p>",
+        "<p>double</p>",
+        "<p>long</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>Shorts can only hold values in [-32768, 32767].</p>"
+    },
+    {
+      "id": "canterbury-633397",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-Arrays",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>Suppose you try to perform a binary search on the unsorted array {1, 4, 3, 7, 15, 9, 24}. Which element will not be found when you try searching for it?</p>",
+      "choices": [
+        "<p>7</p>",
+        "<p>1</p>",
+        "<p>9</p>",
+        "<p>15</p>",
+        "<p>24</p>"
+      ],
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "<p>The answer is 15. The first check will look at 7. 15 is greater than 7, so we search to its right. The second check will look at 9. 15 is greater than 9, so we search to its right. The third check will look at 24. 15 is less than 24, so we look to its left. However, our range has just been inverted and our searching stops, not having found 15.</p>"
+    },
+    {
+      "id": "canterbury-634167",
+      "bloomLevel": 1,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-Assignment",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-WriteCode_MeansChooseOption",
+      "problemStatement": "<p>Fill in the single missing line of code:<br><code>int p, *r, **q;</code></p>\n<pre lang=\"text/x-c\">p = 27;\nr = &amp;p;\n</pre>\n<p>// MISSING LINE<br><code>printf(\"The value is %d\", **q); // prints 27.</code></p>",
+      "choices": [
+        "<p>*q = *r;</p>",
+        "<p>q = &amp;r;</p>",
+        "<p>**q = p;</p>",
+        "<p>q = &amp;&amp;p;</p>",
+        "<p>*q = *p;</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>B gets q to point to r, which points to p.</p>"
+    },
+    {
+      "id": "canterbury-632090",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-ArithmeticOperators",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>What is the value of j after this code is executed?</p>\n<p>int i = 6, j = 10;</p>\n<p>j += i;</p>",
+      "choices": [
+        "<p>4</p>",
+        "<p>6</p>",
+        "<p>10</p>",
+        "<p>16</p>",
+        "<p>&nbsp;Undefined</p>"
+      ],
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "<p>The value of variable i (6) is added to that of variable&nbsp; j (10) resulting in 16 as the&nbsp; new value of j</p>"
+    },
+    {
+      "id": "canterbury-635019",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "TopicWG-ADT-Queue-DefInterfaceUse",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>Suppose q is an instance of a queue that can store Strings, and I execute the following statements starting with q empty:</p>\n<pre lang=\"text/x-java\">1. q.enqueue(\"Sweden\");\n2. q.enqueue(\"is\");\n3. q.enqueue(\"my\");\n4. String w = q.dequeue();\n5. String x = q.peek();\n6. q.enqueue(\"neighbor\");\n7. String y = q.dequeue();\n8. String z = q.dequeue();\n</pre>\n<p>&nbsp;</p>\n<p>What is the value of z after executing these expressions in order?</p>",
+      "choices": [
+        "<code>\"Sweden\"</code>",
+        "<code>\"is\"</code>",
+        "<code>\"my\"</code>",
+        "<code>\"neighbor\"</code>",
+        "<p>None of the above</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>If we consider the contents of the queue after each expression (listing contents from head to tail), we have</p>\n<p>1. [\"Sweden\"]</p>\n<p>2. [\"Sweden\" \"is\"]</p>\n<p>3. [\"Sweden\" \"is\" \"my\"]</p>\n<p>4. [\"is\" \"my\"]&nbsp; (and w gets set to \"Sweden\")</p>\n<p>5. [\"is\" \"my\"]&nbsp; (and x gets set to \"is\")</p>\n<p>6. [\"is\" \"my\" \"neighbor\"]</p>\n<p>7. [\"my\" \"neighbor\"] (and y gets set to \"is\")</p>\n<p>8. [ \"neighbor\"]&nbsp; (and z gets set to \"my\")</p>"
+    },
+    {
+      "id": "canterbury-634151",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicWG-Runtime-StorageManagement",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>Which of the following parts of a process&rsquo; memory is the largest?</p>",
+      "choices": [
+        "<p>The code area</p>",
+        "<p>The globals area</p>",
+        "<p>The heap</p>",
+        "<p>The stack</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>Heap is the largest.</p>"
+    },
+    {
+      "id": "canterbury-634145",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicWG-Graphs",
+      "courseLevel": "CS2",
+      "problemStatement": "<p>Prim&rsquo;s Algorithm is used to solve what problem?</p>",
+      "choices": [
+        "<p>Finding the lowest parent of a heap</p>",
+        "<p>Minimum spanning tree</p>",
+        "<p>Shortest path in a graph from a source</p>",
+        "<p>Sorting integers</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>Prim's is used for MST.</p>"
+    },
+    {
+      "id": "canterbury-633268",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-AlgorithmComplex-BigO",
+      "courseLevel": "CS2",
+      "skillTag": "SkillWG-AnalyzeCode",
+      "problemStatement": "<p>Suppose you have a tree with a maximum depth of d and an average branching factor of b (i.e. each node has b children). You are searching for a particular node S located at depth m (m &lt;= d). You don't know where the node S is located, just that it is at depth m.</p>\n<p>What is an upper bound on the <em>space</em> complexity of breadth-first search (i.e. big-O notation) to find the node S starting from the root?</p>",
+      "choices": [
+        "<p>O(d * b)</p>",
+        "<p>O(b<sup>d</sup>)</p>",
+        "<p>O(d<sup>b</sup>)</p>",
+        "<p>O(b * m)</p>",
+        "<p>O(b<sup>m</sup>)</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>In the worst case, we need to store all of the nodes, because the very last node we check at the maximum depth will be S.&nbsp; The deepest nodes of the graph will have O(b<sup>d</sup>) nodes, and in the worst case we would need to store all of these nodes.</p>\n<p><img src=\"data/canterbury/img/7.png\" alt=\"\" width=\"579\" height=\"436\"></p>"
+    },
+    {
+      "id": "canterbury-633266",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-AlgorithmComplex-BigO",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>Two algorithms accomplish the same task on a collection of N items. Algorithm A performs N/2 operations. Algorithm B performs N log N operations. Under what conditions does algorithm A offer better performance?</p>",
+      "choices": [
+        "<p>N &lt;= 4</p>",
+        "<p>N &gt; 8</p>",
+        "<p>N &gt; 2</p>",
+        "<p>For all N.</p>",
+        "<p>For no N.</p>"
+      ],
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "<p>For all legal collection sizes, N/2 &lt; N log N.</p>"
+    },
+    {
+      "id": "canterbury-633260",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-AlgorithmComplex-BigO",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>When is an adjacency matrix a good choice for implementing a graph?</p>",
+      "choices": [
+        "<p>When the graph is undirected.</p>",
+        "<p>When the graph is nearly complete.</p>",
+        "<p>When a graph has few edges.</p>",
+        "<p>When the graph contains no cycles.</p>",
+        "<p>When the graph is connected.</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>The adjacency matrix will compactly and efficiently store edges when it contains little wasted space. In a complete graph, each vertex shares an edge with each other vertex, meaning all elements in the adjacency matrix will be used.</p>"
+    },
+    {
+      "id": "canterbury-634147",
+      "bloomLevel": 1,
+      "difficulty": "medium",
+      "topicTag": "TopicWG-Sorting-NlogN",
+      "courseLevel": "CS2",
+      "problemStatement": "<p>What is true about the pivot in quicksort?</p>",
+      "choices": [
+        "<p>Before partitioning, it is always the smallest element in the list</p>",
+        "<p>After partitioning, the pivot will always be in the centre of the list</p>",
+        "<p>After partitioning, the pivot will never move again</p>",
+        "<p>A random choice of pivot is always the optimal choice, regardless of input</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>As the pivot will be to the right of all smaller elements and to the left of all larger elements, it is in the same position it will be when the array is sorted.</p>"
+    },
+    {
+      "id": "canterbury-633259",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-AlgorithmComplex-BigO",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>When is an adjacency list a good choice for implementing a graph?</p>",
+      "choices": [
+        "<p>When the graph is undirected.</p>",
+        "<p>When the graph is nearly complete.</p>",
+        "<p>When a graph has few edges.</p>",
+        "<p>When the graph contains no cycles.</p>",
+        "<p>When the graph is connected.</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>With adjacency lists are used, each vertex stores its own list of vertices it's connected to. When a graph contains few edges, these lists will be very short and will likely consume less memory than the adjacency matrix.</p>"
+    },
+    {
+      "id": "canterbury-633257",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-AlgorithmComplex-BigO",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>You've got an algorithm that is O(N<sup>2</sup>). On the first run, you feed it a collection of size M. On the second run, you feed it a collection of size M / 2. Assuming each run has worst-case performance, how much time does the second run take?<span style=\"font-size: small;\"><br></span></p>",
+      "choices": [
+        "<p>1/4 of the first</p>",
+        "<p>1/2 of the first</p>",
+        "<p>2/3 of the first</p>",
+        "<p>3/4 of the first</p>",
+        "<p>1/8 of the first</p>"
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "<p>The first run took time proportional to M<sup>2</sup>. The second run took (M/2)<sup>2</sup>, or M<sup>2</sup>/4. The second run is 1/4 of the first.</p>"
+    },
+    {
+      "id": "canterbury-633245",
+      "bloomLevel": 2,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-AlgorithmComplex-BigO",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>Two algorithms accomplish the same task on a collection of N items. Algorithm A performs N<sup>2</sup> operations. Algorithm B performs 10N operations. Under what conditions does algorithm A offer better performance?</p>",
+      "choices": [
+        "<p>N &lt; 10</p>",
+        "<p>N &lt; 100</p>",
+        "<p>N &gt; 10</p>",
+        "<p>For all N.</p>",
+        "<p>For no N.</p>"
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "<p>The two algorithms offer equal performance when N = 10. For N greater than 10, N<sup>2</sup> &gt; 10N.</p>"
+    },
+    {
+      "id": "canterbury-633279",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-ProgrammingStandards",
+      "courseLevel": "CS2",
+      "skillTag": "SkillWG-AnalyzeCode",
+      "problemStatement": "<p>Which of the following makes an appropriate pre-condition for this code?<br>double calculate_percentage(double sum, double n)<br><code>{</code></p>\n<pre lang=\"text/x-c\">    // calculates and returns a percentage given a sum and a length (n)\n    // &lt;missing pre-condition&gt;\n    // POST: none\n    return (sum / n) * 100;\n}\n</pre>",
+      "choices": [
+        "<p>PRE: sum &lt; 100</p>",
+        "<p>PRE: n != 0</p>",
+        "<p>PRE: sum != NULL and n != NULL</p>",
+        "<p>PRE: none</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>The code will faill if n = 0, as it will divide by 0.</p>"
+    },
+    {
+      "id": "canterbury-635015",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicWG-Numeric-Int-Representatio",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>The binary value 11011101 when coverted into a decimal value from two's complement notation is:</p>",
+      "choices": [
+        "<p>-35</p>",
+        "<p>35</p>",
+        "<p>221</p>",
+        "<p>-221</p>",
+        "<p>-33</p>"
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "<p>Conversion of negative numbers in two's complement into decimal requires a bit flip, followed by the binary addition of 1. &nbsp;This value is then interpreted as an unsigned binary value.</p>"
+    },
+    {
+      "id": "canterbury-632068",
+      "bloomLevel": 2,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-IO",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>Note draft only topics and explanation tba</p>\n<p>Consider the following short program:</p>\n<p>#include &lt;stdio.h&gt;</p>\n<p>void f1(void);</p>\n<p>int a;</p>\n<p>void main(void)</p>\n<p>{</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp; int b;</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp; a = b = 1;</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp; f1();</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp; printf(\"%d %d\", a, b);</p>\n<p>}</p>\n<p>void f1(void)</p>\n<p>{</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp; int b = 3;</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp; a = b;</p>\n<p>}</p>\n<p>The output from the print statement will be:</p>",
+      "choices": [
+        "<p>1 1</p>",
+        "<p>1 3</p>",
+        "<p>3 1</p>",
+        "<p>3 3</p>",
+        "<p>3 5</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>Explanation to be completed</p>"
+    },
+    {
+      "id": "canterbury-633240",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-CollectionsExceptArray",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>Finding the minimum value in a complete and&nbsp;balanced binary search tree is</p>",
+      "choices": [
+        "<p>O(1)</p>",
+        "<p>O(log N)</p>",
+        "<p>O(N)</p>",
+        "<p>O(N<sup>2</sup>)</p>",
+        "<p>O(N log N)</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>The minimum is the root's left-most descendent, which can be reached in log N steps.</p>"
+    },
+    {
+      "id": "canterbury-634971",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-ProgramDesign",
+      "courseLevel": "CS2",
+      "problemStatement": "<p>An interface in Java can appropriately be used to model</p>",
+      "choices": [
+        "<p>Abstract classes</p>",
+        "<p>Unrelated classes that share particular capabilities</p>",
+        "<p>Related classes that share particular attributes</p>",
+        "<p>Classes that communicate using the same network protocol</p>",
+        "<p>None of the above</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>Interfaces allow us to specify common capabilities in unrelated classes: a way to say that two classes have the same methods without specifying the implementation (and allowing completely different implementations).&nbsp; For closely related classes (near each other in inheritance hierarchy) we can get common capabilities by having them in a common ancestor.&nbsp; Abstract classes provide a method to specify common capabilities via inheritance.&nbsp; Interfaces cannot be used to specify that two classes share a set of attributes (i.e. instance variables), which can be done by having classes inherit from a common ancestor with those attributes.</p>"
+    },
+    {
+      "id": "canterbury-633256",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-AlgorithmComplex-BigO",
+      "courseLevel": "CS2",
+      "problemStatement": "<p>Suppose you have a tree with a maximum depth of d and an average branching factor of b (i.e. each node has b children).&nbsp; You are searching for a particular node S located at depth m (m &lt;= d).&nbsp; You don't know where the node S is located, just that it is at depth m.</p>\n<p>What is an upper bound on the runtime complexity of breadth-first search (i.e. big-O notation) to find the node S starting from the root?</p>",
+      "choices": [
+        "<p>O(d * b)</p>",
+        "<p>O(b<sup>d</sup>)</p>",
+        "<p>O(d<sup>b</sup>)</p>",
+        "<p>O(b * m)</p>",
+        "<p>O(b<sup>m</sup>)</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>In the worst-case, you would keep choosing sub-tree containing S last, and have to keep searching.&nbsp; Thus the worst-case is O(b<sup>d</sup>).</p>\n<p>The following picture may help:</p>\n<p><img src=\"data/canterbury/img/9.png\" alt=\"\" width=\"579\" height=\"436\"></p>"
+    },
+    {
+      "id": "canterbury-633604",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-LoopsSubsumesOperators",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>What wil the following code print, assuming that N is a positive integer?</p>\n<pre lang=\"text/x-java\">int count=0;\nfor (int i=0; i&lt;<strong>N</strong>; i++) {\n   if (i % 2 == 0) {\n      count++;\n   }\n}\nSystem.out.println(count);\n</pre>",
+      "choices": [
+        "<p>N</p>",
+        "<p>N/2</p>",
+        "<p>N/2+1</p>",
+        "<p>(N+1)/2</p>",
+        "<p>0 (i.e. the loop body never executes)</p>"
+      ],
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "<p>If N is even, for example N=12, N/2 works.&nbsp; However, suppose N is odd, for example N=13.&nbsp; Here the result should be 7, which is (N+1)/2.&nbsp; However, for N=12, (N+1)/2 also works.&nbsp; (N+1)/2 works for all positive integer.</p>"
+    },
+    {
+      "id": "canterbury-634906",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-AlgorithmComplex-BigO",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>Two algorithms accomplish the same task on a collection of N items. Algorithm A performs (N/2)<sup>3</sup> operations. Algorithm B performs N<sup>2</sup> operations. Under what conditions does algorithm A offer strictly better performance?</p>",
+      "choices": [
+        "<p>N &lt;= 7</p>",
+        "<p>N &lt;= 8</p>",
+        "<p>N &gt; 8</p>",
+        "<p>For all N</p>",
+        "<p>For no N</p>"
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "<p>For N &lt;= 7, (N/2)<sup>3</sup> &lt; N<sup>2</sup>.</p>"
+    },
+    {
+      "id": "canterbury-632474",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-Recursion",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-DebugCode",
+      "problemStatement": "<p>Identify the bug in the following Java code (if any):</p>\n<p><br><code>public boolean search(T item,ListADT&lt;T&gt; list){ // 1</code></p>\n<pre lang=\"text/x-java\">   if (list == null) // 2\n      return false; // 3\n   else if (list.first()==item) // 4\n      return true; // 5\n   else // 6\n      return this.search(item, list.rest()); // 7\n} // 8\n</pre>",
+      "choices": [
+        "<p>There is no base case</p>",
+        "<p>The problem is not self-similar</p>",
+        "<p>The problem does not get&nbsp;smaller</p>",
+        "<p>There are no bugs</p>",
+        "<p>None of the above</p>"
+      ],
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "<p>For a recursive solution to a problem, you need three things:<br>(1) a base case (where the problem can be solved without recursion)<br>(2) a self-similar problem (one that contains similar problem(s) to itself)<br>(3) a way of making the problem smaller so you get closer to the base case</p>\n<p>Here (2) is satisfied -- lists contain smaller lists. (1) is satisfied by lines 2-5 of the method. And (3) is satisfied because line 7's recursive call takes the rest of the list as a parameter, rather than the whole list.</p>"
+    },
+    {
+      "id": "canterbury-634918",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "TopicWG-ADT-Queue-Implementations",
+      "courseLevel": "CS2",
+      "skillTag": "SkillWG-AnalyzeCode",
+      "problemStatement": "<p>Suppose QueueADT is implemented using a singly linked list. What is the lowest Big-Oh time complexity that can be achieved for an enqueue&nbsp;method?:</p>",
+      "choices": [
+        "<p>O(1)</p>",
+        "<p>O(log<sub>2</sub> n)</p>",
+        "<p>O(n)</p>",
+        "<p>O(n<sup>2</sup>)</p>",
+        "<p>none of the above</p>"
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "<p>If you keep a pointer to the last element of the queue, then the enqueue method just needs a fixed number of statements, which are the same independent of the size of the queue.&nbsp;</p>"
+    },
+    {
+      "id": "canterbury-633554",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-CollectionsExceptArray",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>What terminates a failed linear probe in a full hashtable?</p>",
+      "choices": [
+        "<p>The end of the array</p>",
+        "<p>A deleted node</p>",
+        "<p>A null entry</p>",
+        "<p>A node with a non-matching key</p>",
+        "<p>Revisiting the original hash index</p>"
+      ],
+      "correctChoiceIndex": 4,
+      "referenceAnswerDescription": "<p>A null entry will not appear in a full hashtable. Seeing the end of the array isn't correct, since we need to examine all elements, including those that appear before our original hash index. A node with a non-matching key is what started our probe in the first place. The purpose of leaving a deleted node in the table is so that probing may proceed past it.&nbsp;Revisiting the original hash index means we've looked at every entry and determined the item doesn't appear in the table.</p>"
+    },
+    {
+      "id": "canterbury-632810",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "CS1",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>Which of the following assertions is <em>incorrect</em>?</p>",
+      "choices": [
+        "<p>A Python statement may return a value</p>",
+        "<p>A Python expression may return a value</p>",
+        "<p>A Python statement may produce a side effect</p>",
+        "<p>A Python expression may produce a side effect</p>",
+        "<p>None of the above (i.e., all are correct)</p>"
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "<p>Basically, a statement in Python is a special kind of function that doesn't return a value.&nbsp; Statements are things like <code>print</code> (in Python 2.x but not Python 3) and <code>import</code>.</p>\n<p>I think this is not a great question to put on a CS-1 exam beacuse it relies on terminology (statement, expression, side-effect) that doesn't really mean much until CS-2 or later.</p>"
+    },
+    {
+      "id": "canterbury-633665",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-DataTypesAndVariables",
+      "courseLevel": "CS1",
+      "problemStatement": "<p>Consider the following class for a Ninja:</p>\n<pre lang=\"text/x-java\">public class Ninja {\n  private int honor;\n  public Ninja(int h) {\n   this.honor=h;\n  }\n}\n</pre>\n<p>&nbsp;</p>\n<p>Suppose we instantiate two Ninjas like this:</p>\n<pre lang=\"text/x-java\">Ninja n1=new Ninja(50);\nNinja n2=new Ninja(50);\n</pre>\n<p>&nbsp;</p>\n<p>Is the following statement True, False, or It Depends:</p>\n<p>n1 == n2</p>",
+      "choices": [
+        "<p>True</p>",
+        "<p>False</p>",
+        "<p>It depends</p>\n<p>(Note:&nbsp; Be ready to explain what it depends upon during the discussion phase of this question)</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>These two references are not equal because they reference different instances.</p>\n<p><img src=\"data/canterbury/img/10.png\" alt=\"\" width=\"523\" height=\"261\"></p>"
+    },
+    {
+      "id": "canterbury-634189",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicWG-Heaps",
+      "courseLevel": "CS2",
+      "problemStatement": "<p>What is<strong> not</strong> a property of a max-heap?</p>",
+      "choices": [
+        "<p>It is complete</p>",
+        "<p>A node&rsquo;s value is less than or equal to that of its parent</p>",
+        "<p>Its values are sorted in when printed in level order</p>",
+        "<p>Its root is the maximum element in the tree</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>A max-heap need not be sorted.</p>"
+    },
+    {
+      "id": "canterbury-633882",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-AlgorithmComplex-BigO",
+      "courseLevel": "CS2",
+      "problemStatement": "<p>Barack Obama wants to know the most efficient way to sort a million 32-bit integers. He knows it&rsquo;s not bubble sort. What is?</p>",
+      "choices": [
+        "<p>Heapsort</p>",
+        "<p>Insertion sort</p>",
+        "<p>Mergesort</p>",
+        "<p>Radix sort</p>",
+        "<p>Quicksort</p>"
+      ],
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "<p>Radix sort will be O(n) and works nicely on integers; at such a large scale it will outperform the O(nlgn) sorting algorithms.</p>\n<p>(question is a reference to http://www.youtube.com/watch?v=k4RRi_ntQc8 )</p>"
+    },
+    {
+      "id": "canterbury-634250",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-DataTypesAndVariables",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-WriteCode_MeansChooseOption",
+      "problemStatement": "<p>Read the following method skeleton and choose the best expression to fill in the blank on <strong>line 2</strong> so that the method will behave correctly:</p>\n<pre lang=\"text/x-java\">/**\n* Takes a string reference and counts the number of times\n* the character 'A' or 'a' appears in the string object.\n* @param aString   String reference to object containing chars.\n* @precondition    aString is not null (you may assume this is true).\n* @return          The number of times 'A' or 'a' appears in the string.\n*/\npublic static int countAs(String aString)  // line 1\n{\n    int counter = __________;              // line 2\n    int totalA = 0;                        // line 3\n    while (counter &lt; __________)           // line 4\n    {\n        if ( __________.equals(\"A\") )      // line 5\n        {\n            totalA = totalA + __________;  // line 6\n        }\n        counter++;                         // line 7\n    }\n    return __________;                     // line 8\n}\n</pre>",
+      "choices": [
+        "<p>0</p>",
+        "<p>1</p>",
+        "<p>aString.size()</p>",
+        "<p>aString.length</p>",
+        "<p>aString.length() - 1</p>"
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "<p>This method must examine each character in the given string to see if it is 'A' or 'a', and uses a loop to do so. &nbsp;The variable <code>counter</code> is being used as a loop index, and by imagining what will fill in other blanks, is also being used to keep track of the position of the current character in the string that is being examined. &nbsp;Since line 7 methodically increases <code>counter</code> on each loop iteration, it must be traversing left-to-right through the string, so zero is the best choice for its initial value.</p>"
+    },
+    {
+      "id": "canterbury-633561",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicWG-Graphs",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>You are writing a depth-first search on a platform that doesn't support recursion. What data structure can help you complete your task?</p>",
+      "choices": [
+        "<p>stack</p>",
+        "<p>queue</p>",
+        "<p>priority queue</p>",
+        "<p>hashtable</p>",
+        "<p>linked list</p>"
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "<p>As you visit nodes, if you push their neighbors on a stack, the neighbors will be the first popped off when you need to backtrack. This behavior is what makes a depth-first search depth-first.</p>"
+    },
+    {
+      "id": "canterbury-632571",
+      "bloomLevel": 1,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-AlgorithmComplex-BigO",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>The worst-case time complexity of radix sort is:</p>",
+      "choices": [
+        "<p>O(1)</p>",
+        "<p>O(n)</p>",
+        "<p>O(k n)</p>",
+        "<p>O(n<sup>2</sup>)</p>",
+        "<p>none of the above</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>n is the number of items to be sorted, as usual, and k is the number of digits in the largest number in the list. Radix sort processes the entire list (n numbers) once for each of the k digits in the largest number in the list, so the work done is proportional to n*k.&nbsp;</p>"
+    },
+    {
+      "id": "canterbury-634253",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-DataTypesAndVariables",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-WriteCode_MeansChooseOption",
+      "problemStatement": "<p>Read the following method skeleton and choose the best expression to fill in the blank on <strong>line 6</strong> so that the method will behave correctly:</p>\n<pre lang=\"text/x-java\">/**\n* Takes a string reference and counts the number of times\n* the character 'A' or 'a' appears in the string object.\n* @param aString   String reference to object containing chars.\n* @precondition    aString is not null (you may assume this is true).\n* @return          The number of times 'A' or 'a' appears in the string.\n*/\npublic static int countAs(String aString)  // line 1\n{\n    int counter = __________;              // line 2\n    int totalA = 0;                        // line 3\n    while (counter &lt; __________)           // line 4\n    {\n        if ( __________.equals(\"A\") )      // line 5\n        {\n            totalA = totalA + __________;  // line 6\n        }\n        counter++;                         // line 7\n    }\n    return __________;                     // line 8\n}\n</pre>",
+      "choices": [
+        "<p>0</p>",
+        "<p>1</p>",
+        "<code>counter</code>",
+        "<code>aString.length()</code>",
+        "<code>aString.charAt(count)</code>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>The variable <code>totalA</code> is being used as an accumulator to keep track of how many A's have been seen so far as the loop progresses. &nbsp;The if condition inside the loop is intended to detect whether the current character is an \"A\", and so the variable <code>totalA</code> should be incremented each time the condition is true. &nbsp;Therefore, the best answer for Line 6 is 1, so that <code>totalA</code> is incremented.</p>"
+    },
+    {
+      "id": "canterbury-632766",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-Arrays",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-DebugCode",
+      "problemStatement": "<p>The following code for a method \"minVal\" contains a logic error on a single line in the method body, on one of the four lines indicated by comments:<br><br><code>public static int minVal(int[] y, int first, int last) {</code></p>\n<pre lang=\"text/x-java\">/* This method returns the value of the minimum element in the\n * subsection of the array \"y\", starting at position\n * \"first\" and ending at position \"last\".\n */\n  int bestSoFar = y[first];          // line 1\n  for (int i=first+1; i&lt;=last; i++)\n  {\n    if ( y[i] &lt; y[bestSoFar] )       // line 2\n</pre>\n<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bestSoFar = y[i];&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // line 3</code><br><br><code>&nbsp; } // for</code><br><br><code>&nbsp; return bestSoFar;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // line 4</code><br><br><code>} // method minVal</code><br><br><br>Which one of the four lines indicated by the comments contains the logic error?</p>",
+      "choices": [
+        "<p>line 1</p>",
+        "<p>line2</p>",
+        "<p>line3</p>",
+        "<p>line4</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>line 2 should be<code> if ( y[i] &lt; bestSoFar )</code></p>\n<p><span style=\"font-family: arial,helvetica,sans-serif;\">The other three lines use bestSoFar to remember the best VALUE seen thus far, whereas the buggy line is using bestSoFar as if bestSoFar contains the POSITION seen thus far.</span></p>"
+    },
+    {
+      "id": "canterbury-632764",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-Arrays",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-DebugCode",
+      "problemStatement": "<p>The following code for a method \"minVal\" contains a logic error on a single line in the method body, on one of the four lines indicated by comments:<br><br><code>public static int minVal(int[] y, int first, int last) {</code></p>\n<pre lang=\"text/x-java\">/* This method returns the value of the minimum element in the\n * subsection of the array \"y\", starting at position\n * \"first\" and ending at position \"last\".\n */\n  int bestSoFar = y[first];          // line 1\n  for (int i=first+1; i&lt;=last; i++)\n  {\n    if ( y[i] &lt; bestSoFar )          // line 2\n</pre>\n<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bestSoFar = i;&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // line 3</code><br><br><code>&nbsp; } // for</code><br><br><code>&nbsp; return bestSoFar;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // line 4</code><br><br><code>} // method minVal</code><br><br>Which one of the four lines indicated by the comments contains the logic error?</p>",
+      "choices": [
+        "<p>line 1</p>",
+        "<p>line2</p>",
+        "<p>line3</p>",
+        "<p>line4</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>line 3 should be <code>bestSoFar = y[i];</code></p>\n<code>The buggy code is remembering an array position, but the correct code remembers the value.</code>"
+    },
+    {
+      "id": "canterbury-633574",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-Arrays",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>Suppose you try to perform a binary search on the unsorted array {1, 4, 3, 7, 15, 9, 24}. How many of the items in this array will be found if they are searched for?</p>",
+      "choices": [
+        "<p>3</p>",
+        "<p>4</p>",
+        "<p>5</p>",
+        "<p>6</p>",
+        "<p>0</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>7, 4, 9, 24, and 1 will be found if searched for. 15 and 3 will not, since they lie to the wrong side of a subrange's midpoint.</p>"
+    },
+    {
+      "id": "canterbury-633668",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-OOconcepts",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>Consider the following class for a Ninja:</p>\n<pre lang=\"text/x-java\">public class Ninja {\n  private int honor;\n  public Ninja(int h) {\n    this.honor=h;\n  }\n}\n</pre>\n<p>&nbsp;</p>\n<p>Suppose we instantiate two Ninjas like this:</p>\n<pre lang=\"text/x-java\">Ninja n1=new Ninja(50);\nNinja n2=new Ninja(50);\n</pre>\n<p>&nbsp;</p>\n<p>Is the following statement True, False, or It Depends (i.e. depends on a factor external to this question)</p>\n<p>n1.equals(n2)</p>",
+      "choices": [
+        "<p>True</p>",
+        "<p>False</p>",
+        "<p>It depends</p>\n<p>(Be ready to discuss what it depends on when we get to the discussion phase of this question)</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>The equals() method has not been overloaded, so it's using the default implementation of equals() in Java, which falls back on ==.</p>\n<p>This is sort of a trick question, but it's a reasonably common error pattern in CS-2.</p>"
+    },
+    {
+      "id": "canterbury-632300",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-Testing",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-TestProgram",
+      "problemStatement": "<p>For Club Scripting, to be a member a person must be aged 15 or older, but less than<br>50. What values would you use to boundary test a script designed to check if a<br>person was a suitable age to join?</p>",
+      "choices": [
+        "<p>14, 15, 50, 51</p>",
+        "<p>15, 16, 50, 51</p>",
+        "<p><br>15, 16, 49, 50</p>",
+        "<p><br>14, 15, 49, 50</p>",
+        "<p>13, 15, 49, 52</p>"
+      ],
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "<p>The boundary values are those at the boundary and those respectively one before and one past the boundary</p>"
+    },
+    {
+      "id": "canterbury-634252",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-DataTypesAndVariables",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-WriteCode_MeansChooseOption",
+      "problemStatement": "<p>Read the following method skeleton and choose the best expression to fill in the blank on <strong>line 5</strong>&nbsp;so that the method will behave correctly:</p>\n<pre lang=\"text/x-java\">/**\n* Takes a string reference and counts the number of times\n* the character 'A' or 'a' appears in the string object.\n* @param aString   String reference to object containing chars.\n* @precondition    aString is not null (you may assume this is true).\n* @return          The number of times 'A' or 'a' appears in the string.\n*/\npublic static int countAs(String aString)  // line 1\n{\n    int counter = __________;              // line 2\n    int totalA = 0;                        // line 3\n    while (counter &lt; __________)           // line 4\n    {\n        if ( __________.equals(\"A\") )      // line 5\n        {\n            totalA = totalA + __________;  // line 6\n        }\n        counter++;                         // line 7\n    }\n    return __________;                     // line 8\n}\n</pre>",
+      "choices": [
+        "<code>aString.charAt(counter)</code>",
+        "<code>aString.substring(counter)</code>",
+        "<code>aString.charAt(counter).toUpperCase()</code>",
+        "<code>aString.substring(counter).toUpperCase()</code>",
+        "<code>aString.substring(counter, counter + 1).toUpperCase()</code>"
+      ],
+      "correctChoiceIndex": 4,
+      "referenceAnswerDescription": "<p>While both <code>charAt()</code> can be used to examine a single <code>char</code> in a string, <code>char</code> is a primitive type without any methods. &nbsp;Since the condition on Line 5 uses the <code>equals()</code> method to compare against another String value, the expression used to fill in the blank must produce a String object, so the <code>substring()</code> method is a better fit. &nbsp;The <code>substring()</code> method takes two parameters--a starting index and an ending index one past the end of the substring--and since the method counts both upper case and lower case A's, the result should be converted to upper case form before testing for equality against <code>\"A\"</code>. &nbsp;Thus, the best answer is <code>aString.substring(counter, counter + 1).toUpperCase()</code>.</p>"
+    },
+    {
+      "id": "canterbury-632271",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-Arrays",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>Which data structure&nbsp;can be used to implement an abstract datatype&nbsp;such as the StackADT or QueueADT?</p>",
+      "choices": [
+        "<p>an array</p>",
+        "<p>a linked list</p>",
+        "<p>both</p>",
+        "<p>neither</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>StackADT and QueueADT can both be implemented with either an array or a stack. Either may be the better choice, depending on the purpose of the program and the nature of the data being stored.&nbsp;</p>"
+    },
+    {
+      "id": "canterbury-632278",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-Arrays",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>Which data structure uses space more efficiently if the program is storing substantially less data than expected?</p>",
+      "choices": [
+        "<p>An array</p>",
+        "<p>A linked list</p>",
+        "<p>They are both the same</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>For an array, you must set aside a block of memory in advance. A linked list only creates nodes for those elements that are actually contained in the list.&nbsp;</p>"
+    },
+    {
+      "id": "canterbury-632880",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "TopicWG-ADT-List-Implementations",
+      "courseLevel": "CS2",
+      "skillTag": "SkillWG-AnalyzeCode",
+      "problemStatement": "<p>We say indexing is fast if it's done in O(1) time, searching is fast if done in O(lg N) time, and inserting and deleting are fast if done in O(1) time. Compared to other data structures, unsorted linked lists offer:</p>",
+      "choices": [
+        "<p>slow indexing, slow search, slow insertions and deletions.</p>",
+        "<p>fast indexing, fast search, slow insertions and deletions.</p>",
+        "<p>fast indexing, slow search, slow insertions and deletions.</p>",
+        "<p>slow indexing, slow search, fast insertions and deletions.</p>",
+        "<p>slow indexing, fast search, fast insertions and deletions.</p>"
+      ],
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "<p>Linked lists do not support fast indexing. To get at element i, one must traverse the list i steps. Slow indexing makes for slow searching, as the binary search relies upon fast indexing to retrieve the middle element. Insertions and deletions, on the other hand, can be done in constant time, as only one or two neighboring links are affected.</p>"
+    },
+    {
+      "id": "canterbury-634192",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-DataTypesAndVariables",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>What is a shorter way to write <code>if(p == NULL)</code> ?</p>",
+      "choices": [
+        "<p>if(p)</p>",
+        "<p>if(!p)</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>Answer is B.</p>"
+    },
+    {
+      "id": "canterbury-633221",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-CollectionsExceptArray",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>This sorting algorithm splits the collection into two halves, sorts the two halves independently, and combines the results.</p>",
+      "choices": [
+        "<p>selection sort</p>",
+        "<p>insertion sort</p>",
+        "<p>bubble sort</p>",
+        "<p>quick sort</p>",
+        "<p>merge sort</p>"
+      ],
+      "correctChoiceIndex": 4,
+      "referenceAnswerDescription": "<p>Merge sort splits the collection, sorts the two halves, and merges them.</p>"
+    },
+    {
+      "id": "canterbury-634173",
+      "bloomLevel": 1,
+      "difficulty": "medium",
+      "topicTag": "TopicWG-ChoosingAppropriateDS",
+      "courseLevel": "CS2",
+      "problemStatement": "<p>What are hash functions<strong> not</strong> used for? (Or at least, should not be used for.)</p>",
+      "choices": [
+        "<p>Storing values in hash tables</p>",
+        "<p>Checking file integrity</p>",
+        "<p>Encrypting passwords</p>",
+        "<p>Digital signatures on files</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>Hash functions should be used to store passwords, but not to encrypt them!</p>"
+    },
+    {
+      "id": "canterbury-634194",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-AlgorithmComplex-BigO",
+      "courseLevel": "CS2",
+      "problemStatement": "<p>Nathan is on the run (apparently the US is about to invade Canada). He needs to grab food.<br>Each piece of food around him has a nutritional value, and a weight. He wants to put the<br>most calories in his backpack, but it can only hold up to certain weight. What should he<br>optimize for when deciding which foods to bring?</p>",
+      "choices": [
+        "<p>The value of food</p>",
+        "<p>The value / weight ratio of food</p>",
+        "<p>The weight / value ratio of food</p>",
+        "<p>The weight of food</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>Greedy approach to fractional knapsack.</p>"
+    },
+    {
+      "id": "canterbury-632876",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-AlgorithmComplex-BigO",
+      "courseLevel": "CS2",
+      "skillTag": "SkillWG-AnalyzeCode",
+      "problemStatement": "<p>We say indexing is fast if it's done in O(1) time, searching is fast if done in O(lg N) time, and inserting and deleting are fast if done in O(1) time.&nbsp;Compared to other data structures, unsorted arrays offer:</p>",
+      "choices": [
+        "<p>slow indexing, slow search, slow insertions and deletions.</p>",
+        "<p>fast indexing, fast search, slow insertions and deletions.</p>",
+        "<p>fast indexing, slow search, slow insertions and deletions.</p>",
+        "<p>slow indexing, slow search, fast insertions and deletions.</p>",
+        "<p>slow indexing, fast search, fast insertions and deletions.</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>Unsorted arrays can be indexed in constant time (which is fast), searched in O(N) time (which is not as good as O(lg N)), and restructured in O(N) time (which is not as good as O(1) time).</p>"
+    },
+    {
+      "id": "canterbury-633269",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicWG-Trees-Other",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>What is not true about a binary search tree?</p>",
+      "choices": [
+        "<p>It is a binary tree</p>",
+        "<p>It is a perfect tree</p>",
+        "<p>The leftmost node is the smallest node in the tree</p>",
+        "<p>When printed with inorder traversal, it will be sorted</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>BSTs need not be perfect.</p>"
+    },
+    {
+      "id": "canterbury-633398",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-Arrays",
+      "courseLevel": "CS2",
+      "skillTag": "SkillWG-AnalyzeCode",
+      "problemStatement": "<p>The insertion sort operates by maintaining a sorted list. When a new element is added, we traverse the list sequentially until will find the new element's appropriate location. Suppose instead that the new location was found using a binary search instead of a sequential search. What is the complexity of this new binary insertion sort?</p>",
+      "choices": [
+        "<p>O(N)</p>",
+        "<p>O(log N)</p>",
+        "<p>O(N + log N)</p>",
+        "<p>O(N * log N)</p>",
+        "<p>O(N<sup>2</sup>)</p>"
+      ],
+      "correctChoiceIndex": 4,
+      "referenceAnswerDescription": "<p>The binary search will indeed speed up finding the location of the newly added object. However, we still have the problem of shifting all subsequent elements. This algorithm, like the regular insertion sort, is O(N<sup>2</sup>).</p>"
+    },
+    {
+      "id": "canterbury-634936",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-AlgorithmComplex-BigO",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>For the binary search algorithm implemented on a sorted list stored in an array, what is its running time?</p>",
+      "choices": [
+        "<p>O(1)</p>",
+        "<p>O(log<sub>2&nbsp;</sub>n)</p>",
+        "<p>O(n)</p>",
+        "<p>O(n log<sub>2</sub> n)</p>",
+        "<p>O(n<sup>2</sup>)</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>Binary search repeately \"throws away\" half of the list still under investigation when looking for a given value in the list. &nbsp;Hence the run time of the algorithm is the number of times a values can be divided in two, until one reaches the value 1: O(log<sub>2</sub> n)</p>"
+    },
+    {
+      "id": "canterbury-633218",
+      "bloomLevel": 2,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-CollectionsExceptArray",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>Suppose we're modeling a person with just name and age. The notation {\"Javier\", 31} refers to a 31-year-old named Javier. Now, suppose we have this collection of five people:</p>\n<p>{\"Lupe\", 29}</p>\n<p>{\"Dean\", 29}</p>\n<p>{\"Lars\", 28}</p>\n<p>{\"Javier\", 31}</p>\n<p>{\"Di\", 28}</p>\n<p>Which of the following ordered collections is the result of applying a <em>stable</em> sort to this collection, where the sorting criteria orders by age?</p>",
+      "choices": [
+        "<p>{\"Javier\", 31}<br>{\"Dean\", 29}<br>{\"Lupe\", 29}<br>{\"Di\", 28}<br>{\"Lars\", 28}</p>",
+        "<p>{\"Javier\", 31}<br>{\"Lupe\", 29}<br>{\"Dean\", 29}<br>{\"Lars\", 28}<br>{\"Di\", 28}</p>",
+        "<p>{\"Lars\", 28}<br>{\"Di\", 28}</p>\n<p>{\"Dean\", 29}</p>\n<p>{\"Lupe\", 29}<br>{\"Javier\", 31}</p>",
+        "<p>{\"Lars\", 28}<br>{\"Di\", 28}<br>{\"Dean\", 29}</p>\n<p>{\"Lupe\", 29}<br>{\"Javier\", 31}</p>",
+        "<p>{\"Di\", 28}</p>\n<p>{\"Lars\", 28}<br>{\"Dean\", 29}</p>\n<p>{\"Lupe\", 29}<br>{\"Javier\", 31}</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>A stable sort preserves the relative order of elements with the same keys. Thus, Lupe must appear before Dean and Lars must appear before Di. Only the correct answer maintains this order.</p>"
+    },
+    {
+      "id": "canterbury-632268",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-Arrays",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>Which data structure&nbsp;provides direct access to elements using indexes?</p>",
+      "choices": [
+        "<p>an array</p>",
+        "<p>a linked list</p>",
+        "<p>both</p>",
+        "<p>neither</p>"
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "<p>If you declare an array in languages that have them, such as Pascal, C, C++, Java, etc., you can access an element of the array by giving the index of the value to be retrieved.&nbsp;</p>"
+    },
+    {
+      "id": "canterbury-632247",
+      "bloomLevel": 2,
+      "difficulty": "medium",
+      "topicTag": "TopicWG-ADT-Stack-DefInterfaceUse",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-DesignProgramWithoutCoding",
+      "problemStatement": "<p>The <code>StackADT</code>'s&nbsp;<code>pop</code> operation:</p>\n<p></p>",
+      "choices": [
+        "<p>adds a new item at the bottom of the Stack</p>",
+        "<p>returns without removing the top item on the&nbsp;Stack</p>",
+        "<p>removes and returns the top item on the Stack</p>",
+        "<p>adds a new item at the top of the Stack</p>",
+        "<p>returns true if the Stack is empty and&nbsp;otherwise false</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>\"pop\" is the traditional term for removing an element from a stack. By definition, the element removed from a stack is always the one that was added most recently, or the one at the \"top.\"</p>"
+    },
+    {
+      "id": "canterbury-632315",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicWG-ADT-Queue-DefInterfaceUse",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>The dequeue operation:</p>",
+      "choices": [
+        "<p>&nbsp;adds a new item at the front of a queue</p>",
+        "<p>returns without removing the item at the front of a queue</p>",
+        "<p>removes and returns the item at the front of a queue</p>",
+        "<p>adds a new item at the end of a queue</p>",
+        "<p>returns true if a queue is empty and&nbsp;otherwise false</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>dequeue is the name for the operation that removes an element from a queue. Specifically, it removes the item that was added *first* (just as the first person in a line gets served first).&nbsp;</p>"
+    },
+    {
+      "id": "canterbury-632174",
+      "bloomLevel": 2,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-Arrays",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>What does this function do?</p>\n<p>void iFunction(char sz[])</p>\n<p>{</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp; int iLen = 0;</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp; while ( sz[iLen])</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sz[iLen++] = '-';</p>\n<p>}</p>",
+      "choices": [
+        "<p>Copies a string</p>",
+        "<p>Finds and returns a character in a string</p>",
+        "<p>Replaces all letters in a string with - characters</p>",
+        "<p>Finds the length of a string </p>",
+        "<p>&nbsp;Finds and returns the end of a string</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>The Function iterates through the array to the end, replacing each character with the \"-\" character</p>"
+    },
+    {
+      "id": "canterbury-635077",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-LogicalOperators",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>Consider this code segment:</p>\n<pre lang=\"text/x-java\">boolean x = false;\nboolean y = true;\nboolean z = true;\nSystem.out.println( (x || !y) &amp;&amp; (!x || z) );\n</pre>\n<p>&nbsp;</p>\n<p>What value is printed?</p>",
+      "choices": [
+        "<p>true</p>",
+        "<p>false</p>",
+        "<p>Nothing, there is a syntax error</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>Since <code>x</code> is false and <code>y</code> is true, <code>(x || !y)</code> is false. &nbsp;This forces the entire expression to be false, because of the <code>&amp;&amp;</code> operator.</p>"
+    },
+    {
+      "id": "canterbury-632165",
+      "bloomLevel": 2,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-Arrays",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>What is output by the code shown in the question below. Think aboutit carefully - it may be a bit tricky!</p>\n<p>void main(void)</p>\n<p>{</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp; static int aiTable[10] = {0,1,2,3,4,5,6,7,8,9};</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp; int i;</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp; for(i = 0; i &lt; 10; i++)</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp; {</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if( !(aiTable[i] % 2))</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; printf(\"%d\", aiTable[i]);</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp; }</p>\n<p>}</p>",
+      "choices": [
+        "<p>02468</p>",
+        "<p>13579</p>",
+        "<p>01234</p>",
+        "<p>56789</p>",
+        "<p>0123456789</p>"
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "<p>Modulus is the remainder of integer division of two numbers with the result placed somewhere.</p>\n<p>The modulus function of a and b, a being the dividend and b being the divisor, is a - int(a/b) * b.</p>\n<p>For example, using integer results...</p>\n<p>47/4 = 11<br>47%4 = 3</p>\n<p>Check it: 47 = 11*4 + 3</p>\n<p>Source http://wiki.answers.com/Q/What_is_the_difference_between_division_and_modulus_in_%27C%27_language</p>\n<p>In this case the negatively phrased line of code \"if( !(aiTable[i] % 2))\" is an alternative way of&nbsp; expressing the more common phrasing of a modulus arithmetic expression as given below</p>\n<p>If you wanted to know if a number was odd or even, you could use modulus to quickly tell you by asking for the remainder of the number when divided by 2.</p>\n<p>#include &lt;iostream&gt;</p>\n<p>using namespace std;</p>\n<p>int main()</p>\n<p>{</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int num;</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp; cin &gt;&gt; num;</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp; // num % 2 computes the remainder when num is divided by 2</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp; if ( num % 2 == 0 )</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp; {</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cout &lt;&lt; num &lt;&lt; \" is even \";</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp; }</p>\n<p>return 0;</p>\n<p>}</p>\n<p>The key line is the one that performs the modulus operation: \"num % 2 == 0\". A number is even if and only if it is divisible by two, and a number is divisible by another only if there is no remainder.</p>\n<p>source: http://www.cprogramming.com/tutorial/modulus.html</p>"
+    },
+    {
+      "id": "canterbury-631458",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-ArithmeticOperators",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>Given the code</p>\n<pre lang=\"text/x-java\">int x = 27;\nint y = 12;\n</pre>\n<p>&nbsp;</p>\n<p>What is the value of the expression <code>x%y</code>?</p>\n<p></p>",
+      "choices": [
+        "<p>2</p>",
+        "<p>2.25</p>",
+        "<p>3</p>",
+        "<p>3.0</p>",
+        "<p>None of the above.</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>In Java, the % operator means \"remainder.\" So this question is asking, \"What is the remainder when you divide 27 by 12?\" &nbsp; 27 - (2*12) = 3, so the answer is 3.</p>"
+    },
+    {
+      "id": "canterbury-631452",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-ArithmeticOperators",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>Given the code</p>\n<pre lang=\"text/x-java\">int x = 27;\nint y = 12;\n</pre>\n<p>&nbsp;</p>\n<p>What is the value of the expression &nbsp;<code>x/y</code>?</p>",
+      "choices": [
+        "<p>2</p>",
+        "<p>2.25</p>",
+        "<p>3</p>",
+        "<p>3.0</p>",
+        "<p>None of the above.</p>"
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "<p>In Java, when we divide one int value by another, we get another integer. You can start by doing the usual division (which would give you 2.25 in this case) and then remove the decimal part.&nbsp;</p>"
+    },
+    {
+      "id": "canterbury-633244",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-CollectionsExceptArray",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>Suppose you have a binary search tree with no right children. Furthermore, key A is considered greater than key B if A.compareTo(B) &gt;= 0. Which of the following explains how this tree may have ended up this way?</p>",
+      "choices": [
+        "<p>It was filled in ascending order.</p>",
+        "<p>The root value was the minimum.</p>",
+        "<p>All keys were identical.</p>",
+        "<p>The tree is a preorder tree.</p>",
+        "<p>It was filled in descending order.</p>"
+      ],
+      "correctChoiceIndex": 4,
+      "referenceAnswerDescription": "<p>If the greatest node was inserted first, with each successive node having a lesser key than its predecessor, we'd end up with all left children. Adding nodes with identical keys produces right children.</p>"
+    },
+    {
+      "id": "canterbury-634934",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-Arrays",
+      "courseLevel": "CS1",
+      "skillTag": "SkillWG-AnalyzeCode",
+      "problemStatement": "<p>What is the logic error in the following implementation of sequential search?</p>\n<p>1 &nbsp;def sequentialSearch(listOfValues):<br>2 &nbsp; &nbsp; &nbsp; target = input(\"value searching for: \")<br>3 &nbsp; &nbsp; &nbsp; listSize = len(listOfValues)<br>4 &nbsp; &nbsp; &nbsp; targetFound = False<br>5 &nbsp; &nbsp; &nbsp; targetLocation = 0<br>6 &nbsp; &nbsp; &nbsp; current = 0<br>7 &nbsp; &nbsp; &nbsp; while (current &lt; listSize):<br>8 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;if (listOfValues[current] == target):<br>9 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; targetFound = True<br>10 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; targetLocation = current</p>\n<p>11 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;else:</p>\n<p>12 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; targetFound = False<br>13 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;current = current + 1</p>\n<p><br>14 &nbsp; &nbsp; &nbsp;if targetFound:<br>15 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; print \"the target was found at location: \", targetLocation<br>16 &nbsp; &nbsp; &nbsp;else:<br>17 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;print \"target was not found\"</p>",
+      "choices": [
+        "<p>Line 10</p>",
+        "<p>Line 7</p>",
+        "<p>Lines 11-12</p>",
+        "<p>Line 8</p>",
+        "<p>None of the above.</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>The else clause resets&nbsp;<em>targetFound</em> if a match is ever found. &nbsp;Hence, in effect, with this else clause present, only the test with the last element in the list is \"remembered.\"</p>"
+    },
+    {
+      "id": "canterbury-633255",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-DataTypesAndVariables",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>Which of the following lines of code will correctly read in the integer value foo?</p>",
+      "choices": [
+        "<p>scanf(\"%d\", &amp;foo);</p>",
+        "<p>scanf(\"%f\", foo);</p>",
+        "<p>scanf(\"%f\", &amp;foo);</p>",
+        "<p>scanf(\"%f\\n\", foo);</p>"
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "<p>(A) is the correct answer; %d is used for reading in integers. The \\n in (D) is unnecessary. Finally, scanf requires a pointer to a variable's address -- hence the ampersand.</p>"
+    },
+    {
+      "id": "canterbury-633250",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-CollectionsExceptArray",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>Removing a node from a heap is</p>",
+      "choices": [
+        "<p>O(1)</p>",
+        "<p>O(log N)</p>",
+        "<p>O(N)</p>",
+        "<p>O(N log N)</p>",
+        "<p>O(N<sup>2</sup>)</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>The last node is moved into the empty spot, which may be the root, and it may trickle back down to the bottom level. The performance is based on the number of levels in the tree. As heaps are balanced, the performance is O(log N).</p>"
+    },
+    {
+      "id": "canterbury-631283",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-AlgorithmComplex-BigO",
+      "courseLevel": "CS2",
+      "skillTag": "SkillWG-AnalyzeCode",
+      "problemStatement": "<p>Suppose you have a list of numbers stored in consecutive locations in a Java array. What is the worst-case time complexity of finding a given element in the array using linear search?</p>",
+      "choices": [
+        "<p>O(1)</p>",
+        "<p>O(log n)</p>",
+        "<p>O(n)</p>",
+        "<p>O(n log n)</p>",
+        "<p>O(n<sup>2</sup>)</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>Linear search is O(n).</p>"
+    },
+    {
+      "id": "canterbury-634201",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-ClassLibraries",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>Noor writes a program in C to evulate some Taylor series, to help her with her calculus homework. She remembers to<code> #include&lt;math.h&gt;</code> before calling the<code> pow</code> function. But when she compiles with <code>gcc taylor.c</code>, she gets an error that <code>pow</code> is undefined. What she should instead type in the command-line to compile successfully?</p>",
+      "choices": [
+        "<p>gcc taylor.c -01</p>",
+        "<p>gcc taylor.c -lm</p>",
+        "<p>gcc taylor.c -math</p>",
+        "<p>gcc taylor.c -o taylor</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>-lm will manually link the math library.</p>"
+    },
+    {
+      "id": "canterbury-632473",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-AlgorithmComplex-BigO",
+      "courseLevel": "CS2",
+      "skillTag": "SkillWG-AnalyzeCode",
+      "problemStatement": "<pre lang=\"text/x-java\">public int factorial (int n) {\n   if (n == 0)\n      return 1;\n   else if (n &gt; 0)\n      return n * factorial(n - 1);\n   else\n      return -1; // invalid input\n}\n</pre>\n<p><br><span style=\"font-family: arial, helvetica, sans-serif;\">The Big-Oh time complexity of this method is:</span></p>",
+      "choices": [
+        "<p>O(1)</p>",
+        "<p>O(log n)</p>",
+        "<p>O(n)</p>",
+        "<p>O(n<sup>2</sup>)</p>",
+        "<p>none of the above</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>The factorial method will be called n times, so the time complexity is proportional to n.</p>"
+    },
+    {
+      "id": "canterbury-632065",
+      "bloomLevel": 2,
+      "difficulty": "medium",
+      "topicTag": "CS1",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>Assuming \"FRED\" is an ASCII text file which opens correctly, what will be displayed by this code?</p>\n<p>#define MAX 128</p>\n<p>FILE *pFile = fopen(\"FRED\", \"r\");</p>\n<p>unsigned uCount = 0;</p>\n<p>while(!feof(pFile))</p>\n<p>{</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp; char ch;</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp; ch = fgetc(pFile);</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp; uCount++;</p>\n<p>}</p>\n<p>printf(\"%u\", uCount);</p>",
+      "choices": [
+        "<p>The number of characters in the file</p>",
+        "<p>The number of words in the file</p>",
+        "<p>The number of sentences in the file</p>",
+        "<p>The number of lines of text in the file</p>",
+        "<p>The number of words on the last line of text in the file</p>"
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "<p>The function reads the file character by character and increments a counter on each read, the result of which is printed on reaching the end of file giving the total character count in the file</p>"
+    },
+    {
+      "id": "canterbury-632063",
+      "bloomLevel": 2,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-Arrays",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>An array has been declared as shown then used to store the data in the table below.</p>\n<p>int iTable[3][5]; /* Declaration */</p>\n<p>27 32 14&nbsp;&nbsp; 9 26</p>\n<p>74 42 30 15 19</p>\n<p>41 63 48 20&nbsp; 3</p>\n<p>What is the value of iTable [3] [4]?</p>",
+      "choices": [
+        "<p>3</p>",
+        "<p>B</p>",
+        "<p>19</p>",
+        "<p>20</p>",
+        "<p>&nbsp;iTable[3][4] does not exist</p>"
+      ],
+      "correctChoiceIndex": 4,
+      "referenceAnswerDescription": "<p>The index values for the array start from 0 so iTable [3] [4] refers to the 4th row and the 5th column, where the 4th row does not exist</p>\n<p>for additional explanation cf. http://www.tutorialspoint.com/cprogramming/c_multi_dimensional_arrays.htm</p>"
+    },
+    {
+      "id": "canterbury-632007",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-DataTypesAndVariables",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-WriteCode_MeansChooseOption",
+      "problemStatement": "<p>Which of the following is a list of Java class names that are both syntactically legal and obey the standard naming convention?</p>",
+      "choices": [
+        "<p>R2D2, Chameleon, public</p>",
+        "<p>R2D2, Chameleon, Iguana</p>",
+        "<p>r2d2, chameleon, public</p>",
+        "<p>R2D2, Iguana, _hello</p>",
+        "<p>none of the above</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>Choice (b) is correct, because all of the names start with an uppercase letter, followed by 0 or more letters, numbers, and/or underscores.&nbsp;</p>"
+    },
+    {
+      "id": "canterbury-634196",
+      "bloomLevel": 2,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-ArithmeticOperators",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>What will the following code output?</p>\n<p><br><code>int arr[5];</code></p>\n<pre lang=\"text/x-c\">int *p = arr;\nprintf(\"p is %p -- \", p);\n++p;\nprintf(\"p is %p \\n\", p);\n</pre>",
+      "choices": [
+        "<p>p is 0x7fffb04846d0 &ndash; p is 0x7fffb04846d1</p>",
+        "<p>p is 0x7fffb04846d0 &ndash; p is 0x7fffb04846d2</p>",
+        "<p>p is 0x7fffb04846d0 &ndash; p is 0x7fffb04846d4</p>",
+        "<p>Segmentation fault</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>p will increase by the sizeof(int) == 4.</p>"
+    },
+    {
+      "id": "canterbury-632076",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-Arrays",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-DebugCode",
+      "problemStatement": "<p>Consider the following short program, which does not meet all institutional coding standards:</p>\n<p>void vCodeString(char szText[ ]); /* First line */</p>\n<p>#include &lt;stdio.h&gt;</p>\n<p>#include &lt;string.h&gt;</p>\n<p>#define MAX_LEN 12</p>\n<p>int main(void)</p>\n<p>{</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp; char szData[MAX_LEN];</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp; printf(\"Enter some text to code: \");</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp; scanf(\"%s\", szData);</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp; vCodeString(szData); /* Line 8 */</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp; printf(\"Coded string is %s\\n\", szData);</p>\n<p>}</p>\n<p>void vCodeString(char szText[ ])</p>\n<p>{</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp; int i = -1;</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp; while(szText[++i])</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp; {</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; szText[i] += (char)2;</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp; }</p>\n<p>}</p>\n<p>With the array size defined as MAX_LEN (or 12) bytes, what happens if I enter a word with more than 12 letters, such as hippopotamuses?</p>",
+      "choices": [
+        "<p>You will get a run time error</p>",
+        "<p>You will get a syntax error from the compiler</p>",
+        "<p>Other data may be overwritten</p>",
+        "<p>The array will be enlarged</p>",
+        "<p>Nothing - it is legal and perfectly normal.</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>Now, C provides open power to the programmer to write any index value in [] of an array. This is where we say that no array bound check is there in C. SO, misusing this power, we can access arr[-1] and also arr[6] or any other illegal location. Since these bytes are on stack, so by doing this we end up messing with other variables on stack. Consider the following example :</p>\n<p>#include&lt;stdio.h&gt;</p>\n<p>unsigned int count = 1;</p>\n<p>int main(void)</p>\n<p>{</p>\n<p>int b = 10;</p>\n<p>int a[3];</p>\n<p>a[0] = 1;</p>\n<p>a[1] = 2;</p>\n<p>a[2] = 3;</p>\n<p>printf(\"\\n b = %d \\n\",b);</p>\n<p>a[3] = 12;</p>\n<p>printf(\"\\n b = %d \\n\",b);</p>\n<p>return 0;</p>\n<p>}</p>\n<p>In the above example, we have declared an array of 3 integers but try to access the location arr[3] (which is illegal but doable in C) and change the value kept there.</p>\n<p>But, we end up messing with the value of variable &lsquo;b&rsquo;. Cant believe it?, check the following output . We see that value of b changes from 10 to 12.</p>\n<p>$ ./stk</p>\n<p>b = 10</p>\n<p>b = 12</p>\n<p>Source http://www.thegeekstuff.com/2011/12/c-arrays/</p>"
+    },
+    {
+      "id": "canterbury-634973",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-Arrays",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>Suppose all of the computer's memory is available to you, and no other storage is available. Every time your array is filled to its capacity, you enlarge it by creating an array twice the size of the original, if sufficient memory is available, and copying over all elements. How large can your growable array get?</p>",
+      "choices": [
+        "<p>50% of memory</p>",
+        "<p>100% of memory</p>",
+        "<p>25% of memory</p>",
+        "<p>33% of memory</p>",
+        "<p>66% of memory</p>"
+      ],
+      "correctChoiceIndex": 4,
+      "referenceAnswerDescription": "<p>When the array consumes 33% of memory and needs to expand, it can do so. The new array will consume 66% of memory. After this, there is not enough room for a larger array.</p>"
+    },
+    {
+      "id": "canterbury-632094",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-DataTypesAndVariables",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>Which of the following is NOT a fundamental data type in C?</p>",
+      "choices": [
+        "<p>int</p>",
+        "<p>float</p>",
+        "<p>string</p>",
+        "<p>&nbsp;short</p>",
+        "<p>&nbsp;char</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>A String is not a primitive data type.&nbsp; It can be thought of as an array of characters.</p>"
+    },
+    {
+      "id": "canterbury-631928",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-MethodsFuncsProcs",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>After the assignment statement<br><code>&nbsp; &nbsp;String word = \"entropy\";</code><br>what is returned by<br><code>&nbsp; &nbsp;word.substring(word.length());</code></p>",
+      "choices": [
+        "<p>\"entropy\"</p>",
+        "<p>\"y\"</p>",
+        "<p>the empty <code>String</code></p>",
+        "<p>an error</p>",
+        "<p>none of the above</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p><code>word.substring(n)</code> returns the substring of <code>word</code> that starts at index <code>n</code> and ends at the end of the <code>String</code>. If index <code>n</code> is greater than the index of the last character in the <code>String</code>, as it is here, <code>substring</code> simply returns the empty <code>String</code>.&nbsp;</p>"
+    },
+    {
+      "id": "canterbury-632567",
+      "bloomLevel": 1,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-AlgorithmComplex-BigO",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>The worst-case time complexity of quicksort is:</p>",
+      "choices": [
+        "<p>O(1)</p>",
+        "<p>O(n)</p>",
+        "<p>O(n log n)</p>",
+        "<p>O(n<sup>2</sup>)</p>",
+        "<p>none of the above</p>"
+      ],
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "<p>In the worst case, every time quicksort partitions the list, it is divided into two parts, one of size 0 and one of size n-1 (plus the pivot element). This would happen, for example, if all the elements in the list are equal, or if the list is already sorted and you always choose the leftmost element as a pivot.&nbsp;</p>\n<p>Quicksort would have to partition the list n times, because each time the pivot element is the only one that gets put in place. &nbsp;The first time quicksort compares the pivot element with all n-1 other elements. The second time, quicksort compares the new pivot with n-2 other elements, and so forth down to n - (n-1). So it does work proportional to 1+2+3+...+(n-1), or n(n-1)/2.<span style=\"font-size: 12px;\"><br></span></p>"
+    },
+    {
+      "id": "canterbury-632479",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-AlgorithmComplex-BigO",
+      "courseLevel": "CS2",
+      "skillTag": "SkillWG-AnalyzeCode",
+      "problemStatement": "<p>The time complexity of linear search is:</p>",
+      "choices": [
+        "<p>O(1)</p>",
+        "<p>O(log n)</p>",
+        "<p>O(n)</p>",
+        "<p>O(2<sup>n</sup>)</p>",
+        "<p>none of the above</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>The time required for linear search in the worst case is directly proportional to the amount of data.&nbsp;</p>"
+    },
+    {
+      "id": "canterbury-634979",
+      "bloomLevel": 1,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-AlgorithmComplex-BigO",
+      "courseLevel": "CS1",
+      "problemStatement": "<p>An NP-Complete problem is:</p>",
+      "choices": [
+        "<p>solvable, and the best known solution runs in polynomial time (i.e. feasible)</p>",
+        "<p>solvable, and the best known solution is not feasible (i.e. runs in exponential time)</p>",
+        "<p>currently unsolvable, but researchers are hoping to find a solution.</p>",
+        "<p>provably unsolvable: it has been shown that this problem has no algorithmic solution.</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>NP-Complete problems typically have rather simplistic algorithmic solutions. &nbsp;The problem is that these solutions require exponential time to run. &nbsp;</p>"
+    },
+    {
+      "id": "canterbury-632755",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-Arrays",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-WriteCode_MeansChooseOption",
+      "problemStatement": "<p>The following is a skeleton for a method called \"maxVal\":</p>\n<pre lang=\"text/x-java\">public static int maxVal(int[] y, int first, int last) {\n/* This method returns the value of the maximum element in the\n* subsection of the array \"y\", starting at position\n* \"first\" and ending at position \"last\".\n*/\n  int bestSoFar = y[first];\n  xxx missing for loop goes here\n  return bestSoFar;\n} // method maxVal\n</pre>\n<p>&nbsp;</p>\n<p>In this question, the missing \"for\" loop is to run \"backwards\". That is, the code should search the array from the high subscripts to the low subscripts. Given that, the correct code for the missing \"for\" loop is:</p>",
+      "choices": [
+        "<pre lang=\"text/x-java\">for (int i=last; i&gt;first; i--) {\n    if ( y[i] &lt; bestSoFar ) {\n       bestSoFar = y[i];\n    } // if\n} // for\n</pre>",
+        "<pre lang=\"text/x-java\">for (int i=first+1; i&lt;=last; i++) {\n    if ( y[i] &gt; y[bestSoFar] ) {\n       bestSoFar = y[i];\n    } // if\n} // for\n</pre>",
+        "<pre lang=\"text/x-java\">for (int i=last; i&gt;first; i--) {\n    if ( y[i] &gt; y[bestSoFar] ) {\n       bestSoFar = i;\n    } // if\n} // for\n</pre>",
+        "<code>for (int i=last; i&gt;first; i--) {</code><p><code>&nbsp;&nbsp;&nbsp; if ( bestSoFar &lt; </code><code><code>y[i] </code>) {</code></p>\n<pre lang=\"text/x-java\">       bestSoFar = y[i]\n    } // if\n} // for\n</pre>",
+        "<pre lang=\"text/x-java\">for (int i=first+1; i&lt;=last; i++) {\n    if ( y[i] &gt; bestSoFar ) {\n       bestSoFar = i;\n    } // if\n} // for\n</pre>"
+      ],
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "<p>a)</p>\n<p>INCORRECT:</p>\n<p>if (y[i] &lt; y[bestSoFar]) ... This is setting bestSoFar to the value of the SMALLEST number so far.</p>\n<p>b)</p>\n<p>INCORRECT:</p>\n<p><span style=\"font-family: arial,helvetica,sans-serif;\">The loop starts at first+1 ... This loop is not running backwards.</span></p>\n<pre lang=\"text/x-java\"><span style=\"font-family: arial,helvetica,sans-serif;\">if  ( y[i] &gt; y[bestSoFar] ) ... bestSoFar is storing a value, not a position.\n</span></pre>\n<p>&nbsp;</p>\n<p>c)</p>\n<p>INCORRECT</p>\n<pre lang=\"text/x-java\"><span style=\"font-family: arial,helvetica,sans-serif;\">bestSoFar = i; ... bestsoFar is being set to the position, not the value.\n</span></pre>\n<p>&nbsp;</p>\n<p>d)</p>\n<p>CORRECT!</p>\n<p>e)</p>\n<p>INCORRECT:</p>\n<p><span style=\"font-family: arial,helvetica,sans-serif;\">The loop starts at first+1 ... This loop is not running backwards.</span></p>\n<pre lang=\"text/x-java\"><span style=\"font-family: arial,helvetica,sans-serif;\">bestSoFar = i; ... bestsoFar is being set to the position, not the value.\n</span></pre>"
+    },
+    {
+      "id": "canterbury-632128",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-GUI-Design-Implementat",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>What would the following line of code do with a form named frmMain?</p>\n<p>frmMain.Caption = txtName.Text</p>",
+      "choices": [
+        "<p>Make the text &ldquo;txtName&rdquo; appear as the caption of the form.</p>",
+        "<p>B Execute the method Caption, passing txtName as a parameter.</p>",
+        "<p>Change the contents of the text box txtName to the caption of the form.</p>",
+        "<p>Change the caption of the form to the contents of the text box txtName.</p>",
+        "<p>Generate a run time error. It is not possible to alter the caption of a form at run time.</p>"
+      ],
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "<p>The code assigns the contents of the text box to the caption for the form</p>"
+    },
+    {
+      "id": "canterbury-632807",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-MethodsFuncsProcs",
+      "courseLevel": "CS1",
+      "skillTag": "SkillWG-AnalyzeCode",
+      "problemStatement": "<p>Which one of the following methods should be made <code>static</code>?</p>\n<pre lang=\"text/x-java\">public class Clazz {\n  private final int num = 10;\n  double a() {\n    System.out.println(num);\n    return c();\n  }\n  void b() {\n    System.out.println(this);\n  }\n  double c() {\n    double r = Math.random();\n    System.out.println(r);\n    return r;\n  }\n  void d() {\n    a();\n    a();\n  }\n  int e() {\n    return num;\n  }\n}\n</pre>",
+      "choices": [
+        "<p>a</p>",
+        "<p>b</p>",
+        "<p>c</p>",
+        "<p>d</p>",
+        "<p>e</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>Method c() does not depend on the invoking instance or its instance variables.</p>"
+    },
+    {
+      "id": "canterbury-635071",
+      "bloomLevel": 2,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-SelectionSubsumesOps",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>What output will the following code fragment produce?</p>\n<pre lang=\"text/x-java\">public void fn()\n{\n    int grade = 91;\n    int level = -1;\n    if (grade &gt;= 90)\n        if (level &lt;= -2)\n            System.out.println(\"A-level\");\n    else\n        System.out.println(\"B-status\");\n}\n</pre>",
+      "choices": [
+        "<p>A-level</p>",
+        "<p>B-status</p>",
+        "<p>\"A-level\"</p>",
+        "<p>\"B-status\"</p>",
+        "<p>no output is produced</p>"
+      ],
+      "correctChoiceIndex": 4,
+      "referenceAnswerDescription": "<p>Despite the indentation, no braces appear around the body of either if statement's branch(es). As a result, the else is associated with the second (inner) if. Since the outer if statement's condition is true, but the inner if statement is false (and it has no else branch), no output is produced.</p>"
+    },
+    {
+      "id": "canterbury-635051",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-SelectionSubsumesOps",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>What output will the following code fragment produce?</p>\n<pre lang=\"text/x-java\">public void fn()\n{\n    int grade = 81;\n    int level = -3;\n    if (grade &gt;= 90)\n        if (level &lt;= -2)\n            System.out.println(\"A-level\");\n    else\n        System.out.println(\"B-status\");\n}\n</pre>",
+      "choices": [
+        "<p>A-level</p>",
+        "<p>B-status</p>",
+        "<p>\"A-level\"</p>",
+        "<p>\"B-status\"</p>",
+        "<p>no output is produced</p>"
+      ],
+      "correctChoiceIndex": 4,
+      "referenceAnswerDescription": "<p>Despite the indentation, no braces appear around the body of either if statement's branch(es). As a result, the else is associated with the second (inner) if. Since the outer if statement's condition is false, no output is produced.</p>"
+    },
+    {
+      "id": "canterbury-635050",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-SelectionSubsumesOps",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>What output will the following code fragment produce?</p>\n<pre lang=\"text/x-java\">public void fn()\n{\n    int grade = 81;\n    int level = -1;\n    if (grade &gt;= 90)\n        if (level &lt;= -2)\n            System.out.println(\"A-level\");\n    else\n        System.out.println(\"B-status\");\n}\n</pre>",
+      "choices": [
+        "<p>A-level</p>",
+        "<p>B-status</p>",
+        "<p>\"A-level\"</p>",
+        "<p>\"B-status\"</p>",
+        "<p>no output is produced</p>"
+      ],
+      "correctChoiceIndex": 4,
+      "referenceAnswerDescription": "<p>Despite the indentation, no braces appear around the body of either if statement's branch(es). As a result, the else is associated with the second (inner) if. Since the outer if statement's condition is false, no output is produced.</p>"
+    },
+    {
+      "id": "canterbury-635014",
+      "bloomLevel": 2,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-DataTypesAndVariables",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>Consider the struct:</p>\n<p><br><code>struct book{</code></p>\n<pre lang=\"text/x-c\">    char title[50];\n    int isbn;\n};\n</pre>\n<p><br>Assuming no address padding, what will <code>sizeof(struct book)</code> return?</p>",
+      "choices": [
+        "<p>12</p>",
+        "<p>54</p>",
+        "<p>50</p>",
+        "<p>204</p>",
+        "<p>8</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>sizeof(the array) + sizeof(the int) = 50 + 4.</p>"
+    },
+    {
+      "id": "canterbury-635008",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-Arrays",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>What will this code output on 64-bit Linux?</p>\n<p><br><code>char vals[10];</code></p>\n<code>printf(\"%d\\n\", sizeof(vals + 0));</code>",
+      "choices": [
+        "<p>1</p>",
+        "<p>4</p>",
+        "<p>8</p>",
+        "<p>10</p>",
+        "<p>80</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>Size of the pointer.</p>"
+    },
+    {
+      "id": "canterbury-634963",
+      "bloomLevel": 2,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-OOconcepts",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-DesignProgramWithoutCoding",
+      "problemStatement": "<p>Which of the following choices would best be modeled by a class, followed by an instance of that class?</p>",
+      "choices": [
+        "<p>Country, Sweden</p>",
+        "<p>Sweden, Country</p>",
+        "<p>Country, ScandinavianCountry</p>",
+        "<p>Sweden, Norway</p>",
+        "<p>Sweden, Linnaeus</p>"
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "<p>Choice B is wrong because the items listed are object, class, not class, object. Choice C is wrong, because the items listed are class,subclass, not class,object. Choices D and E are wrong because in each case, the items listed are both concrete objects.&nbsp;</p>"
+    },
+    {
+      "id": "canterbury-635032",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "TopicWG-ADT-List-DefInterfaceUse",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-WriteCode_MeansChooseOption",
+      "problemStatement": "<p>The following method, called <code>maxRow()</code>, is intended to take one parameter: a <code>List</code> where the elements are <code>List</code>s of <code>Integer</code> objects. You can think of this parameter as a matrix--a list of rows, where each row is a list of \"cells\" (plain integers). The method sums up the integers in each row (each inner list), and returns the index (row number) of the row with the largest row sum. Choose the best choice to fill in the blank on <strong>Line 8</strong>&nbsp;so that this method works as intended:</p>\n<pre lang=\"text/x-java\">public static int maxRow(List&lt;List&lt;Integer&gt;&gt; matrix)\n{\n    int maxVec = -1;                                // Line 1\n    int maxSum = Integer.MIN_VALUE;                 // Line 2\n    for (int row = 0; row &lt; __________; row++)      // Line 3\n    {\n        int sum = 0;                                // Line 4\n        for (int col = 0; col &lt; __________; col++)  // Line 5\n        {\n            sum = sum + __________;                 // Line 6\n        }\n        if (___________)                            // Line 7\n        {\n            maxSum = __________;                    // Line 8\n            maxVec = __________;                    // Line 9\n        }\n    }\n    return maxVec;                                  // Line 10\n}\n</pre>",
+      "choices": [
+        "<code>maxSum</code>",
+        "<code>maxVec</code>",
+        "<code>sum</code>",
+        "<code>row</code>",
+        "<code>col</code>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>The local variable <code>maxSum</code> is used to keep track of the maximum row sum seen so far, as the outer loop progresses across all rows in the matrix. &nbsp;The inner loop computes the sum of all cells in the current row, which is stored in the local variable <code>sum</code>. &nbsp;If the current row's sum is larger than the maximum seen so far, the variable <code>maxSum</code> should be updated to be <code>sum</code>.</p>"
+    },
+    {
+      "id": "canterbury-635047",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "TopicWG-ADT-List-DefInterfaceUse",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-WriteCode_MeansChooseOption",
+      "problemStatement": "<p>Given the following Java class declaration:</p>\n<pre lang=\"text/x-java\">public class T2int\n{\n    private int i;\n    public T2int()\n    {\n        i = 0;\n    }\n    public T2int(int i)\n    {\n        this.i = i;\n    }\n    public int get()\n    {\n        return i;\n    }\n}\n</pre>\n<p>&nbsp;</p>\n<p>The following method, called <code>rangeSum()</code>, is intended to take three parameters: a <code>List</code> of <code>T2int</code> objects, plus the <code>low</code> and <code>high</code> end of a range within the list. The method computes the sum of the values in the <code>List</code> that are <strong>within</strong> the \"range\" (but <strong>not including</strong> the range end values). Choose the best choice to fill in the blank on <strong>Line 8</strong>&nbsp;so that the method will work as intended:</p>\n<pre lang=\"text/x-java\">public int rangeSum(List&lt;T2int&gt; list, int low, int high)\n{\n    int num = 0;                                 // Line 1\n    int sum = 0;                                 // Line 2\n    for (int idx = 0; idx &lt; list.size(); idx++)  // Line 3\n    {\n        int ival = list.get(idx).get();          // Line 4\n        if (__________)                          // Line 5\n        {\n            num++;                               // Line 6\n            sum = __________;                    // Line 7\n        }\n    }\n    return __________;                           // Line 8\n}\n</pre>",
+      "choices": [
+        "<code>sum</code>",
+        "<code>num</code>",
+        "<code>ival</code>",
+        "<code>idx</code>",
+        "<code>list.get(num)</code>"
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "<p>The method should return the sum of all of the list elements that are within the specified range. &nbsp;From examining the body of the loop, it is clear that this value is accumulated in the local variable <code>sum</code>.</p>"
+    },
+    {
+      "id": "canterbury-630792",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-LoopsSubsumesOperators",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-TestProgram",
+      "problemStatement": "<p>Consider the following class definition:</p>\n<pre lang=\"text/x-java\">import java.util.Scanner; // 1\npublic class SillyClass2 { // 2\n   private int num, totalRed, totalBlack; // 3\n   public SillyClass2 () { // 4\n      num = 0; // 5\n      totalRed = 0; // 6\n      totalBlack = 0; // 7\n      this.spinWheel(); // 8\n      System.out.print(\"Black: \" + totalBlack); // 9\n      System.out.println(\" and red: \" + totalRed); // 10\n   } // 11\n</pre>\n<p><br><code>&nbsp; &nbsp;public void spinWheel () { // 12</code></p>\n<pre lang=\"text/x-java\">      Scanner kbd = new Scanner(System.in); // 13\n      System.out.println(\"Enter 1 or 0, -1 to quit.\"); // 14\n      num = kbd.nextInt(); // 15\n      while (num &gt;= 0) { // 16\n         if (num == 0) // 17\n            totalRed++; // 18\n         else if (num == 1) // 19\n            totalBlack++; // 20\n         else System.out.println(\"Try again\"); // 21\n         System.out.println(\"Enter 1 or 0, -1 to quit).\"); // 22\n         num = kbd.nextInt(); // 23\n      } // 24\n      System.out.println(\"Thanks for playing.\"); // 25\n   } // 26\n} // 27\n</pre>\n<p>&nbsp;</p>\n<p>Which sequence of inputs will cause line 21 to be executed?</p>",
+      "choices": [
+        "<p>-1</p>",
+        "<p>0 &nbsp; 1 &nbsp; -1</p>",
+        "<p>0 &nbsp; 1 &nbsp; 1 &nbsp; 0 &nbsp; -1</p>",
+        "<p>0 &nbsp; 1 &nbsp; 2 &nbsp; 1 &nbsp; -1</p>",
+        "<p>1 &nbsp; 1 &nbsp; 1 &nbsp; 0 &nbsp; -1</p>"
+      ],
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "<p>Answers A, B, C, and E are incorrect because they contain no inputs greater than 1. Answer D does contain an input greater than 1, and that input is after a 0 (which causes the loop to be entered) and before the -1 (which causes the loop to be exited).&nbsp;</p>"
+    },
+    {
+      "id": "canterbury-635052",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-SelectionSubsumesOps",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>What output will the following code fragment produce?</p>\n<pre lang=\"text/x-java\">public void fn()\n{\n    int grade = 91;\n    int level = -3;\n    if (grade &gt;= 90)\n        if (level &lt;= -2)\n            System.out.println(\"A-level\");\n    else\n        System.out.println(\"B-status\");\n}\n</pre>",
+      "choices": [
+        "<p>A-level</p>",
+        "<p>B-status</p>",
+        "<p>\"A-level\"</p>",
+        "<p>\"B-status\"</p>",
+        "<p>no output is produced</p>"
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "<p>Despite the indentation, no braces appear around the body of either if statement's branch(es). &nbsp;As a result, the else is associated with the second (inner) if. &nbsp;Still, both if statement conditions are true, so the output is <code>A-level</code>.</p>"
+    },
+    {
+      "id": "canterbury-629609",
+      "bloomLevel": 2,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-OOconcepts",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-DesignProgramWithoutCoding",
+      "problemStatement": "<p>Suppose you&rsquo;re on a project that is writing a large program. One of the programmers is implementing a <code>Clock</code> class; the other programmers are writing classes that will use the <code>Clock</code> class. Which of the following aspects of the <code>public</code> methods of the <code>Clock</code> class do <strong>not</strong> need to be known by both the author of the <code>Clock</code> class and the programmers who are using the <code>Clock</code> class?</p>",
+      "choices": [
+        "<p>The methods&rsquo; names</p>",
+        "<p>The methods&rsquo; return types</p>",
+        "<p>The methods' parameter types</p>",
+        "<p>The method bodies</p>",
+        "<p>What the methods do</p>"
+      ],
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "<p>This question addresses the principle of encapsulation. All these items must be known to the author of the <code>Clock</code> class. In order to use the class, the other programmers must know what the methods do, and must know their names, parameter types, and return values. The method bodies, on the other hand, are hidden from the users.</p>"
+    },
+    {
+      "id": "canterbury-635076",
+      "bloomLevel": 2,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-Params-SubsumesMethods",
+      "courseLevel": "CS1",
+      "problemStatement": "<p>Consider these two Java methods:</p>\n<pre lang=\"text/x-java\">public void fuzzy(int x)\n{\n    x = 73;\n    System.out.print(x + \" \");\n}\npublic void bunny()\n{\n    int x = 29;\n    fuzzy(x);\n    System.out.println(x);\n}\n</pre>\n<p>&nbsp;</p>\n<p>What is printed when <code>bunny()</code> is called?</p>",
+      "choices": [
+        "<p>29 29</p>",
+        "<p>73 73</p>",
+        "<p>29 73</p>",
+        "<p>73 29</p>",
+        "<p>none of these</p>"
+      ],
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "<p>Remember that in Java, parameters are passed by value. &nbsp;Although a method may assign to a parameter, this change only affects the method's local copy of the parameter and is not visible outside the method (i.e., does not affect the actual value passed in by the caller).</p>"
+    },
+    {
+      "id": "canterbury-635041",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "TopicWG-ADT-List-DefInterfaceUse",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-WriteCode_MeansChooseOption",
+      "problemStatement": "<p>Given the following Java class declaration:</p>\n<pre lang=\"text/x-java\">public class T2int\n{\n    private int i;\n    public T2int()\n    {\n        i = 0;\n    }\n    public T2int(int i)\n    {\n        this.i = i;\n    }\n    public int get()\n    {\n        return i;\n    }\n}\n</pre>\n<p>&nbsp;</p>\n<p>The following method, called <code>rangeSum()</code>, is intended to take three parameters: a <code>List</code> of <code>T2int</code> objects, plus the <code>low</code> and <code>high</code> end of a range within the list. The method computes the sum of the values in the <code>List</code> that are <strong>within</strong> the \"range\" (but <strong>not including</strong> the range end values). Choose the best choice to fill in the blank on <strong>Line 5</strong> so that the method will work as intended:</p>\n<pre lang=\"text/x-java\">public int rangeSum(List&lt;T2int&gt; list, int low, int high)\n{\n    int num = 0;                                 // Line 1\n    int sum = 0;                                 // Line 2\n    for (int idx = 0; idx &lt; list.size(); idx++)  // Line 3\n    {\n        int ival = list.get(idx).get();          // Line 4\n        if (__________)                          // Line 5\n        {\n            num++;                               // Line 6\n            sum = __________;                    // Line 7\n        }\n    }\n    return __________;                           // Line 8\n}\n</pre>",
+      "choices": [
+        "<code>(idx &gt; low) &amp;&amp; (idx &lt; high)</code>",
+        "<code>(ival &gt; low) &amp;&amp; (ival &lt; high)</code>",
+        "<code>(list.get(idx) &gt; low) &amp;&amp; (list.get(idx) &lt; high)</code>",
+        "<code>(idx &gt;= low) &amp;&amp; (idx &lt;= high)</code>",
+        "<code>(list.get(idx) &gt;= low) &amp;&amp; (list.get(idx) &lt;= high)</code>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>The local variable <code>ival</code> contains the integer value stored in the current position in the list. &nbsp;To check this value to ensure it is within the desired range, use the condition <code>(ival &gt; low) &amp;&amp; (ival &lt; high)</code>.</p>"
+    },
+    {
+      "id": "canterbury-633553",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-CollectionsExceptArray",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>What terminates a failed linear probe in a non-full hashtable?</p>",
+      "choices": [
+        "<p>The end of the array</p>",
+        "<p>A deleted node</p>",
+        "<p>A null entry</p>",
+        "<p>A node with a non-matching key</p>",
+        "<p>Revisiting the original hash index</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>A null entry marks the end of the probing sequence. Seeing the end of the array isn't correct, since we need to examine all elements, including those that appear before our original hash index. A node with a non-matching key is what started our probe in the first place. Revisiting the original hash index would mean we looked at every entry, but we could have stopped earlier at the null entry. The purpose of leaving a deleted node in the table is so that probing may proceed past it.</p>"
+    },
+    {
+      "id": "canterbury-633555",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-CollectionsExceptArray",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>If a hashtable's array is resized to reduce collisions, what must be done to the elements that have already been inserted?</p>",
+      "choices": [
+        "<p>All items must be copied over to the same indices in the new array.</p>",
+        "<p>Nodes must be rehashed and reinserted in the new array.</p>",
+        "<p>The existing items can be placed anywhere in the new array.</p>",
+        "<p>The hashCode method must be updated.</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>Since calculating a node's position in the hashtable is a function of the node's key's hashcode and the array size, all items must be reinserted.</p>"
+    },
+    {
+      "id": "canterbury-635027",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "TopicWG-ADT-List-DefInterfaceUse",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-WriteCode_MeansChooseOption",
+      "problemStatement": "<p>The following method, called <code>maxRow()</code>, is intended to take one parameter: a <code>List</code> where the elements are <code>List</code>s of <code>Integer</code> objects. You can think of this parameter as a matrix--a list of rows, where each row is a list of \"cells\" (plain integers). The method sums up the integers in each row (each inner list), and returns the index (row number) of the row with the largest row sum. Choose the best choice to fill in the blank on <strong>Line 7</strong>&nbsp;so that this method works as intended:</p>\n<pre lang=\"text/x-java\">public static int maxRow(List&lt;List&lt;Integer&gt;&gt; matrix)\n{\n    int maxVec = -1;                                // Line 1\n    int maxSum = Integer.MIN_VALUE;                 // Line 2\n    for (int row = 0; row &lt; __________; row++)      // Line 3\n    {\n        int sum = 0;                                // Line 4\n        for (int col = 0; col &lt; __________; col++)  // Line 5\n        {\n            sum = sum + __________;                 // Line 6\n        }\n        if (___________)                            // Line 7\n        {\n            maxSum = __________;                    // Line 8\n            maxVec = __________;                    // Line 9\n        }\n    }\n    return maxVec;                                  // Line 10\n}\n</pre>",
+      "choices": [
+        "<code>sum &gt; matrix.size()</code>",
+        "<code>sum &lt; maxSum</code>",
+        "<code>sum &lt;= maxSum</code>",
+        "<code>sum &gt; maxSum</code>",
+        "<code>sum &gt; matrix.get(row).size()</code>"
+      ],
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "<p>The local variable <code>sum</code> represents the sum of all cell values in the current row, which is computed by the inner loop in the code. &nbsp;The if test on Line 6 checks whether to update the local variables <code>maxSum</code> and <code>maxVec</code>, which represent information about the largest row sum found so far. &nbsp;This should happen when <code>sum &gt; maxSum</code>.</p>"
+    },
+    {
+      "id": "canterbury-633401",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-DataTypesAndVariables",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>You see the expression <code>n = -15</code> in some code that successfully compiles. What type can <code>n</code> not be?</p>",
+      "choices": [
+        "<p>int</p>",
+        "<p>float</p>",
+        "<p>char</p>",
+        "<p>short</p>",
+        "<p>long</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>Chars can only hold integers in [0, 65535]. Assigning an int variable to a char requires an explicit cast. Assigning an int literal in this interval does not require a cast. Assign an int literal outside of this interval is compile error.</p>"
+    },
+    {
+      "id": "canterbury-633273",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-Strings",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>After the assignment <code>signal = &rsquo;abracadabra&rsquo;</code>, what is returned by <code>signal[len(signal)]</code>?</p>",
+      "choices": [
+        "<p>'a'</p>",
+        "<p>'abracadabra'</p>",
+        "<p>11</p>",
+        "<p>an error</p>",
+        "<p>none of the above</p>"
+      ],
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "<p>This is the classic way to go one character over the edge of a String.</p>"
+    },
+    {
+      "id": "canterbury-635002",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-AlgorithmComplex-BigO",
+      "courseLevel": "CS2",
+      "problemStatement": "<p>Which of the following sorting algorithms has a best-case time performance that is the same as its and worst-case time performance (in big O notation)?</p>",
+      "choices": [
+        "<p>Insertion sort</p>",
+        "<p>Selection sort</p>",
+        "<p>Bubble sort</p>",
+        "<p>None of the above</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>Selection sort has both O(n^2) worst and best case.</p>"
+    },
+    {
+      "id": "canterbury-633262",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-CollectionsExceptArray",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>What advantage does using dummy nodes in a linked list implementation offer?</p>",
+      "choices": [
+        "<p>Reduced storage needs.</p>",
+        "<p>Simplified insertion.</p>",
+        "<p>Easier detection of the list's head and tail.</p>",
+        "<p>Simplified iteration.</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>Dummy nodes consume a little more space, and they don't simplify iteration or bounds detection any. They do reduce the special casing that would otherwise need to be done when updating forward and backward links on an insertion.</p>"
+    },
+    {
+      "id": "canterbury-635045",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "TopicWG-ADT-List-DefInterfaceUse",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-WriteCode_MeansChooseOption",
+      "problemStatement": "<p>Given the following Java class declaration:</p>\n<pre lang=\"text/x-java\">public class T2int\n{\n    private int i;\n    public T2int()\n    {\n        i = 0;\n    }\n    public T2int(int i)\n    {\n        this.i = i;\n    }\n    public int get()\n    {\n        return i;\n    }\n}\n</pre>\n<p>&nbsp;</p>\n<p>The following method, called <code>rangeSum()</code>, is intended to take three parameters: a <code>List</code> of <code>T2int</code> objects, plus the <code>low</code> and <code>high</code> end of a range within the list. The method computes the sum of the values in the <code>List</code> that are <strong>within</strong> the \"range\" (but <strong>not including</strong> the range end values). Choose the best choice to fill in the blank on <strong>Line 7</strong> so that the method will work as intended:</p>\n<pre lang=\"text/x-java\">public int rangeSum(List&lt;T2int&gt; list, int low, int high)\n{\n    int num = 0;                                 // Line 1\n    int sum = 0;                                 // Line 2\n    for (int idx = 0; idx &lt; list.size(); idx++)  // Line 3\n    {\n        int ival = list.get(idx).get();          // Line 4\n        if (__________)                          // Line 5\n        {\n            num++;                               // Line 6\n            sum = __________;                    // Line 7\n        }\n    }\n    return __________;                           // Line 8\n}\n</pre>",
+      "choices": [
+        "<code>sum + ival</code>",
+        "<code>sum + num</code>",
+        "<code>sum + idx</code>",
+        "<code>sum + list.size()</code>",
+        "<code>sum + 1</code>"
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "<p>Since the method computes the sum of all values found, and the local variable <code>sum</code> is used to accumulate this total, sum should be updated to <code>sum + ival</code>.</p>"
+    },
+    {
+      "id": "canterbury-633452",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-ArithmeticOperators",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>Consider the following Python code:</p>\n<pre lang=\"text/x-python\">number = int(input(\"Enter a positive number: \"))\nwhile number &gt; 1:\n   if (number % 2 == 1):\n      number = number * 3 + 1\n   else:\n      number = number/2\n   print number\n   if number == 1:\n      break\n   else:\n      print \"The end\"\n</pre>\n<p>&nbsp;</p>\n<p>Given the input &rsquo;8&rsquo;, what output is produced by the program?</p>",
+      "choices": [
+        "<p>an error</p>",
+        "<p>'The end'</p>",
+        "<p>4</p>\n<p>2</p>\n<p>1</p>",
+        "<p>4</p>\n<p>2</p>\n<p>1</p>\n<p>The end</p>",
+        "<p>none of the above</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>Basically just trace the code.</p>"
+    },
+    {
+      "id": "canterbury-634994",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "TopicWG-Sorting-NlogN",
+      "courseLevel": "CS2",
+      "problemStatement": "<p>Chris implements a standard sorting algorithm that sorts the numbers 64, 25, 12, 22, 11 like so:</p>\n<p>64 25 12 22 11</p>\n<p>11 25 12 22 64</p>\n<p>11 12 25 22 64</p>\n<p>11 12 22 25 64</p>\n<p>11 12 22 25 64</p>\n<p><br>Which sorting algorithm is this?</p>",
+      "choices": [
+        "<p>Inserton sort</p>",
+        "<p>Selection sort</p>",
+        "<p>Bubble sort</p>",
+        "<p>Merge sort</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>In the first line, we see the min is pulled from the end of the array so we know it's selection sort.</p>"
+    },
+    {
+      "id": "canterbury-633374",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-DataTypesAndVariables",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>You see the expression&nbsp;<code>n = 47<span style=\"font-family: arial, helvetica, sans-serif;\"> in some code that successfully compiles. What type can&nbsp;<code>n<span style=\"font-family: arial, helvetica, sans-serif;\"> not be</span></code></span></code>?<code><br></code></p>",
+      "choices": [
+        "<p>int</p>",
+        "<p>double</p>",
+        "<p>float</p>",
+        "<p>byte</p>",
+        "<p>String</p>"
+      ],
+      "correctChoiceIndex": 4,
+      "referenceAnswerDescription": "<p>Ints cannot be stored in Strings directly.</p>"
+    },
+    {
+      "id": "canterbury-635029",
+      "bloomLevel": 2,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-ArithmeticOperators",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>Consider the code below; what value will i have at the end?</p>\n<p><br><code>int *p, i;</code></p>\n<pre lang=\"text/x-c\"> i = 2;\n p = &amp;i;\n *p = 5;\n i++;\n</pre>",
+      "choices": [
+        "<p>2</p>",
+        "<p>5</p>",
+        "<p>6</p>",
+        "<p>3</p>",
+        "<p>8</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>p updates i</p>"
+    },
+    {
+      "id": "canterbury-633263",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-DataTypesAndVariables",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>Lennox has a method:<br><code>void dele_root(struct node **root)</code></p>\n<pre lang=\"text/x-c\">{\n    free(*root);\n    *root = NULL;\n}\n</pre>\n<p><br>What is most likely to happen?</p>",
+      "choices": [
+        "<p>Deletes a copy of root (will not have an effect outside the function)</p>",
+        "<p>Segfault</p>",
+        "<p>Deletes the argument given to the function (will have an effect outside the function)</p>",
+        "<p>A lot of crazy stuff will be printed</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>This will free what root is pointing to; it is a pesumably valid memory location and hence won't segfault or core dump.</p>"
+    },
+    {
+      "id": "canterbury-635033",
+      "bloomLevel": 2,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-ArithmeticOperators",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>Consider the code below; what value will i have at the end of the code?</p>\n<p><br><code>int *p, i;</code></p>\n<pre lang=\"text/x-c\"> i = 3;\n p = &amp;i;\n (*p)++;\n i++;\n</pre>",
+      "choices": [
+        "<p>3</p>",
+        "<p>4</p>",
+        "<p>5</p>",
+        "<p>6</p>",
+        "<p>8</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>i is incremented twice, once through p</p>"
+    },
+    {
+      "id": "canterbury-635034",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "TopicWG-ADT-List-DefInterfaceUse",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-WriteCode_MeansChooseOption",
+      "problemStatement": "<p>The following method, called <code>maxRow()</code>, is intended to take one parameter: a <code>List</code> where the elements are <code>List</code>s of <code>Integer</code> objects. You can think of this parameter as a matrix--a list of rows, where each row is a list of \"cells\" (plain integers). The method sums up the integers in each row (each inner list), and returns the index (row number) of the row with the largest row sum. Choose the best choice to fill in the blank on <strong>Line 9</strong>&nbsp;so that this method works as intended:</p>\n<pre lang=\"text/x-java\">public static int maxRow(List&lt;List&lt;Integer&gt;&gt; matrix)\n{\n    int maxVec = -1;                                // Line 1\n    int maxSum = Integer.MIN_VALUE;                 // Line 2\n    for (int row = 0; row &lt; __________; row++)      // Line 3\n    {\n        int sum = 0;                                // Line 4\n        for (int col = 0; col &lt; __________; col++)  // Line 5\n        {\n            sum = sum + __________;                 // Line 6\n        }\n        if (___________)                            // Line 7\n        {\n            maxSum = __________;                    // Line 8\n            maxVec = __________;                    // Line 9\n        }\n    }\n    return maxVec;                                  // Line 10\n}\n</pre>",
+      "choices": [
+        "<code>maxSum</code>",
+        "<code>row</code>",
+        "<code>sum</code>",
+        "<code>col</code>",
+        "<code>maxVec</code>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>The local variable <code>maxVec</code> is used to keep track of the row number of the maximum row sum seen so far, as the outer loop progresses across all rows in the matrix. &nbsp;The inner loop computes the sum of all cells in the current row, which is stored in the local variable <code>sum</code>. &nbsp;If the current row's sum is larger than the maximum seen so far, the variable <code>maxVec</code> should be updated to be <code>row</code>.</p>"
+    },
+    {
+      "id": "canterbury-635074",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-MethodsFuncsProcs",
+      "courseLevel": "CS1",
+      "problemStatement": "<p>Consider the following classes:</p>\n<pre lang=\"text/x-java\">public class A\n{\n    private int myNum;\n    public A(int x)            { myNum = x;    }\n    public int getNumber()     { return myNum; }\n    public String getLetters() { return \"A\";   }\n    public String getMessage()\n    {\n        return getLetters() + \"-\" + getNumber();\n    }\n}\npublic class AB extends A\n{\n    public AB(int x)           { super(x + 1); }\n    public int getNumber()     { return super.getNumber() + 1; }\n    public String getLetters() { return \"AB\";  }\n}\n</pre>\n<p>&nbsp;</p>\n<p>What is the output of the following code segment?</p>\n<p><br><code>A test = new AB(0);</code></p>\n<code>System.out.print(test.getMessage());</code>",
+      "choices": [
+        "<p>A-0</p>",
+        "<p>A-2</p>",
+        "<p>AB-0</p>",
+        "<p>AB-1</p>",
+        "<p>AB-2</p>"
+      ],
+      "correctChoiceIndex": 4,
+      "referenceAnswerDescription": "<p>The object created is an instance of class <code>AB</code>, despite the static type of the variable <code>test</code>. Because of the constructor defined in <code>AB</code>, the object's <code>myNum</code> field will be initialized with the value 1. &nbsp;Because of polymorphism, when <code>getMessage()</code> calls <code>getLetters()</code>, the definition of the method in <code>AB</code> will be used, returning \"AB\". &nbsp;Similarly, when <code>getMessage()</code> calls <code>getNumber()</code>, the definition of the method in <code>AB</code> will be used, returning 2.</p>"
+    },
+    {
+      "id": "canterbury-632274",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-Arrays",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>Which data structure uses less space per object?</p>",
+      "choices": [
+        "<p>an array</p>",
+        "<p>a linked list</p>",
+        "<p>they are both the same</p>"
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "<p>In a linked list, you create a Node for each element that contains not only the element but a link to the next Node. In addition, you create a List object that contains additional fields such as a link to the first Node in the list and (often) the size of the list. In an array, you store only the elements, not a Node or a link to the next Node.&nbsp;</p>"
+    },
+    {
+      "id": "canterbury-633890",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-Recursion",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-ExplainCode",
+      "problemStatement": "<p>Which code snippet is tail recursive?</p>",
+      "choices": [
+        "<pre lang=\"text/x-c\">int sum(int x)\n{\n    if(x == 1)\n</pre>\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return x;</code></p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br><code>&nbsp;&nbsp;&nbsp; return x + sum(x - 1);</code></p>\n<code>}</code>",
+        "<pre lang=\"text/x-c\">int sum(int x, int running_total)\n{\n     if(x == 0)\n</pre>\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return running_total;</code></p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br><code>&nbsp;&nbsp;&nbsp;&nbsp; return sum(x - 1, running_total + x);</code></p>\n<code>}</code>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>A) requires the call to sum() to be completed before adding x to it.</p>"
+    },
+    {
+      "id": "canterbury-633237",
+      "bloomLevel": 2,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-CollectionsExceptArray",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-DesignProgramWithoutCoding",
+      "problemStatement": "<p>When deleting a node with both left and right children from a binary search tree, it may be replaced by which of the following?</p>",
+      "choices": [
+        "<p>its left child</p>",
+        "<p>its right child</p>",
+        "<p>its preorder successor</p>",
+        "<p>its inorder successor</p>",
+        "<p>its postorder successor</p>"
+      ],
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "<p>A common choice for the replacement node is deleted node's right child's leftmost descendent. This descendent is the deleted node's inorder successor.</p>"
+    },
+    {
+      "id": "canterbury-634187",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-AlgorithmComplex-BigO",
+      "courseLevel": "CS2",
+      "problemStatement": "<p>What is the worst-case time performance of heapsort?</p>",
+      "choices": [
+        "<p>O(nlgn)</p>",
+        "<p>O(n)</p>",
+        "<p>O(lgn)</p>",
+        "<p>O(n2)</p>"
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "No explanation provided."
+    },
+    {
+      "id": "canterbury-632097",
+      "bloomLevel": 2,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-IO",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>What is output from the following section of code?</p>\n<p>int i = 4;</p>\n<p>int j = i - 1;</p>\n<p>printf(\"%d bows = %d wows\", i, j+1);</p>",
+      "choices": [
+        "<p>3 bows = 4 wows</p>",
+        "<p>4 bows = 4 wows</p>",
+        "<p>3 bows = 5 wows</p>",
+        "<p>&nbsp;4 bows = 5 wows</p>",
+        "<p>E 4 bows = 3 wows</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>Through the printf function the decimal integer values defined by the %d field specifiers are replaced by the values for i and j resulting from the expression. The value of variable j is both decremented and incremented to remain equivalent to that of variable i when printed.</p>"
+    },
+    {
+      "id": "canterbury-634251",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-DataTypesAndVariables",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-WriteCode_MeansChooseOption",
+      "problemStatement": "<p>Read the following method skeleton and choose the best expression to fill in the blank on <strong>line 4</strong>&nbsp;so that the method will behave correctly:</p>\n<pre lang=\"text/x-java\">/**\n* Takes a string reference and counts the number of times\n* the character 'A' or 'a' appears in the string object.\n* @param aString   String reference to object containing chars.\n* @precondition    aString is not null (you may assume this is true).\n* @return          The number of times 'A' or 'a' appears in the string.\n*/\npublic static int countAs(String aString)  // line 1\n{\n    int counter = __________;              // line 2\n    int totalA = 0;                        // line 3\n    while (counter &lt; __________)           // line 4\n    {\n        if ( __________.equals(\"A\") )      // line 5\n        {\n            totalA = totalA + __________;  // line 6\n        }\n        counter++;                         // line 7\n    }\n    return __________;                     // line 8\n}\n</pre>",
+      "choices": [
+        "<code>aString.size()</code>",
+        "<code>aString.size() - 1</code>",
+        "<code>aString.length</code>",
+        "<code>aString.length()</code>",
+        "<code>aString.length() - 1</code>"
+      ],
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "<p>The variable <code>counter</code> is being used as an index into the string that is being examined, and from line 7 it is clear that this index is increasing on each loop iteration, moving from left to right. &nbsp;Because the loop test uses the <code>&lt;</code> operator, the correct upper limit is <code>aString.length()</code>. &nbsp;Remember that strings provide a <code>length()</code> method for obtaining their length (<code>size()</code> is used for containers like lists and maps, and <code>length</code>&nbsp;written as a field reference instead of a method call is used for arrays).</p>"
+    },
+    {
+      "id": "canterbury-633249",
+      "bloomLevel": 2,
+      "difficulty": "hard",
+      "topicTag": "TopicSimon-Assignment",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>Consider the code<br>int i, *q, *p;<br>p = &amp;i;<br>q = p;<br>*p = 5;</p>\n<p><br>Which of the following will print out &ldquo;The value is 5.&rdquo;?</p>",
+      "choices": [
+        "<p>printf(\"The value is %d\", &amp;i);</p>",
+        "<p>printf(\"The value is %d\", p);</p>",
+        "<p>printf(\"The value is %d\", *q);</p>",
+        "<p>printf(\"The value is %d\", *i);</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>p and q are currently \"sharing\" --- they both point to the same variable (i).</p>"
+    },
+    {
+      "id": "canterbury-633372",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-CollectionsExceptArray",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>What order must elements 1, 2, 3, 4, 5, 6, and 7 be inserted in a binary search tree such that the tree is perfectly balanced afterward?</p>",
+      "choices": [
+        "<p>4 1 2 3 5 6 7</p>",
+        "<p>4 2 6 1 3 5 7</p>",
+        "<p>2 1 3 4 6 5 7</p>",
+        "<p>1 2 3 4 5 6 7</p>",
+        "<p>2 1 3 6 5 7 4</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>The middle element 4 will need to be the root, so that must be inserted first. The middle elements of the remaining halves must be 4's children, so 2 and 6 must be inserted next. (Their relative order does not matter.) The last four elements can be inserted in any order.</p>"
+    },
+    {
+      "id": "canterbury-634925",
+      "bloomLevel": 3,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-Arrays",
+      "courseLevel": "CS1",
+      "skillTag": "SkillWG-AnalyzeCode",
+      "problemStatement": "<p>Which algorithm does the following code implement?</p>\n<p>def mystery(target, listOfValues):<br>&nbsp; &nbsp; &nbsp;beginning = 0<br>&nbsp; &nbsp; &nbsp;end = len(listOfValues)<br>&nbsp; &nbsp; &nbsp;found = False<br>&nbsp; &nbsp; &nbsp;while (! found and (beginning &lt;= end)):<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; middle = (beginning + end) / 2<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; if (listOfValues[middle] == target):<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;found = True<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;print \"Found it at location: \", middle<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; else:<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;if (target &lt; listOfValues[middle]):<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; end = middle -1<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;else:<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; beginning = middle + 1</p>\n<p>&nbsp; &nbsp; &nbsp;if (! found):<br>&nbsp; &nbsp; &nbsp;print \"Item not found\"</p>",
+      "choices": [
+        "<p>Short Sequential Search</p>",
+        "<p>Sequential Search</p>",
+        "<p>Binary Search</p>",
+        "<p>Bubble Search</p>",
+        "<p>None of the above.</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>This a classic implementation of binary search.</p>"
+    },
+    {
+      "id": "canterbury-633310",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicWG-Graphs",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>What abstract data type is best suited to help us implement a breadth-first search?</p>",
+      "choices": [
+        "<p>priority queue</p>",
+        "<p>queue</p>",
+        "<p>stack</p>",
+        "<p>hashtable</p>",
+        "<p>array-based list</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>In a breadth-first search, we visit the starting element, its neighbors, its neighbors' neighbors, and so on. We want to make sure we visit the neighbors of the elements we saw earliest before we visit the neighbors of elements we saw later. This suggests a first-in, first out approach.</p>"
+    },
+    {
+      "id": "canterbury-633220",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-CollectionsExceptArray",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>This sorting algorithm repeatedly examines neighboring elements, swapping those pairs that are out of order.</p>",
+      "choices": [
+        "<p>selection sort</p>",
+        "<p>insertion sort</p>",
+        "<p>bubble sort</p>",
+        "<p>quick sort</p>",
+        "<p>merge sort</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>Bubble sort operates by reordering neighbors.</p>"
+    },
+    {
+      "id": "canterbury-632313",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicWG-ADT-Queue-DefInterfaceUse",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>The enqueue operation:</p>",
+      "choices": [
+        "<p>adds a new item at the front of the queue</p>",
+        "<p>returns without removing the item at the front of&nbsp;the queue</p>",
+        "<p>removes and returns the item at the front of the queue</p>",
+        "<p>adds a new item at the end of the queue</p>",
+        "<p>returns true if the queue is empty and&nbsp;otherwise false</p>"
+      ],
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "<p>enqueue is the name for the operation that adds an element to a queue. Specifically, it adds each item to the end of the queue (just like standing in line).&nbsp;</p>"
+    },
+    {
+      "id": "canterbury-630974",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-LogicalOperators",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-ExplainCode",
+      "problemStatement": "<p>Consider the following code:</p>\n<pre lang=\"text/x-java\">if (!somethingIsTrue())\n{\n    return true;\n}\nelse\n{\n    return false;\n}\n</pre>\n<p>&nbsp;</p>\n<p><span style=\"font-family: arial, helvetica, sans-serif;\">Which replacement for this code will produce the same result?</span></p>",
+      "choices": [
+        "<code>return true;</code>",
+        "<code>return false;</code>",
+        "<code>return somethingIsTrue();</code>",
+        "<code>return !somethingIsTrue();</code>",
+        "<p>none of these</p>"
+      ],
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "<p>The method <code>somethingIsTrue()</code> must return a boolean value, because of the way it is used in the if statement's condition. &nbsp;If it returns the value <code>false</code>, the if statement will cause the value <code>true</code> to be returned; otherwise, the if statement will cause the value <code>false</code> to be returned. &nbsp;Therefore, the entire if statement is equivalent to <code>return !somethingIsTrue();</code>.</p>"
+    },
+    {
+      "id": "canterbury-633296",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-CollectionsExceptArray",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>You are storing a complete binary tree in an array, with the root at index 0. At what index is node i's right child?</p>",
+      "choices": [
+        "<p>2i</p>",
+        "<p>2i + 1</p>",
+        "<p>i + i + 2</p>",
+        "<p>i / 2 + 1</p>",
+        "<p>(i - 1) / 2</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "No explanation provided."
+    },
+    {
+      "id": "canterbury-633572",
+      "bloomLevel": 2,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-Assignment",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>You've got a <code>byte</code> variable holding the value 127. You add 1 with <code>byte += 1</code>. What happens?</p>",
+      "choices": [
+        "<p>It becomes a short with value 128.</p>",
+        "<p>An OverflowException is raised.</p>",
+        "<p>It remains a byte and stays at the value 127.</p>",
+        "<p>It remains a byte and takes on the value -128.</p>",
+        "<p>It remains a byte and takes on the value 0.</p>"
+      ],
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "<p>When you exceed the maximum value of an integral type, you wrap around to other extreme. Bytes range from -128 to 127.</p>"
+    },
+    {
+      "id": "canterbury-634940",
+      "bloomLevel": 3,
+      "difficulty": "hard",
+      "topicTag": "TopicSimon-ArithmeticOperators",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>Jacob has written some code using our standard linked list node definition (it has an <code>int val</code> and a <code>struct node *next</code>, in that order ):</p>\n<p><br><code>struct node *my_node = malloc(sizeof(struct node));</code></p>\n<pre lang=\"text/x-c\">my_node-&gt;val = 4;\nmy_node-&gt;next = NULL;\nstruct node **ptr_node = &amp;my_node;\n*(*ptr_node)++;\n</pre>\n<p><br>If the value of <code>my_node</code> is initially 0x50085008, what will the value of <code>my_node</code> most likely be after this code?</p>",
+      "choices": [
+        "<p>0x50085008</p>",
+        "<p>0x50085010</p>",
+        "<p>0x5008500C</p>",
+        "<p>0x50085018</p>"
+      ],
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "<p>You would it expect it to be 0x50085014 (0x50085008 + size of int + size of pointer), but C actually does address padding, pushing it up to&nbsp;0x50085018, which is wha you would see if you run the code.</p>"
+    },
+    {
+      "id": "canterbury-634431",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-Arrays",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>Suppose you are trying to choose between an array and a singly linked list to store the data in your program. Which data structure must be traversed one element at a time to reach a particular point?</p>",
+      "choices": [
+        "<p>an array</p>",
+        "<p>a linked list</p>",
+        "<p>both</p>",
+        "<p>neither</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>In a basic linked list, each element is connected to the one after it. To reach a given element, you must start with the first node, if it's not the one you want, follow the link to the next one, and so forth until you reach the end of the list. (These are called \"singly linked lists\"; it is also possible to construct a doubly linked list, where each node is connected to the previous *and* the next element.)&nbsp;</p>"
+    },
+    {
+      "id": "canterbury-634945",
+      "bloomLevel": 1,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-Assignment",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-WriteCode_MeansChooseOption",
+      "problemStatement": "<p>Richard has the following struct:</p>\n<p><br><code>struct node{</code></p>\n<pre lang=\"text/x-c\">    int val;\n    struct node *next;\n};\n</pre>\n<p><br>And he creates a node:<br><code>struct node **ptr = &amp;( malloc(sizeof(struct node)) );</code></p>\n<p><span style=\"font-family: arial,helvetica,sans-serif;\">Which of the following will NOT set ptr&rsquo;s associated val to 6?</span></p>",
+      "choices": [
+        "<p>(***ptr).val = 6</p>",
+        "<p>(**ptr).val = 6</p>",
+        "<p>(*ptr)-&gt;val = 6</p>"
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "<p>***ptr is not useful here</p>"
+    },
+    {
+      "id": "canterbury-627766",
+      "bloomLevel": 2,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-Recursion",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>Consider the following recursive method:</p>\n<pre lang=\"text/x-java\">public int examMethod(int n) {\n   if (n == 1) return 1;\n   else return (n + this.examMethod(n-1));\n}\n</pre>\n<p>&nbsp;</p>\n<p>What value is returned by the call <code>examMethod(16)</code>?</p>",
+      "choices": [
+        "<p>1</p>",
+        "<p>16</p>",
+        "<p>136</p>",
+        "<p>None of the above.</p>"
+      ],
+      "correctChoiceIndex": 2,
+      "referenceAnswerDescription": "<p>This method returns the sum of the numbers from 1 to the parameter n (as long as n is greater than or equal to 1).&nbsp;</p>"
+    },
+    {
+      "id": "canterbury-632575",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicWG-Hashing-HashTables",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>Suppose you place m items in a hash table with an&nbsp;array size of s. What is the correct formula for the load&nbsp;factor?</p>",
+      "choices": [
+        "<p>s + m</p>",
+        "<p>s &#8722; m</p>",
+        "<p>m &#8722; s</p>",
+        "<p>s/m</p>",
+        "<p>m/s</p>"
+      ],
+      "correctChoiceIndex": 4,
+      "referenceAnswerDescription": "<p>The load factor is the number of elements in the array, divided by the size of the array. It gives you an idea of how full the hashtable is.&nbsp;</p>"
+    },
+    {
+      "id": "canterbury-634916",
+      "bloomLevel": 2,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-LoopsSubsumesOperators",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-WriteCode_MeansChooseOption",
+      "problemStatement": "<p>The <strong>Fibonacci sequence</strong> is 0, 1, 1, 2, 3, 5, 8, 13 ... Any term (value) of the sequence that follows the first two terms (0 and 1) is equal to the sum of the preceding two terms. Consider the following incomplete method to compute any term of the Fibonacci sequence:</p>\n<pre lang=\"text/x-java\">public static int fibonacci(int term)\n{\n    int fib1 = 0;          // Line 1\n    int fib2 = 1;          // Line 2\n    int fibn = 0;          // Line 3\n    if (term == 1)         // Line 4\n    {\n        return fib1;       // Line 5\n    }\n    if (term == 2)         // Line 6\n    {\n        return fib2;       // Line 7\n    }\n    for (__________)       // Line 8: loop to the nth term\n    {\n        fibn = __________; // Line 9: compute the next term\n        fib1 = __________; // Line 10: reset the second preceding term\n        fib2 = __________; // Line 11: reset the immediate preceding term\n    }\n    return fibn;           // Line 12: return the computed term\n}\n<span style=\"font-family: arial, helvetica, sans-serif;\">Choose the best answer to fill in the blank on line 8.\n</span></pre>",
+      "choices": [
+        "<code>int n = 0; n &lt; term; n++</code>",
+        "<code>int n = 1; n &lt; term; n++</code>",
+        "<code>int n = 2; n &lt; term; n++</code>",
+        "<code>int n = 3; n &lt; term; n++</code>",
+        "<code>int n = 4; n &lt; term; n++</code>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>From the question, it is clear that the terms in the sequence are numbered starting at 1. &nbsp;The two base cases cover terms 1 and 2, and the loop must then repeat (term - 2) times in total. &nbsp;This will be achieved if the initial value on the loop counter is 1.</p>"
+    },
+    {
+      "id": "canterbury-633661",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-OOconcepts",
+      "courseLevel": "CS2",
+      "skillTag": "SkillWG-AnalyzeCode",
+      "problemStatement": "<p>Which of these relationships best exemplify the \"IS-A\" relationships in object-oriented programming (OOP)?</p>",
+      "choices": [
+        "<p>Empire State Building IS-A Building</p>",
+        "<p>Cat IS-A Mammal</p>",
+        "<p>Angry Cat IS-A Cat</p>\n<p>(Note that \"Angry Cat\" is a specific cat that has become an online internet meme)</p>",
+        "<p>All of the above</p>",
+        "<p>None of the above</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>A and C are wrong because the Empire State Building would be best be described as an instance of the category Cuilding, while Angry Cat is an instance of the category Cat.</p>\n<p>B is correct because Cat is a sub-category of Mammal, which best exemplifies the IS-A relations.&nbsp; In OOP, the IS-A relationship is used to denote relationships between classes, which are sort of like categories.</p>"
+    },
+    {
+      "id": "canterbury-632850",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-DataTypesAndVariables",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>What does this print when x is assigned 1?</p>\n<pre lang=\"text/x-java\">if (x==1) {\n   System.out.println(\"x is 1\");\n} if (x==2) {\n   System.out.println(\"x is 2\");\n} else {\n   System.out.println(\"not 1 or 2\");\n}\n</pre>",
+      "choices": [
+        "<p>x is 1</p>",
+        "<p>x is 2</p>",
+        "<p>x is 1</p>\n<p>x is 2</p>",
+        "<p>x is 1</p>\n<p>not 1 or 2</p>",
+        "<p>x is 2</p>\n<p>not 1 or 2</p>"
+      ],
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "<p>This code snipped does not have an else-if!&nbsp; It may as well be written like this:</p>\n<pre lang=\"text/x-java\">if (x==1) {\n   System.out.println(\"x is 1\");\n}\nif (x==2) {\n   System.out.println(\"x is 2\");\n} else {\n   System.out.println(\"not 1 or 2\");\n}\n</pre>\n<p>&nbsp;</p>\n<p>So when x==1, clearly we get \"x is 1\" printed, bu since 1 does not equal 2, we also get \"not 1 or 2\" with the else.</p>\n<p>Be aware of when you are using an if, and when are are using an else-if, because they are quite different!</p>"
+    },
+    {
+      "id": "canterbury-634127",
+      "bloomLevel": 1,
+      "difficulty": "medium",
+      "topicTag": "TopicSimon-DataTypesAndVariables",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-Trace_IncludesExpressions",
+      "problemStatement": "<p>In C, which of the following will return 1, if s1 = \"hi\" and s2 = \"hi\"? Circle all that apply.</p>",
+      "choices": [
+        "<p>s1 == s2</p>",
+        "<p>strcmp(s1, s2)</p>",
+        "<p>strlen(s1)</p>",
+        "<p>s1 == \"hi\"</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>C is not Python! Only strcmp will do what Python and similar languages would do. (My CS2 students come into C having learnt Python.)</p>"
+    },
+    {
+      "id": "canterbury-633291",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-AlgorithmComplex-BigO",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>Inserting a node into a heap is</p>",
+      "choices": [
+        "<p>O(1)</p>",
+        "<p>O(log N)</p>",
+        "<p>O(N)</p>",
+        "<p>O(N log N)</p>",
+        "<p>O(N<sup>2</sup>)</p>"
+      ],
+      "correctChoiceIndex": 1,
+      "referenceAnswerDescription": "<p>Inserting a node involves putting the new node into the bottom level of the heap and trickling up, possibly to the root level. Since heaps are balanced and the number of levels is log N, the performance is O(log N).</p>"
+    },
+    {
+      "id": "canterbury-635037",
+      "bloomLevel": 3,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-AlgorithmComplex-BigO",
+      "courseLevel": "CS1",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>A given O(n<sup>2</sup>) algorithm takes five seconds to execute on a data set size of 100. &nbsp;Using the same computer and the same algorithm, how many seconds should this algorithm run for when executed on a data set of size 500?</p>",
+      "choices": [
+        "<p>25 seconds</p>",
+        "<p>100 seconds</p>",
+        "<p>42 seconds</p>",
+        "<p>125 seconds</p>",
+        "<p>None of the above.</p>"
+      ],
+      "correctChoiceIndex": 3,
+      "referenceAnswerDescription": "<p>Quadratic algorithms represent an n<sup>2</sup> increase in run time. &nbsp;Hence if the data set size increases by a factor of &nbsp;five, for a quadratic algorithm, the increase in run time becomes a factor of 25. &nbsp;Hence 25 times 5 (base run time) is 125.</p>"
+    },
+    {
+      "id": "canterbury-632280",
+      "bloomLevel": 1,
+      "difficulty": "easy",
+      "topicTag": "TopicSimon-Arrays",
+      "courseLevel": "CS2",
+      "skillTag": "Skill-PureKnowledgeRecall",
+      "problemStatement": "<p>If the StackADT operation <code>push</code> is implemented using a linked list, the big-Oh time complexity of the method is:</p>",
+      "choices": [
+        "<p>O(1)</p>",
+        "<p>O(log<sub>2</sub>n)</p>",
+        "<p>O(n)</p>",
+        "<p>O(n<sup>2</sup>)</p>",
+        "<p>O(2<sup>n</sup>)</p>"
+      ],
+      "correctChoiceIndex": 0,
+      "referenceAnswerDescription": "<p>The push method adds a new element to a stack. Regardless of the size of the list, the operations needed to add a new element include creating a node to store it in and setting the values of a few pointers, all of which can be done in constant time.&nbsp;</p>"
+    }
+  ]
+}

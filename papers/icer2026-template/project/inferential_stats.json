@@ -1,7 +1,7 @@
 {
   "inputs": {
-    "raw_path": "/root/clawd/code/aitutorscript/results/run_2026-02-24T23-50-44-586Z_merged_2026-02-26T22-58-06-051Z/raw.jsonl",
-    "accuracy_path": "/root/clawd/code/aitutorscript/results/mcq_accuracy_2026-02-24T04-24-19-103Z.jsonl"
+    "raw_path": "results/run_2026-02-24T23-50-44-586Z_merged_2026-02-26T22-58-06-051Z/raw.jsonl",
+    "accuracy_path": "results/mcq_accuracy_2026-02-24T04-24-19-103Z.jsonl"
   },
   "effect_size_guide": {
     "single_vs_dual_leakage": {

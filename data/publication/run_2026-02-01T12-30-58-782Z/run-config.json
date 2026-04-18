@@ -1,0 +1,61 @@
+{
+  "runId": "run_2026-02-01T12-30-58-782Z",
+  "createdAtIso": "2026-02-01T12:30:58.782Z",
+  "args": {
+    "questionsPerCell": 1,
+    "bloomLevels": [
+      1,
+      2,
+      3
+    ],
+    "difficulties": [
+      "easy",
+      "medium",
+      "hard"
+    ],
+    "dataset": "canterbury",
+    "questionLimit": 150,
+    "courseLevels": [],
+    "skillTags": [],
+    "turns": 6,
+    "maxIters": 5,
+    "maxRuns": null,
+    "parallel": 5,
+    "earlyStop": true,
+    "outDir": "results",
+    "pairings": [
+      "gpt-gpt",
+      "gemini-gemini",
+      "gpt-gemini",
+      "gemini-gpt"
+    ],
+    "tutors": [
+      "gpt",
+      "gemini"
+    ],
+    "supervisors": [
+      "gpt",
+      "gemini"
+    ],
+    "conditions": [
+      "single",
+      "dual-loop"
+    ],
+    "questionModel": "google/gemini-3-flash-preview",
+    "studentModel": "google/gemini-3-flash-preview",
+    "judgeModel": "google/gemini-3-flash-preview",
+    "enableJudge": true,
+    "dynamicQuestions": false,
+    "smoke": false,
+    "verbose": false
+  },
+  "envSummary": {
+    "present": {
+      "OPENROUTER_API_KEY": true,
+      "OPENAI_API_KEY": false,
+      "GOOGLE_GENERATIVE_AI_API_KEY": false,
+      "NODE_ENV": false
+    },
+    "hasDotEnvFile": true
+  }
+}
